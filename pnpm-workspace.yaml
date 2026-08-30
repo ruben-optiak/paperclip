@@ -9,6 +9,9 @@ packages:
   # Keep this smoke fixture installable as a local plugin example without
   # forcing PRs to commit pnpm-lock.yaml for a new workspace importer.
   - "!packages/plugins/examples/plugin-orchestration-smoke-example"
+  # Private company connectors stay isolated from the Paperclip core while
+  # still sharing the version-pinned plugin SDK in this fork.
+  - companies/*/connectors/telegram-gateway
   - server
   - ui
   - cli

@@ -77,7 +77,7 @@ const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md schema must be agentcompanies/v1");
 if (company.slug !== "enki-hogar-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.2") fail("Unexpected package version");
+if (company.version !== "0.2.0") fail("Unexpected package version");
 if (company.license !== "MIT AND LicenseRef-Enki-Hogar-Internal") fail("Unexpected package license; mixed package scope must be explicit");
 for (const required of [
   "LICENSE",
@@ -266,10 +266,12 @@ for (const expected of [
 
 const compatibility = jsonYaml("runtime/compatibility.lock.yaml");
 if (compatibility.schema !== "enki-runtime-compatibility/v1") fail("Unexpected runtime compatibility schema");
-if (compatibility.packageVersion !== "0.1.2") fail("Compatibility lock package version must match 0.1.2");
+if (compatibility.packageVersion !== "0.2.0") fail("Compatibility lock package version must match 0.2.0");
 if (compatibility.paperclipBundleSchemaVersion !== 7) fail("Compatibility lock must target bundle schemaVersion 7");
 if (compatibility.connectors?.woocommerce?.version !== "0.1.1") fail("Compatibility lock must pin WooCommerce connector 0.1.1");
 if (compatibility.connectors?.google?.version !== "0.1.1") fail("Compatibility lock must pin Google connector runtime 0.1.1");
+if (compatibility.connectors?.telegramGateway?.version !== "0.2.0") fail("Compatibility lock must pin Telegram gateway 0.2.0");
+if (compatibility.connectors?.telegramGateway?.pluginApiVersion !== 1) fail("Telegram gateway must target plugin API v1");
 if (compatibility.paperclip?.upstreamBaseCommit !== "35fca95626a04f5a7ec42cf95989c3d779a1687e") fail("Compatibility lock must identify the reviewed Paperclip base commit");
 if (compatibility.codex?.managedMcpDefaultToolsApprovalMode !== "approve") fail("Compatibility lock must delegate managed MCP dispatch approval to the Paperclip gateway");
 if (!String(compatibility.codex?.managedMcpApprovalModeStatus || "").includes("verified")) fail("Managed MCP approval mode must carry verified runtime evidence");
@@ -298,6 +300,38 @@ const googleDockerfile = readFileSync(join(packageDir, "connectors", "google-mcp
 if (!wooDockerfile.includes(`FROM ${nodeImagePin}`) || !googleDockerfile.includes(`FROM ${nodeImagePin} AS node-runtime`)) fail("Connector Dockerfiles must consume the verified Node digest");
 if (!googleDockerfile.includes(`FROM ${uvImagePin}`)) fail("Google connector Dockerfile must consume the verified uv digest");
 
+const telegramPackage = jsonYaml("connectors/telegram-gateway/package.json");
+if (telegramPackage.name !== "@enki-hogar/telegram-gateway" || telegramPackage.version !== "0.2.0") fail("Unexpected Telegram plugin package identity");
+const telegramManifest = readFileSync(join(packageDir, "connectors", "telegram-gateway", "src", "manifest.ts"), "utf8");
+for (const capability of [
+  "issues.read",
+  "issues.create",
+  "issues.wakeup",
+  "issue.comments.read",
+  "issue.comments.create",
+  "issue.comments.create_human_attributed",
+  "agents.read",
+  "access.members.read",
+  "events.subscribe",
+  "plugin.state.read",
+  "plugin.state.write",
+  "secrets.read-ref",
+  "http.outbound",
+]) if (!telegramManifest.includes(`\"${capability}\"`)) fail(`Telegram manifest is missing capability: ${capability}`);
+for (const forbiddenCapability of [
+  "approvals.respond",
+  "issue.interactions.respond",
+  "agents.invoke",
+  "agents.resume",
+  "issues.update",
+]) if (telegramManifest.includes(`\"${forbiddenCapability}\"`)) fail(`Telegram manifest must not declare capability: ${forbiddenCapability}`);
+if (!/botToken:\s*\{[\s\S]{0,480}?type:\s*"object"[\s\S]{0,240}?format:\s*"secret-ref"/.test(telegramManifest)) fail("Telegram bot token must use an object-shaped Paperclip secret-ref config field");
+const telegramWorker = readFileSync(join(packageDir, "connectors", "telegram-gateway", "src", "worker.ts"), "utf8");
+if (!/multiCompanyConfig:\s*true/.test(telegramWorker)) fail("Telegram gateway must keep company-scoped multi-company configuration");
+if (!/events\.on\(eventType,\s*\{ companyId \}/.test(telegramWorker)) fail("Telegram event subscriptions must be filtered by configured company");
+const telegramCompose = readFileSync(join(packageDir, "runtime", "docker-compose.integrations.yml"), "utf8");
+if (!/\/plugins\/enki-telegram-gateway:ro/.test(telegramCompose)) fail("Compose must mount the Telegram plugin read-only");
+
 const desired = jsonYaml("policies/desired-state.yaml");
 if (desired.schema !== "enki-runtime-desired-state/v1" || desired.mode !== "audit-only") fail("Desired state must be audit-only enki-runtime-desired-state/v1");
 if (desired.rejectUnexpectedActiveConnections !== true) fail("Desired state must reject unexpected active connections");
@@ -310,6 +344,11 @@ if (desired.rejectPersistentGatewayTokens !== true) fail("Desired state must rej
 if (desired.rejectUnexpectedRoutines !== true) fail("Desired state must reject unexpected routines");
 if (desired.requirePositiveMonthlyBudget !== true) fail("Desired state must require positive agent budget hard caps");
 if (desired.requirePositiveCompanyMonthlyBudget !== true) fail("Desired state must require a positive company budget hard cap");
+if (desired.plugins?.length !== 1 || desired.plugins[0]?.pluginId !== "enki-hogar.telegram-gateway" || desired.plugins[0]?.version !== "0.2.0") fail("Desired state must pin the Enki Telegram gateway plugin");
+if (desired.plugins?.[0]?.approvalDecisions !== "ui_only" || desired.plugins?.[0]?.requireActiveHumanAttribution !== true) fail("Telegram desired state must keep approval decisions in the UI and require human attribution");
+for (const forbiddenCapability of ["approvals.respond", "issue.interactions.respond", "agents.invoke", "agents.resume", "issues.update"]) {
+  if (!(desired.plugins?.[0]?.forbiddenCapabilities || []).includes(forbiddenCapability)) fail(`Telegram desired state must forbid capability: ${forbiddenCapability}`);
+}
 if (desired.connections?.length !== 4 || desired.profiles?.length !== 6 || desired.policies?.length !== 1 || desired.gateways?.length !== 6) fail("Desired state must define 4 connections, 6 profiles, 1 global block policy, and 6 governed gateways");
 const desiredToolNames = new Set((desired.connections || []).flatMap((connection) => connection.tools || []));
 const analyticsProxy = jsonYaml("connectors/google-mcps/config/analytics-proxy.json");

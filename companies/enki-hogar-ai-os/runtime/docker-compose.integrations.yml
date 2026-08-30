@@ -1,4 +1,10 @@
 services:
+  paperclip:
+    volumes:
+      # Built on the host and installed from this container-visible path.
+      # No Telegram secret is projected through Compose.
+      - "../companies/enki-hogar-ai-os/connectors/telegram-gateway:/plugins/enki-telegram-gateway:ro"
+
   enki-woocommerce-mcp:
     build:
       # Compose resolves relative paths against the first -f file. The supported

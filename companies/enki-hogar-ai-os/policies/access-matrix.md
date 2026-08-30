@@ -10,6 +10,7 @@ Connections and per-agent policies are not currently portable in a company expor
 | Finance & BI | Woo aggregate sales/orders; Ads query | none by default | exact orders, PII, budgets, prices, refunds |
 | Technology | `/health`, versions, logs already redacted, tool catalogs | credential-presence check without values | secrets, deployment, restart, config/code mutation |
 | Customer Experience | product/policy reads | none | exact or bulk orders, customer data, messages, order changes, refunds |
+| Telegram gateway | allowlisted text → Director issues/comments; safe Director/routine summaries and approval notices | none | approval decisions, agent resume/invoke, issue mutation, tools, PII/secrets, customer/order details |
 
 Global v1 rules:
 
@@ -18,3 +19,4 @@ Global v1 rules:
 - Orange: publishing, campaigns, prices, stock, emails, indexing, feed, and web changes; blocked.
 - Red: PII, customer-level data, refunds, budgets, deployments, credentials, destructive or massive operations; blocked.
 - Tool catalog additions and semantic changes are quarantined until manual review.
+- Telegram is an untrusted transport edge even for an allowlisted account: it may request work, but Paperclip remains the sole task, identity, budget, policy, and approval authority.

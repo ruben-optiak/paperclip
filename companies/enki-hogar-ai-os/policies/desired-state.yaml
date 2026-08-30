@@ -12,6 +12,44 @@
   "rejectUnexpectedRoutines": true,
   "requirePositiveMonthlyBudget": true,
   "requirePositiveCompanyMonthlyBudget": true,
+  "plugins": [
+    {
+      "key": "telegram_gateway",
+      "pluginId": "enki-hogar.telegram-gateway",
+      "version": "0.2.0",
+      "installation": "instance_local_path",
+      "containerPath": "/plugins/enki-telegram-gateway",
+      "companyConfigEnabled": true,
+      "transport": "telegram_long_polling",
+      "secretConfigFields": ["botToken"],
+      "requireExactSenderAndChatAllowlists": true,
+      "requireActiveHumanAttribution": true,
+      "approvalDecisions": "ui_only",
+      "requiredCapabilities": [
+        "issues.read",
+        "issues.create",
+        "issues.wakeup",
+        "issue.comments.read",
+        "issue.comments.create",
+        "issue.comments.create_human_attributed",
+        "agents.read",
+        "access.members.read",
+        "events.subscribe",
+        "plugin.state.read",
+        "plugin.state.write",
+        "secrets.read-ref",
+        "http.outbound",
+        "ui.dashboardWidget.register"
+      ],
+      "forbiddenCapabilities": [
+        "approvals.respond",
+        "issue.interactions.respond",
+        "agents.invoke",
+        "agents.resume",
+        "issues.update"
+      ]
+    }
+  ],
   "agentRuntime": {
     "adapterType": "codex_local",
     "engine": "cli",

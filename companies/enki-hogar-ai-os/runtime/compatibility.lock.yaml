@@ -1,6 +1,6 @@
 {
   "schema": "enki-runtime-compatibility/v1",
-  "packageVersion": "0.1.2",
+  "packageVersion": "0.2.0",
   "recordedAt": "2026-08-30",
   "agentCompaniesSchema": "agentcompanies/v1",
   "paperclipBundleSchemaVersion": 7,
@@ -70,6 +70,13 @@
       "gscVersion": "1.1.0",
       "fastMcpVersion": "3.3.1",
       "dependencyStatus": "verified_from_manifests_and_locks"
+    },
+    "telegramGateway": {
+      "version": "0.2.0",
+      "pluginApiVersion": 1,
+      "pluginSdk": "workspace:@paperclipai/plugin-sdk@1.0.0",
+      "transport": "telegram-bot-api-long-polling",
+      "dependencyStatus": "verified_from_workspace_lock"
     }
   },
   "releaseEvidence": {

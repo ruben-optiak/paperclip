@@ -129,6 +129,83 @@ The OAuth client JSON, ADC JSON, GSC `tokens.json`, developer token, client secr
 
 Generate `GOOGLE_MCP_TOKEN` independently from Google credentials, for example with `openssl rand -hex 32`. Store the result only in the private Compose environment and in Paperclip's secret vault as the Bearer value for the three Google connections.
 
+## Telegram Director gateway
+
+Telegram is a Paperclip plugin, not an MCP connection and not an agent credential. It creates ordinary audited issues/comments and has no capability to decide approvals, invoke agents directly, resume agents, update issues, or call business systems.
+
+### 1. Create the private bot and discover IDs
+
+In Telegram, use the official `@BotFather` account to create a dedicated bot. Disable group joining unless a group is explicitly required, keep the bot private, and send `/start` to it from the account that will operate Enki.
+
+Do not put the BotFather token in a command argument, `.env`, issue, or file. From the repository root, read it silently and pipe it to the ID-only helper:
+
+```sh
+read -r -s ENKI_TELEGRAM_DISCOVERY_TOKEN
+printf '\n'
+printf '%s' "$ENKI_TELEGRAM_DISCOVERY_TOKEN" \
+  | pnpm --filter @enki-hogar/telegram-gateway discover-ids
+unset ENKI_TELEGRAM_DISCOVERY_TOKEN
+```
+
+Record the `userId` and private `chatId` in your password manager or deployment notes. The helper prints no message bodies and does not advance Telegram's update offset. If no update appears, send `/start` again and retry. A bot cannot initiate the first conversation.
+
+Find the current Paperclip human user ID (`principalId`) without copying session credentials into a command:
+
+```sh
+pnpm paperclipai member list --company-id <enki-company-id> --json
+```
+
+Select the active non-viewer human member that represents you. Do not use the membership row `id`; configure its `principalId` as `paperclipUserId`. The plugin revalidates that this principal remains active and writable before every inbound command and outbound event; the Paperclip host independently verifies human-attributed comments.
+
+### 2. Store the token and install the mounted plugin
+
+Create a company secret in **Company settings → Secrets**, for example `enki-telegram-bot-token`, and paste the token there once. The plugin config binds the resulting secret reference. There is deliberately no `TELEGRAM_BOT_TOKEN` environment variable.
+
+In the plugin form, select that existing secret with the picker. Do not use **Or paste a raw value**: this gateway deliberately accepts only the object-shaped Paperclip secret reference, and the API rejects a raw token before saving configuration.
+
+Ensure the combined Compose stack is running and `dist/` was built as described in [local setup](local-setup.md). The host folder is mounted read-only inside Paperclip at `/plugins/enki-telegram-gateway`. With the already authenticated CLI:
+
+```sh
+pnpm paperclipai plugin target
+pnpm paperclipai plugin install /plugins/enki-telegram-gateway --local
+pnpm paperclipai plugin inspect enki-hogar.telegram-gateway
+```
+
+Read the target diagnostic before confirming the install. The path passed to the CLI is intentionally the path visible to the Paperclip server inside Docker, not a host absolute path. Plugin installation is instance-wide; its configuration and runtime state are company-scoped.
+
+### 3. Configure the Enki company
+
+Open **Company settings → Instance → Plugins → Enki Telegram Gateway** and set:
+
+| Field | Value |
+| --- | --- |
+| Enable Telegram gateway | on only when ready to start the smoke test |
+| Telegram bot token | the Paperclip Secret reference created above |
+| Paperclip user ID | your active member `principalId` |
+| Allowed Telegram user IDs | the exact numeric `userId` from discovery |
+| Allowed Telegram chat IDs | the exact private `chatId` from discovery |
+| Report destination chat ID | the same private `chatId` for v0.2.0 |
+| Director agent ID | leave empty to resolve the unique Enki Director; set the runtime UUID only if resolution is ambiguous |
+| Paperclip URL visible from your phone | HTTPS company-board base URL, or empty while testing locally |
+| Notifications | approvals, routine reports, and Director replies enabled |
+
+Save, open the dashboard widget, and run **Probar conexión**. Require a verified bot username, the expected Director, and a recent successful poll. `conflict` means the bot still has a webhook or another `getUpdates` poller. v0.2.0 supports exactly one active long-polling worker per bot; do not run the same token in a second Paperclip replica.
+
+### 4. Smoke test
+
+1. Send `/help`; confirm it states that approvals stay in Paperclip.
+2. Send a harmless request such as `Resume las prioridades abiertas sin ejecutar cambios`.
+3. Confirm one issue with origin `plugin:enki-hogar.telegram-gateway`, assigned to the Director and attributed to your Paperclip user.
+4. Reply to the bot acknowledgement; confirm one human-attributed comment appears on that issue.
+5. Replay or resend the same Telegram update in a test fixture and confirm no duplicate issue.
+6. Create a harmless pending approval in Paperclip; confirm Telegram receives only its type and UI link, with no approval/reject control.
+7. Send a synthetic email/order reference inbound; confirm the bot rejects it and Paperclip creates no issue/comment.
+8. Confirm the same synthetic content is replaced by the protected-content notice on outbound relay.
+
+If the Director is paused or budget-blocked, the request is still registered but the bot states that it could not start. This is expected and does not authorize the plugin to resume the Director. Resolve the condition in Paperclip and send a new message.
+
+Telegram is not suitable for secrets, customer PII, exact orders, payment data, or approval rationale. Use the authenticated Paperclip UI for those workflows. To stop the channel immediately, disable the company plugin config and rotate/revoke the bot token in BotFather; keep the issue history for audit.
+
 ## Codex
 
 For every imported `codex_local` agent, verify the managed home is authenticated in the instance. A host Codex login is not automatically the login of an isolated managed home unless it is mounted or bootstrapped according to Paperclip's supported flow. Never copy a token into this package.

@@ -4,7 +4,7 @@ Fecha: 2026-08-29
 Rama: `feat/enki-hogar-approach`
 Paquete: `companies/enki-hogar-ai-os/`
 Versión inicial: `0.1.0`
-Versión actual: `0.1.2`
+Versión actual: `0.2.0`
 
 ## Objetivo
 
@@ -23,6 +23,7 @@ No se cambia la UI, el contrato de API, el esquema de base de datos ni las migra
 - [x] Runtimes fijados para Google Ads, GA4 y GSC, protegidos con bearer y catálogos de lectura.
 - [x] Contrato común `enki-evidence-envelope/v1` y definiciones canónicas de métricas, moneda, IVA, devoluciones, ROAS, CAC y margen desconocido.
 - [x] Compose adicional, `.env.example`, matriz de secretos y endpoints de salud no sensibles.
+- [x] Plugin Telegram versionado: allowlist de usuario/chat, atribución humana, issues/comentarios auditados, reportes filtrados y avisos de aprobación sin capacidad de decisión.
 - [x] Preflight seguro del gateway para demostrar lectura permitida, escritura denegada y auditoría antes de conectar Enki.
 - [x] Desired state y detector GET-only de drift para conexiones, catálogos, perfiles, políticas, gateways por agente, runtimes, homes, presupuestos y rutinas.
 - [x] Aislamiento por workspace y home gestionado; filesystem read-only con Landlock, proceso Codex no interactivo y sin secretos de conectores en agentes. Codex autoriza el despacho MCP, pero Paperclip conserva la decisión allow/deny/approval.
@@ -37,7 +38,8 @@ No se cambia la UI, el contrato de API, el esquema de base de datos ni las migra
 - [x] Named-gateway smoke con sesión Board real: dos catálogos exactos, tres lecturas Google reales, una denegación default y restauración completa del estado pausado.
 - [x] Smoke test con cuentas reales y activación individual: los cinco especialistas y el Director han superado el perímetro read-only/zero-PII; los informes del Director son operativamente `PARTIAL` porque declaran fuentes y decisiones todavía ausentes.
 - [x] Ejecución manual de Daily Brief y Weekly Review con un único run cada una, disposición terminal y restauración posterior del Director a `paused`.
-- [ ] Activación de horarios — requiere decisión explícita de Board; el desired state de v0.1.2 mantiene ambas rutinas pausadas y sus triggers deshabilitados.
+- [ ] Instalación/configuración del plugin Telegram en la instancia local y smoke con bot/IDs reales; el código y el mount están listos, pero la instancia todavía no tiene plugins instalados.
+- [ ] Activación de horarios — requiere decisión explícita de Board; el desired state de v0.2.0 mantiene ambas rutinas pausadas y sus triggers deshabilitados.
 
 El preview anterior de cinco agentes y siete skills queda superado por el hardening de v0.1.0 y no cuenta como evidencia de la versión actual.
 
@@ -85,6 +87,15 @@ Las incompatibilidades del core detectadas durante los smokes quedan corregidas.
 - ENK-15 ejecutó manualmente la Weekly Review sin nuevas lecturas de negocio: usó el estado de Paperclip y ENK-14 como evidencia histórica, produjo prioridades y handoffs con owner, terminó `succeeded` y no creó tareas ni mutaciones. Su resultado operativo también es `PARTIAL` por backlog, fuentes y decisiones pendientes.
 - Un comentario humano sobre un issue `done` se interpreta como seguimiento y lo reabre a `todo`; con el assignee pausado, recovery puede escalarlo a `blocked`. La verificación se registra antes del cierre o se restaura `done` sin otro comentario. ENK-14 y ENK-15 quedaron `done`, los seis agentes y las dos rutinas `paused`, los triggers deshabilitados y cero runs vivos.
 
+### Versión 0.2.0 — canal Telegram gobernado (2026-08-30)
+
+- Se añade `enki-hogar.telegram-gateway` como plugin nativo de Paperclip, montado de solo lectura en Docker y configurado por compañía.
+- Un mensaje allowlisted crea un issue asignado al Director; una respuesta añade un comentario atribuido al usuario humano activo. El plugin nunca ejecuta directamente tools, shell, MCP ni mutaciones de negocio.
+- El manifest no declara `approvals.respond`, `issue.interactions.respond`, `agents.invoke`, `agents.resume` ni `issues.update`. Las aprobaciones solo generan una notificación con enlace y se deciden en la UI.
+- El token de BotFather usa `secret-ref` y se resuelve en cada llamada. No existe variable Telegram en `.env`, Compose ni entornos de agentes.
+- La entrada y la salida aplican deduplicación, rate limit, destino exacto y bloqueo de contenido con aspecto de PII, pedido o credencial. Los errores enviados son genéricos y no contienen respuestas remotas.
+- Trece pruebas del plugin cubren capacidades, secret-ref, allowlist, identidad humana writable, raíz Director, deduplicación, atribución, apagado durante long poll, denegación de aprobaciones y filtrado sensible.
+
 ## Organización
 
 El flujo es hub-and-spoke, sin Chief of Staff:
@@ -101,7 +112,7 @@ Board / usuario
 
 El Director es la única raíz compatible con el rol interno CEO de Paperclip, pero no obtiene autoridad de Board. El usuario puede asignar issues directamente a cualquier especialista. Ecommerce es owner del catálogo, stock, producto y evidencia de Merchant; Growth es owner de SEO, adquisición y oportunidades; Finance valida rentabilidad; Technology opera diagnósticos; CX produce únicamente borradores con contexto anonimizado.
 
-## Fronteras de autonomía v0.1.x
+## Fronteras de autonomía v0.2.0
 
 - Verde: lecturas autorizadas, análisis, comparativas, evidencias, delegación interna y borradores locales.
 - Amarillo: propuestas para incorporar una nueva fuente, herramienta, conexión, perfil, agente o rutina; requieren revisión Board antes de configurar nada.
@@ -129,11 +140,12 @@ No se exige igualdad byte a byte entre ambos. La compatibilidad se demuestra med
 7. Construir el ZIP determinista con `scripts/build-import-zip.sh` y guardar el SHA-256.
 8. Ejecutar el preview UI sobre la compañía existente y exigir 6 agentes, 8 skills, 4 proyectos, 9 tareas, 2 rutinas, una raíz y cero colisiones.
 9. Importar con todo pausado y ejecutar en el host de Paperclip el kill switch documentado: `npx paperclipai routines disable-all --company-id <company-id> --json`.
-10. Configurar conexiones, perfiles y políticas siguiendo los runbooks; mantener installs vacíos y reconciliar por API los seis gateways agent-scoped en estado disabled.
+10. Configurar conexiones, perfiles y políticas siguiendo los runbooks; mantener installs MCP vacíos y reconciliar por API los seis gateways agent-scoped en estado disabled.
 11. Ejecutar el detector de drift y exigir resultado limpio antes de activar nada.
 12. Verificar para cada agente: workspace y home únicos, escritura denegada en workspace/scratch/paquete y, cuando exista referencia explícita, workspace hermano; persistencia solo vía issue/work product, credenciales Codex válidas y ausencia de secretos de conectores.
 13. Activar especialistas uno a uno, después el Director, y ejecutar el smoke test manual.
-14. Ejecutar manualmente Daily Brief y Weekly Review; habilitar sus horarios uno a uno solo si ambos pasan.
+14. Instalar el plugin Telegram desde su mount del contenedor, configurarlo con secret-ref y allowlists exactas, y superar su smoke sin habilitar decisiones de aprobación.
+15. Ejecutar manualmente Daily Brief y Weekly Review; habilitar sus horarios uno a uno solo si ambos pasan.
 
 No usar `docker compose down -v`: el volumen de Paperclip contiene la base y los datos persistentes de la instancia.
 
@@ -145,15 +157,15 @@ El gate del paquete es:
 companies/enki-hogar-ai-os/scripts/check.sh
 ```
 
-Incluye validación estructural, licencia/procedencia, allowlist, hashes, rutas, secretos, configuración de runtime, skills autocontenidas y sus mirrors byte a byte del conocimiento canónico, brief con datos completos/parciales/obsoletos/caídos, contratos de evidencia y métricas, políticas, drift, gateway seguro, WordPress render/dry-run, MCP WooCommerce, PII, paginación, errores, rate limits y Compose. CI construye también las dos imágenes de conectores desde bases fijadas por digest.
+Incluye validación estructural, licencia/procedencia, allowlist, hashes, rutas, secretos, configuración de runtime, skills autocontenidas y sus mirrors byte a byte del conocimiento canónico, brief con datos completos/parciales/obsoletos/caídos, contratos de evidencia y métricas, políticas, drift, gateway MCP seguro, WordPress render/dry-run, MCP WooCommerce, plugin Telegram, PII, deduplicación, paginación, errores, rate limits y Compose. CI construye también las dos imágenes de conectores desde bases fijadas por digest.
 
 Las pruebas de portabilidad cubren creación y actualización con homes Codex gestionados por UUID, rechazo de overrides inseguros y export sin paths locales. Las pruebas del adaptador cubren que un home gestionado siga recibiendo la configuración de proveedores Codex. La autenticación de named gateways queda cubierta por 21 pruebas dirigidas del middleware y 51 pruebas del gateway, además del smoke real descrito arriba.
 
 Los gates globales del monorepo no están verdes en este host por causas ajenas al diff: `pnpm -r typecheck` y `pnpm build` llegan al runner Rust y paran porque `cargo` no está instalado; `pnpm test:run` alcanza `workspace-runtime.test.ts`, donde la configuración global `commit.gpgsign=true` rompe los repos Git efímeros sin TTY. Deshabilitando esa firma solo para el proceso pasan 150/154; los cuatro casos restantes reproducen diferencias locales de macOS (`/var` frente a `/private/var`), un timeout y su conflicto de puerto derivado. No existe diff de esta rama en `workspace-runtime.ts` ni en su test. Los typechecks TypeScript directos de server/adapter y todos los tests que cubren este cambio sí pasan.
 
-El preview e import sobre la compañía local, la autenticación Codex, el named-gateway smoke, los cinco pilotos de especialistas y los dos pilotos manuales del Director ya se completaron con sesión Board y sin conservar tokens temporales. Solo queda una decisión explícita de Board sobre la activación posterior de los horarios; hasta entonces el desired state exige rutinas y triggers pausados.
+El preview e import sobre la compañía local, la autenticación Codex, el named-gateway smoke, los cinco pilotos de especialistas y los dos pilotos manuales del Director ya se completaron con sesión Board y sin conservar tokens temporales. Para cerrar v0.2.0 todavía falta instalar/configurar el plugin Telegram y superar su smoke con identidades reales. La activación posterior de horarios seguirá siendo una decisión Board separada; hasta entonces el desired state exige rutinas y triggers pausados.
 
-## GO/NO-GO v0.1.x
+## GO/NO-GO v0.2.0
 
 La arquitectura pasa a la siguiente fase solo si, de forma repetible:
 
@@ -162,6 +174,7 @@ La arquitectura pasa a la siguiente fase solo si, de forma repetible:
 3. una tarea manual al Director produce un Daily Brief que distingue datos actuales, históricos, obsoletos y ausentes;
 4. el Director propone handoffs correctos a Ecommerce, Growth y Finance, con owner y evidencia, sin crearlos automáticamente durante el smoke;
 5. no se observa PII, mutación externa, publicación, contacto a cliente ni llamada no autorizada.
+6. Telegram acepta solo el usuario/chat exactos, crea trabajo atribuido en Paperclip, bloquea datos sensibles y deja toda decisión de aprobación en la UI.
 
 Hasta superar este hito no se añaden Merchant Center live, Meta, social, publicación, pricing ni mayor autonomía.
 
@@ -178,3 +191,4 @@ La infraestructura elegida deberá aportar PostgreSQL gestionado, almacenamiento
 - Los agentes pueden intentar alterar rutinas dentro de capacidades del producto; sus contratos lo prohíben y el detector marca cualquier rutina inesperada o activa.
 - Los valores finales de límites mensuales pertenecen a Board. El gate exige que sean positivos, pero el repositorio no inventa importes.
 - Los digests de las imágenes finales se completan durante el release; solo las imágenes base están fijadas en el árbol fuente.
+- El transporte Telegram v0.2.0 usa long polling y exige una única réplica activa por token. La promoción multi-réplica requerirá webhook HTTPS con verificación o coordinación de líder antes de escalar horizontalmente.

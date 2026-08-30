@@ -11,6 +11,10 @@
 - Redact names, email, phone, address, IDs, and raw payloads from logs and routine briefs.
 - Stop agents and routines on credential leakage, unknown tools, unredacted PII, unexpected writes, or target-environment ambiguity.
 - Keep connection installs empty. Deliver tools through exactly one agent-scoped named gateway per agent, backed by that agent's `catalog_entry` allowlist; never create a persistent `gateway_client` token.
+- Keep Telegram on one dedicated private bot and one active long poller. Require exact sender and chat allowlists plus an active Paperclip human-member mapping.
+- Treat Telegram input as an instruction to create/comment on Paperclip work, never as authority to run a shell command, invoke/resume an agent, mutate business data, or decide an approval.
+- Keep the Telegram plugin free of `approvals.respond`, `issue.interactions.respond`, `agents.invoke`, `agents.resume`, and `issues.update`; package validation and tests fail if those capabilities appear.
+- Do not send PII, exact-order context, credentials, approval rationale, raw errors, or tool output to Telegram. The outbound relay withholds likely sensitive content and links back to the authenticated UI.
 
 ## Residual outbound-network risk
 
@@ -20,4 +24,4 @@ Managed Codex MCP entries use `default_tools_approval_mode = "approve"`. This ap
 
 Treat this as an accepted local-v0.1 risk, not a complete egress boundary. Before wider production autonomy, validate Paperclip's `networkScope=allowlist` path with bwrap and migrate agents to an allowlist containing only Paperclip's control-plane endpoint. Do not claim destination-level egress isolation until that test has passed.
 
-For an incident: pause agents/routines, disconnect the affected MCP, preserve only redacted evidence, rotate credentials, review access logs, rerun tests/catalog checks, and obtain human approval before reconnection.
+For a Telegram incident: disable the plugin for the company, revoke/rotate the bot token through BotFather, review plugin/issue activity and the allowlists, then rerun the plugin smoke test before enabling it. For a connector or agent incident: pause agents/routines, disconnect the affected MCP, preserve only redacted evidence, rotate credentials, review access logs, rerun tests/catalog checks, and obtain human approval before reconnection.

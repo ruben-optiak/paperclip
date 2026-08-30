@@ -8,7 +8,7 @@ Portable `agentcompanies/v1` package for running a read-only, draft-only Enki Ho
 - Four initial projects, bootstrap tasks, and two paused routines.
 - Eight domain skills with examples and offline fixtures.
 - Curated, non-secret Enki knowledge with an allowlisted sync process.
-- A read-only WooCommerce MCP and pinned Google MCP runtime.
+- A read-only WooCommerce MCP, pinned Google MCP runtime, and audited Telegram gateway plugin.
 - Desired connection policy, six agent-scoped managed gateways, security controls, tests, and promotion runbooks.
 
 Instance data, Paperclip database rows, Codex homes, OAuth material, API credentials, customer data, and real `.env` files are intentionally not versioned.
@@ -28,10 +28,10 @@ The workflow is hub-and-spoke with no Chief of Staff layer and with direct Board
 
 ## Safe local path
 
-1. Copy `.env.example` to an untracked environment file outside Git and fill only connector-side credentials.
+1. Copy `.env.example` to an untracked environment file outside Git and fill only Woo/Google connector-side credentials. Store the Telegram token as a Paperclip Secret, never in `.env`.
 2. Follow [local setup](runbooks/local-setup.md), beginning with a company export backup.
-3. Install the locked offline-test dependencies with `npm --prefix companies/enki-hogar-ai-os/connectors/woocommerce-readonly-mcp ci --ignore-scripts`, then run `./companies/enki-hogar-ai-os/scripts/check.sh` before starting integrations.
-4. Build the import archive with `./companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.1.2.zip` and import that ZIP through the Paperclip UI using preview first.
+3. Install the locked workspace and offline-test dependencies, then run `./companies/enki-hogar-ai-os/scripts/check.sh` before starting integrations. This also builds and tests the Telegram plugin.
+4. Build the import archive with `./companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.2.0.zip` and import that ZIP through the Paperclip UI using preview first.
 5. Keep all agents and routines paused while configuring connections and the six disabled agent-scoped gateways; never use connection installs for Enki.
 
 For a new disposable company, the CLI can provide a partial topology preview:
@@ -49,12 +49,14 @@ restricted WordPress helper. This preview is useful for inspecting agents,
 projects, tasks, and collisions, but it is not an import-artifact validation and
 must not be applied.
 
-For v0.1.2, the only supported apply path is to upload the generated ZIP through
+For v0.2.0, the only supported apply path for the company is to upload the generated ZIP through
 the Paperclip UI. The UI sends the raw archive, preserving every allowlisted
 skill asset. Use its preview workflow for both existing and new companies so
 collisions and complete file contents are validated before import.
 
 Paperclip can assign Board work directly to any specialist even though specialists report to the Director.
+
+The Telegram plugin is installed separately at instance level after the company import. It converts authorized messages into ordinary audited issues/comments; it does not bypass Paperclip or expose approval decisions. See [connection setup](runbooks/connections.md#telegram-director-gateway).
 
 ## Safety boundary
 

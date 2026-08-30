@@ -66,6 +66,8 @@ is_allowed() {
   cd "$package_dir"
   find . -type f \
     ! -path './connectors/*/node_modules/*' \
+    ! -path './connectors/*/dist/*' \
+    ! -path './connectors/*/.paperclip-sdk/*' \
     ! -path './references/source-snapshots/*' \
     ! -path './.runtime-secrets/*' \
     ! -name '*.DS_Store' \

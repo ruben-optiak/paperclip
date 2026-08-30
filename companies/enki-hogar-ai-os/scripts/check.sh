@@ -18,6 +18,7 @@ node --check "$package_dir/scripts/gateway-preflight.mjs"
 node --check "$package_dir/scripts/reconcile-agent-gateways.mjs"
 node --test "$package_dir"/tests/*.test.mjs
 npm --prefix "$package_dir/connectors/woocommerce-readonly-mcp" test
+pnpm --dir "$repo_dir" --filter @enki-hogar/telegram-gateway check
 "$package_dir/scripts/build-import-zip.sh" "$build_check_dir/first.zip" >/dev/null
 "$package_dir/scripts/build-import-zip.sh" "$build_check_dir/second.zip" >/dev/null
 if ! cmp "$build_check_dir/first.zip" "$build_check_dir/second.zip"; then
@@ -58,6 +59,15 @@ for (const [serviceName, wanted] of Object.entries(expected)) {
       `${serviceName} build resolution mismatch: ${JSON.stringify(build)}; expected ${JSON.stringify(wanted)}`,
     );
   }
+}
+
+const paperclipMounts = config.services?.paperclip?.volumes ?? [];
+const telegramMount = paperclipMounts.find((mount) => mount.target === "/plugins/enki-telegram-gateway");
+const expectedTelegramSource = path.join(packageDir, "connectors/telegram-gateway");
+if (!telegramMount || path.resolve(telegramMount.source) !== path.resolve(expectedTelegramSource) || telegramMount.read_only !== true) {
+  throw new Error(
+    `Telegram plugin mount mismatch: ${JSON.stringify(telegramMount)}; expected read-only source ${expectedTelegramSource}`,
+  );
 }
 NODE
   echo "Combined quickstart + integrations Compose resolution passed."

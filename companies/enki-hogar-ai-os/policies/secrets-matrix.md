@@ -11,7 +11,8 @@ No real value belongs in Git, a company package, an issue, an agent workspace, o
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | GSC connector/auth helper | untracked host environment | Search Console OAuth client |
 | GSC token file | GSC connector only | read-only host directory mount | Search Console read scope |
 | `GOOGLE_MCP_TOKEN` | Paperclip connections + Google proxy | UI secret and untracked Compose environment | connector bearer only |
+| Telegram BotFather token | Telegram plugin only | company-scoped Paperclip Secret bound by secret reference | one dedicated private Enki bot |
 | Codex subscription login | Paperclip-managed, unique per-agent `CODEX_HOME` | Paperclip instance | agent execution only |
 | `OPENAI_API_KEY` | no consumer in v0.1.x | explicit empty plain value in every agent adapter | prevents inheritance or accidental API-key fallback |
 
-Rotate a credential if it appears in logs, source snapshots, import previews, issues, artifacts, or agent prompts. After rotation, rerun the secret scan and connector catalog checks.
+The Telegram token never belongs in `.env`, Compose, a command argument, plugin state, an agent environment, or an issue. Rotate a credential if it appears in logs, source snapshots, import previews, issues, artifacts, or agent prompts. After rotation, rerun the secret scan and connector/plugin checks.
