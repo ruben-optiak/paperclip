@@ -19,7 +19,7 @@ const {
   prepareAdapterExecutionTargetRuntime,
   startAdapterExecutionTargetPaperclipBridge,
 } = vi.hoisted(() => ({
-  runChildProcess: vi.fn(async () => ({
+  runChildProcess: vi.fn(async (..._args: unknown[]) => ({
     exitCode: 0,
     signal: null,
     timedOut: false,
@@ -230,5 +230,105 @@ describe("codex execute — outbound auth copy-back restore contribution", () =>
       expect(result.finalHostAuth, entry.name).toBe(entry.hostAuth);
       expect(result.finalHostMode, entry.name).toBe(0o600);
     }
+  });
+
+  it("merges configured providers into an explicit Paperclip-managed per-agent CODEX_HOME", async () => {
+    const rootDir = await mkdtemp(path.join(os.tmpdir(), "paperclip-codex-provider-merge-"));
+    cleanupDirs.push(rootDir);
+    const workspaceDir = path.join(rootDir, "workspace");
+    await mkdir(workspaceDir, { recursive: true });
+
+    const instanceId = "provider-merge-test";
+    const managedHome = path.join(
+      rootDir,
+      "instances",
+      instanceId,
+      "companies",
+      "company-1",
+      "agents",
+      "agent-1",
+      "codex-home",
+    );
+    const providers = JSON.stringify({
+      providers: {
+        bifrost: {
+          name: "Bifrost",
+          base_url: "http://gateway.internal/v1",
+          env_key: "OPENAI_API_KEY",
+          wire_api: "responses",
+        },
+      },
+      model_provider: "bifrost",
+    });
+    let mergedConfigAtExecution = "";
+    runChildProcess.mockImplementationOnce(async (...callArgs: unknown[]) => {
+      const options = callArgs[3] as { env: Record<string, string> };
+      expect(options.env.CODEX_HOME).toBe(managedHome);
+      mergedConfigAtExecution = await readFile(path.join(managedHome, "config.toml"), "utf8");
+      return {
+        exitCode: 0,
+        signal: null,
+        timedOut: false,
+        stdout: "",
+        stderr: "",
+        pid: 321,
+        startedAt: new Date().toISOString(),
+      };
+    });
+
+    const savedEnv = {
+      CODEX_HOME: process.env.CODEX_HOME,
+      PAPERCLIP_HOME: process.env.PAPERCLIP_HOME,
+      PAPERCLIP_INSTANCE_ID: process.env.PAPERCLIP_INSTANCE_ID,
+      PAPERCLIP_CODEX_AUTH_CACHE: process.env.PAPERCLIP_CODEX_AUTH_CACHE,
+    };
+    const logs: string[] = [];
+    try {
+      savedCodexHomeEnv = savedEnv.CODEX_HOME;
+      process.env.CODEX_HOME = path.join(rootDir, "shared-codex-home");
+      process.env.PAPERCLIP_HOME = rootDir;
+      process.env.PAPERCLIP_INSTANCE_ID = instanceId;
+      process.env.PAPERCLIP_CODEX_AUTH_CACHE = "false";
+
+      await execute({
+        runId: "run-provider-merge",
+        agent: {
+          id: "agent-1",
+          companyId: "company-1",
+          name: "CodexCoder",
+          adapterType: "codex_local",
+          adapterConfig: {},
+        },
+        runtime: { sessionId: null, sessionParams: null, sessionDisplayId: null, taskKey: null },
+        config: {
+          command: "codex",
+          engine: "cli",
+          env: {
+            CODEX_HOME: managedHome,
+            OPENAI_API_KEY: "sk-test",
+            PAPERCLIP_CODEX_PROVIDERS: providers,
+          },
+        },
+        context: {
+          paperclipWorkspace: {
+            cwd: workspaceDir,
+            source: "project_primary",
+          },
+        },
+        onLog: async (_stream, chunk) => {
+          logs.push(chunk);
+        },
+      });
+    } finally {
+      for (const [key, value] of Object.entries(savedEnv)) {
+        if (value === undefined) delete process.env[key];
+        else process.env[key] = value;
+      }
+    }
+
+    expect(mergedConfigAtExecution).toContain('model_provider = "bifrost"');
+    expect(mergedConfigAtExecution).toContain("[model_providers.bifrost]");
+    expect(mergedConfigAtExecution).toContain('base_url = "http://gateway.internal/v1"');
+    expect(logs.join("\n")).toContain("Merged 1 custom Codex model provider");
   });
 });

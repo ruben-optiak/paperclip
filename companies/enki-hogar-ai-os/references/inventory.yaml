@@ -1,0 +1,95 @@
+{
+  "schema": "enki-knowledge/v1",
+  "snapshotDate": "2026-08-29",
+  "source": {
+    "locator": "ENKI_KNOWLEDGE_SOURCE",
+    "revision": null,
+    "revisionStatus": "pending_source_revision_or_release_identifier",
+    "license": "LicenseRef-Enki-Hogar-Internal"
+  },
+  "curationMethod": "manual_distillation_from_allowlisted_sources",
+  "documents": [
+    {
+      "target": "curated/company-context.md",
+      "targetSha256": "e7a87a72275b6ab26665aefaf6982eeed5d8a7a0ca15bfdf20506af3be8ddae1",
+      "sourcePaths": ["docs/empresa.md"],
+      "sourceSha256Status": "pending_next_synchronized_snapshot",
+      "purpose": "Company positioning and operating context",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "curated/catalog-crm.md",
+      "targetSha256": "4ee712d757068c09c38ad7dc87410104e78912265182525518a0ac11b1367dc2",
+      "sourcePaths": ["docs/producto-crm.md"],
+      "sourceSha256Status": "pending_next_synchronized_snapshot",
+      "purpose": "Catalogue and CRM operating context",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "curated/brand-claims.md",
+      "targetSha256": "49c96e2a355f0dacf81da9e99a6da0f08f91c6907d799dd37a695ab5e810aa8a",
+      "sourcePaths": ["docs/empresa.md", "docs/producto-crm.md"],
+      "sourceSha256Status": "pending_next_synchronized_snapshot",
+      "purpose": "Confirmed positioning, evidence requirements, and explicit brand unknowns",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "curated/analytics-strategy.md",
+      "targetSha256": "76713c680c2c0138a3529318dff22c6853725f2f031f78718e48c0e26496cd47",
+      "sourcePaths": ["analytics/strategy.md", "analytics/backlog.md"],
+      "sourceSha256Status": "pending_next_synchronized_snapshot",
+      "purpose": "Strategy and prioritized analytics work",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "curated/tracking-baseline.md",
+      "targetSha256": "cbb29cb72f307de569f1a2ebdcc688c222634dcfe371bfe8749c30a7898f3fea",
+      "sourcePaths": ["analytics/change-log.md", "analytics/tracking/README.md"],
+      "sourceSha256Status": "pending_next_synchronized_snapshot",
+      "purpose": "Historical tracking baseline and known quality constraints",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "curated/seo-sem-baseline.md",
+      "targetSha256": "96ab3918f3d760032869d54e985cedb6457d8abd43b8eb526857e9eed0d2b8fc",
+      "sourcePaths": ["analytics/seo/performance-12m.md", "analytics/seo/search-console.md", "analytics/sem/audit.md", "analytics/sem/google-ads.md"],
+      "sourceSha256Status": "pending_next_synchronized_snapshot",
+      "purpose": "Historical SEO and SEM context",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "curated/catalog-schema.md",
+      "targetSha256": "513d9c626ab77891f44f4bbc87014311a75374546e9f762f4676466768cca5b6",
+      "sourcePaths": ["productos/SCHEMA.md", "productos/ATTRIBUTE_MODEL.md"],
+      "sourceSha256Status": "pending_next_synchronized_snapshot",
+      "purpose": "Catalogue entities, fields, and attribute rules",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "curated/catalog-validation-playbook.md",
+      "targetSha256": "b9a3457162750e5971485787b8940bf08d9e936198f24bcb6e591ca22db491af",
+      "sourcePaths": ["productos/QA_POLICY.md", "productos/VALIDATION_PLAYBOOK.md"],
+      "sourceSha256Status": "pending_next_synchronized_snapshot",
+      "purpose": "Evidence and approval workflow for catalogue changes",
+      "sensitivity": "enki_internal"
+    }
+  ],
+  "internalDocuments": [
+    {
+      "target": "metrics/metric-contracts.yaml",
+      "targetSha256": "a0439bd2020e03c8278508f83246c1b64e942028a62d7fa27f3e0de51fec585a",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Versioned definitions and quality rules for commerce, advertising, acquisition and margin metrics",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/evidence-envelope-v1.schema.json",
+      "targetSha256": "5a7731f904f3739834d55910c46954f47dc38d368ace16ebfc7df58ebb4143a6",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Canonical machine-readable envelope for live, partial, stale and unavailable evidence",
+      "sensitivity": "enki_internal"
+    }
+  ]
+}

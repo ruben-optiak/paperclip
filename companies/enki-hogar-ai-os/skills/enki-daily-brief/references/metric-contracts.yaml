@@ -1,0 +1,131 @@
+schema: enki-metrics/v1
+version: 1
+timezone: Europe/Madrid
+evidenceEnvelope: ../contracts/evidence-envelope-v1.schema.json
+
+normalization:
+  canonicalSchema: enki-evidence-envelope/v1
+  woocommerce: "The Enki WooCommerce connector emits the canonical envelope natively"
+  thirdPartyUpstreams: "Do not rewrite GA4, GSC or Google Ads servers; immediately wrap each raw response at the Enki normalization boundary before any calculation or brief use"
+  requiredMetadata: [source, fetched_at, period_start, period_end, timezone, currency, currencies, status, freshness, partial, warnings, contracts]
+  failClosed: "Reject raw or legacy ad-hoc source objects that are not a valid canonical envelope"
+  rawPayloadRule: "Keep an accepted raw payload only inside envelope.data; never infer missing metadata from narrative context"
+
+representation:
+  monetaryValues: "Exact decimal strings; never binary floating-point numbers"
+  currency: "ISO-style three-letter code on every monetary bucket"
+  mixedCurrencies: "Report one bucket per currency; never add or compare currencies without an approved FX source"
+  missing: "null with quality=incomplete or quality=unavailable; never coerce missing or invalid input to zero"
+  zero: "Allowed only when the complete source set explicitly sums to zero or is an explicitly complete empty set"
+
+periods:
+  businessTimezone: Europe/Madrid
+  boundaryRule: "Calendar-day boundaries are converted from Europe/Madrid to UTC, including DST transitions"
+  wooOrderBasis: "WooCommerce order creation time filtered with inclusive after/before instants"
+
+woocommerceSalesRecognition:
+  includedCurrentStatuses:
+    - processing
+    - completed
+    - refunded
+  excludedCurrentStatuses:
+    - pending
+    - on-hold
+    - cancelled
+    - failed
+    - trash
+    - checkout-draft
+  rationale: "Processing and completed represent paid orders; refunded preserves the original paid order so explicit refunds can be reported"
+  validation: "Query every included status separately, reject unexpected returned statuses, and deduplicate by order id before aggregation"
+  limitation: "WooCommerce exposes current status, so later status changes can alter a historical query; preserve fetched_at and period on every result"
+
+metrics:
+  orders:
+    unit: count
+    definition: "Count of unique orders in the requested status set and period"
+    salesDefinition: "Recognized sales order count uses only woocommerceSalesRecognition.includedCurrentStatuses"
+    operationalDefinition: "Operational order summary may filter any validated Woo status but must not be labelled sales"
+
+  gross_revenue:
+    source: woocommerce.order.total
+    unit: currency
+    formula: "sum(order.total) for recognized, deduplicated orders"
+    includes: "VAT/tax, shipping and fees represented inside Woo order.total"
+    excludes: "Explicit refund subtraction and accounting adjustments outside WooCommerce"
+    discountTreatment: "Woo order.total already reflects discounts; discount_total is informative and must not be subtracted again"
+    warning: "This is gross checkout revenue, not profit or statutory accounting revenue"
+
+  refund_total:
+    source: woocommerce.order.refunds[].total
+    unit: currency
+    formula: "sum(abs(refund.total)) for explicit refunds on recognized orders"
+    rule: "Missing or invalid refund fields make the metric incomplete; they are never treated as zero"
+    periodTreatment: "Refunds are attributed to the original order-creation period, not the refund transaction date; later refunds can restate a historical period"
+    warning: "Do not infer refunds from status alone and do not create refunds from this read-only connector"
+
+  net_revenue:
+    unit: currency
+    formula: "gross_revenue - refund_total"
+    includes: "VAT/tax and shipping still present in the net checkout amount"
+    availability: "Complete only when both gross_revenue and refund_total are complete in the same currency and period"
+    warning: "This is net checkout revenue, not revenue excluding VAT and not gross margin"
+
+  tax_total:
+    source: woocommerce.order.total_tax
+    unit: currency
+    formula: "sum(order.total_tax) for the same recognized orders"
+    treatment: "Informative component already represented inside order.total; never add it to gross_revenue"
+
+  vat:
+    unit: currency
+    formula: "tax_total only after evidence confirms every included Woo tax class is VAT and refund-tax treatment is correct"
+    currentAvailability: unavailable
+    unavailableReason: "The v0.1 connector does not validate Woo tax classes or refunded tax components"
+    warning: "Until validated, call the field tax_total rather than statutory VAT"
+
+  shipping_total:
+    source: woocommerce.order.shipping_total
+    unit: currency
+    formula: "sum(order.shipping_total) for the same recognized orders"
+    treatment: "Informative shipping component already represented inside order.total; never add it to gross_revenue"
+    taxTreatment: "Woo shipping_total normally excludes shipping tax; total_tax remains a separate source field"
+    refundTreatment: "This is original shipping charged, not net shipping after refunds; the v0.1 connector does not allocate refund value back to shipping"
+    warning: "Shipping charged to the customer is not carrier fulfilment cost"
+
+  ad_spend:
+    source: google_ads.cost_micros
+    unit: currency
+    formula: "sum(cost_micros) / 1000000 for the selected Ads accounts and period"
+    dimensions: [account, currency, period]
+    rule: "Never mix account currencies and never infer missing spend as zero"
+
+  roas:
+    source: google_ads
+    unit: ratio
+    formula: "attributed_conversion_value / ad_spend"
+    numerator: "Google Ads conversion value for an explicitly named conversion-action set and attribution window"
+    denominator: ad_spend
+    availability: "Unavailable when numerator or denominator is missing/invalid, when ad_spend is zero, or when currencies differ"
+    warning: "ROAS is an attributed media metric, not profit and not blended WooCommerce revenue divided by spend"
+
+  cac:
+    unit: currency_per_customer
+    formula: "ad_spend / verified_new_customers"
+    availability: "Unavailable until a governed aggregate source supplies a deduplicated new-customer count for the same period and scope"
+    currentAvailability: unavailable
+    unavailableReason: "The zero-PII WooCommerce connector exposes no customer identity or new-customer metric"
+    warning: "Orders, transactions and conversions are not interchangeable with new customers"
+
+  gross_margin:
+    unit: currency_and_ratio
+    formulaAmount: "accounting_net_revenue_ex_vat - verified_COGS"
+    formulaRatio: "gross_margin_amount / accounting_net_revenue_ex_vat"
+    currentAvailability: unavailable
+    unavailableReason: "Verified COGS and statutory net-revenue inputs are not available in v0.1"
+    rule: "Return value=null and quality=unavailable when COGS is missing; never substitute revenue, ad spend, product price or zero"
+
+qualityRules:
+  complete: "All required source values are present, valid, same-currency and within the declared period"
+  incomplete: "Some source values are missing or invalid; value is null and any partial_value remains explicitly non-authoritative"
+  unavailable: "A required governed source or semantic prerequisite does not exist; value is null with a reason"
+  stale: "Evidence exceeded its source freshness policy; retain it only as historical evidence and never present it as current"

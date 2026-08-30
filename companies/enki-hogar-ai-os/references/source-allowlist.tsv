@@ -1,0 +1,15 @@
+# source_path	curated_target	purpose
+docs/empresa.md	curated/company-context.md	Company positioning and operating context
+docs/producto-crm.md	curated/catalog-crm.md	Catalogue and CRM operating context
+analytics/strategy.md	curated/analytics-strategy.md	Measurement and growth strategy
+analytics/backlog.md	curated/analytics-strategy.md	Prioritized analytics backlog
+analytics/change-log.md	curated/tracking-baseline.md	Analytics change history
+analytics/seo/performance-12m.md	curated/seo-sem-baseline.md	Historical SEO baseline
+analytics/seo/search-console.md	curated/seo-sem-baseline.md	Search Console interpretation
+analytics/sem/audit.md	curated/seo-sem-baseline.md	Historical SEM audit
+analytics/sem/google-ads.md	curated/seo-sem-baseline.md	Google Ads operating notes
+analytics/tracking/README.md	curated/tracking-baseline.md	Tracking architecture and quality
+productos/SCHEMA.md	curated/catalog-schema.md	Catalogue schema
+productos/ATTRIBUTE_MODEL.md	curated/catalog-schema.md	Attribute model
+productos/QA_POLICY.md	curated/catalog-validation-playbook.md	Catalogue QA policy
+productos/VALIDATION_PLAYBOOK.md	curated/catalog-validation-playbook.md	Catalogue validation workflow

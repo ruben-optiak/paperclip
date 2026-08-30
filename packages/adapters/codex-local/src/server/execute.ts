@@ -717,7 +717,9 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   // Merge custom model providers (PAPERCLIP_CODEX_PROVIDERS) into the managed
   // CODEX_HOME's config.toml BEFORE the home is shipped to a remote execution
   // target, so both local and sandboxed Codex processes pick up the routing.
-  // An explicit env.CODEX_HOME override is treated as user-managed and skipped.
+  // An explicit env.CODEX_HOME override outside the managed company tree is
+  // user-managed and skipped. Server-assigned per-agent homes are explicit in
+  // config too, but remain Paperclip-managed and must receive this merge.
   const envConfigStrings = Object.fromEntries(
     Object.entries(envConfig).filter(
       (entry): entry is [string, string] => typeof entry[1] === "string",
@@ -725,7 +727,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   );
   const preparedRuntimeConfig = await prepareCodexRuntimeConfig({
     env: envConfigStrings,
-    codexHome: configuredCodexHome ? null : effectiveCodexHome,
+    codexHome: configuredCodexHome && !configuredHomeIsManaged ? null : effectiveCodexHome,
   });
   // Curated allowlist dir staged for the remote `home` asset (see below). Held
   // here so the outer `finally` can remove it on every exit path (teardown and

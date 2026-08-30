@@ -1,0 +1,13 @@
+namespaces:
+  customers:
+    enabled: true
+    enabled_tools:
+      - list_accessible_customers: true
+  search:
+    enabled: true
+    enabled_tools:
+      - search: true
+  metadata:
+    enabled: true
+    enabled_tools:
+      - get_resource_metadata: true

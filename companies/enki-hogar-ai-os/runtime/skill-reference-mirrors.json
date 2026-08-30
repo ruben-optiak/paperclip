@@ -1,0 +1,43 @@
+{
+  "schema": "enki-skill-reference-mirrors/v1",
+  "mirrors": {
+    "references/curated/analytics-strategy.md": [
+      "skills/enki-daily-brief/references/analytics-strategy.md",
+      "skills/enki-seo-sem/references/analytics-strategy.md"
+    ],
+    "references/curated/brand-claims.md": [
+      "skills/enki-brand-guardian/references/brand-claims.md"
+    ],
+    "references/curated/catalog-crm.md": [
+      "skills/enki-catalog-qa/references/catalog-crm.md",
+      "skills/enki-customer-care/references/catalog-crm.md"
+    ],
+    "references/curated/catalog-schema.md": [
+      "skills/enki-catalog-qa/references/catalog-schema.md"
+    ],
+    "references/curated/catalog-validation-playbook.md": [
+      "skills/enki-catalog-qa/references/catalog-validation-playbook.md"
+    ],
+    "references/curated/company-context.md": [
+      "skills/enki-brand-guardian/references/company-context.md",
+      "skills/enki-customer-care/references/company-context.md",
+      "skills/enki-daily-brief/references/company-context.md"
+    ],
+    "references/curated/seo-sem-baseline.md": [
+      "skills/enki-daily-brief/references/seo-sem-baseline.md",
+      "skills/enki-seo-sem/references/seo-sem-baseline.md"
+    ],
+    "references/curated/tracking-baseline.md": [
+      "skills/enki-daily-brief/references/tracking-baseline.md",
+      "skills/enki-seo-sem/references/tracking-baseline.md"
+    ],
+    "references/contracts/evidence-envelope-v1.schema.json": [
+      "skills/enki-daily-brief/references/evidence-envelope-v1.schema.json"
+    ],
+    "references/metrics/metric-contracts.yaml": [
+      "skills/enki-daily-brief/references/metric-contracts.yaml",
+      "skills/enki-seo-sem/references/metric-contracts.yaml",
+      "skills/enki-unit-economics/references/metric-contracts.yaml"
+    ]
+  }
+}

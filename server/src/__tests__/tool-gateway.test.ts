@@ -39,6 +39,7 @@ import {
 } from "@paperclipai/db";
 import type { PluginToolDispatcher } from "../services/plugin-tool-dispatcher.js";
 import { mcpGatewayProtocolRoutes, toolGatewayRoutes } from "../routes/tool-gateway.js";
+import { actorMiddleware } from "../middleware/auth.js";
 import { toolAccessService } from "../services/tool-access.js";
 import { createToolGatewayService, ToolGatewayHttpError } from "../services/tool-gateway.js";
 import { secretService } from "../services/secrets.js";
@@ -401,10 +402,13 @@ function createGatewayRouteApp(
   db: Db,
   gateway = createTestToolGatewayService(db),
   actor?: Express.Request["actor"],
+  withActorMiddleware = false,
 ) {
   const app = express();
   app.use(express.json());
-  if (actor) {
+  if (withActorMiddleware) {
+    app.use(actorMiddleware(db, { deploymentMode: "authenticated", resolveSession: async () => null }));
+  } else if (actor) {
     app.use((req, _res, next) => {
       req.actor = actor;
       next();
@@ -577,9 +581,9 @@ describeEmbeddedPostgres("tool gateway acceptance", () => {
       expect(token.ownerNote).toBe("QA fixture token");
       expect(token.tokenPrefix).toMatch(/^pcgw_[a-f0-9]{8}$/);
 
-      const app = createGatewayRouteApp(db, gateway);
+      const app = createGatewayRouteApp(db, gateway, undefined, true);
       const listed = await request(app)
-        .post(`/api/tool-gateway/gateways/${created.id}/mcp`)
+        .post(`/mcp/gateways/${created.gatewayPublicId}`)
         .set("authorization", `Bearer ${token.token}`)
         .send({ jsonrpc: "2.0", id: 1, method: "tools/list" })
         .expect(200);

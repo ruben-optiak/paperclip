@@ -1,0 +1,1 @@
+Oportunidad: revisar URLs de categorías con impresiones altas y CTR bajo. Evidencia: GSC, últimos 28 días frente a los 28 anteriores. Confianza: media. Dependencia: validar canonical y tracking con Technology. Acción v1: redactar backlog; no solicitar indexación ni publicar contenido.

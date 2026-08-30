@@ -1,0 +1,32 @@
+# Manual smoke test
+
+Run with all schedules paused and record evidence without secrets or PII.
+
+1. Health: all four connector health endpoints return `ok`.
+2. Catalog: observed tool names equal the allowlist; mutation and indexing probes are denied or absent.
+3. Woo: sales/order summaries work on a bounded period; product/SKU and low-stock reads work; bulk output has no PII.
+4. Zero-PII gate: customer lists and every customer-level query are absent from the connector catalog and access profiles.
+5. Google: Ads search, GA4 report, and GSC analytics query run with explicit periods. Do not use production-changing queries.
+6. Brief: manually run complete, partial, stale, and outage fixtures. Missing or historical data remains visibly labelled.
+7. WordPress: `render` and `sync --dry-run` work without credentials; `sync` without dry-run fails.
+8. Agents: Board can assign work directly to each specialist and the reporting tree still has one Director root.
+9. Gateways: there are exactly six active agent-scoped gateways, each uses its matching default-deny profile, every connection has zero installs, and there is no active `gateway_client` token. A tools-list decision matrix must equal each profile's allowlist.
+10. Budgets: company and all six agent monthly hard caps are explicit and positive; record only the decision evidence, not invented values in this package.
+11. Routines: desired-state drift proves exactly the daily and weekly routines are paused, both schedules are disabled, and no unexpected routine exists; manually invoke both and inspect outputs before enabling schedules one at a time.
+12. Portability: export the company again and inspect that no secrets, database IDs, connector host paths, or managed-home paths appear; preview a reimport in a disposable target.
+
+## Per-agent isolation evidence
+
+Before activating an agent, assign it a synthetic local-only task and retain only PASS/FAIL evidence:
+
+- its workspace path and managed `CODEX_HOME` are different from those of the other five agents;
+- it can create and remove a fixture in its own workspace and in `PAPERCLIP_RUN_SCRATCH_DIR`;
+- a write probe against the packaged Enki definition and against a sibling agent workspace is denied and leaves no file behind;
+- its environment contains no `WOO_*`, `GOOGLE_*`, `*_MCP_TOKEN`, connector bearer, ADC or OAuth token binding (inspect variable names only; never print values);
+- it can reach `PAPERCLIP_API_URL`, use its governed MCP gateway, and complete a trivial Codex-authenticated run.
+
+Pause immediately if any probe crosses an isolation boundary. Do not weaken sandbox flags to make a failed probe pass.
+
+## Managed gateway compatibility gate
+
+Before activating any agent, mint a short-lived named-gateway token, call the gateway's documented MCP endpoint with `tools/list`, make one permitted read, make one call that must resolve to `deny_default`, verify the audit rows, and revoke the token. A response such as `401 Agent token did not verify` means the Paperclip HTTP authentication layer consumed the gateway bearer before the named-gateway handler. Treat that as a core compatibility blocker: keep connections, gateways, agents, and schedules disabled. Do not work around it by installing connections directly, putting connector bearers in agent environments, or bypassing the governed gateway.

@@ -1,0 +1,20 @@
+# Exact top-level files and directory prefixes permitted in the import artifact.
+.env.example
+.gitignore
+.paperclip.yaml
+COMPANY.md
+LICENSE
+LICENSE-ENKI-INTERNAL.md
+NOTICE.md
+README.md
+THIRD_PARTY_NOTICES.md
+agents/
+connectors/
+policies/
+projects/
+references/
+runbooks/
+runtime/
+scripts/
+skills/
+tests/

@@ -1,0 +1,77 @@
+name: Enki Hogar AI OS
+
+on:
+  pull_request:
+    paths:
+      - "companies/enki-hogar-ai-os/**"
+      - "server/src/services/company-portability.ts"
+      - "server/src/__tests__/company-portability.test.ts"
+      - "packages/adapters/codex-local/src/server/execute.ts"
+      - "packages/adapters/codex-local/src/server/execute.test.ts"
+      - ".github/workflows/enki-ai-os.yml"
+  push:
+    branches: [master]
+    paths:
+      - "companies/enki-hogar-ai-os/**"
+      - "server/src/services/company-portability.ts"
+      - "server/src/__tests__/company-portability.test.ts"
+      - "packages/adapters/codex-local/src/server/execute.ts"
+      - "packages/adapters/codex-local/src/server/execute.test.ts"
+      - ".github/workflows/enki-ai-os.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: enki-ai-os-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package-gate:
+    name: Validate portable package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out reviewed source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Verify reviewed Paperclip base is in source history
+        run: git merge-base --is-ancestor 35fca95626a04f5a7ec42cf95989c3d779a1687e HEAD
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6
+        with:
+          version: 9.15.4
+          run_install: false
+
+      - name: Use repository Node version
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.11.1
+          cache: pnpm
+
+      - name: Install locked Paperclip dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify import isolation and Codex runtime invariants
+        run: pnpm exec vitest run server/src/__tests__/company-portability.test.ts packages/adapters/codex-local/src/server/execute.test.ts
+
+      - name: Typecheck Codex local adapter
+        run: pnpm --filter @paperclipai/adapter-codex-local typecheck
+
+      - name: Install locked WooCommerce test dependencies
+        run: npm ci --ignore-scripts
+        working-directory: companies/enki-hogar-ai-os/connectors/woocommerce-readonly-mcp
+
+      - name: Validate, test, scan, and reproduce import artifact
+        run: companies/enki-hogar-ai-os/scripts/check.sh
+
+      - name: Build locked WooCommerce connector image
+        run: docker build --tag enki-woocommerce-mcp:ci companies/enki-hogar-ai-os/connectors/woocommerce-readonly-mcp
+
+      - name: Build locked Google connector image
+        run: docker build --tag enki-google-mcps:ci --file companies/enki-hogar-ai-os/connectors/google-mcps/Dockerfile companies/enki-hogar-ai-os

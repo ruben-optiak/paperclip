@@ -1,0 +1,9 @@
+[project]
+name = "enki-google-mcps-runtime"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "analytics-mcp @ git+https://github.com/googleanalytics/google-analytics-mcp.git@a8ca729d4a8fa99bffe87962c17c0539c6aa9da7",
+  "fastmcp==3.3.1",
+  "google-ads-mcp @ git+https://github.com/googleads/google-ads-mcp.git@88f0467b9e536c562941fa52a94dd02b193c8fa4",
+]

@@ -1,0 +1,20 @@
+# Security and change-control runbook
+
+- Keep connector ports bound to loopback on the host and use the private Compose network from Paperclip.
+- Store source credentials only in connector processes. Agents receive MCP capabilities, never upstream credentials.
+- Keep FastMCP provider handoff configs mode `600` inside the connector's `/tmp` tmpfs. They must contain only the minimum environment for that provider and disappear when the container is removed.
+- Require actual read-only upstream roles in addition to tool filtering.
+- Protect every `/mcp` route with a bearer token; `/health` contains no account identifiers, tool output, credential status, or customer data.
+- Compare the observed tool catalog against `policies/tool-allowlist.yaml` after builds and upgrades.
+- Keep every customer-level access path absent from the v0.1.0 connector catalog.
+- Redact names, email, phone, address, IDs, and raw payloads from logs and routine briefs.
+- Stop agents and routines on credential leakage, unknown tools, unredacted PII, unexpected writes, or target-environment ambiguity.
+- Keep connection installs empty. Deliver tools through exactly one agent-scoped named gateway per agent, backed by that agent's `catalog_entry` allowlist; never create a persistent `gateway_client` token.
+
+## Residual outbound-network risk
+
+Codex uses `workspace-write` with `network_access=true` because the agent must reach `PAPERCLIP_API_URL`; excluding `/tmp` or the runtime temp directory also breaks Paperclip's managed scratch path and is therefore forbidden. This leaves residual direct-egress capability inside the agent process. The compensating controls in v0.1.0 are: agents receive neither MCP bearer tokens nor upstream credentials, connector credentials exist only in connector processes, Paperclip brokers governed MCP calls through short-lived run tokens and agent-scoped gateways, upstream identities are read-only, active catalogs are strict, and drift/audit checks are mandatory.
+
+Treat this as an accepted local-v0.1 risk, not a complete egress boundary. Before wider production autonomy, validate Paperclip's `networkScope=allowlist` path with bwrap and migrate agents to an allowlist containing only Paperclip's control-plane endpoint. Do not claim destination-level egress isolation until that test has passed.
+
+For an incident: pause agents/routines, disconnect the affected MCP, preserve only redacted evidence, rotate credentials, review access logs, rerun tests/catalog checks, and obtain human approval before reconnection.

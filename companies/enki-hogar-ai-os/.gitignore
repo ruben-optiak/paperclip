@@ -1,0 +1,6 @@
+.env
+.env.*
+!.env.example
+references/source-snapshots/
+connectors/woocommerce-readonly-mcp/node_modules/
+.runtime-secrets/

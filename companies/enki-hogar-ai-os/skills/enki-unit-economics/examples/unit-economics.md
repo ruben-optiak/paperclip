@@ -1,0 +1,1 @@
+ROAS observado: `7.500 EUR / 2.500 EUR = 3,0`. Margen: **no calculable**, falta COGS y coste de devoluciones. Conclusión permitida: la plataforma atribuye 3 EUR por euro invertido; no concluir rentabilidad.

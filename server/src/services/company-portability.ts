@@ -66,6 +66,7 @@ import {
 import { sha256HexOfBytes } from "@paperclipai/shared/portability-hash";
 import {
   readPaperclipSkillSyncPreference,
+  resolvePaperclipInstanceRootForAdapter,
   writePaperclipSkillSyncPreference,
 } from "@paperclipai/adapter-utils/server-utils";
 import { requireOpenCodeModelId } from "@paperclipai/adapter-opencode-local/server";
@@ -1197,6 +1198,97 @@ function applyImportAdapterRunDefaults(
     appendCodexImportArg(next, "--skip-git-repo-check");
   }
   return next;
+}
+
+function importedCodexLocalAgentHome(companyId: string, agentId: string): string {
+  const instanceRoot = resolvePaperclipInstanceRootForAdapter({
+    homeDir: asString(process.env.PAPERCLIP_HOME) ?? undefined,
+    instanceId: asString(process.env.PAPERCLIP_INSTANCE_ID) ?? undefined,
+    env: process.env,
+  });
+  return path.resolve(instanceRoot, "companies", companyId, "agents", agentId, "codex-home");
+}
+
+function adapterConfigHasEnvKey(
+  adapterConfig: Record<string, unknown>,
+  key: string,
+): boolean {
+  return isPlainRecord(adapterConfig.env)
+    && Object.prototype.hasOwnProperty.call(adapterConfig.env, key);
+}
+
+function codexHomeBindingIsConfigured(value: unknown): boolean {
+  if (typeof value === "string") return value.trim().length > 0;
+  if (!isPlainRecord(value)) return false;
+  if (value.type === "plain") return Boolean(asString(value.value));
+  if (value.type === "secret_ref") return Boolean(asString(value.secretId));
+  if (value.type === "user_secret_ref") return Boolean(asString(value.key));
+  return false;
+}
+
+function stripPortableCodexHome(
+  adapterConfig: Record<string, unknown>,
+): Record<string, unknown> {
+  if (!adapterConfigHasEnvKey(adapterConfig, "CODEX_HOME")) return adapterConfig;
+  const env = { ...(adapterConfig.env as Record<string, unknown>) };
+  delete env.CODEX_HOME;
+  return { ...adapterConfig, env };
+}
+
+function applyImportedCodexLocalIsolation(
+  companyId: string,
+  agentId: string,
+  adapterType: string,
+  adapterConfig: Record<string, unknown>,
+): Record<string, unknown> {
+  if (adapterType !== "codex_local") return adapterConfig;
+  const env = isPlainRecord(adapterConfig.env) ? { ...adapterConfig.env } : {};
+  if (!codexHomeBindingIsConfigured(env.CODEX_HOME)) {
+    env.CODEX_HOME = importedCodexLocalAgentHome(companyId, agentId);
+  }
+  if (!Object.prototype.hasOwnProperty.call(env, "OPENAI_API_KEY")) {
+    // Prevent a host-level API key from leaking into a subscription-auth agent.
+    // The managed per-agent home is seeded from the instance's shared Codex login.
+    env.OPENAI_API_KEY = "";
+  }
+  return { ...adapterConfig, env };
+}
+
+function portableAgentEnvForExport(
+  companyId: string,
+  agentId: string,
+  agentSlug: string,
+  adapterType: string,
+  value: unknown,
+  warnings: string[],
+): unknown {
+  if (adapterType !== "codex_local" || !isPlainRecord(value)) return value;
+  const env = { ...value };
+  const codexHomeBinding = env.CODEX_HOME;
+  const codexHome = typeof codexHomeBinding === "string"
+    ? codexHomeBinding.trim()
+    : isPlainRecord(codexHomeBinding) && codexHomeBinding.type === "plain"
+      ? asString(codexHomeBinding.value)
+      : null;
+  if (Object.prototype.hasOwnProperty.call(env, "CODEX_HOME")) {
+    delete env.CODEX_HOME;
+    if (
+      !codexHome ||
+      path.resolve(codexHome) !== importedCodexLocalAgentHome(companyId, agentId)
+    ) {
+      warnings.push(
+        `Agent ${agentSlug} env CODEX_HOME was omitted from export because Codex homes are target-local and non-portable.`,
+      );
+    }
+  }
+  const openAiKeyBinding = env.OPENAI_API_KEY;
+  if (
+    openAiKeyBinding === "" ||
+    (isPlainRecord(openAiKeyBinding) && openAiKeyBinding.type === "plain" && openAiKeyBinding.value === "")
+  ) {
+    delete env.OPENAI_API_KEY;
+  }
+  return env;
 }
 
 function normalizeRoutineTriggerExtension(value: unknown): CompanyPortabilityIssueRoutineTriggerManifestEntry | null {
@@ -3577,6 +3669,7 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
 
   async function prepareImportedAgentAdapter(
     companyId: string,
+    agentId: string,
     adapterType: string | null | undefined,
     adapterConfig: Record<string, unknown>,
     desiredSkills: string[],
@@ -3587,7 +3680,12 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
       throw forbidden(`Adapter type "${effectiveAdapterType}" is not allowed in safe imports`);
     }
     const nextAdapterConfig = writePaperclipSkillSyncPreference(
-      applyImportAdapterRunDefaults(effectiveAdapterType, adapterConfig),
+      applyImportedCodexLocalIsolation(
+        companyId,
+        agentId,
+        effectiveAdapterType,
+        applyImportAdapterRunDefaults(effectiveAdapterType, adapterConfig),
+      ),
       desiredSkills,
     );
     delete nextAdapterConfig.promptTemplate;
@@ -4187,7 +4285,14 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
         const envInputsStart = envInputs.length;
         const exportedEnvInputs = extractPortableEnvInputs(
           slug,
-          (agent.adapterConfig as Record<string, unknown>).env,
+          portableAgentEnvForExport(
+            companyId,
+            agent.id,
+            slug,
+            agent.adapterType,
+            (agent.adapterConfig as Record<string, unknown>).env,
+            warnings,
+          ),
           warnings,
         );
         envInputs.push(...exportedEnvInputs);
@@ -4798,13 +4903,34 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
   }
 
   async function buildPreview(
-    input: CompanyPortabilityPreview,
+    input: CompanyPortabilityPreview | CompanyPortabilityImport,
     options?: ImportBehaviorOptions,
   ): Promise<ImportPlanInternal> {
     const mode = resolveImportMode(options);
     const requestedInclude = normalizeInclude(input.include);
     const source = applySelectedFilesToSource(await resolveSource(input.source), input.selectedFiles);
     const manifest = source.manifest;
+    const adapterOverrides = "adapterOverrides" in input ? input.adapterOverrides : undefined;
+    const effectiveAdapterTypeByAgentSlug = new Map(
+      manifest.agents.map((agent) => [
+        agent.slug,
+        adapterOverrides?.[agent.slug]?.adapterType ?? agent.adapterType,
+      ]),
+    );
+    const manifestCodexHomeInputSlugs = new Set(
+      manifest.envInputs.flatMap((envInput) =>
+        envInput.agentSlug && envInput.key === "CODEX_HOME" ? [envInput.agentSlug] : []
+      ),
+    );
+    // A codex_local CODEX_HOME identifies state on the target machine. It is
+    // never an import prompt or required secret, even when an older or
+    // hand-authored Codex package declares it under inputs.env. Other adapters
+    // may legitimately pass the same environment key to a child process.
+    manifest.envInputs = manifest.envInputs.filter((envInput) => !(
+      envInput.agentSlug
+      && envInput.key === "CODEX_HOME"
+      && effectiveAdapterTypeByAgentSlug.get(envInput.agentSlug) === "codex_local"
+    ));
     const include: CompanyPortabilityInclude = {
       company: requestedInclude.company && manifest.company !== null,
       agents: requestedInclude.agents && manifest.agents.length > 0,
@@ -4844,6 +4970,35 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
 
     if (include.agents && selectedAgents.length === 0) {
       warnings.push("No agents selected for import.");
+    }
+
+    for (const agent of selectedAgents) {
+      const effectiveAdapterType = effectiveAdapterTypeByAgentSlug.get(agent.slug);
+      const manifestDeclaresCodexHome =
+        adapterConfigHasEnvKey(agent.adapterConfig, "CODEX_HOME")
+        || manifestCodexHomeInputSlugs.has(agent.slug);
+      if (effectiveAdapterType === "codex_local" && manifestDeclaresCodexHome) {
+        warnings.push(
+          `Agent ${agent.slug} declares CODEX_HOME in the portable package; it will be ignored and replaced with a target-local per-agent home.`,
+        );
+      }
+
+      const overrideConfig = adapterOverrides?.[agent.slug]?.adapterConfig;
+      if (
+        effectiveAdapterType === "codex_local"
+        && overrideConfig
+        && adapterConfigHasEnvKey(overrideConfig, "CODEX_HOME")
+      ) {
+        if (mode === "agent_safe") {
+          errors.push(
+            `Safe import does not allow an explicit CODEX_HOME adapter override for agent ${agent.slug}.`,
+          );
+        } else {
+          warnings.push(
+            `Agent ${agent.slug} uses a board-provided CODEX_HOME override; it is target-local and will be retained when configured.`,
+          );
+        }
+      }
     }
 
     const availableSkillKeys = new Set(source.manifest.skills.map((skill) => skill.key));
@@ -5560,14 +5715,23 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
 
           // Apply adapter overrides from request if present
           const adapterOverride = input.adapterOverrides?.[planAgent.slug];
-          const baseAdapterConfig = adapterOverride?.adapterConfig
+          const effectiveAdapterType = adapterOverride?.adapterType ?? manifestAgent.adapterType;
+          const baseAdapterConfig = adapterOverride?.adapterConfig !== undefined
             ? { ...adapterOverride.adapterConfig }
-            : { ...manifestAgent.adapterConfig } as Record<string, unknown>;
+            : effectiveAdapterType === "codex_local"
+              ? stripPortableCodexHome(
+                { ...manifestAgent.adapterConfig } as Record<string, unknown>,
+              )
+              : { ...manifestAgent.adapterConfig } as Record<string, unknown>;
+          const targetAgentId = planAgent.action === "update" && planAgent.existingAgentId
+            ? planAgent.existingAgentId
+            : randomUUID();
 
           const desiredSkills = (manifestAgent.skills ?? []).map((skillRef) => desiredSkillRefMap.get(skillRef) ?? skillRef);
           const normalizedAdapter = await prepareImportedAgentAdapter(
             targetCompany.id,
-            adapterOverride?.adapterType ?? manifestAgent.adapterType,
+            targetAgentId,
+            effectiveAdapterType,
             baseAdapterConfig,
             desiredSkills,
             mode,
@@ -5648,6 +5812,7 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
           }
 
           let created = await agents.create(targetCompany.id, {
+            id: targetAgentId,
             ...patch,
             ...automationPausePatch,
             status: pauseAutomations ? "paused" : "idle",

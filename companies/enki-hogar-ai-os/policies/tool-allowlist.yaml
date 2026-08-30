@@ -1,0 +1,39 @@
+schema: enki-tool-policy/v1
+default: quarantine
+connectors:
+  woocommerce:
+    allowed:
+      woo_sales_summary: read
+      woo_orders_summary: read
+      woo_get_product: read
+      woo_low_stock: read
+      woo_catalog_summary: read
+    deniedPatterns: [create, update, delete, refund, batch, customer, set, write]
+  google_ads:
+    allowed:
+      customers_list_accessible_customers: read
+      search_search: read
+      metadata_get_resource_metadata: read
+    deniedPatterns: [mutate, create, update, delete, upload, budget]
+  google_analytics:
+    allowed:
+      get_account_summaries: read
+      get_property_details: read
+      list_google_ads_links: read
+      run_report: read
+      run_funnel_report: read
+      get_custom_dimensions_and_metrics: read
+      run_realtime_report: read
+    deniedPatterns: [create, update, delete, archive, mutate]
+  google_search_console:
+    allowed:
+      gsc_list_sites: read
+      gsc_search_analytics: read
+      gsc_inspect_url: read
+      gsc_list_sitemaps: read
+    deniedPatterns: [index, submit, create, update, delete]
+  wordpress:
+    allowed:
+      render: local-draft
+      sync_dry_run: local-draft
+    deniedPatterns: [publish, create, update, delete, upload, schedule]

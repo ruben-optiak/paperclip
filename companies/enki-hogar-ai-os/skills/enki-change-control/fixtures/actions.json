@@ -1,0 +1,1 @@
+[{"tool":"woo_sales_summary","level":"green","allowed":true},{"tool":"request_new_mcp_tool","level":"yellow","allowed":"proposal-only"},{"tool":"woo_update_product","level":"orange","allowed":false},{"tool":"woo_refund_order","level":"red","allowed":false}]

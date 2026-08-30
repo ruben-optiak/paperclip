@@ -1,0 +1,321 @@
+{
+  "schema": "enki-runtime-desired-state/v1",
+  "companySlug": "enki-hogar-ai-os",
+  "mode": "audit-only",
+  "rejectUnexpectedActiveConnections": true,
+  "rejectUnexpectedAgents": true,
+  "rejectUnexpectedProfiles": true,
+  "rejectUnexpectedPolicies": true,
+  "rejectUnexpectedGateways": true,
+  "rejectUnexpectedGatewayProfileBindings": true,
+  "rejectPersistentGatewayTokens": true,
+  "rejectUnexpectedRoutines": true,
+  "requirePositiveMonthlyBudget": true,
+  "requirePositiveCompanyMonthlyBudget": true,
+  "agentRuntime": {
+    "adapterType": "codex_local",
+    "engine": "cli",
+    "model": "gpt-5.6-sol",
+    "dangerouslyBypassApprovalsAndSandbox": false,
+    "sandbox": "workspace-write",
+    "approvalPolicy": "never",
+    "networkAccess": true,
+    "heartbeatEnabled": false,
+    "maxConcurrentRuns": 1,
+    "managedMcpOnly": true,
+    "requireUniqueManagedCodexHome": true,
+    "requireEmptyOpenAiApiKey": true
+  },
+  "connections": [
+    {
+      "key": "woocommerce",
+      "name": "Enki WooCommerce Read Only",
+      "transport": "mcp_remote",
+      "authKind": "api_key",
+      "endpoint": "http://enki-woocommerce-mcp:8020/mcp",
+      "requiredCredential": {"placement": "header", "key": "Authorization", "prefix": "Bearer "},
+      "status": "active",
+      "enabled": true,
+      "healthStatus": "ok",
+      "strictCatalog": true,
+      "tools": [
+        "woo_sales_summary",
+        "woo_orders_summary",
+        "woo_get_product",
+        "woo_low_stock",
+        "woo_catalog_summary"
+      ]
+    },
+    {
+      "key": "google_ads",
+      "name": "Enki Google Ads Read Only",
+      "transport": "mcp_remote",
+      "authKind": "api_key",
+      "endpoint": "http://enki-google-mcps:8010/mcp",
+      "requiredCredential": {"placement": "header", "key": "Authorization", "prefix": "Bearer "},
+      "status": "active",
+      "enabled": true,
+      "healthStatus": "ok",
+      "strictCatalog": true,
+      "tools": [
+        "customers_list_accessible_customers",
+        "search_search",
+        "metadata_get_resource_metadata"
+      ]
+    },
+    {
+      "key": "google_analytics",
+      "name": "Enki Google Analytics Read Only",
+      "transport": "mcp_remote",
+      "authKind": "api_key",
+      "endpoint": "http://enki-google-mcps:8011/mcp",
+      "requiredCredential": {"placement": "header", "key": "Authorization", "prefix": "Bearer "},
+      "status": "active",
+      "enabled": true,
+      "healthStatus": "ok",
+      "strictCatalog": true,
+      "tools": [
+        "get_account_summaries",
+        "get_property_details",
+        "list_google_ads_links",
+        "run_report",
+        "run_funnel_report",
+        "get_custom_dimensions_and_metrics",
+        "run_realtime_report"
+      ]
+    },
+    {
+      "key": "google_search_console",
+      "name": "Enki Search Console Read Only",
+      "transport": "mcp_remote",
+      "authKind": "api_key",
+      "endpoint": "http://enki-google-mcps:8012/mcp",
+      "requiredCredential": {"placement": "header", "key": "Authorization", "prefix": "Bearer "},
+      "status": "active",
+      "enabled": true,
+      "healthStatus": "ok",
+      "strictCatalog": true,
+      "tools": [
+        "gsc_list_sites",
+        "gsc_search_analytics",
+        "gsc_inspect_url",
+        "gsc_list_sitemaps"
+      ]
+    }
+  ],
+  "profiles": [
+    {
+      "profileKey": "enki.director.read-only",
+      "agentSlug": "director-operaciones",
+      "agentName": "Director de Operaciones de Enki",
+      "status": "active",
+      "defaultAction": "deny",
+      "strictAllowedTools": true,
+      "allowedTools": [
+        "woo_sales_summary",
+        "woo_orders_summary",
+        "woo_catalog_summary",
+        "customers_list_accessible_customers",
+        "search_search",
+        "metadata_get_resource_metadata",
+        "get_account_summaries",
+        "get_property_details",
+        "list_google_ads_links",
+        "run_report",
+        "run_funnel_report",
+        "get_custom_dimensions_and_metrics",
+        "run_realtime_report",
+        "gsc_list_sites",
+        "gsc_search_analytics",
+        "gsc_inspect_url",
+        "gsc_list_sitemaps"
+      ]
+    },
+    {
+      "profileKey": "enki.growth.read-only",
+      "agentSlug": "growth-manager",
+      "agentName": "Growth Manager",
+      "status": "active",
+      "defaultAction": "deny",
+      "strictAllowedTools": true,
+      "allowedTools": [
+        "woo_get_product",
+        "woo_low_stock",
+        "woo_catalog_summary",
+        "customers_list_accessible_customers",
+        "search_search",
+        "metadata_get_resource_metadata",
+        "get_account_summaries",
+        "get_property_details",
+        "list_google_ads_links",
+        "run_report",
+        "run_funnel_report",
+        "get_custom_dimensions_and_metrics",
+        "run_realtime_report",
+        "gsc_list_sites",
+        "gsc_search_analytics",
+        "gsc_inspect_url",
+        "gsc_list_sitemaps"
+      ]
+    },
+    {
+      "profileKey": "enki.ecommerce-catalogue.read-only",
+      "agentSlug": "ecommerce-catalogue-manager",
+      "agentName": "Ecommerce & Catalogue Manager",
+      "status": "active",
+      "defaultAction": "deny",
+      "strictAllowedTools": true,
+      "allowedTools": [
+        "woo_get_product",
+        "woo_low_stock",
+        "woo_catalog_summary"
+      ]
+    },
+    {
+      "profileKey": "enki.finance-bi.read-only",
+      "agentSlug": "finance-bi-manager",
+      "agentName": "Finance & BI Manager",
+      "status": "active",
+      "defaultAction": "deny",
+      "strictAllowedTools": true,
+      "allowedTools": [
+        "woo_sales_summary",
+        "woo_orders_summary",
+        "customers_list_accessible_customers",
+        "search_search",
+        "metadata_get_resource_metadata"
+      ]
+    },
+    {
+      "profileKey": "enki.technology.diagnostics",
+      "agentSlug": "technology-manager",
+      "agentName": "Technology Manager",
+      "status": "active",
+      "defaultAction": "deny",
+      "strictAllowedTools": true,
+      "allowedTools": [
+        "customers_list_accessible_customers",
+        "metadata_get_resource_metadata",
+        "get_account_summaries",
+        "get_property_details",
+        "gsc_list_sites"
+      ]
+    },
+    {
+      "profileKey": "enki.customer-experience.read-only",
+      "agentSlug": "customer-experience-manager",
+      "agentName": "Customer Experience Manager",
+      "status": "active",
+      "defaultAction": "deny",
+      "strictAllowedTools": true,
+      "allowedTools": [
+        "woo_get_product"
+      ]
+    }
+  ],
+  "policies": [
+    {
+      "name": "Enki block write and destructive tools",
+      "policyType": "block",
+      "priority": 1000,
+      "enabled": true,
+      "requiredRiskLevels": ["write", "destructive"]
+    }
+  ],
+  "gateways": [
+    {
+      "key": "director-operaciones",
+      "name": "Enki Director Governed MCP",
+      "slug": "enki-director-operaciones-governed-mcp",
+      "agentSlug": "director-operaciones",
+      "profileKey": "enki.director.read-only",
+      "status": "active",
+      "defaultProfileMode": "gateway_only",
+      "contextScopeType": "agent"
+    },
+    {
+      "key": "growth-manager",
+      "name": "Enki Growth Governed MCP",
+      "slug": "enki-growth-manager-governed-mcp",
+      "agentSlug": "growth-manager",
+      "profileKey": "enki.growth.read-only",
+      "status": "active",
+      "defaultProfileMode": "gateway_only",
+      "contextScopeType": "agent"
+    },
+    {
+      "key": "ecommerce-catalogue-manager",
+      "name": "Enki Ecommerce and Catalogue Governed MCP",
+      "slug": "enki-ecommerce-catalogue-manager-governed-mcp",
+      "agentSlug": "ecommerce-catalogue-manager",
+      "profileKey": "enki.ecommerce-catalogue.read-only",
+      "status": "active",
+      "defaultProfileMode": "gateway_only",
+      "contextScopeType": "agent"
+    },
+    {
+      "key": "finance-bi-manager",
+      "name": "Enki Finance and BI Governed MCP",
+      "slug": "enki-finance-bi-manager-governed-mcp",
+      "agentSlug": "finance-bi-manager",
+      "profileKey": "enki.finance-bi.read-only",
+      "status": "active",
+      "defaultProfileMode": "gateway_only",
+      "contextScopeType": "agent"
+    },
+    {
+      "key": "technology-manager",
+      "name": "Enki Technology Governed MCP",
+      "slug": "enki-technology-manager-governed-mcp",
+      "agentSlug": "technology-manager",
+      "profileKey": "enki.technology.diagnostics",
+      "status": "active",
+      "defaultProfileMode": "gateway_only",
+      "contextScopeType": "agent"
+    },
+    {
+      "key": "customer-experience-manager",
+      "name": "Enki Customer Experience Governed MCP",
+      "slug": "enki-customer-experience-manager-governed-mcp",
+      "agentSlug": "customer-experience-manager",
+      "profileKey": "enki.customer-experience.read-only",
+      "status": "active",
+      "defaultProfileMode": "gateway_only",
+      "contextScopeType": "agent"
+    }
+  ],
+  "routines": [
+    {
+      "key": "daily-operating-brief",
+      "title": "Brief laboral diario",
+      "status": "paused",
+      "concurrencyPolicy": "coalesce_if_active",
+      "catchUpPolicy": "skip_missed",
+      "strictTriggers": true,
+      "triggers": [
+        {
+          "kind": "schedule",
+          "enabled": false,
+          "cronExpression": "0 8 * * 1-5",
+          "timezone": "Europe/Madrid"
+        }
+      ]
+    },
+    {
+      "key": "weekly-operating-review",
+      "title": "Revisión operativa semanal",
+      "status": "paused",
+      "concurrencyPolicy": "coalesce_if_active",
+      "catchUpPolicy": "skip_missed",
+      "strictTriggers": true,
+      "triggers": [
+        {
+          "kind": "schedule",
+          "enabled": false,
+          "cronExpression": "0 9 * * 1",
+          "timezone": "Europe/Madrid"
+        }
+      ]
+    }
+  ]
+}

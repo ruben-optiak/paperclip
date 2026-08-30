@@ -1,0 +1,32 @@
+{
+  "as_of": "2026-08-29T08:00:00+02:00",
+  "timezone": "Europe/Madrid",
+  "source_policies": {
+    "woocommerce": {"max_age_hours": 2},
+    "ga4": {"max_age_hours": 48},
+    "gsc": {"max_age_hours": 96},
+    "google_ads": {"max_age_hours": 24}
+  },
+  "evidence": [
+    {
+      "schema": "enki-evidence-envelope/v1",
+      "data": {"order_count": 12},
+      "meta": {"source": "woocommerce", "fetched_at": "2026-08-29T05:45:00Z", "period_start": "2026-08-28", "period_end": "2026-08-28", "timezone": "Europe/Madrid", "currency": "EUR", "currencies": ["EUR"], "freshness": "live", "status": "ok", "partial": false, "warnings": [], "contracts": ["enki-evidence-envelope/v1", "enki-metrics/v1#woocommerce-sales"]}
+    },
+    {
+      "schema": "enki-evidence-envelope/v1",
+      "data": {"sessions": 950, "revenue": {"value": null, "quality": "incomplete"}},
+      "meta": {"source": "ga4", "fetched_at": "2026-08-29T05:30:00Z", "period_start": "2026-08-28", "period_end": "2026-08-28", "timezone": "Europe/Madrid", "currency": null, "currencies": [], "freshness": "live", "status": "partial", "partial": true, "warnings": ["Revenue validation pending"], "contracts": ["enki-evidence-envelope/v1", "enki-metrics/v1#ga4"]}
+    },
+    {
+      "schema": "enki-evidence-envelope/v1",
+      "data": {"clicks": 310},
+      "meta": {"source": "gsc", "fetched_at": "2026-08-29T05:00:00Z", "period_start": "2026-08-26", "period_end": "2026-08-26", "timezone": "Europe/Madrid", "currency": null, "currencies": [], "freshness": "live", "status": "ok", "partial": false, "warnings": [], "contracts": ["enki-evidence-envelope/v1", "enki-metrics/v1#gsc"]}
+    },
+    {
+      "schema": "enki-evidence-envelope/v1",
+      "data": {"ad_spend": {"value": "420.00", "quality": "complete"}, "conversion_value": {"value": null, "quality": "incomplete"}},
+      "meta": {"source": "google_ads", "fetched_at": "2026-08-29T04:00:00Z", "period_start": "2026-08-28", "period_end": "2026-08-28", "timezone": "Europe/Madrid", "currency": "EUR", "currencies": ["EUR"], "freshness": "live", "status": "partial", "partial": true, "warnings": ["Conversion value unavailable"], "contracts": ["enki-evidence-envelope/v1", "enki-metrics/v1#google-ads"]}
+    }
+  ]
+}

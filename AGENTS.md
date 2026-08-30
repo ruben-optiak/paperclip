@@ -31,6 +31,7 @@ Before making changes, read in this order:
 - `packages/plugins/`: plugin system packages
 - `packages/skills-catalog/`: app-shipped skills catalog (`@paperclipai/skills-catalog`)
 - `packages/teams-catalog/`: app-shipped teams catalog (`@paperclipai/teams-catalog`)
+- `companies/`: private or organization-specific portable `agentcompanies/v1` packages; keep credentials and instance state out of Git
 - `cli/`: `paperclipai` CLI package (published bin, agent-facing commands)
 - `skills/`: Paperclip runtime/operational skills (not part of the app catalog)
 - `doc/`: operational and product docs

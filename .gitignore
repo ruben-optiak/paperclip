@@ -24,6 +24,7 @@ check-*.mjs
 !.github/scripts/check-*.mjs
 !.github/scripts/tests/check-*.mjs
 !scripts/check-*.mjs
+!companies/enki-hogar-ai-os/scripts/check-runtime-drift.mjs
 new-agent*.json
 newcompany.json
 seed-*.mjs

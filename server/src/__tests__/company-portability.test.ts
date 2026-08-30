@@ -173,6 +173,91 @@ function asTextFile(entry: CompanyPortabilityFileEntry | undefined) {
   return typeof entry === "string" ? entry : "";
 }
 
+function inlineCodexPackageFiles(codexHome?: string): Record<string, CompanyPortabilityFileEntry> {
+  return {
+    "COMPANY.md": [
+      "---",
+      "name: Imported Codex Company",
+      "includes:",
+      "  - agents/coder/AGENTS.md",
+      "---",
+      "",
+    ].join("\n"),
+    "agents/coder/AGENTS.md": [
+      "---",
+      "name: Coder",
+      "slug: coder",
+      "kind: agent",
+      "---",
+      "",
+      "# Coder",
+      "",
+    ].join("\n"),
+    ".paperclip.yaml": [
+      "schema: paperclip/v1",
+      "agents:",
+      "  coder:",
+      "    adapter:",
+      "      type: codex_local",
+      "      config:",
+      "        engine: cli",
+      ...(codexHome
+        ? [
+            "        env:",
+            `          CODEX_HOME: ${JSON.stringify(codexHome)}`,
+            "    inputs:",
+            "      env:",
+            "        CODEX_HOME:",
+            "          kind: plain",
+            "          requirement: required",
+            "          portability: system_dependent",
+          ]
+        : []),
+      "",
+    ].join("\n"),
+  };
+}
+
+function inlineProcessPackageFiles(codexHome: string): Record<string, CompanyPortabilityFileEntry> {
+  return {
+    "COMPANY.md": [
+      "---",
+      "name: Imported Process Company",
+      "includes:",
+      "  - agents/runner/AGENTS.md",
+      "---",
+      "",
+    ].join("\n"),
+    "agents/runner/AGENTS.md": [
+      "---",
+      "name: Runner",
+      "slug: runner",
+      "kind: agent",
+      "---",
+      "",
+      "# Runner",
+      "",
+    ].join("\n"),
+    ".paperclip.yaml": [
+      "schema: paperclip/v1",
+      "agents:",
+      "  runner:",
+      "    adapter:",
+      "      type: process",
+      "      config:",
+      "        env:",
+      `          CODEX_HOME: ${JSON.stringify(codexHome)}`,
+      "    inputs:",
+      "      env:",
+      "        CODEX_HOME:",
+      "          kind: plain",
+      "          requirement: optional",
+      "          portability: system_dependent",
+      "",
+    ].join("\n"),
+  };
+}
+
 describe("company portability", () => {
   const paperclipKey = "paperclipai/paperclip/paperclip";
   const companyPlaybookKey = "company/company-1/company-playbook";
@@ -1757,25 +1842,25 @@ describe("company portability", () => {
     expect(secretSvc.normalizeAdapterConfigForPersistence).toHaveBeenCalledWith(
       "company-1",
       expect.objectContaining({
-        env: {
+        env: expect.objectContaining({
           OPENAI_API_KEY: {
             type: "secret_ref",
             secretId: "secret-created",
             version: "latest",
           },
-        },
+        }),
       }),
       { strictMode: false, adapterType: "codex_local" },
     );
     expect(agentSvc.create).toHaveBeenCalledWith("company-1", expect.objectContaining({
       adapterConfig: expect.objectContaining({
-        env: {
+        env: expect.objectContaining({
           OPENAI_API_KEY: {
             type: "secret_ref",
             secretId: "secret-created",
             version: "latest",
           },
-        },
+        }),
       }),
     }));
     expect(secretSvc.syncEnvBindingsForTarget).toHaveBeenCalledWith(
@@ -3723,6 +3808,306 @@ describe("company portability", () => {
     const lastCreateInput = agentSvc.create.mock.calls.at(-1)?.[1] as Record<string, any>;
     expect(lastCreateInput?.adapterConfig).toBeTruthy();
     expect(lastCreateInput.adapterConfig?.dangerouslyBypassApprovalsAndSandbox).toBeUndefined();
+  });
+
+  it("isolates imported codex_local state per agent without exporting managed paths", async () => {
+    const portability = companyPortabilityService({} as any);
+
+    companySvc.create.mockResolvedValue({
+      id: "company-imported",
+      name: "Imported Paperclip",
+    });
+    accessSvc.ensureMembership.mockResolvedValue(undefined);
+    agentSvc.create.mockImplementation(async (_companyId: string, input: Record<string, any>) => ({
+      ...input,
+      id: input.id,
+      companyId: "company-imported",
+      name: String(input.name),
+    }));
+
+    const exported = await portability.exportBundle("company-1", {
+      include: {
+        company: true,
+        agents: true,
+        projects: false,
+        issues: false,
+      },
+    });
+
+    agentSvc.list.mockResolvedValue([]);
+    await portability.importBundle({
+      source: {
+        type: "inline",
+        rootPath: exported.rootPath,
+        files: exported.files,
+      },
+      include: {
+        company: true,
+        agents: true,
+        projects: false,
+        issues: false,
+      },
+      target: {
+        mode: "new_company",
+        newCompanyName: "Imported Paperclip",
+      },
+      agents: ["claudecoder", "cmo"],
+      collisionStrategy: "rename",
+      adapterOverrides: {
+        claudecoder: {
+          adapterType: "codex_local",
+          adapterConfig: {
+            engine: "cli",
+            dangerouslyBypassApprovalsAndSandbox: false,
+          },
+        },
+        cmo: {
+          adapterType: "codex_local",
+          adapterConfig: {
+            engine: "cli",
+            dangerouslyBypassApprovalsAndSandbox: false,
+          },
+        },
+      },
+    }, "user-1");
+
+    const createInputs = agentSvc.create.mock.calls.slice(-2).map((call) => call[1] as Record<string, any>);
+    expect(createInputs).toHaveLength(2);
+    for (const createInput of createInputs) {
+      expect(createInput.id).toMatch(/^[0-9a-f-]{36}$/);
+      expect(createInput.adapterConfig.env.OPENAI_API_KEY).toBe("");
+      expect(createInput.adapterConfig.env.CODEX_HOME).toMatch(
+        new RegExp(`/companies/company-imported/agents/${createInput.id}/codex-home$`),
+      );
+    }
+    expect(createInputs[0].id).not.toBe(createInputs[1].id);
+    expect(createInputs[0].adapterConfig.env.CODEX_HOME).not.toBe(
+      createInputs[1].adapterConfig.env.CODEX_HOME,
+    );
+
+    agentSvc.list.mockResolvedValue(
+      createInputs.map((createInput) => ({ ...createInput, status: "paused", reportsTo: null })),
+    );
+    const reexported = await portability.exportBundle("company-imported", {
+      include: {
+        company: true,
+        agents: true,
+        projects: false,
+        issues: false,
+      },
+    });
+    const extension = asTextFile(reexported.files[".paperclip.yaml"]);
+    expect(extension).not.toContain("CODEX_HOME");
+    expect(extension).not.toContain("OPENAI_API_KEY");
+    for (const createInput of createInputs) {
+      expect(extension).not.toContain(createInput.adapterConfig.env.CODEX_HOME);
+    }
+  });
+
+  it("ignores a shared CODEX_HOME declared by a portable manifest", async () => {
+    const portability = companyPortabilityService({} as any);
+    const sourceHome = "/source-instance/companies/source-company/codex-home";
+    agentSvc.list.mockResolvedValue([]);
+    agentSvc.create.mockImplementation(async (_companyId: string, input: Record<string, any>) => ({
+      ...input,
+      companyId: "company-1",
+      status: input.status,
+    }));
+
+    const result = await portability.importBundle({
+      source: { type: "inline", files: inlineCodexPackageFiles(sourceHome) },
+      include: { company: false, agents: true, projects: false, issues: false },
+      target: { mode: "existing_company", companyId: "company-1" },
+      agents: ["coder"],
+      collisionStrategy: "rename",
+    }, "user-1");
+
+    const createInput = agentSvc.create.mock.calls[0]?.[1] as Record<string, any>;
+    expect(createInput.adapterConfig.env.CODEX_HOME).not.toBe(sourceHome);
+    expect(createInput.adapterConfig.env.CODEX_HOME).toMatch(
+      new RegExp(`/companies/company-1/agents/${createInput.id}/codex-home$`),
+    );
+    expect(result.warnings).toEqual(expect.arrayContaining([
+      expect.stringContaining("declares CODEX_HOME in the portable package"),
+    ]));
+  });
+
+  it("preserves CODEX_HOME for a non-Codex adapter", async () => {
+    const portability = companyPortabilityService({} as any);
+    const sourceHome = "/source-instance/process-runner-home";
+    agentSvc.list.mockResolvedValue([]);
+    agentSvc.create.mockImplementation(async (_companyId: string, input: Record<string, any>) => ({
+      ...input,
+      companyId: "company-1",
+      status: input.status,
+    }));
+
+    const preview = await portability.previewImport({
+      source: { type: "inline", files: inlineProcessPackageFiles(sourceHome) },
+      include: { company: false, agents: true, projects: false, issues: false },
+      target: { mode: "existing_company", companyId: "company-1" },
+      agents: ["runner"],
+      collisionStrategy: "rename",
+    });
+
+    expect(preview.envInputs).toEqual(expect.arrayContaining([
+      expect.objectContaining({ agentSlug: "runner", key: "CODEX_HOME" }),
+    ]));
+    expect(preview.warnings).not.toEqual(expect.arrayContaining([
+      expect.stringContaining("target-local per-agent home"),
+    ]));
+
+    const result = await portability.importBundle({
+      source: { type: "inline", files: inlineProcessPackageFiles(sourceHome) },
+      include: { company: false, agents: true, projects: false, issues: false },
+      target: { mode: "existing_company", companyId: "company-1" },
+      agents: ["runner"],
+      collisionStrategy: "rename",
+    }, "user-1");
+
+    const createInput = agentSvc.create.mock.calls[0]?.[1] as Record<string, any>;
+    expect(createInput.adapterType).toBe("process");
+    expect(createInput.adapterConfig.env.CODEX_HOME).toBe(sourceHome);
+    expect(result.warnings).not.toEqual(expect.arrayContaining([
+      expect.stringContaining("target-local per-agent home"),
+    ]));
+  });
+
+  it("uses the effective Codex adapter override when isolating CODEX_HOME", async () => {
+    const portability = companyPortabilityService({} as any);
+    const sourceHome = "/source-instance/process-runner-home";
+    agentSvc.list.mockResolvedValue([]);
+    agentSvc.create.mockImplementation(async (_companyId: string, input: Record<string, any>) => ({
+      ...input,
+      companyId: "company-1",
+      status: input.status,
+    }));
+
+    const result = await portability.importBundle({
+      source: { type: "inline", files: inlineProcessPackageFiles(sourceHome) },
+      include: { company: false, agents: true, projects: false, issues: false },
+      target: { mode: "existing_company", companyId: "company-1" },
+      agents: ["runner"],
+      collisionStrategy: "rename",
+      adapterOverrides: {
+        runner: { adapterType: "codex_local" },
+      },
+    }, "user-1");
+
+    const createInput = agentSvc.create.mock.calls[0]?.[1] as Record<string, any>;
+    expect(createInput.adapterType).toBe("codex_local");
+    expect(createInput.adapterConfig.env.CODEX_HOME).not.toBe(sourceHome);
+    expect(createInput.adapterConfig.env.CODEX_HOME).toMatch(
+      new RegExp(`/companies/company-1/agents/${createInput.id}/codex-home$`),
+    );
+    expect(result.warnings).toEqual(expect.arrayContaining([
+      expect.stringContaining("declares CODEX_HOME in the portable package"),
+    ]));
+  });
+
+  it("retains an explicit board CODEX_HOME override with a portability warning", async () => {
+    const portability = companyPortabilityService({} as any);
+    const overrideHome = "/operator-managed/coder-codex-home";
+    agentSvc.list.mockResolvedValue([]);
+    agentSvc.create.mockImplementation(async (_companyId: string, input: Record<string, any>) => ({
+      ...input,
+      companyId: "company-1",
+      status: input.status,
+    }));
+
+    const result = await portability.importBundle({
+      source: { type: "inline", files: inlineCodexPackageFiles() },
+      include: { company: false, agents: true, projects: false, issues: false },
+      target: { mode: "existing_company", companyId: "company-1" },
+      agents: ["coder"],
+      collisionStrategy: "rename",
+      adapterOverrides: {
+        coder: {
+          adapterType: "codex_local",
+          adapterConfig: {
+            engine: "cli",
+            env: { CODEX_HOME: overrideHome },
+          },
+        },
+      },
+    }, "user-1");
+
+    const createInput = agentSvc.create.mock.calls[0]?.[1] as Record<string, any>;
+    expect(createInput.adapterConfig.env.CODEX_HOME).toBe(overrideHome);
+    expect(result.warnings).toEqual(expect.arrayContaining([
+      expect.stringContaining("board-provided CODEX_HOME override"),
+    ]));
+  });
+
+  it("rejects an explicit CODEX_HOME override before an agent-safe import writes", async () => {
+    const portability = companyPortabilityService({} as any);
+    agentSvc.list.mockResolvedValue([]);
+
+    await expect(portability.importBundle({
+      source: { type: "inline", files: inlineCodexPackageFiles() },
+      include: { company: false, agents: true, projects: false, issues: false },
+      target: { mode: "existing_company", companyId: "company-1" },
+      agents: ["coder"],
+      collisionStrategy: "rename",
+      adapterOverrides: {
+        coder: {
+          adapterType: "codex_local",
+          adapterConfig: {
+            env: { CODEX_HOME: "/operator-managed/coder-codex-home" },
+          },
+        },
+      },
+    }, "user-1", {
+      mode: "agent_safe",
+      sourceCompanyId: "company-1",
+    })).rejects.toThrow("Safe import does not allow an explicit CODEX_HOME adapter override for agent coder");
+
+    expect(agentSvc.create).not.toHaveBeenCalled();
+    expect(agentSvc.update).not.toHaveBeenCalled();
+  });
+
+  it("uses the existing agent id when deriving CODEX_HOME for a replace import", async () => {
+    const portability = companyPortabilityService({} as any);
+    const existingAgentId = "11111111-1111-4111-8111-111111111111";
+    let existingAgent: Record<string, any> = {
+      id: existingAgentId,
+      companyId: "company-1",
+      name: "Coder",
+      status: "idle",
+      role: "agent",
+      title: null,
+      icon: null,
+      reportsTo: null,
+      capabilities: null,
+      adapterType: "codex_local",
+      adapterConfig: {},
+      runtimeConfig: {},
+      budgetMonthlyCents: 0,
+      permissions: {},
+      metadata: null,
+    };
+    agentSvc.list.mockResolvedValue([existingAgent]);
+    agentSvc.update.mockImplementation(async (_agentId: string, patch: Record<string, unknown>) => {
+      existingAgent = { ...existingAgent, ...patch };
+      return existingAgent;
+    });
+
+    const result = await portability.importBundle({
+      source: { type: "inline", files: inlineCodexPackageFiles() },
+      include: { company: false, agents: true, projects: false, issues: false },
+      target: { mode: "existing_company", companyId: "company-1" },
+      agents: ["coder"],
+      collisionStrategy: "replace",
+    }, "user-1");
+
+    const firstUpdatePatch = agentSvc.update.mock.calls[0]?.[1] as Record<string, any>;
+    expect(firstUpdatePatch.adapterConfig.env.CODEX_HOME).toMatch(
+      new RegExp(`/companies/company-1/agents/${existingAgentId}/codex-home$`),
+    );
+    expect(agentSvc.create).not.toHaveBeenCalled();
+    expect(result.agents).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: existingAgentId, action: "updated" }),
+    ]));
   });
 
   it("carries labels by name through export and import round-trip", async () => {

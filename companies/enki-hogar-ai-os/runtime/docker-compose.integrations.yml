@@ -1,0 +1,49 @@
+services:
+  enki-woocommerce-mcp:
+    build:
+      # Compose resolves relative paths against the first -f file. The supported
+      # invocation puts docker/docker-compose.quickstart.yml first.
+      context: ../companies/enki-hogar-ai-os/connectors/woocommerce-readonly-mcp
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      WOO_BASE_URL: "${WOO_BASE_URL:?WOO_BASE_URL is required}"
+      WOO_CONSUMER_KEY: "${WOO_CONSUMER_KEY:?WOO_CONSUMER_KEY is required}"
+      WOO_CONSUMER_SECRET: "${WOO_CONSUMER_SECRET:?WOO_CONSUMER_SECRET is required}"
+      WOO_MCP_TOKEN: "${WOO_MCP_TOKEN:?WOO_MCP_TOKEN is required}"
+      WOO_MCP_HOST: "0.0.0.0"
+      WOO_MCP_PORT: "8020"
+    ports:
+      - "127.0.0.1:${WOO_MCP_PORT_HOST:-8020}:8020"
+
+  enki-google-mcps:
+    build:
+      context: ../companies/enki-hogar-ai-os
+      dockerfile: connectors/google-mcps/Dockerfile
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=128m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      HOME: /tmp/runtime-home
+      GOOGLE_PROJECT_ID: "${GOOGLE_PROJECT_ID:?GOOGLE_PROJECT_ID is required}"
+      GOOGLE_ADS_DEVELOPER_TOKEN: "${GOOGLE_ADS_DEVELOPER_TOKEN:?GOOGLE_ADS_DEVELOPER_TOKEN is required}"
+      GOOGLE_ADS_LOGIN_CUSTOMER_ID: "${GOOGLE_ADS_LOGIN_CUSTOMER_ID:-}"
+      GOOGLE_MCP_TOKEN: "${GOOGLE_MCP_TOKEN:?GOOGLE_MCP_TOKEN is required}"
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/google/application_default_credentials.json
+      GSC_TOKEN_PATH: /run/secrets/gsc/tokens.json
+    volumes:
+      - "${GOOGLE_ADC_HOST_PATH:?GOOGLE_ADC_HOST_PATH is required}:/run/secrets/google/application_default_credentials.json:ro"
+      - "${GOOGLE_OAUTH_CLIENT_HOST_PATH:?GOOGLE_OAUTH_CLIENT_HOST_PATH is required}:/run/secrets/google/oauth-client.json:ro"
+      - "${GSC_TOKEN_HOST_DIR:?GSC_TOKEN_HOST_DIR is required}:/run/secrets/gsc:ro"
+    ports:
+      - "127.0.0.1:${GOOGLE_ADS_MCP_PORT_HOST:-8010}:8010"
+      - "127.0.0.1:${GOOGLE_ANALYTICS_MCP_PORT_HOST:-8011}:8011"
+      - "127.0.0.1:${GSC_MCP_PORT_HOST:-8012}:8012"
