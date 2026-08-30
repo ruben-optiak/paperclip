@@ -4,6 +4,7 @@ Fecha: 2026-08-29
 Rama: `feat/enki-hogar-approach`
 Paquete: `companies/enki-hogar-ai-os/`
 Versión inicial: `0.1.0`
+Versión actual: `0.1.1`
 
 ## Objetivo
 
@@ -28,13 +29,13 @@ No se cambia la UI, el contrato de API, el esquema de base de datos ni las migra
 - [x] Lock de compatibilidad con commit base de Paperclip y digests OCI de las imágenes base de conectores.
 - [x] Separación de licencia MIT para código/configuración y `LicenseRef-Enki-Hogar-Internal` para conocimiento de Enki.
 - [x] Artefacto ZIP determinista, allowlist de importación y workflow CI limitado a los paths de Enki y del hardening del importador.
-- [x] Gate automatizado dirigido: paquete 31/31, MCP WooCommerce 16/16, portabilidad/adapter 101/101, ocho skills válidas, typechecks dirigidos, ZIP reproducible y Compose combinado.
+- [x] Gate automatizado dirigido: paquete 32/32, MCP WooCommerce 19/19, portabilidad/adapter 101/101, ocho skills válidas, typechecks dirigidos, ZIP reproducible y Compose combinado.
 - [x] Backup de la compañía local existente completado antes de las pruebas de activación.
 - [ ] Preflight del gateway en una compañía desechable con una sesión Board real.
 - [x] Importación local completada y topología verificada: 6 agentes, 8 skills, 4 proyectos, 9 tareas y 2 rutinas.
 - [x] Configuración local de cuatro conexiones, seis perfiles, política global, seis gateways gobernados y límites mensuales positivos; conexiones y gateways se activaron tras superar su smoke, con agentes y rutinas pausados.
 - [x] Named-gateway smoke con sesión Board real: dos catálogos exactos, tres lecturas Google reales, una denegación default y restauración completa del estado pausado.
-- [ ] Smoke test con cuentas reales y activación individual: Technology 1/6 superado; quedan Ecommerce, Growth, Finance, CX y Director, además del GO/NO-GO del Daily Brief.
+- [ ] Smoke test con cuentas reales y activación individual: los cinco especialistas han superado sus pilotos; queda el Director (6/6) y el GO/NO-GO del Daily Brief.
 - [ ] Activación de rutinas — únicamente después de ejecutar ambas manualmente.
 
 El preview anterior de cinco agentes y siete skills queda superado por el hardening de v0.1.0 y no cuenta como evidencia de la versión actual.
@@ -60,6 +61,20 @@ Las incompatibilidades del core detectadas durante los smokes quedan corregidas.
 - La auditoría del intervalo final registró tres pares `profile_allows_tool`/`tool_completed`, discovery filtrado y únicamente el diagnóstico informativo conocido `permitted_connections_not_installed`.
 - Tras el PASS se pausó Technology: los 6 agentes y las 2 rutinas quedan pausados; las 4 conexiones están sanas y los 6 gateways permanecen activos para los siguientes smokes controlados.
 
+### Pilotos de especialistas — 5/6 PASS (2026-08-30)
+
+- ENK-10 (Growth) y ENK-11 (Finance & BI) terminaron `done` y sus agentes se devolvieron a estado pausado.
+- ENK-12 (Ecommerce & Catalogue) terminó `done` tras optimizar `woo_low_stock`: campos acotados, paginación estable por ID con concurrencia máxima de seis, deduplicación y cobertura explícita. La lectura real completó 7/7 páginas dentro del límite remoto de 10 segundos, con 605/605 productos únicos y cero duplicados.
+- La recuperación automática que se abrió al pausar Ecommerce quedó resuelta como restaurada sin reactivar al agente.
+- ENK-13 (Customer Experience) terminó `done` con el criterio correcto de v0.1.x: la consulta de pedidos y la PII están ausentes y denegadas por defecto; no se crea una aprobación para una capacidad inexistente.
+- El estado de cierre conserva los seis agentes, sus heartbeats y las dos rutinas pausados. El siguiente piloto es el Director.
+
+### Parche 0.1.1
+
+- Versiona las correcciones demostradas por ENK-12 y ENK-13 sin ampliar autonomía ni catálogos.
+- Eleva el MCP WooCommerce a `0.1.1`; los runtimes Google permanecen en `0.1.0` porque no cambió su código.
+- Mantiene pendientes el tag, los digests de imágenes finales y el SHA-256 de promoción hasta construir el artefacto de release.
+
 ## Organización
 
 El flujo es hub-and-spoke, sin Chief of Staff:
@@ -76,7 +91,7 @@ Board / usuario
 
 El Director es la única raíz compatible con el rol interno CEO de Paperclip, pero no obtiene autoridad de Board. El usuario puede asignar issues directamente a cualquier especialista. Ecommerce es owner del catálogo, stock, producto y evidencia de Merchant; Growth es owner de SEO, adquisición y oportunidades; Finance valida rentabilidad; Technology opera diagnósticos; CX produce únicamente borradores con contexto anonimizado.
 
-## Fronteras de autonomía v0.1.0
+## Fronteras de autonomía v0.1.x
 
 - Verde: lecturas autorizadas, análisis, comparativas, evidencias, delegación interna y borradores locales.
 - Amarillo: propuestas para incorporar una nueva fuente, herramienta, conexión, perfil, agente o rutina; requieren revisión Board antes de configurar nada.
@@ -126,9 +141,9 @@ Las pruebas de portabilidad cubren creación y actualización con homes Codex ge
 
 Los gates globales del monorepo no están verdes en este host por causas ajenas al diff: `pnpm -r typecheck` y `pnpm build` llegan al runner Rust y paran porque `cargo` no está instalado; `pnpm test:run` alcanza `workspace-runtime.test.ts`, donde la configuración global `commit.gpgsign=true` rompe los repos Git efímeros sin TTY. Deshabilitando esa firma solo para el proceso pasan 150/154; los cuatro casos restantes reproducen diferencias locales de macOS (`/var` frente a `/private/var`), un timeout y su conflicto de puerto derivado. No existe diff de esta rama en `workspace-runtime.ts` ni en su test. Los typechecks TypeScript directos de server/adapter y todos los tests que cubren este cambio sí pasan.
 
-El preview sobre la compañía local, la autenticación Codex, la activación individual y el GO/NO-GO del Daily Brief permanecen manuales porque requieren sesión Board, backup, credenciales y aprobación. El named-gateway smoke y las lecturas mínimas de conectores con cuentas reales ya se completaron sin conservar tokens temporales.
+El preview e import sobre la compañía local, la autenticación Codex, el named-gateway smoke y los cinco pilotos de especialistas ya se completaron con sesión Board y sin conservar tokens temporales. Permanecen manuales el piloto del Director, la ejecución del Daily Brief y Weekly Review, el GO/NO-GO y la activación posterior de sus horarios.
 
-## GO/NO-GO v0.1.0
+## GO/NO-GO v0.1.x
 
 La arquitectura pasa a la siguiente fase solo si, de forma repetible:
 

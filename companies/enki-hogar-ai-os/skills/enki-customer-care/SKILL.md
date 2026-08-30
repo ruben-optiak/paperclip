@@ -17,4 +17,4 @@ Consulta únicamente los hechos no sensibles del [contexto de compañía](refere
 5. Genera `BORRADOR — NO ENVIADO`, tono claro, sin promesas no autorizadas.
 6. Escala exposición de PII, fraude, seguridad, amenaza legal, excepción de política, modificación o reembolso.
 
-Nunca envíes mensajes, modifiques pedidos/clientes, publiques FAQs ni ejecutes un reembolso. La PII no es una entrada permitida en v0.1.0 y nunca debe aparecer en la salida. Ver [ejemplo](examples/case.md) y `fixtures/case.json`.
+Nunca envíes mensajes, modifiques pedidos/clientes, publiques FAQs ni ejecutes un reembolso. La PII no es una entrada permitida en v0.1.x y nunca debe aparecer en la salida. Ver [ejemplo](examples/case.md) y `fixtures/case.json`.

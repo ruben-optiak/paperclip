@@ -92,18 +92,50 @@ test("operational order summary is aggregate-only", async () => {
   assert.equal(JSON.stringify(envelope).includes(String(order.id)), false);
 });
 
-test("low stock respects pagination truncation from the client", async () => {
-  const client = {paginate: async () => ({rows: [
-    {id: 1, name: "Low", sku: "LOW", manage_stock: true, stock_quantity: 2, categories: [], attributes: []},
-    {id: 2, name: "Enough", sku: "OK", manage_stock: true, stock_quantity: 20, categories: [], attributes: []},
-    {id: 3, name: "Unknown", sku: "UNKNOWN", manage_stock: true, stock_quantity: null, categories: [], attributes: []},
-  ], truncated: true})};
+test("low stock uses stable pagination, deduplicates product ids, and reports coverage", async () => {
+  const calls = [];
+  const client = {paginate: async (...args) => {
+    calls.push(args);
+    return {rows: [
+      {id: 1, name: "Low", sku: "LOW", type: "simple", stock_status: "instock", manage_stock: true, stock_quantity: 2, categories: [], attributes: []},
+      {id: 2, name: "Enough", sku: "OK", type: "simple", stock_status: "instock", manage_stock: true, stock_quantity: 20, categories: [], attributes: []},
+      {id: 3, name: "Unknown", sku: "UNKNOWN", type: "simple", stock_status: "instock", manage_stock: true, stock_quantity: null, categories: [], attributes: []},
+      {id: 4, name: "Variable unavailable", sku: "VARIABLE", type: "variable", stock_status: "outofstock", manage_stock: false, stock_quantity: null, categories: [], attributes: []},
+      {id: 4, name: "Variable unavailable duplicate", sku: "VARIABLE", type: "variable", stock_status: "outofstock", manage_stock: false, stock_quantity: null, categories: [], attributes: []},
+      {id: 5, name: "Managed unavailable", sku: "MANAGED-OUT", type: "simple", stock_status: "outofstock", manage_stock: true, stock_quantity: null, categories: [], attributes: []},
+    ], truncated: true, pagesFetched: 1, totalPages: 3, totalItems: 205};
+  }};
   const envelope = await payload(toolByName(client, "woo_low_stock"), {threshold: 5, max_pages: 1});
-  assert.equal(envelope.data.count, 1);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0][0], "/products");
+  assert.equal(calls[0][1].status, "publish");
+  assert.equal(calls[0][1].orderby, "id");
+  assert.equal(calls[0][1].order, "asc");
+  assert.match(calls[0][1]._fields, /stock_quantity/);
+  assert.deepEqual(calls[0][3], {concurrency: 6});
+  assert.equal(envelope.data.count, 3);
   assert.equal(envelope.data.products[0].sku, "LOW");
+  assert.equal(envelope.data.products[1].sku, "VARIABLE");
+  assert.equal(envelope.data.products[2].sku, "MANAGED-OUT");
+  assert.equal(envelope.data.exact_quantity_match_count, 1);
+  assert.equal(envelope.data.out_of_stock_status_only_count, 2);
   assert.equal(envelope.data.excluded_invalid_stock_count, 1);
+  assert.equal(envelope.data.variable_parents_without_top_level_quantity_count, 1);
+  assert.deepEqual(envelope.data.coverage, {
+    published_products_scanned: 5,
+    raw_product_rows_scanned: 6,
+    reported_total_published_products: 205,
+    duplicate_product_rows_excluded: 1,
+    missing_identity_rows_excluded: 0,
+    pages_fetched: 1,
+    total_pages: 3,
+    max_pages: 1,
+  });
   assert.equal(envelope.data.truncated, true);
   assert.equal(envelope.meta.status, "partial");
+  assert.equal(envelope.meta.warnings.some((warning) => warning.includes("variation-level")), true);
+  assert.equal(envelope.meta.warnings.some((warning) => warning.includes("duplicate product")), true);
+  assert.equal("price" in envelope.data.products[0], false);
 });
 
 test("every published tool returns the canonical evidence envelope", async () => {

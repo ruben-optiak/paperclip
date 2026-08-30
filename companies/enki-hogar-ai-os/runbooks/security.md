@@ -6,14 +6,14 @@
 - Require actual read-only upstream roles in addition to tool filtering.
 - Protect every `/mcp` route with a bearer token; `/health` contains no account identifiers, tool output, credential status, or customer data.
 - Compare the observed tool catalog against `policies/tool-allowlist.yaml` after builds and upgrades.
-- Keep every customer-level access path absent from the v0.1.0 connector catalog.
+- Keep every customer-level access path absent from the v0.1.x connector catalog.
 - Redact names, email, phone, address, IDs, and raw payloads from logs and routine briefs.
 - Stop agents and routines on credential leakage, unknown tools, unredacted PII, unexpected writes, or target-environment ambiguity.
 - Keep connection installs empty. Deliver tools through exactly one agent-scoped named gateway per agent, backed by that agent's `catalog_entry` allowlist; never create a persistent `gateway_client` token.
 
 ## Residual outbound-network risk
 
-Codex uses the named `enki-readonly-network` profile: the filesystem extends `:read-only`, while network access remains enabled because the agent must reach `PAPERCLIP_API_URL` and its governed MCP endpoint. Agent deliverables are written through Paperclip issue comments/work products, not directly into the workspace. This still leaves residual direct-egress capability inside the agent process. The compensating controls in v0.1.0 are: agents receive neither MCP bearer tokens nor upstream credentials, connector credentials exist only in connector processes, Paperclip brokers governed MCP calls through short-lived run tokens and agent-scoped gateways, upstream identities are read-only, active catalogs are strict, and drift/audit checks are mandatory.
+Codex uses the named `enki-readonly-network` profile: the filesystem extends `:read-only`, while network access remains enabled because the agent must reach `PAPERCLIP_API_URL` and its governed MCP endpoint. Agent deliverables are written through Paperclip issue comments/work products, not directly into the workspace. This still leaves residual direct-egress capability inside the agent process. The compensating controls in v0.1.x are: agents receive neither MCP bearer tokens nor upstream credentials, connector credentials exist only in connector processes, Paperclip brokers governed MCP calls through short-lived run tokens and agent-scoped gateways, upstream identities are read-only, active catalogs are strict, and drift/audit checks are mandatory.
 
 Managed Codex MCP entries use `default_tools_approval_mode = "approve"`. This approves only dispatch from Codex to the Paperclip-managed gateway; it does not approve the upstream operation. Paperclip remains the authorization boundary and still applies the agent-scoped default-deny profile, global write/destructive block policy, approval workflow, audit log, and short-lived run token. Keep `approval_policy="never"` for the non-interactive Codex process so it fails closed instead of waiting on an unavailable CLI prompt.
 

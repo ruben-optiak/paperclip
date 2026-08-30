@@ -57,10 +57,10 @@ curl -fsS http://127.0.0.1:8012/health
 Build a fresh archive; the script validates the package and scans it for secrets before writing anything:
 
 ```sh
-companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.1.0.zip
+companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.1.1.zip
 ```
 
-For v0.1.0, apply imports only by uploading this raw ZIP through the Paperclip
+For v0.1.1, apply imports only by uploading this raw ZIP through the Paperclip
 UI. Do not apply the package with `paperclipai company import`: the current CLI
 local-source reader omits non-Markdown skill assets, so that path cannot install
 the vendored contracts or the restricted WordPress helper completely. A CLI

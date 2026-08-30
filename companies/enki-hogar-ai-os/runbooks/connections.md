@@ -16,8 +16,25 @@ For each connection select API-key authentication and bind the secret as the `Au
 1. Create a dedicated WooCommerce REST API key with permission **Read**.
 2. Put its values only in the untracked Compose environment.
 3. Create a Paperclip MCP connection for `http://enki-woocommerce-mcp:8020/mcp` with Bearer `WOO_MCP_TOKEN`.
-4. Assign only the five aggregate/product tools in `policies/tool-allowlist.yaml`. v0.1.0 permits zero customer-level tools or PII.
+4. Assign only the five aggregate/product tools in `policies/tool-allowlist.yaml`. v0.1.x permits zero customer-level tools or PII.
 5. Verify that the observed catalog contains no write operation.
+
+The inventory call is deliberately bounded: use `max_pages: 10` for the Enki
+smoke test. `woo_low_stock` requests only inventory-safe fields and reports
+raw rows, unique IDs and WooCommerce's declared total after stable ID-ordered
+pagination and defensive deduplication. It reports exact-quantity and
+status-only (`outofstock`) matches separately. A missing
+parent quantity is never converted to zero. Variation-level quantities are not
+available through the top-level product listing and must remain visibly
+partial.
+
+Paperclip marks a remote connection unhealthy after a tool timeout and then
+removes that connection's tools from subsequent gateway listings. After fixing
+the underlying latency, use **Refresh catalog** on the existing connection to
+restore health; do not install or recreate the connection. Catalog definition
+changes are expected to enter quarantine. Review the changed schema,
+annotations and read-only classification, promote only the known
+`woo_low_stock` entry, and re-run the deny-by-default drift check.
 
 ## Google Ads and GA4
 
@@ -130,7 +147,7 @@ unset PAPERCLIP_BOARD_TOKEN PAPERCLIP_COMPANY_ID
 
 The mutating mode refuses active connections, non-paused agents, runtime installs, non-catalog profile entries, duplicate slugs, and unexpected gateways. It creates no static gateway token. Activate a gateway only after its profile catalog is exact, its connector is healthy, budgets are positive, and the smoke test is ready. Keep `runtime.managedMcpOnly: true` for every agent.
 
-With zero installs, current Paperclip versions may emit a `permitted_connections_not_installed` diagnostic before injecting the applicable named gateway. This is known audit noise in v0.1.0, not a missing gateway, provided the named-gateway check and the real agent smoke test pass.
+With zero installs, current Paperclip versions may emit a `permitted_connections_not_installed` diagnostic before injecting the applicable named gateway. This is known audit noise in v0.1.x, not a missing gateway, provided the named-gateway check and the real agent smoke test pass.
 
 ## Audit desired state
 

@@ -4,6 +4,8 @@ import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 import {StreamableHTTPServerTransport} from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import {createToolDefinitions} from "./tools.mjs";
 
+const CONNECTOR_VERSION = "0.1.1";
+
 function sendJson(response, status, body) {
   const payload = JSON.stringify(body);
   response.writeHead(status, {"content-type": "application/json", "content-length": Buffer.byteLength(payload)});
@@ -30,7 +32,7 @@ async function readBody(request) {
 }
 
 function createMcp(client) {
-  const server = new McpServer({name: "enki-woocommerce-readonly", version: "0.1.0"});
+  const server = new McpServer({name: "enki-woocommerce-readonly", version: CONNECTOR_VERSION});
   for (const tool of createToolDefinitions(client)) {
     server.registerTool(tool.name, {description: tool.description, inputSchema: tool.schema.shape, annotations: tool.annotations}, tool.execute);
   }
@@ -42,7 +44,7 @@ export function createHttpServer({client, token}) {
     void (async () => {
       const url = new URL(request.url || "/", "http://localhost");
       if (request.method === "GET" && url.pathname === "/health") {
-        sendJson(response, 200, {status: "ok", service: "enki-woocommerce-readonly-mcp", version: "0.1.0"});
+        sendJson(response, 200, {status: "ok", service: "enki-woocommerce-readonly-mcp", version: CONNECTOR_VERSION});
         return;
       }
       if (url.pathname !== "/mcp") {

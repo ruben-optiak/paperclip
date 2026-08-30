@@ -12,4 +12,15 @@ Published tools:
 - `woo_low_stock`
 - `woo_catalog_summary`
 
+`woo_low_stock` requests only inventory-safe product fields and fetches known
+pages in batches of at most six requests. Use `max_pages: 10` for the Enki
+smoke test; the response records actual and available pages so truncation stays
+visible. Pages use a stable product-ID order, and the connector defensively
+deduplicates IDs while reporting raw rows, unique products and WooCommerce's
+declared total. Results distinguish exact quantity matches from products that
+WooCommerce explicitly marks `outofstock` without exposing a top-level
+quantity. Variable-product parents commonly omit that quantity; the response
+therefore marks variation-level low-stock coverage as partial instead of
+treating a missing value as zero.
+
 The catalog contains no order lookup, customer data, create, update, delete, refund, price, stock, or bulk-order operation. Every successful tool response uses `enki-evidence-envelope/v1`.

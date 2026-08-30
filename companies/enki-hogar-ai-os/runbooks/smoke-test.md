@@ -4,7 +4,7 @@ Run with all schedules paused and record evidence without secrets or PII.
 
 1. Health: all four connector health endpoints return `ok`.
 2. Catalog: observed tool names equal the allowlist; mutation and indexing probes are denied or absent.
-3. Woo: sales/order summaries work on a bounded period; product/SKU and low-stock reads work; bulk output has no PII.
+3. Woo: sales/order summaries work on a bounded period; product/SKU and low-stock reads work; bulk output has no PII. The low-stock call completes inside Paperclip's 10-second remote-tool deadline, reports raw rows, unique IDs and the remote total, excludes duplicate IDs, separates exact quantities from status-only out-of-stock rows, and labels unavailable variation-level quantities as partial.
 4. Zero-PII gate: customer lists and every customer-level query are absent from the connector catalog and access profiles.
 5. Google: Ads search, GA4 report, and GSC analytics query run with explicit periods. Do not use production-changing queries.
 6. Brief: manually run complete, partial, stale, and outage fixtures. Missing or historical data remains visibly labelled.
@@ -14,6 +14,24 @@ Run with all schedules paused and record evidence without secrets or PII.
 10. Budgets: company and all six agent monthly hard caps are explicit and positive; record only the decision evidence, not invented values in this package.
 11. Routines: desired-state drift proves exactly the daily and weekly routines are paused, both schedules are disabled, and no unexpected routine exists; manually invoke both and inspect outputs before enabling schedules one at a time.
 12. Portability: export the company again and inspect that no secrets, database IDs, connector host paths, or managed-home paths appear; preview a reimport in a disposable target.
+
+## Customer Experience zero-PII smoke
+
+The v0.1 Customer Experience gate is **deny**, not ask-first. Use a completely
+synthetic case to verify classification and a clearly labelled unsent draft.
+Then verify from Board that:
+
+- the WooCommerce catalog contains no exact-order or customer lookup tool;
+- the Customer Experience profile exposes only `woo_get_product`;
+- a test call to an existing order capability resolves to `off` with
+  `deny_default`, no origin result and no approval request.
+
+Those three observations are PASS: the request cannot reach WooCommerce. Do
+not add an exact-order tool, use a real identifier, or expect a pending
+approval merely to make the smoke pass. Sensitive ask-first order context is a
+future version decision. Agents must use the MCP tools injected by Codex and
+must never send `PAPERCLIP_API_KEY` directly to `/api/tool-gateway/*`; that key
+identifies the agent but is not the short-lived named-gateway bearer.
 
 ## Per-agent isolation evidence
 

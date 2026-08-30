@@ -31,7 +31,7 @@ The workflow is hub-and-spoke with no Chief of Staff layer and with direct Board
 1. Copy `.env.example` to an untracked environment file outside Git and fill only connector-side credentials.
 2. Follow [local setup](runbooks/local-setup.md), beginning with a company export backup.
 3. Install the locked offline-test dependencies with `npm --prefix companies/enki-hogar-ai-os/connectors/woocommerce-readonly-mcp ci --ignore-scripts`, then run `./companies/enki-hogar-ai-os/scripts/check.sh` before starting integrations.
-4. Build the import archive with `./companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.1.0.zip` and import that ZIP through the Paperclip UI using preview first.
+4. Build the import archive with `./companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.1.1.zip` and import that ZIP through the Paperclip UI using preview first.
 5. Keep all agents and routines paused while configuring connections and the six disabled agent-scoped gateways; never use connection installs for Enki.
 
 For a new disposable company, the CLI can provide a partial topology preview:
@@ -49,7 +49,7 @@ restricted WordPress helper. This preview is useful for inspecting agents,
 projects, tasks, and collisions, but it is not an import-artifact validation and
 must not be applied.
 
-For v0.1.0, the only supported apply path is to upload the generated ZIP through
+For v0.1.1, the only supported apply path is to upload the generated ZIP through
 the Paperclip UI. The UI sends the raw archive, preserving every allowlisted
 skill asset. Use its preview workflow for both existing and new companies so
 collisions and complete file contents are validated before import.

@@ -5,6 +5,23 @@ import {madridPeriodParams, parseLocalDate} from "./time.mjs";
 
 export const SALES_RECOGNIZED_STATUSES = Object.freeze(["processing", "completed", "refunded"]);
 const ORDER_STATUSES = Object.freeze(["pending", "processing", "on-hold", "completed", "cancelled", "refunded", "failed", "trash", "checkout-draft", "any"]);
+const INVENTORY_FIELDS = Object.freeze([
+  "id",
+  "name",
+  "slug",
+  "sku",
+  "status",
+  "type",
+  "catalog_visibility",
+  "stock_status",
+  "manage_stock",
+  "stock_quantity",
+  "backorders",
+  "categories",
+  "attributes",
+  "date_modified_gmt",
+]);
+const INVENTORY_PAGE_CONCURRENCY = 6;
 const date = z.string().refine((value) => {
   try {
     parseLocalDate(value);
@@ -107,6 +124,27 @@ function inventoryProductView(product) {
   return inventoryProduct;
 }
 
+function collectUniqueInventoryProducts(rows) {
+  const products = [];
+  const seenIds = new Set();
+  let duplicateCount = 0;
+  let missingIdentityCount = 0;
+  for (const product of rows) {
+    const identity = product.id === null || product.id === undefined ? null : String(product.id);
+    if (identity === null) {
+      missingIdentityCount += 1;
+      continue;
+    }
+    if (seenIds.has(identity)) {
+      duplicateCount += 1;
+      continue;
+    }
+    seenIds.add(identity);
+    products.push(product);
+  }
+  return {products, duplicateCount, missingIdentityCount};
+}
+
 export function createToolDefinitions(client, {now = () => new Date()} = {}) {
   return [
     readTool("woo_sales_summary", "Aggregate sales totals for a bounded period; contains no customer PII.", periodSchema, async (input) => {
@@ -175,11 +213,25 @@ export function createToolDefinitions(client, {now = () => new Date()} = {}) {
       return evidence({source: "woocommerce.product", now, warnings, partial: true, contracts: ["enki-metrics/v1#woocommerce-product"], data: {matches: rows.map(productView)}});
     }),
     readTool("woo_low_stock", "List product and SKU inventory at or below a threshold; no mutation is possible.", z.object({threshold: z.number().int().min(0).max(1000).default(5), max_pages: z.number().int().min(1).max(20).default(10)}), async ({threshold, max_pages}) => {
-      const {rows, truncated} = await client.paginate("/products", {status: "publish"}, max_pages);
-      const invalidStock = rows.filter((product) => product.manage_stock === true && stockQuantity(product.stock_quantity) === null);
-      const products = rows.filter((product) => product.manage_stock === true && stockQuantity(product.stock_quantity) !== null && stockQuantity(product.stock_quantity) <= threshold).map(inventoryProductView);
+      const {rows, truncated, pagesFetched, totalPages, totalItems} = await client.paginate(
+        "/products",
+        {status: "publish", orderby: "id", order: "asc", _fields: INVENTORY_FIELDS.join(",")},
+        max_pages,
+        {concurrency: INVENTORY_PAGE_CONCURRENCY},
+      );
+      const {products: uniqueProducts, duplicateCount, missingIdentityCount} = collectUniqueInventoryProducts(rows);
+      const exactQuantityMatches = uniqueProducts.filter((product) => product.manage_stock === true && stockQuantity(product.stock_quantity) !== null && stockQuantity(product.stock_quantity) <= threshold);
+      const statusOnlyMatches = uniqueProducts.filter((product) => product.stock_status === "outofstock" && !exactQuantityMatches.includes(product));
+      const invalidStock = uniqueProducts.filter((product) => product.manage_stock === true && stockQuantity(product.stock_quantity) === null && !statusOnlyMatches.includes(product));
+      const variableParentsWithoutQuantity = uniqueProducts.filter((product) => product.type === "variable" && stockQuantity(product.stock_quantity) === null);
+      const products = [...exactQuantityMatches, ...statusOnlyMatches].map(inventoryProductView);
       const warnings = [];
+      if (duplicateCount > 0) warnings.push(`${duplicateCount} duplicate product row(s) were excluded by product id`);
+      if (missingIdentityCount > 0) warnings.push(`${missingIdentityCount} product row(s) without an id were excluded because they cannot be deduplicated`);
+      if (!truncated && totalItems !== null && uniqueProducts.length !== totalItems) warnings.push(`WooCommerce reported ${totalItems} published product(s), but ${uniqueProducts.length} unique product(s) were received`);
       if (invalidStock.length > 0) warnings.push(`${invalidStock.length} managed-stock product(s) were excluded because stock quantity is missing or invalid`);
+      if (statusOnlyMatches.length > 0) warnings.push(`${statusOnlyMatches.length} product(s) marked out of stock were included without claiming an exact stock quantity`);
+      if (variableParentsWithoutQuantity.length > 0) warnings.push(`${variableParentsWithoutQuantity.length} variable product parent(s) do not expose a top-level quantity; variation-level low-stock coverage is unavailable`);
       if (truncated) warnings.push("The product query reached the pagination limit");
       return evidence({
         source: "woocommerce.low-stock",
@@ -187,7 +239,26 @@ export function createToolDefinitions(client, {now = () => new Date()} = {}) {
         warnings,
         partial: warnings.length > 0,
         contracts: ["enki-metrics/v1#woocommerce-inventory"],
-        data: {threshold, count: products.length, excluded_invalid_stock_count: invalidStock.length, products, truncated},
+        data: {
+          threshold,
+          count: products.length,
+          exact_quantity_match_count: exactQuantityMatches.length,
+          out_of_stock_status_only_count: statusOnlyMatches.length,
+          excluded_invalid_stock_count: invalidStock.length,
+          variable_parents_without_top_level_quantity_count: variableParentsWithoutQuantity.length,
+          coverage: {
+            published_products_scanned: uniqueProducts.length,
+            raw_product_rows_scanned: rows.length,
+            reported_total_published_products: totalItems,
+            duplicate_product_rows_excluded: duplicateCount,
+            missing_identity_rows_excluded: missingIdentityCount,
+            pages_fetched: pagesFetched,
+            total_pages: totalPages,
+            max_pages,
+          },
+          products,
+          truncated,
+        },
       });
     }),
     readTool("woo_catalog_summary", "Read aggregate WooCommerce product totals without customer data.", z.object({}), async () => {

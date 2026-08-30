@@ -12,6 +12,6 @@ No real value belongs in Git, a company package, an issue, an agent workspace, o
 | GSC token file | GSC connector only | read-only host directory mount | Search Console read scope |
 | `GOOGLE_MCP_TOKEN` | Paperclip connections + Google proxy | UI secret and untracked Compose environment | connector bearer only |
 | Codex subscription login | Paperclip-managed, unique per-agent `CODEX_HOME` | Paperclip instance | agent execution only |
-| `OPENAI_API_KEY` | no consumer in v0.1.0 | explicit empty plain value in every agent adapter | prevents inheritance or accidental API-key fallback |
+| `OPENAI_API_KEY` | no consumer in v0.1.x | explicit empty plain value in every agent adapter | prevents inheritance or accidental API-key fallback |
 
 Rotate a credential if it appears in logs, source snapshots, import previews, issues, artifacts, or agent prompts. After rotation, rerun the secret scan and connector catalog checks.
