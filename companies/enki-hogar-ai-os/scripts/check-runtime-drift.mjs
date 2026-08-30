@@ -51,11 +51,6 @@ function hasConfigArg(extraArgs, expected) {
   return false;
 }
 
-function hasArgPair(extraArgs, flag, value) {
-  const args = array(extraArgs);
-  return args.some((entry, index) => entry === flag && args[index + 1] === value);
-}
-
 function runtimeShape(agent) {
   const adapterConfig = object(agent.adapterConfig);
   const runtimeConfig = object(agent.runtimeConfig);
@@ -249,16 +244,37 @@ export function evaluateRuntimeDrift(desired, runtime) {
           findings.push(finding("agent_adapter_config_drift", `${basePath}.adapterConfig.${key}`, desiredRuntime[desiredKey] ?? null, adapterConfig[key] ?? null, `${expected.agentSlug} has unexpected ${key}`));
         }
       }
-      if (!hasArgPair(adapterConfig.extraArgs, "--sandbox", desiredRuntime.sandbox)) {
-        findings.push(finding("agent_sandbox_drift", `${basePath}.adapterConfig.extraArgs.sandbox`, desiredRuntime.sandbox, "missing_or_different", `${expected.agentSlug} does not enforce the expected sandbox`));
+      const skipGitRepoCheckCount = array(adapterConfig.extraArgs).filter((entry) => entry === "--skip-git-repo-check").length;
+      if (desiredRuntime.skipGitRepoCheck === true && skipGitRepoCheckCount !== 1) {
+        findings.push(finding("agent_git_trust_drift", `${basePath}.adapterConfig.extraArgs.skipGitRepoCheck`, 1, skipGitRepoCheckCount, `${expected.agentSlug} must explicitly allow its generated non-git workspace exactly once`));
+      }
+      const permissionProfileArg = `default_permissions=\"${desiredRuntime.permissionProfile}\"`;
+      const permissionProfileExtendsArg = `permissions.${desiredRuntime.permissionProfile}.extends=\"${desiredRuntime.permissionProfileExtends}\"`;
+      const hasLegacySandboxFlag = array(adapterConfig.extraArgs).includes("--sandbox");
+      if (
+        hasLegacySandboxFlag
+        || !hasConfigArg(adapterConfig.extraArgs, permissionProfileArg)
+        || !hasConfigArg(adapterConfig.extraArgs, permissionProfileExtendsArg)
+      ) {
+        findings.push(finding(
+          "agent_sandbox_drift",
+          `${basePath}.adapterConfig.extraArgs.sandbox`,
+          {mode: desiredRuntime.sandbox, permissionProfile: desiredRuntime.permissionProfile},
+          "missing_different_or_mixed_with_legacy_flag",
+          `${expected.agentSlug} does not enforce the expected read-only permission profile`,
+        ));
       }
       const approvalArg = `approval_policy=\"${desiredRuntime.approvalPolicy}\"`;
       if (!hasConfigArg(adapterConfig.extraArgs, approvalArg) && !hasConfigArg(adapterConfig.extraArgs, `approval_policy=${desiredRuntime.approvalPolicy}`)) {
         findings.push(finding("agent_approval_policy_drift", `${basePath}.adapterConfig.extraArgs.approvalPolicy`, desiredRuntime.approvalPolicy, "missing_or_different", `${expected.agentSlug} does not enforce the expected approval policy`));
       }
-      const networkArg = `sandbox_workspace_write.network_access=${String(desiredRuntime.networkAccess)}`;
+      const networkArg = `permissions.${desiredRuntime.permissionProfile}.network.enabled=${String(desiredRuntime.networkAccess)}`;
       if (!hasConfigArg(adapterConfig.extraArgs, networkArg)) {
         findings.push(finding("agent_network_policy_drift", `${basePath}.adapterConfig.extraArgs.networkAccess`, desiredRuntime.networkAccess, "missing_or_different", `${expected.agentSlug} does not enforce the expected sandbox network policy`));
+      }
+      const legacyLandlockArg = `features.use_legacy_landlock=${String(desiredRuntime.useLegacyLandlock)}`;
+      if (!hasConfigArg(adapterConfig.extraArgs, legacyLandlockArg)) {
+        findings.push(finding("agent_sandbox_backend_drift", `${basePath}.adapterConfig.extraArgs.useLegacyLandlock`, desiredRuntime.useLegacyLandlock, "missing_or_different", `${expected.agentSlug} does not use the Docker-compatible Landlock sandbox backend`));
       }
       if (heartbeat.enabled !== desiredRuntime.heartbeatEnabled || heartbeat.maxConcurrentRuns !== desiredRuntime.maxConcurrentRuns) {
         findings.push(finding(

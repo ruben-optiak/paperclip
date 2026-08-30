@@ -293,7 +293,16 @@ function buildManagedMcpBlock(input: {
       "",
       `[mcp_servers.${tomlString(managedName)}]`,
       `url = ${tomlString(url)}`,
-      `headers = { Authorization = ${tomlString(`Bearer ${gateway.bearerToken}`)} }`,
+      // Paperclip is the approval boundary for managed gateways. Codex's own
+      // MCP approval layer must not reject the call before the gateway can
+      // evaluate the agent profile, policies, and any Paperclip approval flow.
+      // This approves only dispatch to the governed gateway; it does not
+      // bypass the gateway's allow/deny/require-approval decision.
+      `default_tools_approval_mode = "approve"`,
+      // Codex's streamable-HTTP MCP schema calls this field `http_headers`.
+      // `headers` is silently ignored, which makes the gateway request arrive
+      // without Authorization and fail with a misleading 401.
+      `http_headers = { Authorization = ${tomlString(`Bearer ${gateway.bearerToken}`)} }`,
     );
   });
   lines.push(MANAGED_MCP_BLOCK_END);

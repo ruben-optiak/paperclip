@@ -60,6 +60,8 @@ Paperclip can assign Board work directly to any specialist even though specialis
 
 Allowed in v1: approved reads, analysis, comparisons, evidence packs, and local drafts. Brand Guardian reviews customer-facing drafts but grants no publication authority. WordPress is limited to local render and `--dry-run`. Customer-level and exact-order access are absent from the connector catalog. Every external mutation is blocked. See [access matrix](policies/access-matrix.md) and [change control](skills/enki-change-control/SKILL.md).
 
+Codex auto-approves only dispatch to Paperclip-managed MCP gateways. Paperclip remains the authorization boundary: agent-scoped default-deny profiles, the global write/destructive block, short-lived tokens, and gateway auditing still apply to every call.
+
 El código y la documentación operativa de este paquete se distribuyen bajo MIT. El contenido de `references/` es material interno de Enki Hogar y se rige por `LicenseRef-Enki-Hogar-Internal`; no queda sublicenciado bajo MIT. Consulta `NOTICE.md`, `THIRD_PARTY_NOTICES.md` y `LICENSE-ENKI-INTERNAL.md` antes de redistribuir el paquete.
 
 Format: [Agent Companies specification](https://agentcompanies.io/specification). Runtime: [Paperclip](https://github.com/paperclipai/paperclip). Business context: [Enki Hogar](https://www.enkihogar.com/).

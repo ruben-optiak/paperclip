@@ -32,12 +32,17 @@ function healthyRuntime(desired) {
         model: "gpt-5.6-sol",
         dangerouslyBypassApprovalsAndSandbox: false,
         extraArgs: [
-          "--sandbox",
-          "workspace-write",
+          "--skip-git-repo-check",
           "-c",
           "approval_policy=\"never\"",
           "-c",
-          "sandbox_workspace_write.network_access=true",
+          "default_permissions=\"enki-readonly-network\"",
+          "-c",
+          "permissions.enki-readonly-network.extends=\":read-only\"",
+          "-c",
+          "permissions.enki-readonly-network.network.enabled=true",
+          "-c",
+          "features.use_legacy_landlock=true",
         ],
         env: {
           CODEX_HOME: `/paperclip/instances/default/companies/${companyId}/agents/${id}/codex-home`,
@@ -207,6 +212,8 @@ test("compatibility lock records verified facts and leaves unverified digests pe
   assert.equal(lock.paperclipBundleSchemaVersion, 7);
   assert.equal(lock.codex.configuredEngine, "cli");
   assert.equal(lock.codex.model, "gpt-5.6-sol");
+  assert.equal(lock.codex.managedMcpDefaultToolsApprovalMode, "approve");
+  assert.match(lock.codex.managedMcpApprovalModeStatus, /verified/);
   for (const [digest, status] of [
     [lock.paperclip.imageDigest, lock.paperclip.imageStatus],
     [lock.connectors.woocommerce.imageDigest, lock.connectors.woocommerce.imageStatus],
@@ -251,6 +258,7 @@ test("runtime drift gate rejects catalog growth, customer-level access, and shar
   runtime.installs[runtime.connections[0].id].push({targetType: "agent", targetId: runtime.agents[0].id});
   runtime.agents[1].adapterConfig.env.CODEX_HOME = runtime.agents[0].adapterConfig.env.CODEX_HOME;
   runtime.agents[0].runtimeConfig.managedMcpOnly = false;
+  runtime.agents[0].adapterConfig.extraArgs = runtime.agents[0].adapterConfig.extraArgs.slice(0, -2);
   runtime.agents[2].budgetMonthlyCents = 0;
   runtime.company.budgetMonthlyCents = 0;
   runtime.effectiveProfiles[runtime.agents.at(-1).id].allowedToolNames.push("woo_customer_lookup");
@@ -277,6 +285,7 @@ test("runtime drift gate rejects catalog growth, customer-level access, and shar
   assert.ok(codes.has("connection_installs_present"));
   assert.ok(codes.has("agent_codex_home_drift") || codes.has("agent_codex_home_shared"));
   assert.ok(codes.has("agent_managed_mcp_only_drift"));
+  assert.ok(codes.has("agent_sandbox_backend_drift"));
   assert.ok(codes.has("profile_tools_overbroad"));
   assert.ok(codes.has("agent_budget_not_positive"));
   assert.ok(codes.has("company_budget_not_positive"));

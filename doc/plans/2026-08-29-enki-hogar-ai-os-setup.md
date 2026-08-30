@@ -9,7 +9,7 @@ Versión inicial: `0.1.0`
 
 Entregar una definición reproducible `agentcompanies/v1` para operar Enki Hogar desde Paperclip con seis agentes, fuentes gobernadas y autonomía limitada a lectura, análisis y borradores. La primera importación se hará sobre la compañía local existente, con agentes, heartbeats y rutinas pausados.
 
-No se cambia la UI, el contrato de API, el esquema de base de datos ni las migraciones. Como excepción de seguridad al alcance inicial, se endurece internamente el importador para asignar un `CODEX_HOME` gestionado y único por agente importado y se conserva la carga de proveedores Codex en ese home. El paquete portable no puede calcular esos paths porque los UUID se generan al importar.
+No se cambia la UI, el contrato de API, el esquema de base de datos ni las migraciones. Como excepciones de seguridad al alcance inicial, se endurece internamente el importador para asignar un `CODEX_HOME` gestionado y único por agente importado, se conserva la carga de proveedores Codex en ese home y el adaptador entrega los MCP gestionados con cabeceras HTTP válidas y delegación explícita de aprobación al gateway de Paperclip. El paquete portable no puede calcular esos paths porque los UUID se generan al importar.
 
 ## Estado de implementación
 
@@ -24,17 +24,17 @@ No se cambia la UI, el contrato de API, el esquema de base de datos ni las migra
 - [x] Compose adicional, `.env.example`, matriz de secretos y endpoints de salud no sensibles.
 - [x] Preflight seguro del gateway para demostrar lectura permitida, escritura denegada y auditoría antes de conectar Enki.
 - [x] Desired state y detector GET-only de drift para conexiones, catálogos, perfiles, políticas, gateways por agente, runtimes, homes, presupuestos y rutinas.
-- [x] Aislamiento por workspace y home gestionado; sandbox explícito, approvals deshabilitados en runtime no interactivo y sin secretos de conectores en agentes.
+- [x] Aislamiento por workspace y home gestionado; filesystem read-only con Landlock, proceso Codex no interactivo y sin secretos de conectores en agentes. Codex autoriza el despacho MCP, pero Paperclip conserva la decisión allow/deny/approval.
 - [x] Lock de compatibilidad con commit base de Paperclip y digests OCI de las imágenes base de conectores.
 - [x] Separación de licencia MIT para código/configuración y `LicenseRef-Enki-Hogar-Internal` para conocimiento de Enki.
 - [x] Artefacto ZIP determinista, allowlist de importación y workflow CI limitado a los paths de Enki y del hardening del importador.
 - [x] Gate automatizado dirigido: paquete 31/31, MCP WooCommerce 16/16, portabilidad/adapter 101/101, ocho skills válidas, typechecks dirigidos, ZIP reproducible y Compose combinado.
-- [ ] Backup de la compañía local existente — acción manual antes del import.
+- [x] Backup de la compañía local existente completado antes de las pruebas de activación.
 - [ ] Preflight del gateway en una compañía desechable con una sesión Board real.
-- [ ] Preview actualizado en la UI: 6 agentes, 8 skills, 4 proyectos, 9 tareas, 2 rutinas y cero colisiones.
-- [x] Configuración local de cuatro conexiones, seis perfiles, política global, seis gateways gobernados y límites mensuales positivos; conexiones y gateways quedan deshabilitados hasta superar el gateway smoke.
+- [x] Importación local completada y topología verificada: 6 agentes, 8 skills, 4 proyectos, 9 tareas y 2 rutinas.
+- [x] Configuración local de cuatro conexiones, seis perfiles, política global, seis gateways gobernados y límites mensuales positivos; conexiones y gateways se activaron tras superar su smoke, con agentes y rutinas pausados.
 - [x] Named-gateway smoke con sesión Board real: dos catálogos exactos, tres lecturas Google reales, una denegación default y restauración completa del estado pausado.
-- [ ] Smoke test con cuentas reales, activación individual y GO/NO-GO del Daily Brief.
+- [ ] Smoke test con cuentas reales y activación individual: Technology 1/6 superado; quedan Ecommerce, Growth, Finance, CX y Director, además del GO/NO-GO del Daily Brief.
 - [ ] Activación de rutinas — únicamente después de ejecutar ambas manualmente.
 
 El preview anterior de cinco agentes y siete skills queda superado por el hardening de v0.1.0 y no cuenta como evidencia de la versión actual.
@@ -43,13 +43,22 @@ El preview anterior de cinco agentes y siete skills queda superado por el harden
 
 - Los tres MCP de Google pasan salud, `tools/list` stateless y catálogos exactos: Ads 3 herramientas, GA4 7 y GSC 4.
 - ADC, OAuth de GSC y Google Ads ejecutan lecturas reales mínimas sin imprimir resultados sensibles.
-- Paperclip mantiene las cuatro conexiones saludables, sin installs directos, en `draft` y deshabilitadas.
+- Paperclip mantiene las cuatro conexiones activas y saludables, sin installs directos; los agentes y las rutinas siguen siendo el interruptor operativo.
 - Los seis perfiles default-deny coinciden con el desired state. El smoke administrativo pasó 18 matrices agente/conexión, tres lecturas reales y una denegación `deny_default`.
-- Agentes y rutinas permanecen pausados; los seis gateways permanecen deshabilitados y no hay ningún token `gateway_client` activo.
-- La auditoría de drift deja únicamente 14 diferencias de activación esperadas: `status/enabled` de cuatro conexiones y `status` de seis gateways.
-- El named-gateway smoke pasa por las rutas MCP reales: dos catálogos exactos, tres lecturas Google, una decisión `deny_default`, revocación de tokens temporales y restauración de conexiones y gateways a estado deshabilitado.
+- Agentes y rutinas permanecen pausados; los seis gateways están activos, vinculados uno a uno a sus perfiles, y no hay ningún token `gateway_client` persistente.
+- La auditoría de desired state está limpia: cuatro conexiones, seis perfiles, una política global, seis gateways y dos rutinas coinciden con el contrato versionado.
+- El named-gateway smoke pasa por las rutas MCP reales: catálogos exactos, lecturas Google, una decisión `deny_default` en el preflight y revocación de tokens temporales.
 
-La incompatibilidad del core detectada durante el primer smoke queda corregida. `actorMiddleware` excluye únicamente `GET` y `POST` sobre las dos rutas exactas del protocolo MCP (`/mcp/gateways/:gatewayPublicId` y `/api/tool-gateway/gateways/:gatewayId/mcp`) y deja al named gateway como única autoridad para validar sus bearer. La excepción no asigna identidad Board ni agent, y no alcanza subrutas administrativas, paths anidados ni otros métodos. La regresión está cubierta en ambos modos de despliegue y el test de aceptación monta ahora el middleware global real.
+Las incompatibilidades del core detectadas durante los smokes quedan corregidas. `actorMiddleware` excluye únicamente `GET` y `POST` sobre las dos rutas exactas del protocolo MCP (`/mcp/gateways/:gatewayPublicId` y `/api/tool-gateway/gateways/:gatewayId/mcp`) y deja al named gateway como única autoridad para validar sus bearer. El adaptador Codex usa `http_headers` y `default_tools_approval_mode = "approve"` en los bloques MCP gestionados: Codex permite el despacho no interactivo, mientras Paperclip conserva la decisión de autorización. Ninguna excepción asigna identidad Board/agent ni evita perfiles, políticas o auditoría del gateway.
+
+### Piloto Technology — PASS (2026-08-30)
+
+- ENK-9 terminó vinculado al issue y con una sesión fresca; el informe final no contiene secretos, PII, URLs privadas ni rutas absolutas.
+- Las escrituras en workspace, scratch y definición empaquetada fueron denegadas y no dejaron fixtures. El workspace hermano quedó `NOT TESTED` porque no existía una referencia explícita y no se enumeraron rutas.
+- El catálogo gobernado expuso exactamente las cinco capacidades de Technology y excluyó mutaciones y `run_report`.
+- Las lecturas mínimas de Google Ads, GA4 y GSC finalizaron correctamente a través del named gateway.
+- La auditoría del intervalo final registró tres pares `profile_allows_tool`/`tool_completed`, discovery filtrado y únicamente el diagnóstico informativo conocido `permitted_connections_not_installed`.
+- Tras el PASS se pausó Technology: los 6 agentes y las 2 rutinas quedan pausados; las 4 conexiones están sanas y los 6 gateways permanecen activos para los siguientes smokes controlados.
 
 ## Organización
 
@@ -97,7 +106,7 @@ No se exige igualdad byte a byte entre ambos. La compatibilidad se demuestra med
 9. Importar con todo pausado y ejecutar en el host de Paperclip el kill switch documentado: `npx paperclipai routines disable-all --company-id <company-id> --json`.
 10. Configurar conexiones, perfiles y políticas siguiendo los runbooks; mantener installs vacíos y reconciliar por API los seis gateways agent-scoped en estado disabled.
 11. Ejecutar el detector de drift y exigir resultado limpio antes de activar nada.
-12. Verificar para cada agente: workspace y home únicos, escritura imposible sobre el paquete y workspaces hermanos, scratch operativo, credenciales Codex válidas y ausencia de secretos de conectores.
+12. Verificar para cada agente: workspace y home únicos, escritura denegada en workspace/scratch/paquete y, cuando exista referencia explícita, workspace hermano; persistencia solo vía issue/work product, credenciales Codex válidas y ausencia de secretos de conectores.
 13. Activar especialistas uno a uno, después el Director, y ejecutar el smoke test manual.
 14. Ejecutar manualmente Daily Brief y Weekly Review; habilitar sus horarios uno a uno solo si ambos pasan.
 

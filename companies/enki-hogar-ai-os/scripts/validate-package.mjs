@@ -241,10 +241,14 @@ for (const slug of agents.keys()) {
   if (!/engine: cli/.test(block)) fail(`${slug} must use the Codex CLI engine`);
   if (!/model: gpt-5\.6-sol/.test(block)) fail(`${slug} must pin model gpt-5.6-sol`);
   if (!/dangerouslyBypassApprovalsAndSandbox: false/.test(block)) fail(`${slug} must keep sandbox bypass disabled`);
-  if (!/- --sandbox\n\s+- workspace-write/.test(block)) fail(`${slug} must use workspace-write sandbox`);
+  if ((block.match(/- --skip-git-repo-check/g) || []).length !== 1) fail(`${slug} must carry exactly one --skip-git-repo-check for generated non-git workspaces`);
+  if (/- --sandbox\n/.test(block)) fail(`${slug} must not mix legacy --sandbox selection with its named permission profile`);
   if (!/- approval_policy="never"/.test(block)) fail(`${slug} must enforce approval_policy=never`);
-  if (!/- sandbox_workspace_write\.network_access=true/.test(block)) fail(`${slug} must enable the network path required for Paperclip API calls`);
-  if (/sandbox_workspace_write\.exclude_(?:slash_tmp|tmpdir_env_var)=true/.test(block)) fail(`${slug} must not exclude Paperclip's managed scratch directories`);
+  if (!/- default_permissions="enki-readonly-network"/.test(block)) fail(`${slug} must select the Enki read-only network permission profile`);
+  if (!/- permissions\.enki-readonly-network\.extends=":read-only"/.test(block)) fail(`${slug} must inherit the Codex read-only filesystem profile`);
+  if (!/- permissions\.enki-readonly-network\.network\.enabled=true/.test(block)) fail(`${slug} must enable the network path required for Paperclip API calls`);
+  if (!/- features\.use_legacy_landlock=true/.test(block)) fail(`${slug} must use the Landlock fallback required by the restrictive Docker runtime`);
+  if (/sandbox_workspace_write\./.test(block)) fail(`${slug} must not carry workspace-write settings in the read-only v1 profile`);
   if (!/heartbeat:\n\s+enabled: false/.test(block)) fail(`${slug} heartbeat must be disabled`);
   if (!/maxConcurrentRuns: 1/.test(block)) fail(`${slug} maxConcurrentRuns must be 1`);
   if (!/runtime:\n\s+managedMcpOnly: true/.test(block)) fail(`${slug} must accept MCP servers only through Paperclip-managed runtime delivery`);
@@ -265,6 +269,8 @@ if (compatibility.schema !== "enki-runtime-compatibility/v1") fail("Unexpected r
 if (compatibility.packageVersion !== "0.1.0") fail("Compatibility lock package version must match 0.1.0");
 if (compatibility.paperclipBundleSchemaVersion !== 7) fail("Compatibility lock must target bundle schemaVersion 7");
 if (compatibility.paperclip?.upstreamBaseCommit !== "35fca95626a04f5a7ec42cf95989c3d779a1687e") fail("Compatibility lock must identify the reviewed Paperclip base commit");
+if (compatibility.codex?.managedMcpDefaultToolsApprovalMode !== "approve") fail("Compatibility lock must delegate managed MCP dispatch approval to the Paperclip gateway");
+if (!String(compatibility.codex?.managedMcpApprovalModeStatus || "").includes("verified")) fail("Managed MCP approval mode must carry verified runtime evidence");
 for (const [label, digest, status] of [
   ["Paperclip image", compatibility.paperclip?.imageDigest, compatibility.paperclip?.imageStatus],
   ["WooCommerce connector image", compatibility.connectors?.woocommerce?.imageDigest, compatibility.connectors?.woocommerce?.imageStatus],
@@ -352,9 +358,14 @@ for (const [key, value] of Object.entries({
   engine: "cli",
   model: "gpt-5.6-sol",
   dangerouslyBypassApprovalsAndSandbox: false,
-  sandbox: "workspace-write",
+  skipGitRepoCheck: true,
+  sandbox: "read-only",
+  permissionProfile: "enki-readonly-network",
+  permissionProfileExtends: ":read-only",
   approvalPolicy: "never",
+  managedMcpDefaultToolsApprovalMode: "approve",
   networkAccess: true,
+  useLegacyLandlock: true,
   heartbeatEnabled: false,
   maxConcurrentRuns: 1,
   managedMcpOnly: true,

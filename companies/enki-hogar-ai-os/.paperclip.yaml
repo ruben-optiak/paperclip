@@ -10,12 +10,17 @@ agents:
         model: gpt-5.6-sol
         dangerouslyBypassApprovalsAndSandbox: false
         extraArgs:
-          - --sandbox
-          - workspace-write
+          - --skip-git-repo-check
           - -c
           - approval_policy="never"
           - -c
-          - sandbox_workspace_write.network_access=true
+          - default_permissions="enki-readonly-network"
+          - -c
+          - permissions.enki-readonly-network.extends=":read-only"
+          - -c
+          - permissions.enki-readonly-network.network.enabled=true
+          - -c
+          - features.use_legacy_landlock=true
     runtime:
       managedMcpOnly: true
       heartbeat:
@@ -32,12 +37,17 @@ agents:
         model: gpt-5.6-sol
         dangerouslyBypassApprovalsAndSandbox: false
         extraArgs:
-          - --sandbox
-          - workspace-write
+          - --skip-git-repo-check
           - -c
           - approval_policy="never"
           - -c
-          - sandbox_workspace_write.network_access=true
+          - default_permissions="enki-readonly-network"
+          - -c
+          - permissions.enki-readonly-network.extends=":read-only"
+          - -c
+          - permissions.enki-readonly-network.network.enabled=true
+          - -c
+          - features.use_legacy_landlock=true
     runtime:
       managedMcpOnly: true
       heartbeat:
@@ -54,12 +64,17 @@ agents:
         model: gpt-5.6-sol
         dangerouslyBypassApprovalsAndSandbox: false
         extraArgs:
-          - --sandbox
-          - workspace-write
+          - --skip-git-repo-check
           - -c
           - approval_policy="never"
           - -c
-          - sandbox_workspace_write.network_access=true
+          - default_permissions="enki-readonly-network"
+          - -c
+          - permissions.enki-readonly-network.extends=":read-only"
+          - -c
+          - permissions.enki-readonly-network.network.enabled=true
+          - -c
+          - features.use_legacy_landlock=true
     runtime:
       managedMcpOnly: true
       heartbeat:
@@ -76,12 +91,17 @@ agents:
         model: gpt-5.6-sol
         dangerouslyBypassApprovalsAndSandbox: false
         extraArgs:
-          - --sandbox
-          - workspace-write
+          - --skip-git-repo-check
           - -c
           - approval_policy="never"
           - -c
-          - sandbox_workspace_write.network_access=true
+          - default_permissions="enki-readonly-network"
+          - -c
+          - permissions.enki-readonly-network.extends=":read-only"
+          - -c
+          - permissions.enki-readonly-network.network.enabled=true
+          - -c
+          - features.use_legacy_landlock=true
     runtime:
       managedMcpOnly: true
       heartbeat:
@@ -98,12 +118,17 @@ agents:
         model: gpt-5.6-sol
         dangerouslyBypassApprovalsAndSandbox: false
         extraArgs:
-          - --sandbox
-          - workspace-write
+          - --skip-git-repo-check
           - -c
           - approval_policy="never"
           - -c
-          - sandbox_workspace_write.network_access=true
+          - default_permissions="enki-readonly-network"
+          - -c
+          - permissions.enki-readonly-network.extends=":read-only"
+          - -c
+          - permissions.enki-readonly-network.network.enabled=true
+          - -c
+          - features.use_legacy_landlock=true
     runtime:
       managedMcpOnly: true
       heartbeat:
@@ -120,12 +145,17 @@ agents:
         model: gpt-5.6-sol
         dangerouslyBypassApprovalsAndSandbox: false
         extraArgs:
-          - --sandbox
-          - workspace-write
+          - --skip-git-repo-check
           - -c
           - approval_policy="never"
           - -c
-          - sandbox_workspace_write.network_access=true
+          - default_permissions="enki-readonly-network"
+          - -c
+          - permissions.enki-readonly-network.extends=":read-only"
+          - -c
+          - permissions.enki-readonly-network.network.enabled=true
+          - -c
+          - features.use_legacy_landlock=true
     runtime:
       managedMcpOnly: true
       heartbeat:

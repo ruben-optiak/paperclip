@@ -20,12 +20,14 @@ Run with all schedules paused and record evidence without secrets or PII.
 Before activating an agent, assign it a synthetic local-only task and retain only PASS/FAIL evidence:
 
 - its workspace path and managed `CODEX_HOME` are different from those of the other five agents;
-- it can create and remove a fixture in its own workspace and in `PAPERCLIP_RUN_SCRATCH_DIR`;
-- a write probe against the packaged Enki definition and against a sibling agent workspace is denied and leaves no file behind;
-- its environment contains no `WOO_*`, `GOOGLE_*`, `*_MCP_TOKEN`, connector bearer, ADC or OAuth token binding (inspect variable names only; never print values);
+- write probes against its own workspace, Paperclip's managed scratch path, the packaged Enki definition, and a sibling agent workspace are denied and leave no file behind;
+- it can persist a synthetic draft only through the assigned Paperclip issue/work-product path, without an external publication;
+- its environment contains no `WOO_*`, `GOOGLE_*`, `*_MCP_TOKEN`, connector bearer, ADC or OAuth token binding; Quickstart may carry an `OPENAI_API_KEY` placeholder, which must be unset or empty (test emptiness without printing the value);
 - it can reach `PAPERCLIP_API_URL`, use its governed MCP gateway, and complete a trivial Codex-authenticated run.
+- its run log shows `default_permissions="enki-readonly-network"` and `features.use_legacy_landlock=true`, with no Bubblewrap namespace failure; filesystem access remains read-only while the governed API/MCP path works.
+- its generated managed MCP block contains `default_tools_approval_mode = "approve"` and `http_headers`, never the ignored legacy `headers` key; the gateway audit must still show every permitted call as `profile_allows_tool` followed by `tool_completed`.
 
-Pause immediately if any probe crosses an isolation boundary. Do not weaken sandbox flags to make a failed probe pass.
+Pause immediately if any probe crosses an isolation boundary. Do not weaken sandbox flags or Docker isolation to make a failed probe pass.
 
 ## Managed gateway compatibility gate
 
