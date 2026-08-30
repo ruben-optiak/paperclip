@@ -3,6 +3,7 @@
     "default": {
       "command": "analytics-mcp",
       "tools": {
+        "list_google_ads_links": {"enabled": false},
         "list_property_annotations": {"enabled": false},
         "run_conversions_report": {"enabled": false}
       }

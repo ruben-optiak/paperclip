@@ -82,7 +82,6 @@
       "tools": [
         "get_account_summaries",
         "get_property_details",
-        "list_google_ads_links",
         "run_report",
         "run_funnel_report",
         "get_custom_dimensions_and_metrics",
@@ -125,7 +124,6 @@
         "metadata_get_resource_metadata",
         "get_account_summaries",
         "get_property_details",
-        "list_google_ads_links",
         "run_report",
         "run_funnel_report",
         "get_custom_dimensions_and_metrics",
@@ -152,7 +150,6 @@
         "metadata_get_resource_metadata",
         "get_account_summaries",
         "get_property_details",
-        "list_google_ads_links",
         "run_report",
         "run_funnel_report",
         "get_custom_dimensions_and_metrics",

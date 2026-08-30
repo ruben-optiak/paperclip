@@ -21,6 +21,10 @@ test("Google and Woo allowlists contain only expected query tools", () => {
     assert.match(policy, new RegExp(`\\b${tool}:`));
   }
   assert.doesNotMatch(policy, /^\s+(?:woo_update|woo_refund|woo_customer|gsc_index|ads_mutate)[^:]*:/m);
+  assert.doesNotMatch(policy, /^\s+list_google_ads_links:/m);
+  const analytics = desired.connections.find((connection) => connection.key === "google_analytics");
+  assert.equal(analytics?.tools.includes("list_google_ads_links"), false);
+  assert.equal(desired.profiles.every((profile) => !profile.allowedTools.includes("list_google_ads_links")), true);
 });
 
 test("Customer Experience is zero-PII and cannot reach any order tool", () => {

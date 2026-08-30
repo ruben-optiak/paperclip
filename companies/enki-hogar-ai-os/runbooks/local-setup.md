@@ -57,10 +57,10 @@ curl -fsS http://127.0.0.1:8012/health
 Build a fresh archive; the script validates the package and scans it for secrets before writing anything:
 
 ```sh
-companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.1.1.zip
+companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.1.2.zip
 ```
 
-For v0.1.1, apply imports only by uploading this raw ZIP through the Paperclip
+For v0.1.2, apply imports only by uploading this raw ZIP through the Paperclip
 UI. Do not apply the package with `paperclipai company import`: the current CLI
 local-source reader omits non-Markdown skill assets, so that path cannot install
 the vendored contracts or the restricted WordPress helper completely. A CLI
@@ -86,7 +86,7 @@ Then run `scripts/check-runtime-drift.mjs --json` and require zero `routine_*` o
 
 ## 6. Configure and activate safely
 
-Follow [connections](connections.md), apply [the access matrix](../policies/access-matrix.md), and verify each agent's unique managed Codex home is authenticated. Keep connection installs empty. With all connections disabled and agents paused, run `scripts/reconcile-agent-gateways.mjs --apply-disabled`; this creates six agent-scoped gateways and leaves them disabled. Board must choose and configure a positive monthly hard cap for the company and for each of the six agents; this package deliberately does not invent euro values. Run the read-only desired-state drift check before activation. It requires every agent cap to be positive, `managedMcpOnly: true`, six exact active gateways with no persistent client tokens, zero installs, and both routines paused with disabled schedules. Activate one specialist's gateway and agent at a time and run [the smoke test](smoke-test.md). Activate the Director only after specialists pass. Enable the routines last, after manually executing both recurring tasks.
+Follow [connections](connections.md), apply [the access matrix](../policies/access-matrix.md), and verify each agent's unique managed Codex home is authenticated. Keep connection installs empty. With all connections disabled and agents paused, run `scripts/reconcile-agent-gateways.mjs --apply-disabled`; this creates six agent-scoped gateways and leaves them disabled. Board must choose and configure a positive monthly hard cap for the company and for each of the six agents; this package deliberately does not invent euro values. Run the read-only desired-state drift check before activation. It requires every agent cap to be positive, `managedMcpOnly: true`, six exact active gateways with no persistent client tokens, zero installs, and both routines paused with disabled schedules. Activate one specialist's gateway and agent at a time and run [the smoke test](smoke-test.md). Activate the Director only after specialists pass. Manually executing both recurring tasks makes their schedules eligible for a later Board decision; it does not activate them. v0.1.2 deliberately keeps both routines and triggers paused, and enabling either without a matching versioned operational desired state is configuration drift.
 
 The versioned Codex arguments deliberately select the named `enki-readonly-network` profile, which extends `:read-only`, enables network access for Paperclip/MCP calls, and sets `features.use_legacy_landlock=true`; `dangerouslyBypassApprovalsAndSandbox` remains false. Docker's default seccomp policy blocks the unprivileged user namespaces required by Bubblewrap in the Quickstart container, while current Codex cannot project `workspace-write` onto its legacy Landlock backend. The read-only profile is representable by Landlock and was verified to allow the local health/API path while denying workspace writes. Do not combine it with `--sandbox`, or replace it with `privileged`, `SYS_ADMIN`, `seccomp=unconfined`, or `danger-full-access`.
 

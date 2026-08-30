@@ -4,7 +4,7 @@ Fecha: 2026-08-29
 Rama: `feat/enki-hogar-approach`
 Paquete: `companies/enki-hogar-ai-os/`
 Versión inicial: `0.1.0`
-Versión actual: `0.1.1`
+Versión actual: `0.1.2`
 
 ## Objetivo
 
@@ -35,14 +35,15 @@ No se cambia la UI, el contrato de API, el esquema de base de datos ni las migra
 - [x] Importación local completada y topología verificada: 6 agentes, 8 skills, 4 proyectos, 9 tareas y 2 rutinas.
 - [x] Configuración local de cuatro conexiones, seis perfiles, política global, seis gateways gobernados y límites mensuales positivos; conexiones y gateways se activaron tras superar su smoke, con agentes y rutinas pausados.
 - [x] Named-gateway smoke con sesión Board real: dos catálogos exactos, tres lecturas Google reales, una denegación default y restauración completa del estado pausado.
-- [ ] Smoke test con cuentas reales y activación individual: los cinco especialistas han superado sus pilotos; queda el Director (6/6) y el GO/NO-GO del Daily Brief.
-- [ ] Activación de rutinas — únicamente después de ejecutar ambas manualmente.
+- [x] Smoke test con cuentas reales y activación individual: los cinco especialistas y el Director han superado el perímetro read-only/zero-PII; los informes del Director son operativamente `PARTIAL` porque declaran fuentes y decisiones todavía ausentes.
+- [x] Ejecución manual de Daily Brief y Weekly Review con un único run cada una, disposición terminal y restauración posterior del Director a `paused`.
+- [ ] Activación de horarios — requiere decisión explícita de Board; el desired state de v0.1.2 mantiene ambas rutinas pausadas y sus triggers deshabilitados.
 
 El preview anterior de cinco agentes y siete skills queda superado por el hardening de v0.1.0 y no cuenta como evidencia de la versión actual.
 
 ## Evidencia local de integración — 2026-08-30
 
-- Los tres MCP de Google pasan salud, `tools/list` stateless y catálogos exactos: Ads 3 herramientas, GA4 7 y GSC 4.
+- Los tres MCP de Google pasan salud y `tools/list` stateless. El catálogo objetivo de v0.1.2 es Ads 3 herramientas, GA4 6 y GSC 4; `list_google_ads_links` queda retirado por exponer `creator_email_address`.
 - ADC, OAuth de GSC y Google Ads ejecutan lecturas reales mínimas sin imprimir resultados sensibles.
 - Paperclip mantiene las cuatro conexiones activas y saludables, sin installs directos; los agentes y las rutinas siguen siendo el interruptor operativo.
 - Los seis perfiles default-deny coinciden con el desired state. El smoke administrativo pasó 18 matrices agente/conexión, tres lecturas reales y una denegación `deny_default`.
@@ -74,6 +75,15 @@ Las incompatibilidades del core detectadas durante los smokes quedan corregidas.
 - Versiona las correcciones demostradas por ENK-12 y ENK-13 sin ampliar autonomía ni catálogos.
 - Eleva el MCP WooCommerce a `0.1.1`; los runtimes Google permanecen en `0.1.0` porque no cambió su código.
 - Mantiene pendientes el tag, los digests de imágenes finales y el SHA-256 de promoción hasta construir el artefacto de release.
+
+### Parche 0.1.2 y pilotos del Director — PASS de seguridad (2026-08-30)
+
+- El primer intento de ENK-14 detectó que `list_google_ads_links`, perteneciente al MCP de GA4, devolvía `creator_email_address`. El valor no se publicó, la rama se detuvo y el Director se pausó.
+- v0.1.2 deshabilita la herramienta en el proxy, la elimina del catálogo deseado y de los perfiles Director/Growth, y añade gates estáticos y de runtime. El runtime Google sube a `0.1.1`.
+- Tras reconstruir solo el conector Google, `tools/list` devolvió Ads 3, GA4 6 y GSC 4. La entrada histórica que Paperclip conservaba activa se retiró de los perfiles y se dejó `quarantined`; el detector de drift volvió a cero.
+- La repetición fresca de ENK-14 terminó `succeeded` con un único brief y sin continuación. No invocó la herramienta retirada, no publicó PII, secretos o identificadores privados y sus agregados coinciden con las respuestas MCP. El smoke de seguridad es PASS; el brief es `PARTIAL` por Ads ambiguo, COGS ausente y la discrepancia WooCommerce–GA4.
+- ENK-15 ejecutó manualmente la Weekly Review sin nuevas lecturas de negocio: usó el estado de Paperclip y ENK-14 como evidencia histórica, produjo prioridades y handoffs con owner, terminó `succeeded` y no creó tareas ni mutaciones. Su resultado operativo también es `PARTIAL` por backlog, fuentes y decisiones pendientes.
+- Un comentario humano sobre un issue `done` se interpreta como seguimiento y lo reabre a `todo`; con el assignee pausado, recovery puede escalarlo a `blocked`. La verificación se registra antes del cierre o se restaura `done` sin otro comentario. ENK-14 y ENK-15 quedaron `done`, los seis agentes y las dos rutinas `paused`, los triggers deshabilitados y cero runs vivos.
 
 ## Organización
 
@@ -141,7 +151,7 @@ Las pruebas de portabilidad cubren creación y actualización con homes Codex ge
 
 Los gates globales del monorepo no están verdes en este host por causas ajenas al diff: `pnpm -r typecheck` y `pnpm build` llegan al runner Rust y paran porque `cargo` no está instalado; `pnpm test:run` alcanza `workspace-runtime.test.ts`, donde la configuración global `commit.gpgsign=true` rompe los repos Git efímeros sin TTY. Deshabilitando esa firma solo para el proceso pasan 150/154; los cuatro casos restantes reproducen diferencias locales de macOS (`/var` frente a `/private/var`), un timeout y su conflicto de puerto derivado. No existe diff de esta rama en `workspace-runtime.ts` ni en su test. Los typechecks TypeScript directos de server/adapter y todos los tests que cubren este cambio sí pasan.
 
-El preview e import sobre la compañía local, la autenticación Codex, el named-gateway smoke y los cinco pilotos de especialistas ya se completaron con sesión Board y sin conservar tokens temporales. Permanecen manuales el piloto del Director, la ejecución del Daily Brief y Weekly Review, el GO/NO-GO y la activación posterior de sus horarios.
+El preview e import sobre la compañía local, la autenticación Codex, el named-gateway smoke, los cinco pilotos de especialistas y los dos pilotos manuales del Director ya se completaron con sesión Board y sin conservar tokens temporales. Solo queda una decisión explícita de Board sobre la activación posterior de los horarios; hasta entonces el desired state exige rutinas y triggers pausados.
 
 ## GO/NO-GO v0.1.x
 
@@ -150,7 +160,7 @@ La arquitectura pasa a la siguiente fase solo si, de forma repetible:
 1. se importa en una compañía limpia y pausada;
 2. WooCommerce entrega envelopes válidos y fechados, y los resultados de GA4, GSC y Ads se normalizan inmediatamente al mismo contrato antes de cualquier cálculo o brief;
 3. una tarea manual al Director produce un Daily Brief que distingue datos actuales, históricos, obsoletos y ausentes;
-4. el Director delega correctamente a Ecommerce, Growth y Finance;
+4. el Director propone handoffs correctos a Ecommerce, Growth y Finance, con owner y evidencia, sin crearlos automáticamente durante el smoke;
 5. no se observa PII, mutación externa, publicación, contacto a cliente ni llamada no autorizada.
 
 Hasta superar este hito no se añaden Merchant Center live, Meta, social, publicación, pricing ni mayor autonomía.

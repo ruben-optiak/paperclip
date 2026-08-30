@@ -77,7 +77,7 @@ const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md schema must be agentcompanies/v1");
 if (company.slug !== "enki-hogar-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.1") fail("Unexpected package version");
+if (company.version !== "0.1.2") fail("Unexpected package version");
 if (company.license !== "MIT AND LicenseRef-Enki-Hogar-Internal") fail("Unexpected package license; mixed package scope must be explicit");
 for (const required of [
   "LICENSE",
@@ -266,10 +266,10 @@ for (const expected of [
 
 const compatibility = jsonYaml("runtime/compatibility.lock.yaml");
 if (compatibility.schema !== "enki-runtime-compatibility/v1") fail("Unexpected runtime compatibility schema");
-if (compatibility.packageVersion !== "0.1.1") fail("Compatibility lock package version must match 0.1.1");
+if (compatibility.packageVersion !== "0.1.2") fail("Compatibility lock package version must match 0.1.2");
 if (compatibility.paperclipBundleSchemaVersion !== 7) fail("Compatibility lock must target bundle schemaVersion 7");
 if (compatibility.connectors?.woocommerce?.version !== "0.1.1") fail("Compatibility lock must pin WooCommerce connector 0.1.1");
-if (compatibility.connectors?.google?.version !== "0.1.0") fail("Compatibility lock must pin Google connector runtime 0.1.0");
+if (compatibility.connectors?.google?.version !== "0.1.1") fail("Compatibility lock must pin Google connector runtime 0.1.1");
 if (compatibility.paperclip?.upstreamBaseCommit !== "35fca95626a04f5a7ec42cf95989c3d779a1687e") fail("Compatibility lock must identify the reviewed Paperclip base commit");
 if (compatibility.codex?.managedMcpDefaultToolsApprovalMode !== "approve") fail("Compatibility lock must delegate managed MCP dispatch approval to the Paperclip gateway");
 if (!String(compatibility.codex?.managedMcpApprovalModeStatus || "").includes("verified")) fail("Managed MCP approval mode must carry verified runtime evidence");
@@ -312,12 +312,16 @@ if (desired.requirePositiveMonthlyBudget !== true) fail("Desired state must requ
 if (desired.requirePositiveCompanyMonthlyBudget !== true) fail("Desired state must require a positive company budget hard cap");
 if (desired.connections?.length !== 4 || desired.profiles?.length !== 6 || desired.policies?.length !== 1 || desired.gateways?.length !== 6) fail("Desired state must define 4 connections, 6 profiles, 1 global block policy, and 6 governed gateways");
 const desiredToolNames = new Set((desired.connections || []).flatMap((connection) => connection.tools || []));
+const analyticsProxy = jsonYaml("connectors/google-mcps/config/analytics-proxy.json");
+if (analyticsProxy.mcpServers?.default?.tools?.list_google_ads_links?.enabled !== false) fail("GA4 proxy must quarantine list_google_ads_links because its upstream response exposes creator email PII");
+if (desiredToolNames.has("list_google_ads_links")) fail("Desired connection catalogs must exclude the PII-bearing list_google_ads_links tool");
 const desiredProfileAgents = new Set();
 for (const profile of desired.profiles || []) {
   if (profile.defaultAction !== "deny" || profile.strictAllowedTools !== true) fail(`Profile ${profile.profileKey || "unknown"} must be strict default-deny`);
   if (!agents.has(profile.agentSlug)) fail(`Desired profile references unknown agent: ${profile.agentSlug || "unknown"}`);
   if (desiredProfileAgents.has(profile.agentSlug)) fail(`Desired state has multiple profiles for agent: ${profile.agentSlug}`);
   desiredProfileAgents.add(profile.agentSlug);
+  if ((profile.allowedTools || []).includes("list_google_ads_links")) fail(`Profile ${profile.profileKey || "unknown"} must not expose list_google_ads_links`);
   for (const tool of profile.allowedTools || []) if (!desiredToolNames.has(tool)) fail(`Profile ${profile.profileKey || "unknown"} references tool outside strict catalogs: ${tool}`);
 }
 for (const connection of desired.connections || []) {

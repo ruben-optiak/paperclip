@@ -6,6 +6,7 @@
 - Require actual read-only upstream roles in addition to tool filtering.
 - Protect every `/mcp` route with a bearer token; `/health` contains no account identifiers, tool output, credential status, or customer data.
 - Compare the observed tool catalog against `policies/tool-allowlist.yaml` after builds and upgrades.
+- Keep `list_google_ads_links` disabled at both proxy and profile layers; read-only operations that return PII are still prohibited.
 - Keep every customer-level access path absent from the v0.1.x connector catalog.
 - Redact names, email, phone, address, IDs, and raw payloads from logs and routine briefs.
 - Stop agents and routines on credential leakage, unknown tools, unredacted PII, unexpected writes, or target-environment ambiguity.

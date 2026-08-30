@@ -81,7 +81,11 @@ Set `GOOGLE_ADC_HOST_PATH` to the canonical absolute path of that generated `app
 - Ads: `http://enki-google-mcps:8010/mcp`
 - GA4: `http://enki-google-mcps:8011/mcp`
 
-Use Bearer `GOOGLE_MCP_TOKEN`. Ads must expose only search, accessible-customers, and resource-metadata tools. GA4 must match the allowlist. Do not grant an Ads credential capable of account mutation through another tool path.
+Use Bearer `GOOGLE_MCP_TOKEN`. Ads must expose only search, accessible-customers, and resource-metadata tools. GA4 must expose exactly the six tools in the allowlist. `list_google_ads_links` must remain absent: the pinned upstream returns `creator_email_address`, so v0.1.x quarantines the whole tool instead of trusting prompt-only redaction. Do not grant an Ads credential capable of account mutation through another tool path.
+
+After rebuilding this connector, refresh the GA4 catalog in Paperclip and require an observed count of six before resuming any agent. Current Paperclip catalog refreshes update tools that are rediscovered but do not tombstone a tool that disappeared upstream. If `list_google_ads_links` was seen by an older runtime, keep every agent paused, remove its exact catalog entry from every profile and mark that one historical entry `quarantined` through an approved administrative path after a backup. Do not accept an active stale entry merely because the upstream now returns method-not-found. The GET-only drift check must return zero findings before the Director is resumed.
+
+Use `customers_list_accessible_customers` only to select a Google Ads customer internally and never copy customer IDs into an issue or brief. If the target is ambiguous, mark Ads unavailable and ask Board to correct connector-side account scoping; do not enumerate or query multiple accounts speculatively.
 
 `GOOGLE_ADS_DEVELOPER_TOKEN` comes from the Google Ads manager account's API Center and must have production-query access (at least Explorer for the pinned upstream). If the OAuth user reaches the target account through a manager account, set `GOOGLE_ADS_LOGIN_CUSTOMER_ID` to that manager's ten-digit ID without hyphens; otherwise leave it empty.
 

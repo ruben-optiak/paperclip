@@ -6,7 +6,7 @@ Run with all schedules paused and record evidence without secrets or PII.
 2. Catalog: observed tool names equal the allowlist; mutation and indexing probes are denied or absent.
 3. Woo: sales/order summaries work on a bounded period; product/SKU and low-stock reads work; bulk output has no PII. The low-stock call completes inside Paperclip's 10-second remote-tool deadline, reports raw rows, unique IDs and the remote total, excludes duplicate IDs, separates exact quantities from status-only out-of-stock rows, and labels unavailable variation-level quantities as partial.
 4. Zero-PII gate: customer lists and every customer-level query are absent from the connector catalog and access profiles.
-5. Google: Ads search, GA4 report, and GSC analytics query run with explicit periods. Do not use production-changing queries.
+5. Google: Ads search, GA4 report, and GSC analytics query run with explicit periods. The observed GA4 catalog contains exactly six approved tools and excludes `list_google_ads_links`; any reappearance is quarantined because its upstream response contains an email field. Do not use production-changing queries.
 6. Brief: manually run complete, partial, stale, and outage fixtures. Missing or historical data remains visibly labelled.
 7. WordPress: `render` and `sync --dry-run` work without credentials; `sync` without dry-run fails.
 8. Agents: Board can assign work directly to each specialist and the reporting tree still has one Director root.
@@ -14,6 +14,8 @@ Run with all schedules paused and record evidence without secrets or PII.
 10. Budgets: company and all six agent monthly hard caps are explicit and positive; record only the decision evidence, not invented values in this package.
 11. Routines: desired-state drift proves exactly the daily and weekly routines are paused, both schedules are disabled, and no unexpected routine exists; manually invoke both and inspect outputs before enabling schedules one at a time.
 12. Portability: export the company again and inspect that no secrets, database IDs, connector host paths, or managed-home paths appear; preview a reimport in a disposable target.
+
+For terminal smoke evidence, write the Board verification before the agent moves the issue to `done`, or restore the final status with a status-only update afterward. In current Paperclip behavior, a human comment on an assigned terminal issue is follow-up intent: it implicitly reopens the issue to `todo`. If the assignee is already paused, recovery can then route the stranded issue to `blocked`. Do not diagnose that transition as a failed read-only run when the latest run itself succeeded; inspect issue activity for `source=comment` followed by `recovery.reconcile_stranded_assigned_issue`, then restore the intended terminal state without adding another comment.
 
 ## Customer Experience zero-PII smoke
 

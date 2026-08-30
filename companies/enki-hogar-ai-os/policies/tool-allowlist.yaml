@@ -19,7 +19,6 @@ connectors:
     allowed:
       get_account_summaries: read
       get_property_details: read
-      list_google_ads_links: read
       run_report: read
       run_funnel_report: read
       get_custom_dimensions_and_metrics: read

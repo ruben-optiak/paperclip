@@ -29,7 +29,7 @@ export function createAuthProxyServer({upstreamPort, service, token}) {
       const url = new URL(incoming.url || "/", "http://localhost");
       if (incoming.method === "GET" && url.pathname === "/health") {
         const ready = await upstreamReady(upstreamPort);
-        const body = JSON.stringify({status: ready ? "ok" : "starting", service, runtime: "enki-google-mcps-v0.1.0"});
+        const body = JSON.stringify({status: ready ? "ok" : "starting", service, runtime: "enki-google-mcps-v0.1.1"});
         outgoing.writeHead(ready ? 200 : 503, {"content-type": "application/json", "content-length": Buffer.byteLength(body)});
         outgoing.end(body);
         return;

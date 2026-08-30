@@ -1,6 +1,6 @@
 [project]
 name = "enki-google-mcps-runtime"
-version = "0.1.0"
+version = "0.1.1"
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "analytics-mcp @ git+https://github.com/googleanalytics/google-analytics-mcp.git@a8ca729d4a8fa99bffe87962c17c0539c6aa9da7",

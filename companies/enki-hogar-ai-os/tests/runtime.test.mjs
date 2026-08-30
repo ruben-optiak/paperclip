@@ -146,6 +146,7 @@ test("Compose binds host health ports to loopback and never injects upstream cre
 
 test("Google proxy hides unapproved GA4 growth and launches GSC through the mounted OAuth client", () => {
   const analyticsConfig = readJsonYaml("connectors/google-mcps/config/analytics-proxy.json");
+  assert.equal(analyticsConfig.mcpServers.default.tools.list_google_ads_links.enabled, false);
   assert.equal(analyticsConfig.mcpServers.default.tools.list_property_annotations.enabled, false);
   assert.equal(analyticsConfig.mcpServers.default.tools.run_conversions_report.enabled, false);
 

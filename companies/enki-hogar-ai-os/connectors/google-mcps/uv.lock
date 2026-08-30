@@ -364,7 +364,7 @@ wheels = [
 
 [[package]]
 name = "enki-google-mcps-runtime"
-version = "0.1.0"
+version = "0.1.1"
 source = { virtual = "." }
 dependencies = [
     { name = "analytics-mcp" },
