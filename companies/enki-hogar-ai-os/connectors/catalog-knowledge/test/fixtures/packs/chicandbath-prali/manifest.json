@@ -1,0 +1,23 @@
+{
+  "schema": "enki-product-support-pack/v1",
+  "packKey": "chicandbath-muebles-de-bano-support",
+  "version": "1.0.0",
+  "brand": {"slug": "chicandbath", "name": "Chicandbath"},
+  "domain": {"slug": "muebles-de-bano", "name": "Muebles de baño"},
+  "snapshotDate": "2026-08-31",
+  "approval": {"state": "approved", "approvedBy": "catalog-owner", "approvedAt": "2026-08-31T08:00:00+02:00"},
+  "sourceRepository": {"locator": "enki-repo://enki-hogar/productos", "revisionKind": "git_commit", "revision": "3333333333333333333333333333333333333333"},
+  "files": {
+    "technical_entities.csv": {"sha256": "5c27abd040144548a02a443afeca38843de648daba462d79512072476af3ce21", "rows": 3},
+    "technical_facts.csv": {"sha256": "d766476851d827e9be254084a34f5de8391de1c3b97806338a944ab360bafb08", "rows": 2},
+    "technical_relations.csv": {"sha256": "ecaf91e2ecbac20852385834b3c22bda186dc12a6055fb8d194a8e2c50a385eb", "rows": 3},
+    "configuration_rules.csv": {"sha256": "5a58dba67a7324884921d05f165ed9c766c3b531f3579d69b67e8e8beab3226d", "rows": 4},
+    "sku_crosswalk.csv": {"sha256": "e63b04f624abddfd73206fbf6d001b861fa3ae771b7eeb1ab9d615bd86ee84a9", "rows": 2},
+    "support_chunks.jsonl": {"sha256": "dd6e9feb3d965e9df1d96ac10b8564de33fbd168aeb3d0a2f81a2e0dedc2b05d", "rows": 2}
+  },
+  "sources": [
+    {"sourceKey": "chicandbath-catalogo", "title": "Catálogo técnico Chicandbath", "kind": "manufacturer_catalog", "locator": "enki-source://chicandbath/muebles/catalogo", "snapshotDate": "2026-08-15", "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"},
+    {"sourceKey": "chicandbath-qa", "title": "Decisiones QA Chicandbath", "kind": "manual_review", "locator": "enki-source://chicandbath/muebles/qa", "snapshotDate": "2026-08-31", "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"},
+    {"sourceKey": "chicandbath-compatibility", "title": "Matriz de compatibilidad Chicandbath", "kind": "manual_review", "locator": "enki-source://chicandbath/muebles/compatibility", "snapshotDate": "2026-08-31", "sha256": "abababababababababababababababababababababababababababababababab"}
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://enkihogar.example.invalid/contracts/product-support-result-v1.schema.json",
+  "title": "Enki product support MCP result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "as_of", "authority", "data"],
+  "properties": {
+    "schema": {"const": "enki-product-support-result/v1"},
+    "as_of": {"type": "string", "format": "date-time"},
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["technical_source", "commercial_source", "commercial_fields_included", "rebuildable_projection"],
+      "properties": {
+        "technical_source": {"const": "active-approved-support-pack"},
+        "commercial_source": {"const": "woocommerce-live"},
+        "commercial_fields_included": {"const": false},
+        "rebuildable_projection": {"const": true}
+      }
+    },
+    "data": {"type": "object"}
+  }
+}

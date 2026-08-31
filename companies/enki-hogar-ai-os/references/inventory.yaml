@@ -19,7 +19,7 @@
     },
     {
       "target": "curated/catalog-crm.md",
-      "targetSha256": "4ee712d757068c09c38ad7dc87410104e78912265182525518a0ac11b1367dc2",
+      "targetSha256": "768794e4a6fcd2d49dfb68f80e07e4c1660f48f5dccaf8242a50ed2c79a8cf66",
       "sourcePaths": ["docs/producto-crm.md"],
       "sourceSha256Status": "pending_next_synchronized_snapshot",
       "purpose": "Catalogue and CRM operating context",
@@ -59,7 +59,7 @@
     },
     {
       "target": "curated/catalog-schema.md",
-      "targetSha256": "513d9c626ab77891f44f4bbc87014311a75374546e9f762f4676466768cca5b6",
+      "targetSha256": "3f4d75a111798dc905c6149dfab1836d25624fb9328dd1b87aef92c19918e492",
       "sourcePaths": ["productos/SCHEMA.md", "productos/ATTRIBUTE_MODEL.md"],
       "sourceSha256Status": "pending_next_synchronized_snapshot",
       "purpose": "Catalogue entities, fields, and attribute rules",
@@ -67,7 +67,7 @@
     },
     {
       "target": "curated/catalog-validation-playbook.md",
-      "targetSha256": "b9a3457162750e5971485787b8940bf08d9e936198f24bcb6e591ca22db491af",
+      "targetSha256": "8548f17fcdb130001b0c16256275e348be48e7704c5728167fcd67a1d083ef5a",
       "sourcePaths": ["productos/QA_POLICY.md", "productos/VALIDATION_PLAYBOOK.md"],
       "sourceSha256Status": "pending_next_synchronized_snapshot",
       "purpose": "Evidence and approval workflow for catalogue changes",
@@ -89,6 +89,38 @@
       "origin": "package-authored",
       "license": "LicenseRef-Enki-Hogar-Internal",
       "purpose": "Canonical machine-readable envelope for live, partial, stale and unavailable evidence",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/content-ledger-v1.schema.json",
+      "targetSha256": "b53377cdb842545d309946d8ef9ce0e89330f229e035cdebc7f9e2f87d0053cf",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Canonical non-PII registry for content coverage, deduplication and publication reconciliation",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/editorial-workflow-v1.json",
+      "targetSha256": "bdbb3304c77f51c0c96ba3028bc517167b791fdefb816491a4c622da710637b7",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Machine-readable phase gate from Growth draft to Ecommerce review with publication blocked",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/product-support-result-v1.schema.json",
+      "targetSha256": "077bf89b7189120a854b331d5ad4f51033af54e8446c77e5bb9ec1a773886d10",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Canonical result contract separating approved technical support from live WooCommerce commercial truth",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/product-support-pack-v1.schema.json",
+      "targetSha256": "052d02974da890998c8b68888cee610276adcbf45d340239dd3b8388b4e6e55c",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Canonical manifest contract for immutable approved brand/domain support packs",
       "sensitivity": "enki_internal"
     }
   ]

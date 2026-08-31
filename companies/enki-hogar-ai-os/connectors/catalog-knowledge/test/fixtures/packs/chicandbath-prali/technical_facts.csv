@@ -1,0 +1,3 @@
+entity_key,fact_key,value,unit,applicability,evidence_ref,source_page,confidence
+prali-05,drawer_count,1,,entity,chicandbath-catalogo#page=44,44,1
+bonn-basin,component_role,Lavabo seleccionable como producto componente.,,component,chicandbath-qa#decision=component-model,,1

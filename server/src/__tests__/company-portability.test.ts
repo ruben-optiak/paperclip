@@ -4082,7 +4082,7 @@ describe("company portability", () => {
       adapterType: "codex_local",
       adapterConfig: {},
       runtimeConfig: {},
-      budgetMonthlyCents: 0,
+      budgetMonthlyCents: 700,
       permissions: {},
       metadata: null,
     };
@@ -4108,6 +4108,83 @@ describe("company portability", () => {
     expect(result.agents).toEqual(expect.arrayContaining([
       expect.objectContaining({ id: existingAgentId, action: "updated" }),
     ]));
+  });
+
+  it("preserves a portable agent identity when its display name normalizes to another slug", async () => {
+    const portability = companyPortabilityService({} as any);
+    const existingAgentId = "22222222-2222-4222-8222-222222222222";
+    let existingAgent: Record<string, any> = {
+      id: existingAgentId,
+      companyId: "company-1",
+      name: "Director de Operaciones de Enki",
+      urlKey: "director-de-operaciones-de-enki",
+      status: "paused",
+      role: "ceo",
+      title: null,
+      icon: null,
+      reportsTo: null,
+      capabilities: null,
+      adapterType: "codex_local",
+      adapterConfig: {},
+      runtimeConfig: {},
+      budgetMonthlyCents: 700,
+      permissions: {},
+      metadata: null,
+    };
+    agentSvc.list.mockResolvedValue([existingAgent]);
+    agentSvc.update.mockImplementation(async (_agentId: string, patch: Record<string, unknown>) => {
+      existingAgent = { ...existingAgent, ...patch };
+      return existingAgent;
+    });
+    const files = inlineCodexPackageFiles();
+    files["COMPANY.md"] = asTextFile(files["COMPANY.md"])
+      .replace("agents/coder/AGENTS.md", "agents/director-operaciones/AGENTS.md");
+    files["agents/director-operaciones/AGENTS.md"] = asTextFile(files["agents/coder/AGENTS.md"])
+      .replace("name: Coder", "name: Director de Operaciones de Enki")
+      .replace("slug: coder", "slug: director-operaciones");
+    delete files["agents/coder/AGENTS.md"];
+    files[".paperclip.yaml"] = asTextFile(files[".paperclip.yaml"])
+      .replace(/coder:/g, "director-operaciones:");
+
+    const preview = await portability.previewImport({
+      source: { type: "inline", files },
+      include: { company: false, agents: true, projects: false, issues: false },
+      target: { mode: "existing_company", companyId: "company-1" },
+      agents: ["director-operaciones"],
+      collisionStrategy: "replace",
+    });
+    expect(preview.plan.agentPlans).toEqual([
+      expect.objectContaining({
+        slug: "director-operaciones",
+        action: "update",
+        existingAgentId,
+      }),
+    ]);
+
+    await portability.importBundle({
+      source: { type: "inline", files },
+      include: { company: false, agents: true, projects: false, issues: false },
+      target: { mode: "existing_company", companyId: "company-1" },
+      agents: ["director-operaciones"],
+      collisionStrategy: "replace",
+    }, "user-1");
+
+    expect(agentSvc.create).not.toHaveBeenCalled();
+    expect(agentSvc.update).toHaveBeenCalledWith(existingAgentId, expect.objectContaining({
+      metadata: expect.objectContaining({ portableSlug: "director-operaciones" }),
+    }));
+    const identityUpdatePatch = agentSvc.update.mock.calls.find(([id]) => id === existingAgentId)?.[1] as Record<string, unknown>;
+    expect(identityUpdatePatch).not.toHaveProperty("budgetMonthlyCents");
+    expect(existingAgent.budgetMonthlyCents).toBe(700);
+
+    agentSvc.list.mockResolvedValue([existingAgent]);
+    agentInstructionsSvc.exportFiles.mockResolvedValue({
+      files: { "AGENTS.md": "Instructions" }, entryFile: "AGENTS.md", warnings: [],
+    });
+    const exported = await portability.exportBundle("company-1", {
+      include: { company: false, agents: true, projects: false, issues: false },
+    });
+    expect(exported.manifest.agents[0]?.slug).toBe("director-operaciones");
   });
 
   it("carries labels by name through export and import round-trip", async () => {

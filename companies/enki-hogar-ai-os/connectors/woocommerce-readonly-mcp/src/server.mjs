@@ -1,10 +1,12 @@
 import {timingSafeEqual} from "node:crypto";
 import {createServer} from "node:http";
+import {createRequire} from "node:module";
 import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 import {StreamableHTTPServerTransport} from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import {createToolDefinitions} from "./tools.mjs";
 
-const CONNECTOR_VERSION = "0.1.1";
+const require = createRequire(import.meta.url);
+const {version: CONNECTOR_VERSION} = require("../package.json");
 
 function sendJson(response, status, body) {
   const payload = JSON.stringify(body);

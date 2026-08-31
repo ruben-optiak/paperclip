@@ -16,7 +16,7 @@ agents:
           - -c
           - default_permissions="enki-readonly-network"
           - -c
-          - permissions.enki-readonly-network.extends=":read-only"
+          - "permissions.enki-readonly-network.extends=\":read-only\""
           - -c
           - permissions.enki-readonly-network.network.enabled=true
           - -c
@@ -43,7 +43,7 @@ agents:
           - -c
           - default_permissions="enki-readonly-network"
           - -c
-          - permissions.enki-readonly-network.extends=":read-only"
+          - "permissions.enki-readonly-network.extends=\":read-only\""
           - -c
           - permissions.enki-readonly-network.network.enabled=true
           - -c
@@ -70,7 +70,7 @@ agents:
           - -c
           - default_permissions="enki-readonly-network"
           - -c
-          - permissions.enki-readonly-network.extends=":read-only"
+          - "permissions.enki-readonly-network.extends=\":read-only\""
           - -c
           - permissions.enki-readonly-network.network.enabled=true
           - -c
@@ -97,7 +97,7 @@ agents:
           - -c
           - default_permissions="enki-readonly-network"
           - -c
-          - permissions.enki-readonly-network.extends=":read-only"
+          - "permissions.enki-readonly-network.extends=\":read-only\""
           - -c
           - permissions.enki-readonly-network.network.enabled=true
           - -c
@@ -124,7 +124,7 @@ agents:
           - -c
           - default_permissions="enki-readonly-network"
           - -c
-          - permissions.enki-readonly-network.extends=":read-only"
+          - "permissions.enki-readonly-network.extends=\":read-only\""
           - -c
           - permissions.enki-readonly-network.network.enabled=true
           - -c
@@ -151,7 +151,7 @@ agents:
           - -c
           - default_permissions="enki-readonly-network"
           - -c
-          - permissions.enki-readonly-network.extends=":read-only"
+          - "permissions.enki-readonly-network.extends=\":read-only\""
           - -c
           - permissions.enki-readonly-network.network.enabled=true
           - -c

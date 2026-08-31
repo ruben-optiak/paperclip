@@ -1,0 +1,69 @@
+{
+  "schema": "enki-woo-identity-snapshot/v1",
+  "observedAt": "2026-08-31T13:33:55+02:00",
+  "source": "woocommerce_live_readonly",
+  "scope": "Enki Hogar mirror parent and variation identity only",
+  "warning": "Historical identity evidence only. Query WooCommerce live for current status, price, stock and sellable options.",
+  "products": [
+    {
+      "parentSku": "ENKI-ESP-LUX",
+      "status": "publish",
+      "type": "variable",
+      "variationSkus": ["ENKI-ESP-050101", "ENKI-ESP-050102", "ENKI-ESP-050103", "ENKI-ESP-050104", "ENKI-ESP-050105", "ENKI-ESP-050106", "ENKI-ESP-050107"]
+    },
+    {
+      "parentSku": "ENKI-ESP-PURE",
+      "status": "publish",
+      "type": "variable",
+      "variationSkus": ["ENKI-ESP-050201", "ENKI-ESP-050202", "ENKI-ESP-050203", "ENKI-ESP-050204"]
+    },
+    {
+      "parentSku": "ENKI-ESP-LINE",
+      "status": "publish",
+      "type": "variable",
+      "variationSkus": ["ENKI-ESP-050301", "ENKI-ESP-050302", "ENKI-ESP-050303", "ENKI-ESP-050304"]
+    },
+    {
+      "parentSku": "ENKI-ESP-FORM",
+      "status": "publish",
+      "type": "variable",
+      "variationSkus": ["ENKI-ESP-050401", "ENKI-ESP-050402", "ENKI-ESP-050403"]
+    },
+    {
+      "parentSku": "ENKI-ESP-AXIS",
+      "status": "publish",
+      "type": "variable",
+      "variationSkus": ["ENKI-ESP-050501BM", "ENKI-ESP-050502BM", "ENKI-ESP-050503BM"]
+    },
+    {
+      "parentSku": "ENKI-ESP-OPAL",
+      "status": "publish",
+      "type": "variable",
+      "variationSkus": ["ENKI-ESP-060101", "ENKI-ESP-060102", "ENKI-ESP-060103"]
+    },
+    {
+      "parentSku": "ENKI-ESP-ELIO",
+      "status": "publish",
+      "type": "variable",
+      "variationSkus": ["ENKI-ESP-060201BM", "ENKI-ESP-060202BM", "ENKI-ESP-060203BM"]
+    },
+    {
+      "parentSku": "ENKI-ESP-EIRA",
+      "status": "publish",
+      "type": "variable",
+      "variationSkus": ["ENKI-ESP-060301BM", "ENKI-ESP-060302BM"]
+    },
+    {
+      "parentSku": "ENKI-ESP-AURI",
+      "status": "publish",
+      "type": "variable",
+      "variationSkus": ["ENKI-ESP-070101", "ENKI-ESP-070102"]
+    },
+    {
+      "parentSku": "ENKI-ESP-TIVO",
+      "status": "publish",
+      "type": "variable",
+      "variationSkus": ["ENKI-ESP-070201BM", "ENKI-ESP-070202BM"]
+    }
+  ]
+}

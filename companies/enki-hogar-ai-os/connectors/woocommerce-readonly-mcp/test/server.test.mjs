@@ -41,3 +41,17 @@ test("MCP endpoint requires the configured bearer and accepts it", async (contex
   assert.match(body, /"id":1/);
   assert.match(body, /"name":"enki-woocommerce-readonly"/);
 });
+
+test("health reports the connector package version without exposing data", async (context) => {
+  const server = createHttpServer({client: {}, token: "test-only-bearer"});
+  const baseUrl = await listen(server);
+  context.after(() => new Promise((resolve) => server.close(resolve)));
+
+  const response = await fetch(`${baseUrl}/health`);
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), {
+    status: "ok",
+    service: "enki-woocommerce-readonly-mcp",
+    version: "0.2.1",
+  });
+});

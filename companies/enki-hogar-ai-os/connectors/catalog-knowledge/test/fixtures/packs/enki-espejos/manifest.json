@@ -1,0 +1,22 @@
+{
+  "schema": "enki-product-support-pack/v1",
+  "packKey": "enki-espejos-support",
+  "version": "1.0.0",
+  "brand": {"slug": "enki", "name": "Enki Hogar"},
+  "domain": {"slug": "espejos", "name": "Espejos"},
+  "snapshotDate": "2026-08-31",
+  "approval": {"state": "approved", "approvedBy": "catalog-owner", "approvedAt": "2026-08-31T08:00:00+02:00"},
+  "sourceRepository": {"locator": "enki-repo://enki-hogar/productos", "revisionKind": "git_commit", "revision": "1111111111111111111111111111111111111111"},
+  "files": {
+    "technical_entities.csv": {"sha256": "bba8e488f3b0b50477721106ae4d32b5e61d8f9fc05f0ea8661e690fa104e321", "rows": 2},
+    "technical_facts.csv": {"sha256": "621f3029de3484505a81b9fa9aaaa78e47abd32783b3c94d37f9d47eccfaa471", "rows": 3},
+    "technical_relations.csv": {"sha256": "ef9c0dd6daf9e2c01789a69ce208ca1120db98d456f63de974e3df681b74bd16", "rows": 1},
+    "configuration_rules.csv": {"sha256": "5460db1c248cab064d2f45684337e8c6aa68dd5a13f3f5de9cfb97b89b68792f", "rows": 1},
+    "sku_crosswalk.csv": {"sha256": "d56a7745292b41dd40d2c38b02595342f6242df177992d2f0204eebb94b375d8", "rows": 1},
+    "support_chunks.jsonl": {"sha256": "f97d4a73ae1eec169343bfe453d4721f99800114ad550333d02202168ab7c0ee", "rows": 1}
+  },
+  "sources": [
+    {"sourceKey": "enki-espejos-catalogo", "title": "Catálogo técnico Enki Espejos", "kind": "manufacturer_catalog", "locator": "enki-source://enki/espejos/catalogo", "snapshotDate": "2026-05-31", "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+    {"sourceKey": "enki-espejos-qa", "title": "Decisiones QA Enki Espejos", "kind": "manual_review", "locator": "enki-source://enki/espejos/qa", "snapshotDate": "2026-08-31", "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"}
+  ]
+}

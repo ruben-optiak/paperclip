@@ -1,0 +1,4 @@
+entity_key,fact_key,value,unit,applicability,evidence_ref,source_page,confidence
+lux-050101,width,50,cm,variant,enki-espejos-catalogo#page=12,12,1
+lux-050101,height,70,cm,variant,enki-espejos-catalogo#page=12,12,1
+lux,finish_role,El acabado es informativo y no constituye por sí solo un eje de variación.,,informational,enki-espejos-qa#decision=finish-role,,1

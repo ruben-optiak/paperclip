@@ -1,0 +1,3 @@
+entity_key,manufacturer_ref,woo_parent_sku,woo_variation_sku,mapping_kind,evidence_ref,approved_by,approved_at
+prali-05,PRALI-05,CHIC-PRALI-05,,parent,chicandbath-qa#decision=configuration-model,catalog-owner,2026-08-31T08:00:00+02:00
+bonn-basin,BONN,CHIC-BONN,,component,chicandbath-qa#decision=component-model,catalog-owner,2026-08-31T08:00:00+02:00

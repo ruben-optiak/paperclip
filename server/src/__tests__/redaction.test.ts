@@ -56,6 +56,20 @@ describe("redaction", () => {
     expect(result.normal).toBe("plain");
   });
 
+  it("redacts a printed run JWT from nested tool-output strings", () => {
+    const jwt = "eyJhbGciOiJIUzI1NiJ9.eyJydW5faWQiOiJydW4tMTIzNDU2Nzg5MCJ9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+    const result = redactEventPayload({
+      output: `${jwt}\n`,
+      content: [
+        {type: "text", text: `printenv returned ${jwt}`},
+        `nested ${jwt} value`,
+      ],
+    });
+
+    expect(JSON.stringify(result)).toContain(REDACTED_EVENT_VALUE);
+    expect(JSON.stringify(result)).not.toContain(jwt);
+  });
+
   it("redacts payload objects while preserving null", () => {
     expect(redactEventPayload(null)).toBeNull();
     expect(redactEventPayload({ password: "hunter2", safe: "value" })).toEqual({

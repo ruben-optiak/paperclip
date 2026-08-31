@@ -1,7 +1,7 @@
 {
   "schema": "enki-runtime-compatibility/v1",
-  "packageVersion": "0.2.0",
-  "recordedAt": "2026-08-30",
+  "packageVersion": "0.4.1",
+  "recordedAt": "2026-08-31",
   "agentCompaniesSchema": "agentcompanies/v1",
   "paperclipBundleSchemaVersion": 7,
   "paperclip": {
@@ -22,6 +22,8 @@
     "modelStatus": "verified_from_package_configuration",
     "managedHomeIsolation": "required_per_agent",
     "managedHomeIsolationStatus": "verified_locally_pending_release_tag",
+    "managedSkillDelivery": "materialized_copy_inside_run_scoped_home",
+    "managedSkillDeliveryStatus": "verified_by_adapter_tests_and_live_v0.4.1_smoke",
     "skipGitRepoCheck": true,
     "sandbox": "read-only",
     "permissionProfile": "enki-readonly-network",
@@ -54,7 +56,7 @@
   },
   "connectors": {
     "woocommerce": {
-      "version": "0.1.1",
+      "version": "0.2.1",
       "imageDigest": null,
       "imageStatus": "pending_release_build_and_digest_verification",
       "mcpSdk": "1.30.0",
@@ -77,6 +79,20 @@
       "pluginSdk": "workspace:@paperclipai/plugin-sdk@1.0.0",
       "transport": "telegram-bot-api-long-polling",
       "dependencyStatus": "verified_from_workspace_lock"
+    },
+    "productSupportKnowledge": {
+      "version": "0.2.0",
+      "imageDigest": null,
+      "imageStatus": "pending_release_build_and_digest_verification",
+      "mcpSdk": "1.30.0",
+      "postgresClient": "3.4.9",
+      "zod": "4.4.3",
+      "databaseImage": "pgvector/pgvector:0.8.6-pg17-bookworm",
+      "databaseImageDigest": "sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f",
+      "databaseImageStatus": "verified_registry_oci_index_2026-08-31",
+      "agentDatabaseRole": "enki_support_reader",
+      "agentDatabaseRoleStatus": "verified_read_only_by_integration_test",
+      "dependencyStatus": "verified_from_package_and_lock"
     }
   },
   "releaseEvidence": {

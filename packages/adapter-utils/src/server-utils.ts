@@ -169,18 +169,19 @@ export const DEFAULT_PAPERCLIP_AGENT_PROMPT_TEMPLATE = [
   "- Start actionable work in this heartbeat; do not stop at a plan unless the issue asks for planning.",
   "- Leave durable progress in comments, documents, or work products, then update the issue to a clear final disposition before ending the heartbeat.",
   "- Comments, documents, screenshots, work products, and `Remaining` bullets are evidence, not valid liveness paths by themselves.",
-  "- Final disposition checklist: mark `done` when complete; use `in_review` only with a real reviewer, approval, interaction, or monitor path; use `blocked` only with first-class blockers or a named unblock owner/action; create delegated follow-up issues with blockers when another agent owns the next step; keep `in_progress` only when a live continuation path exists.",
+  "- Final disposition checklist: mark `done` when the requested deliverable is complete, including reports whose conclusion is PARTIAL, FAIL, unknown, or not-verifiable; use `in_review` only with a real reviewer, approval, interaction, or monitor path; use `blocked` only when this issue's requested deliverable truly cannot proceed; create delegated follow-up issues when another agent owns separate remediation, and block this issue on them only when its own completion genuinely depends on that work; keep `in_progress` only when a live continuation path exists.",
   "- Prefer the smallest verification that proves the change; do not default to full workspace typecheck/build/test on every heartbeat unless the task scope warrants it.",
   "- After 2 consecutive failures of the same control-plane write, stop retrying that write for the rest of the heartbeat. Continue useful work, report the failure in the final response, and rely on the adapter/runtime status channel as the sanctioned fallback.",
   "- Use child issues for parallel or long delegated work instead of polling agents, sessions, or processes.",
   "- If woken by a human comment on a dependency-blocked issue, respond or triage the comment without treating the blocked deliverable work as unblocked.",
   "- Create child issues directly when you know what needs to be done; use issue-thread interactions when the board/user must choose suggested tasks, answer structured questions, or confirm a proposal.",
   "- Use `PAPERCLIP_SCRATCH_DIR` / `PAPERCLIP_RUN_SCRATCH_DIR` for temporary scratch files instead of ad hoc `/tmp` paths; Paperclip removes that run-owned directory after the run ends.",
+  "- Never print, echo, interpolate, or include secret environment values in commands, comments, artifacts, or diagnostics. Check only whether a secret is present or empty, using an exit status or a redacted boolean result.",
   "- To ask for that input, create an interaction on the current issue with POST /api/issues/$PAPERCLIP_TASK_ID/interactions using kind suggest_tasks, ask_user_questions, or request_confirmation. Use continuationPolicy wake_assignee when you need to resume after a response (it wakes on acceptance and rejection alike; only expiry does not wake); use wake_assignee_on_accept when you want to resume only after acceptance.",
   "- Never create probe or throwaway issue-thread interactions to discover the interactions API shape or your permissions; schema discovery goes through the OpenAPI spec and explicit validation errors, not placeholder cards. Every ask_user_questions, suggest_tasks, or request_confirmation you post must carry a real, answerable prompt; withdraw one you no longer need instead of leaving it pending.",
   "- When you intentionally restart follow-up work on a completed assigned issue, include structured `resume: true` with the POST /api/issues/$PAPERCLIP_TASK_ID/comments or PATCH /api/issues/$PAPERCLIP_TASK_ID comment payload (substitute that issue's real id when it is not the current task). Generic agent comments on closed issues are inert by default.",
   "- For plan approval, update the plan document first, then create request_confirmation targeting the latest plan revision with idempotencyKey confirmation:{issueId}:plan:{revisionId}. Wait for acceptance before creating implementation subtasks, and create a fresh confirmation after superseding board/user comments if approval is still needed.",
-  "- If blocked, mark the issue blocked and name the unblock owner and action.",
+  "- Agent-authenticated `unblockDescriptor` values may name only your own agent. Never name another agent, the board, or a user there; create and assign a follow-up issue instead, then use `blockedByIssueIds` only if this issue must wait for it.",
   "- Respect budget, pause/cancel, approval gates, and company boundaries.",
 ].join("\n");
 
@@ -3118,6 +3119,16 @@ async function materializedSkillFingerprintMatches(targetRoot: string, sourceFin
     const raw = JSON.parse(await fs.readFile(path.join(targetRoot, MATERIALIZED_SKILL_SENTINEL), "utf8")) as unknown;
     const parsed = parseObject(raw);
     return parsed.version === 1 && parsed.sourceFingerprint === sourceFingerprint;
+  } catch {
+    return false;
+  }
+}
+
+export async function isMaterializedPaperclipSkillCopy(targetRoot: string): Promise<boolean> {
+  try {
+    const raw = JSON.parse(await fs.readFile(path.join(targetRoot, MATERIALIZED_SKILL_SENTINEL), "utf8")) as unknown;
+    const parsed = parseObject(raw);
+    return parsed.version === 1 && typeof parsed.sourceFingerprint === "string" && parsed.sourceFingerprint.length > 0;
   } catch {
     return false;
   }

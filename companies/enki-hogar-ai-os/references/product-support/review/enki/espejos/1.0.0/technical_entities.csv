@@ -1,0 +1,44 @@
+entity_key,entity_kind,manufacturer_ref,name,series,category,summary
+lux,model,Lux,Espejo Lux,Lux,espejos,espejo simple de forma rectangular. La medida es el único eje de variación estructural aprobado para esta familia.
+lux-050101,variant,050101,Espejo Lux 60 x 80 cm,Lux,espejos,"Variante técnica 60 x 80 cm, vinculada a la referencia oficial 050101."
+lux-050102,variant,050102,Espejo Lux 70 x 80 cm,Lux,espejos,"Variante técnica 70 x 80 cm, vinculada a la referencia oficial 050102."
+lux-050103,variant,050103,Espejo Lux 80 x 80 cm,Lux,espejos,"Variante técnica 80 x 80 cm, vinculada a la referencia oficial 050103."
+lux-050104,variant,050104,Espejo Lux 90 x 80 cm,Lux,espejos,"Variante técnica 90 x 80 cm, vinculada a la referencia oficial 050104."
+lux-050105,variant,050105,Espejo Lux 100 x 80 cm,Lux,espejos,"Variante técnica 100 x 80 cm, vinculada a la referencia oficial 050105."
+lux-050106,variant,050106,Espejo Lux 120 x 80 cm,Lux,espejos,"Variante técnica 120 x 80 cm, vinculada a la referencia oficial 050106."
+lux-050107,variant,050107,Espejo Lux 140 x 80 cm,Lux,espejos,"Variante técnica 140 x 80 cm, vinculada a la referencia oficial 050107."
+pure,model,Pure,Espejo Pure,Pure,espejos,espejo retroiluminado de forma rectangular. La medida es el único eje de variación estructural aprobado para esta familia.
+pure-050201,variant,050201,Espejo Pure 60 x 70 cm,Pure,espejos,"Variante técnica 60 x 70 cm, vinculada a la referencia oficial 050201."
+pure-050202,variant,050202,Espejo Pure 80 x 70 cm,Pure,espejos,"Variante técnica 80 x 70 cm, vinculada a la referencia oficial 050202."
+pure-050203,variant,050203,Espejo Pure 100 x 70 cm,Pure,espejos,"Variante técnica 100 x 70 cm, vinculada a la referencia oficial 050203."
+pure-050204,variant,050204,Espejo Pure 120 x 70 cm,Pure,espejos,"Variante técnica 120 x 70 cm, vinculada a la referencia oficial 050204."
+line,model,Line,Espejo Line,Line,espejos,espejo con luz frontal de forma rectangular. La medida es el único eje de variación estructural aprobado para esta familia.
+line-050301,variant,050301,Espejo Line 60 x 70 cm,Line,espejos,"Variante técnica 60 x 70 cm, vinculada a la referencia oficial 050301."
+line-050302,variant,050302,Espejo Line 80 x 70 cm,Line,espejos,"Variante técnica 80 x 70 cm, vinculada a la referencia oficial 050302."
+line-050303,variant,050303,Espejo Line 100 x 70 cm,Line,espejos,"Variante técnica 100 x 70 cm, vinculada a la referencia oficial 050303."
+line-050304,variant,050304,Espejo Line 120 x 70 cm,Line,espejos,"Variante técnica 120 x 70 cm, vinculada a la referencia oficial 050304."
+form,model,Form,Espejo Form,Form,espejos,espejo con luz frontal y lupa de forma rectangular. La medida es el único eje de variación estructural aprobado para esta familia.
+form-050401,variant,050401,Espejo Form 80 x 70 cm,Form,espejos,"Variante técnica 80 x 70 cm, vinculada a la referencia oficial 050401."
+form-050402,variant,050402,Espejo Form 100 x 70 cm,Form,espejos,"Variante técnica 100 x 70 cm, vinculada a la referencia oficial 050402."
+form-050403,variant,050403,Espejo Form 120 x 70 cm,Form,espejos,"Variante técnica 120 x 70 cm, vinculada a la referencia oficial 050403."
+axis,model,Axis,Espejo Axis,Axis,espejos,"espejo con luz, bluetooth y carga inalambrica de forma rectangular. La medida es el único eje de variación estructural aprobado para esta familia."
+axis-050501bm,variant,050501BM,Espejo Axis 80 x 70 cm,Axis,espejos,"Variante técnica 80 x 70 cm, vinculada a la referencia oficial 050501BM."
+axis-050502bm,variant,050502BM,Espejo Axis 100 x 70 cm,Axis,espejos,"Variante técnica 100 x 70 cm, vinculada a la referencia oficial 050502BM."
+axis-050503bm,variant,050503BM,Espejo Axis 120 x 70 cm,Axis,espejos,"Variante técnica 120 x 70 cm, vinculada a la referencia oficial 050503BM."
+opal,model,Opal,Espejo Opal,Opal,espejos,espejo retroiluminado de forma circular. La medida es el único eje de variación estructural aprobado para esta familia.
+opal-060101,variant,060101,Espejo Opal Ø60 cm,Opal,espejos,"Variante técnica Ø60 cm, vinculada a la referencia oficial 060101."
+opal-060102,variant,060102,Espejo Opal Ø75 cm,Opal,espejos,"Variante técnica Ø75 cm, vinculada a la referencia oficial 060102."
+opal-060103,variant,060103,Espejo Opal Ø90 cm,Opal,espejos,"Variante técnica Ø90 cm, vinculada a la referencia oficial 060103."
+elio,model,Elio,Espejo Elio,Elio,espejos,espejo retroiluminado con borde exterior de forma circular. La medida es el único eje de variación estructural aprobado para esta familia.
+elio-060201bm,variant,060201BM,Espejo Elio Ø60 cm,Elio,espejos,"Variante técnica Ø60 cm, vinculada a la referencia oficial 060201BM."
+elio-060202bm,variant,060202BM,Espejo Elio Ø75 cm,Elio,espejos,"Variante técnica Ø75 cm, vinculada a la referencia oficial 060202BM."
+elio-060203bm,variant,060203BM,Espejo Elio Ø90 cm,Elio,espejos,"Variante técnica Ø90 cm, vinculada a la referencia oficial 060203BM."
+eira,model,Eira,Espejo Eira,Eira,espejos,espejo con luz frontal y colgador de forma circular. La medida es el único eje de variación estructural aprobado para esta familia.
+eira-060301bm,variant,060301BM,Espejo Eira Ø60 cm,Eira,espejos,"Variante técnica Ø60 cm, vinculada a la referencia oficial 060301BM."
+eira-060302bm,variant,060302BM,Espejo Eira Ø75 cm,Eira,espejos,"Variante técnica Ø75 cm, vinculada a la referencia oficial 060302BM."
+auri,model,Auri,Espejo Auri,Auri,espejos,espejo retroiluminado de forma capsula. La medida es el único eje de variación estructural aprobado para esta familia.
+auri-070101,variant,070101,Espejo Auri 45 x 90 cm,Auri,espejos,"Variante técnica 45 x 90 cm, vinculada a la referencia oficial 070101."
+auri-070102,variant,070102,Espejo Auri 60 x 85 cm,Auri,espejos,"Variante técnica 60 x 85 cm, vinculada a la referencia oficial 070102."
+tivo,model,Tivo,Espejo Tivo,Tivo,espejos,espejo retroiluminado con borde exterior de forma capsula. La medida es el único eje de variación estructural aprobado para esta familia.
+tivo-070201bm,variant,070201BM,Espejo Tivo 45 x 90 cm,Tivo,espejos,"Variante técnica 45 x 90 cm, vinculada a la referencia oficial 070201BM."
+tivo-070202bm,variant,070202BM,Espejo Tivo 60 x 85 cm,Tivo,espejos,"Variante técnica 60 x 85 cm, vinculada a la referencia oficial 070202BM."

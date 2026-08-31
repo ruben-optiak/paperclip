@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:enki:content-ledger:v1",
+  "title": "Enki content ledger v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "timezone", "generated_at", "coverage", "entries"],
+  "properties": {
+    "schema": {"const": "enki-content-ledger/v1"},
+    "timezone": {"const": "Europe/Madrid"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["period_start", "period_end", "status", "sources", "warnings"],
+      "properties": {
+        "period_start": {"type": ["string", "null"], "format": "date-time"},
+        "period_end": {"type": ["string", "null"], "format": "date-time"},
+        "status": {"enum": ["complete", "partial", "unavailable"]},
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source", "status", "as_of"],
+            "properties": {
+              "source": {"enum": ["paperclip", "wordpress", "instagram", "facebook", "woocommerce", "ga4", "gsc", "google_ads", "approved_market_source"]},
+              "status": {"enum": ["ok", "partial", "unavailable"]},
+              "as_of": {"type": ["string", "null"], "format": "date-time"}
+            }
+          }
+        },
+        "warnings": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["record_id", "channel", "status", "title", "published_at", "canonical_url", "external_id", "topic_cluster", "products", "categories", "campaign", "source", "last_verified_at"],
+        "properties": {
+          "record_id": {"type": "string", "minLength": 1},
+          "channel": {"enum": ["blog", "instagram", "facebook", "other"]},
+          "status": {"enum": ["draft", "scheduled", "published", "archived", "unknown"]},
+          "title": {"type": "string", "minLength": 1},
+          "published_at": {"type": ["string", "null"], "format": "date-time"},
+          "canonical_url": {"type": ["string", "null"], "format": "uri"},
+          "external_id": {"type": ["string", "null"]},
+          "topic_cluster": {"type": ["string", "null"]},
+          "products": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+          "categories": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+          "campaign": {"type": ["string", "null"]},
+          "source": {"enum": ["paperclip", "wordpress", "instagram", "facebook", "operator"]},
+          "last_verified_at": {"type": "string", "format": "date-time"}
+        }
+      }
+    }
+  }
+}

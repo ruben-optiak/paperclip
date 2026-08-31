@@ -6,6 +6,7 @@ connectors:
       woo_sales_summary: read
       woo_orders_summary: read
       woo_get_product: read
+      woo_get_product_structure: read
       woo_low_stock: read
       woo_catalog_summary: read
     deniedPatterns: [create, update, delete, refund, batch, customer, set, write]
@@ -31,6 +32,17 @@ connectors:
       gsc_inspect_url: read
       gsc_list_sitemaps: read
     deniedPatterns: [index, submit, create, update, delete]
+  product_support_knowledge:
+    allowed:
+      knowledge_resolve_product: read
+      knowledge_get_technical_profile: read
+      knowledge_check_compatibility: read
+      knowledge_list_allowed_options: read
+      knowledge_get_configuration_model: read
+      knowledge_search_support: read
+      knowledge_get_evidence: read
+      knowledge_coverage: read
+    deniedPatterns: [create, update, delete, archive, restore, purge, import, reindex, write]
   wordpress:
     allowed:
       render: local-draft

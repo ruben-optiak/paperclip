@@ -4,7 +4,7 @@ Fecha: 2026-08-29
 Rama: `feat/enki-hogar-approach`
 Paquete: `companies/enki-hogar-ai-os/`
 Versión inicial: `0.1.0`
-Versión actual: `0.2.0`
+Versión actual: `0.4.1`
 
 ## Objetivo
 
@@ -16,10 +16,10 @@ No se cambia la UI, el contrato de API, el esquema de base de datos ni las migra
 
 - [x] Paquete portable con `COMPANY.md`, `README.md`, `.paperclip.yaml`, licencias y procedencia.
 - [x] Seis agentes `codex_local`, una única raíz y contratos explícitos de ejecución, fuentes, handoffs y bloqueo.
-- [x] Ocho skills versionadas, incluida `enki-brand-guardian`, con ejemplos y fixtures offline.
-- [x] Cuatro proyectos, nueve tareas iniciales y dos rutinas con triggers deshabilitados.
+- [x] Nueve skills versionadas, incluidas `enki-brand-guardian` y `enki-product-support`, con ejemplos y fixtures offline.
+- [x] Cuatro proyectos, once tareas iniciales y dos rutinas con triggers deshabilitados.
 - [x] Snapshot curado mediante allowlist, inventario con hashes y sincronización con escaneo de secretos.
-- [x] MCP WooCommerce autenticado, estrictamente GET y con cinco herramientas sin pedidos individuales ni PII.
+- [x] MCP WooCommerce autenticado, estrictamente GET y con seis herramientas sin pedidos individuales ni PII; incluye estructura live padre/variaciones con metadata allowlisted.
 - [x] Runtimes fijados para Google Ads, GA4 y GSC, protegidos con bearer y catálogos de lectura.
 - [x] Contrato común `enki-evidence-envelope/v1` y definiciones canónicas de métricas, moneda, IVA, devoluciones, ROAS, CAC y margen desconocido.
 - [x] Compose adicional, `.env.example`, matriz de secretos y endpoints de salud no sensibles.
@@ -30,16 +30,22 @@ No se cambia la UI, el contrato de API, el esquema de base de datos ni las migra
 - [x] Lock de compatibilidad con commit base de Paperclip y digests OCI de las imágenes base de conectores.
 - [x] Separación de licencia MIT para código/configuración y `LicenseRef-Enki-Hogar-Internal` para conocimiento de Enki.
 - [x] Artefacto ZIP determinista, allowlist de importación y workflow CI limitado a los paths de Enki y del hardening del importador.
-- [x] Gate automatizado dirigido: paquete 32/32, MCP WooCommerce 19/19, portabilidad/adapter 101/101, ocho skills válidas, typechecks dirigidos, ZIP reproducible y Compose combinado.
+- [x] Gate automatizado dirigido: paquete 38/38, MCP WooCommerce 25/25, Product Support 19/19, plugin Telegram 13/13, regresión de cierre/redacción 139/139, CLI de rutinas 2/2, nueve skills válidas, typechecks dirigidos, ZIP reproducible y Compose combinado.
 - [x] Backup de la compañía local existente completado antes de las pruebas de activación.
 - [ ] Preflight del gateway en una compañía desechable con una sesión Board real.
-- [x] Importación local completada y topología verificada: 6 agentes, 8 skills, 4 proyectos, 9 tareas y 2 rutinas.
+- [x] Importación local de v0.2.0 completada y topología verificada: 6 agentes, 8 skills, 4 proyectos, 9 tareas y 2 rutinas.
+- [x] Parche v0.2.1 aplicado sobre la compañía existente: se reemplazaron de forma selectiva los 6 agentes y 8 skills, se creó el anchor task ENK-21 y se conservaron proyectos, rutinas, UUID, presupuestos y estado pausado sin duplicar las tareas históricas del smoke.
+- [x] v0.3.0 implementó el primer prototipo de memoria de catálogos; v0.4.0 lo sustituye para evitar una segunda fuente de verdad.
+- [x] v0.4.0 separa Woo live, auditoría masiva en `enki-hogar` y una proyección técnica reconstruible. Expone ocho tools read-only, packs inmutables por marca/dominio y purga solo de una versión completa superseded.
+- [x] Pack técnico Enki Espejos 1.0.0 aprobado con revisión `a767ce916cc9c4582c6bb982300d3a990ae909422e48bcb66336ad99814fde93`, cargado como pack activo y validado mediante consultas reales sin precio ni stock duplicados.
+- [x] Parche v0.4.1 importado selectivamente sobre la compañía existente: 6 agentes y 9 skills actualizados sin duplicar proyectos, tareas ni rutinas; UUID, límites mensuales, organigrama y estado pausado conservados.
+- [x] ENK-22 restaurado a `done` con recuperación resuelta. ENK-23 validó en un único run la expansión de un SKU de variación hasta su padre Woo y cerró un informe `PARTIAL` como `done`, sin recuperación ni continuación correctiva.
 - [x] Configuración local de cuatro conexiones, seis perfiles, política global, seis gateways gobernados y límites mensuales positivos; conexiones y gateways se activaron tras superar su smoke, con agentes y rutinas pausados.
 - [x] Named-gateway smoke con sesión Board real: dos catálogos exactos, tres lecturas Google reales, una denegación default y restauración completa del estado pausado.
 - [x] Smoke test con cuentas reales y activación individual: los cinco especialistas y el Director han superado el perímetro read-only/zero-PII; los informes del Director son operativamente `PARTIAL` porque declaran fuentes y decisiones todavía ausentes.
 - [x] Ejecución manual de Daily Brief y Weekly Review con un único run cada una, disposición terminal y restauración posterior del Director a `paused`.
 - [ ] Instalación/configuración del plugin Telegram en la instancia local y smoke con bot/IDs reales; el código y el mount están listos, pero la instancia todavía no tiene plugins instalados.
-- [ ] Activación de horarios — requiere decisión explícita de Board; el desired state de v0.2.0 mantiene ambas rutinas pausadas y sus triggers deshabilitados.
+- [ ] Activación de horarios — requiere decisión explícita de Board; el desired state de v0.4.1 mantiene ambas rutinas pausadas y sus triggers deshabilitados.
 
 El preview anterior de cinco agentes y siete skills queda superado por el hardening de v0.1.0 y no cuenta como evidencia de la versión actual.
 
@@ -96,6 +102,28 @@ Las incompatibilidades del core detectadas durante los smokes quedan corregidas.
 - La entrada y la salida aplican deduplicación, rate limit, destino exacto y bloqueo de contenido con aspecto de PII, pedido o credencial. Los errores enviados son genéricos y no contienen respuestas remotas.
 - Trece pruebas del plugin cubren capacidades, secret-ref, allowlist, identidad humana writable, raíz Director, deduplicación, atribución, apagado durante long poll, denegación de aprobaciones y filtrado sensible.
 
+### Parche 0.2.1 — skills sandbox-readable y memoria editorial (2026-08-30)
+
+- En ejecuciones locales, el adaptador materializa copias verificadas de las skills dentro del `HOME` temporal y exclusivo del heartbeat (`.agents/skills`). `CODEX_HOME` conserva autenticación, sesiones y configuración MCP fuera de las raíces legibles por Landlock; el scratch completo se elimina al terminar el run. En runtimes remotos, las copias siguen viajando dentro del `CODEX_HOME` curado que se stagea al sandbox.
+- El Director secuencia los handoffs editoriales: Growth entrega primero `content-draft` con revisión durable y Ecommerce recibe después esa revisión exacta. Entrada ausente es `BLOCKED / NOT REVIEWED`, nunca PASS con cero claims.
+- Se añade el contrato `enki-content-ledger/v1`, un anchor task y un runbook que separan memoria versionada, historia operativa de Paperclip y verdad live de WordPress/Meta/analítica.
+- El ledger y la búsqueda empresarial no inventan cobertura: plataformas sin conector quedan `partial/unavailable`; tendencias recientes necesitan una fuente actual aprobada.
+- El smoke live de ENK-21 materializó las cinco skills asignadas y la skill Paperclip bajo el `HOME` efímero del run; Growth leyó `paperclip/SKILL.md` y `enki-seo-sem/SKILL.md` sin denegaciones mientras `CODEX_HOME` permaneció separado. El scratch se eliminó al terminar.
+- ENK-21 terminó `done` con `content-ledger` revisión 1 validada contra `enki-content-ledger/v1`: tres borradores recuperados de ENK-17 y cobertura `PARTIAL` porque WordPress, Instagram y Facebook aún no están conectados en lectura. No hubo publicación ni mutación externa.
+- La credencial gateway temporal de la prueba anterior quedó revocada explícitamente; Growth volvió a `paused` y los otros cinco agentes permanecieron pausados.
+
+### Parche 0.4.1 — variaciones, disposición terminal y redacción (2026-08-31)
+
+- `woo_get_product_structure` distingue una coincidencia exacta de producto o variación. Para una variación consulta y valida su `parent_id`, carga el padre variable, conserva la variación solicitada aunque la paginación quede truncada y devuelve evidencia explícita en `resolution`.
+- Los contratos globales de ejecución, Ecommerce y las skills de catálogo/soporte separan resultado del informe y estado de la tarea: un audit completo puede terminar `done` con resultado `PASS`, `PARTIAL` o `FAIL`; `blocked` se reserva para un entregable que realmente no puede producirse.
+- Un agente solo puede crear un `unblockDescriptor` que lo nombre a sí mismo. La remediación de otro owner se representa como follow-up independiente y no bloquea el audit salvo dependencia real.
+- La redacción de eventos sanitiza también strings anidados en payloads estructurados y mensajes de heartbeat. El prompt base prohíbe imprimir o interpolar secretos de entorno y la regresión cubre JWTs multilínea dentro de `output`/`content`.
+- El endpoint `/health` de Woo obtiene su versión directamente de `package.json`, evitando drift entre imagen y manifest.
+- El kill switch `routines disable-all --api-base ...` funciona contra Quickstart con la sesión Board almacenada, pausa rutinas y deshabilita triggers; el modo local sin API sigue disponible para instalaciones con `config.json`.
+- El preview completo de v0.4.1 detectó que los once bootstrap issues se planificaban como nuevos. Se canceló esa ruta y se aplicó `--include agents,skills`: no se duplicó historia operativa.
+- ENK-23 terminó `done` en un único run `succeeded`: resolvió `ENKI-ESP-060301BM` como variación `39725`, padre variable `39698`, cobertura 2/2 y crosswalk técnico exacto. El resultado fue `PARTIAL` únicamente por moneda y cantidad de stock no declaradas.
+- Estado final: seis agentes pausados, dos rutinas pausadas, dos triggers deshabilitados, cero runs vivos en ENK-23 y los cinco conectores sanos.
+
 ## Organización
 
 El flujo es hub-and-spoke, sin Chief of Staff:
@@ -112,13 +140,14 @@ Board / usuario
 
 El Director es la única raíz compatible con el rol interno CEO de Paperclip, pero no obtiene autoridad de Board. El usuario puede asignar issues directamente a cualquier especialista. Ecommerce es owner del catálogo, stock, producto y evidencia de Merchant; Growth es owner de SEO, adquisición y oportunidades; Finance valida rentabilidad; Technology opera diagnósticos; CX produce únicamente borradores con contexto anonimizado.
 
-## Fronteras de autonomía v0.2.0
+## Fronteras de autonomía v0.4.1
 
 - Verde: lecturas autorizadas, análisis, comparativas, evidencias, delegación interna y borradores locales.
 - Amarillo: propuestas para incorporar una nueva fuente, herramienta, conexión, perfil, agente o rutina; requieren revisión Board antes de configurar nada.
 - Naranja: publicaciones, campañas, precios, stock, emails, indexing, feeds y cambios web; bloqueado.
 - Rojo: PII, pedidos individuales, reembolsos, presupuestos, despliegues, secretos y operaciones masivas; bloqueado.
 - Cualquier herramienta MCP nueva queda en cuarentena hasta revisar catálogo, riesgo y política.
+- Importar/reindexar packs técnicos o purgar una versión completa superseded queda fuera de los agentes y solo existe en el CLI local del operador. No hay borrado por producto/serie/fila.
 
 ## Paquete fuente y backups
 
@@ -136,9 +165,9 @@ No se exige igualdad byte a byte entre ambos. La compatibilidad se demuestra med
 3. Arrancar únicamente Paperclip y completar el preflight del gateway en una compañía desechable.
 4. Crear fuera de Git el env de conectores y los mounts OAuth/ADC; ningún agente recibe esos secretos.
 5. Arrancar Quickstart y `runtime/docker-compose.integrations.yml` bajo el mismo proyecto Compose.
-6. Comprobar `/health` para WooCommerce, GA4, GSC y Google Ads.
+6. Comprobar `/health` para WooCommerce, GA4, GSC, Google Ads y product support.
 7. Construir el ZIP determinista con `scripts/build-import-zip.sh` y guardar el SHA-256.
-8. Ejecutar el preview UI sobre la compañía existente y exigir 6 agentes, 8 skills, 4 proyectos, 9 tareas, 2 rutinas, una raíz y cero colisiones.
+8. Ejecutar el preview del ZIP exacto por la ruta de transferencia CLI o por la UI sobre la compañía existente y exigir 6 agentes, 9 skills, 4 proyectos, 11 tareas, 2 rutinas y una raíz. En primera importación se exigen cero colisiones; en un parche solo se admiten reemplazos de entidades Enki conocidas.
 9. Importar con todo pausado y ejecutar en el host de Paperclip el kill switch documentado: `npx paperclipai routines disable-all --company-id <company-id> --json`.
 10. Configurar conexiones, perfiles y políticas siguiendo los runbooks; mantener installs MCP vacíos y reconciliar por API los seis gateways agent-scoped en estado disabled.
 11. Ejecutar el detector de drift y exigir resultado limpio antes de activar nada.
@@ -163,9 +192,9 @@ Las pruebas de portabilidad cubren creación y actualización con homes Codex ge
 
 Los gates globales del monorepo no están verdes en este host por causas ajenas al diff: `pnpm -r typecheck` y `pnpm build` llegan al runner Rust y paran porque `cargo` no está instalado; `pnpm test:run` alcanza `workspace-runtime.test.ts`, donde la configuración global `commit.gpgsign=true` rompe los repos Git efímeros sin TTY. Deshabilitando esa firma solo para el proceso pasan 150/154; los cuatro casos restantes reproducen diferencias locales de macOS (`/var` frente a `/private/var`), un timeout y su conflicto de puerto derivado. No existe diff de esta rama en `workspace-runtime.ts` ni en su test. Los typechecks TypeScript directos de server/adapter y todos los tests que cubren este cambio sí pasan.
 
-El preview e import sobre la compañía local, la autenticación Codex, el named-gateway smoke, los cinco pilotos de especialistas y los dos pilotos manuales del Director ya se completaron con sesión Board y sin conservar tokens temporales. Para cerrar v0.2.0 todavía falta instalar/configurar el plugin Telegram y superar su smoke con identidades reales. La activación posterior de horarios seguirá siendo una decisión Board separada; hasta entonces el desired state exige rutinas y triggers pausados.
+El preview/import inicial, la autenticación Codex, el named-gateway smoke, los cinco pilotos de especialistas, los dos pilotos manuales del Director, la memoria editorial y el primer pack técnico real ya están completados. v0.4.1 quedó importada selectivamente y desplegada sobre Quickstart; Woo y Product Support están sanos y ENK-23 prueba el flujo live de variación más soporte técnico. El prototipo v0.3.0 permanece superseded: no se carga un master comercial completo en PostgreSQL. Para cerrar la puesta en marcha operativa falta instalar/configurar el plugin Telegram con bot e identidades reales. La activación de horarios sigue siendo una decisión Board separada; hasta entonces el desired state y el estado observado mantienen rutinas y triggers pausados.
 
-## GO/NO-GO v0.2.0
+## GO/NO-GO v0.4.1
 
 La arquitectura pasa a la siguiente fase solo si, de forma repetible:
 
@@ -175,12 +204,14 @@ La arquitectura pasa a la siguiente fase solo si, de forma repetible:
 4. el Director propone handoffs correctos a Ecommerce, Growth y Finance, con owner y evidencia, sin crearlos automáticamente durante el smoke;
 5. no se observa PII, mutación externa, publicación, contacto a cliente ni llamada no autorizada.
 6. Telegram acepta solo el usuario/chat exactos, crea trabajo atribuido en Paperclip, bloquea datos sensibles y deja toda decisión de aprobación en la UI.
+7. Woo es la única autoridad comercial live; product support expone solo hechos técnicos aprobados/citados, no contiene precio/stock y el MCP no puede escribir.
+8. Un pack nuevo supersede atómicamente al anterior y el purge solo acepta la versión completa superseded tras preview sin cambios.
 
 Hasta superar este hito no se añaden Merchant Center live, Meta, social, publicación, pricing ni mayor autonomía.
 
 ## Promoción futura
 
-Producción importará el mismo tag Git y el mismo ZIP validado sobre una compañía nueva y pausada. Antes de promover se deben completar los campos pendientes de `runtime/compatibility.lock.yaml`: tag y commit del paquete, imagen final de Paperclip y digest, imágenes finales de ambos conectores y digests, y SHA-256 del ZIP.
+Producción importará el mismo tag Git y el mismo ZIP validado sobre una compañía nueva y pausada. Antes de promover se deben completar los campos pendientes de `runtime/compatibility.lock.yaml`: tag y commit del paquete, imagen final de Paperclip y digest, imágenes finales de WooCommerce, Google y product support con sus digests, y SHA-256 del ZIP.
 
 La infraestructura elegida deberá aportar PostgreSQL gestionado, almacenamiento persistente, TLS, autenticación, gestor de secretos, red privada o HTTPS gobernado para MCP, backups restaurables, smoke test y rollback. Cualquier upgrade de Paperclip se prueba primero en rama y exige de nuevo validación, preflight MCP, tests de políticas, roundtrip, aislamiento Codex y aprobación manual.
 

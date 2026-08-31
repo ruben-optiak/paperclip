@@ -1244,6 +1244,8 @@ Terminal states: `done`, `cancelled`
 | Method | Path                               | Description                                                                              |
 | ------ | ---------------------------------- | ---------------------------------------------------------------------------------------- |
 | GET    | `/api/companies/:companyId/issues` | List issues, sorted by priority. Filters: `?status=`, `?assigneeAgentId=`, `?assigneeUserId=`, `?projectId=`, `?labelId=`, `?q=` (full-text search across title, identifier, description, comments) |
+| GET    | `/api/companies/:companyId/search` | Search company-scoped issues, comments, documents, artifacts, projects and agents; filters include `q`, `scope`, status, priority, assignee, project, label, freshness and sort |
+| GET    | `/api/companies/:companyId/search/extract` | Extract bounded literal or URL matches from company issues, comments and documents |
 | GET    | `/api/issues/:issueId`             | Issue details + ancestors                                                                |
 | GET    | `/api/issues/:issueId/heartbeat-context` | Compact context for heartbeat: issue state, ancestor summaries, comment cursor  |
 | GET    | `/api/issues/:issueId/diagnostics/blockers` | Read-only blocker diagnostic with `diagnosis`, readiness, and bounded anomaly flags |

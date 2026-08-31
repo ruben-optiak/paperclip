@@ -1,0 +1,34 @@
+{
+  "schema": "enki-product-support-result/v1",
+  "as_of": "2026-08-31T08:00:00.000Z",
+  "authority": {
+    "technical_source": "active-approved-support-pack",
+    "commercial_source": "woocommerce-live",
+    "commercial_fields_included": false,
+    "rebuildable_projection": true
+  },
+  "data": {
+    "entity": {
+      "entity_ref": "enki:espejos:lux-050101",
+      "entity_kind": "variant",
+      "manufacturer_ref": "050101",
+      "name": "Espejo Lux 50 cm"
+    },
+    "facts": [
+      {
+        "fact_key": "width",
+        "value": "50",
+        "unit": "cm",
+        "evidence_ref": "enki-espejos-catalogo#page-12"
+      }
+    ],
+    "crosswalk": [
+      {
+        "manufacturer_ref": "050101",
+        "woo_parent_sku": "ENKI-ESP-LUX",
+        "woo_variation_sku": "ENKI-ESP-050101",
+        "mapping_kind": "variation"
+      }
+    ]
+  }
+}

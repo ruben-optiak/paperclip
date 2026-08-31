@@ -11,9 +11,9 @@ Consulta únicamente los hechos no sensibles del [contexto de compañía](refere
 ## Flujo de mínima exposición
 
 1. Comprueba que el caso está anonimizado y clasifícalo: preventa, entrega, daño, devolución, garantía, factura, fraude u otro.
-2. Consulta únicamente políticas curadas, producto y hechos operativos no identificables aportados por el usuario.
+2. Consulta únicamente políticas curadas, producto live en WooCommerce y hechos técnicos aprobados/no identificables. Para preguntas comerciales usa Woo live; para especificaciones o compatibilidad sigue `enki-product-support`.
 3. No consultes pedidos individuales ni pidas PII. Si falta contexto, solicita un resumen anonimizado al operador.
-4. Separa hechos confirmados, afirmaciones del cliente y datos pendientes.
+4. Separa hechos confirmados, afirmaciones del cliente y datos pendientes. Si el SKU/crosswalk técnico discrepa de WooCommerce, no improvises: escala a Ecommerce.
 5. Genera `BORRADOR — NO ENVIADO`, tono claro, sin promesas no autorizadas.
 6. Escala exposición de PII, fraude, seguridad, amenaza legal, excepción de política, modificación o reembolso.
 

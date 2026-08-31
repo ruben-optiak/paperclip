@@ -1,0 +1,3 @@
+entity_key,entity_kind,manufacturer_ref,name,series,category,summary
+select-660,model,SELECT-660,Fregadero Select 660,Select,fregaderos,Modelo técnico con acabado y color como ejes de variación.
+select-660-negro,variant,SELECT-660-N,Fregadero Select 660 negro,Select,fregaderos,Variante técnica representativa.

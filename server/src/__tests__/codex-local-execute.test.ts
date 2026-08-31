@@ -13,6 +13,7 @@ const capturePath = process.env.PAPERCLIP_TEST_CAPTURE_PATH;
 const payload = {
   argv: process.argv.slice(2),
   prompt: fs.readFileSync(0, "utf8"),
+  home: process.env.HOME || null,
   codexHome: process.env.CODEX_HOME || null,
   codexConfigContents: process.env.CODEX_HOME && fs.existsSync(process.env.CODEX_HOME + "/config.toml")
     ? fs.readFileSync(process.env.CODEX_HOME + "/config.toml", "utf8")
@@ -48,6 +49,7 @@ process.exit(1);
 type CapturePayload = {
   argv: string[];
   prompt: string;
+  home?: string | null;
   codexHome: string | null;
   codexConfigContents?: string | null;
   paperclipWakePayloadJson: string | null;
@@ -117,6 +119,95 @@ function createLocalSandboxRunner() {
 }
 
 describe("codex execute", () => {
+  it("exposes managed skills through a run-scoped HOME without exposing CODEX_HOME", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-codex-run-home-"));
+    const workspace = path.join(root, "workspace");
+    const scratchDir = path.join(root, "paperclip-run-ENK-21-test");
+    const commandPath = path.join(root, "codex");
+    const capturePath = path.join(root, "capture.json");
+    const sharedCodexHome = path.join(root, "shared-codex-home");
+    const paperclipHome = path.join(root, "paperclip-home");
+    const managedCodexHome = path.join(
+      paperclipHome,
+      "instances",
+      "default",
+      "companies",
+      "company-1",
+      "codex-home",
+    );
+    await fs.mkdir(workspace, { recursive: true });
+    await fs.mkdir(scratchDir, { recursive: true });
+    await fs.mkdir(sharedCodexHome, { recursive: true });
+    await fs.writeFile(path.join(sharedCodexHome, "auth.json"), `${fakeCodexAuthJson}\n`, "utf8");
+    await writeFakeCodexCommand(commandPath);
+
+    const previousHome = process.env.HOME;
+    const previousPaperclipHome = process.env.PAPERCLIP_HOME;
+    const previousCodexHome = process.env.CODEX_HOME;
+    process.env.HOME = root;
+    process.env.PAPERCLIP_HOME = paperclipHome;
+    process.env.CODEX_HOME = sharedCodexHome;
+
+    try {
+      const result = await execute({
+        runId: "run-scoped-home",
+        agent: {
+          id: "agent-1",
+          companyId: "company-1",
+          name: "Codex Coder",
+          adapterType: "codex_local",
+          adapterConfig: { engine: "cli" },
+        },
+        runtime: {
+          sessionId: null,
+          sessionParams: null,
+          sessionDisplayId: null,
+          taskKey: null,
+        },
+        config: {
+          engine: "cli",
+          command: commandPath,
+          cwd: workspace,
+          env: {
+            PAPERCLIP_TEST_CAPTURE_PATH: capturePath,
+            PAPERCLIP_RUN_SCRATCH_DIR: scratchDir,
+          },
+          promptTemplate: "Follow the paperclip heartbeat.",
+        },
+        context: {
+          paperclipScratch: {
+            type: "heartbeat_run",
+            dir: scratchDir,
+            cleanupPolicy: "terminal_run",
+          },
+        },
+        authToken: "run-jwt-token",
+        onLog: async () => {},
+      });
+
+      expect(result.exitCode).toBe(0);
+      expect(result.errorMessage).toBeNull();
+      const capture = JSON.parse(await fs.readFile(capturePath, "utf8")) as CapturePayload;
+      const runScopedHome = path.join(scratchDir, "codex-user-home");
+      expect(capture.home).toBe(runScopedHome);
+      expect(capture.codexHome).toBe(managedCodexHome);
+      await expect(
+        fs.readFile(path.join(runScopedHome, ".agents", "skills", "paperclip", "SKILL.md"), "utf8"),
+      ).resolves.toContain("name: paperclip");
+      await expect(fs.lstat(path.join(managedCodexHome, "skills", "paperclip"))).rejects.toMatchObject({
+        code: "ENOENT",
+      });
+    } finally {
+      if (previousHome === undefined) delete process.env.HOME;
+      else process.env.HOME = previousHome;
+      if (previousPaperclipHome === undefined) delete process.env.PAPERCLIP_HOME;
+      else process.env.PAPERCLIP_HOME = previousPaperclipHome;
+      if (previousCodexHome === undefined) delete process.env.CODEX_HOME;
+      else process.env.CODEX_HOME = previousCodexHome;
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
+
   it("uses a Paperclip-managed CODEX_HOME outside worktree mode while preserving shared auth and config", async () => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-codex-execute-default-"));
     const workspace = path.join(root, "workspace");
@@ -1416,7 +1507,8 @@ process.exit(1);
       expect(await fs.realpath(isolatedAuth)).toBe(await fs.realpath(path.join(sharedCodexHome, "auth.json")));
       expect((await fs.lstat(isolatedConfig)).isFile()).toBe(true);
       expect(await fs.readFile(isolatedConfig, "utf8")).toBe('model = "codex-mini-latest"\n');
-      expect((await fs.lstat(homeSkill)).isSymbolicLink()).toBe(true);
+      expect((await fs.lstat(homeSkill)).isDirectory()).toBe(true);
+      expect((await fs.lstat(homeSkill)).isSymbolicLink()).toBe(false);
       expect(logs).toContainEqual(
         expect.objectContaining({
           stream: "stdout",
@@ -1426,7 +1518,7 @@ process.exit(1);
       expect(logs).toContainEqual(
         expect.objectContaining({
           stream: "stdout",
-          chunk: expect.stringContaining('Injected Codex skill "paperclip"'),
+          chunk: expect.stringContaining('Materialized Codex skill "paperclip"'),
         }),
       );
     } finally {

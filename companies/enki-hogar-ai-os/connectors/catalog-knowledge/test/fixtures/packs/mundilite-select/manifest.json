@@ -1,0 +1,22 @@
+{
+  "schema": "enki-product-support-pack/v1",
+  "packKey": "mundilite-fregaderos-support",
+  "version": "1.0.0",
+  "brand": {"slug": "mundilite", "name": "Mundilite"},
+  "domain": {"slug": "fregaderos", "name": "Fregaderos"},
+  "snapshotDate": "2026-08-31",
+  "approval": {"state": "approved", "approvedBy": "catalog-owner", "approvedAt": "2026-08-31T08:00:00+02:00"},
+  "sourceRepository": {"locator": "enki-repo://enki-hogar/productos", "revisionKind": "git_commit", "revision": "2222222222222222222222222222222222222222"},
+  "files": {
+    "technical_entities.csv": {"sha256": "c75ab7c803a7b94093e81d6a0fac34765702eca675b65ba8d258acd1b4a57c5a", "rows": 2},
+    "technical_facts.csv": {"sha256": "866e83ce754fe309f85240416d497ff4b8ff3b508ad43e27206f7617929ffe6a", "rows": 2},
+    "technical_relations.csv": {"sha256": "03b972e4d710d819616b05226a267ffb42e019ccb96bf23957752d9cc0f08113", "rows": 1},
+    "configuration_rules.csv": {"sha256": "df9e43d87b6d705886ada7b32eb21794962c82121abba12b5aaf05357091ce13", "rows": 2},
+    "sku_crosswalk.csv": {"sha256": "02d3b787ea6c9b2b2af4708a3bfff735d8a12c3df9903b91ea181e93f81337b4", "rows": 1},
+    "support_chunks.jsonl": {"sha256": "c545794680f5395c40ee9d64d5349f566f94f395cd0e528cb503c1cbae6b20cf", "rows": 1}
+  },
+  "sources": [
+    {"sourceKey": "mundilite-catalogo", "title": "Catálogo técnico Mundilite", "kind": "manufacturer_catalog", "locator": "enki-source://mundilite/fregaderos/catalogo", "snapshotDate": "2026-04-30", "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"},
+    {"sourceKey": "mundilite-qa", "title": "Decisiones QA Mundilite", "kind": "manual_review", "locator": "enki-source://mundilite/fregaderos/qa", "snapshotDate": "2026-08-31", "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"}
+  ]
+}

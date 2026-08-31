@@ -1,0 +1,4 @@
+entity_key,entity_kind,manufacturer_ref,name,series,category,summary
+prali-05,model,PRALI-05,Mueble Prali 05,Prali,muebles-de-bano,Modelo configurable con variaciones acotadas y opciones condicionales.
+bonn-basin,component,BONN,Lavabo Bonn,Bonn,lavabos,Componente real con identidad propia.
+prali-mirror,component,PRALI-MIRROR,Espejo compatible Prali,Prali,espejos,Componente opcional sujeto a compatibilidad explícita.

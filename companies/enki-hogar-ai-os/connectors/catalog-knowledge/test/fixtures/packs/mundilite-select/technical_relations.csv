@@ -1,0 +1,2 @@
+from_entity_key,relation_type,to_entity_key,condition_json,evidence_ref,source_page
+select-660-negro,variant_of,select-660,{},mundilite-qa#decision=variation-axes,

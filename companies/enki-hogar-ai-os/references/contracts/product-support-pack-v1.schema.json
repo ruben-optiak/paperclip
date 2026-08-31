@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://enkihogar.example.invalid/contracts/product-support-pack-v1.schema.json",
+  "title": "Enki approved product support pack v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "packKey", "version", "brand", "domain", "snapshotDate", "approval", "sourceRepository", "files", "sources"],
+  "properties": {
+    "schema": {"const": "enki-product-support-pack/v1"},
+    "packKey": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*-support$"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "brand": {"$ref": "#/$defs/namedSlug"},
+    "domain": {"$ref": "#/$defs/namedSlug"},
+    "snapshotDate": {"type": "string", "format": "date"},
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "approvedBy", "approvedAt"],
+      "properties": {
+        "state": {"const": "approved"},
+        "approvedBy": {"type": "string"},
+        "approvedAt": {"type": "string", "format": "date-time"}
+      }
+    },
+    "sourceRepository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["locator", "revisionKind", "revision"],
+      "properties": {
+        "locator": {"type": "string", "pattern": "^(?:https|enki-source|enki-repo)://"},
+        "revisionKind": {"enum": ["git_commit", "source_snapshot_sha256"]},
+        "revision": {"type": "string"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"revisionKind": {"const": "git_commit"}}},
+          "then": {"properties": {"revision": {"pattern": "^[0-9a-f]{40}$"}}}
+        },
+        {
+          "if": {"properties": {"revisionKind": {"const": "source_snapshot_sha256"}}},
+          "then": {"properties": {"revision": {"pattern": "^[0-9a-f]{64}$"}}}
+        }
+      ]
+    },
+    "files": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["technical_entities.csv", "technical_facts.csv", "technical_relations.csv", "configuration_rules.csv", "sku_crosswalk.csv", "support_chunks.jsonl"],
+      "properties": {
+        "technical_entities.csv": {"$ref": "#/$defs/file"},
+        "technical_facts.csv": {"$ref": "#/$defs/file"},
+        "technical_relations.csv": {"$ref": "#/$defs/file"},
+        "configuration_rules.csv": {"$ref": "#/$defs/file"},
+        "sku_crosswalk.csv": {"$ref": "#/$defs/file"},
+        "support_chunks.jsonl": {"$ref": "#/$defs/file"}
+      }
+    },
+    "sources": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/source"}}
+  },
+  "$defs": {
+    "namedSlug": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug", "name"],
+      "properties": {"slug": {"type": "string"}, "name": {"type": "string"}}
+    },
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha256", "rows"],
+      "properties": {"sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "rows": {"type": "integer", "minimum": 0}}
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceKey", "title", "kind", "locator", "snapshotDate", "sha256"],
+      "properties": {
+        "sourceKey": {"type": "string"}, "title": {"type": "string"}, "kind": {"type": "string"},
+        "locator": {"type": "string", "pattern": "^(?:https|enki-source|enki-repo)://"},
+        "snapshotDate": {"type": "string", "format": "date"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}

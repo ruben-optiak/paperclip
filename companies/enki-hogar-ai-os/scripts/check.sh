@@ -11,13 +11,22 @@ if [ ! -d "$package_dir/connectors/woocommerce-readonly-mcp/node_modules" ]; the
   exit 2
 fi
 
+if [ ! -d "$package_dir/connectors/catalog-knowledge/node_modules" ]; then
+  echo "Product-support connector test dependencies are missing. Run: npm --prefix companies/enki-hogar-ai-os/connectors/catalog-knowledge ci --ignore-scripts" >&2
+  exit 2
+fi
+
 node "$package_dir/scripts/validate-package.mjs"
 "$package_dir/scripts/scan-secrets.sh"
 node --check "$package_dir/scripts/check-runtime-drift.mjs"
 node --check "$package_dir/scripts/gateway-preflight.mjs"
 node --check "$package_dir/scripts/reconcile-agent-gateways.mjs"
+node --check "$package_dir/scripts/init-local-support-secrets.mjs"
+node --check "$package_dir/scripts/product-support/generate-enki-espejos.mjs"
+node --check "$package_dir/scripts/product-support/finalize-support-pack.mjs"
 node --test "$package_dir"/tests/*.test.mjs
 npm --prefix "$package_dir/connectors/woocommerce-readonly-mcp" test
+npm --prefix "$package_dir/connectors/catalog-knowledge" test
 pnpm --dir "$repo_dir" --filter @enki-hogar/telegram-gateway check
 "$package_dir/scripts/build-import-zip.sh" "$build_check_dir/first.zip" >/dev/null
 "$package_dir/scripts/build-import-zip.sh" "$build_check_dir/second.zip" >/dev/null
@@ -50,6 +59,14 @@ const expected = {
     context: packageDir,
     dockerfile: "connectors/google-mcps/Dockerfile",
   },
+  "enki-product-support-migrate": {
+    context: path.join(packageDir, "connectors/catalog-knowledge"),
+    dockerfile: "Dockerfile",
+  },
+  "enki-product-support-knowledge": {
+    context: path.join(packageDir, "connectors/catalog-knowledge"),
+    dockerfile: "Dockerfile",
+  },
 };
 
 for (const [serviceName, wanted] of Object.entries(expected)) {
@@ -60,6 +77,17 @@ for (const [serviceName, wanted] of Object.entries(expected)) {
     );
   }
 }
+
+const catalogDb = config.services?.["enki-product-support-db"];
+if (catalogDb?.image !== "pgvector/pgvector:0.8.6-pg17-bookworm@sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f") {
+  throw new Error(`Product-support database image drift: ${catalogDb?.image}`);
+}
+if ((catalogDb?.ports ?? []).length !== 0) throw new Error("Product-support database must not publish a host port");
+const catalogMcpEnvironment = config.services?.["enki-product-support-knowledge"]?.environment ?? {};
+if (Object.prototype.hasOwnProperty.call(catalogMcpEnvironment, "SUPPORT_DB_ADMIN_PASSWORD")) {
+  throw new Error("Product-support MCP must not receive the database admin password");
+}
+if (catalogMcpEnvironment.SUPPORT_DB_USER !== "enki_support_reader") throw new Error("Product-support MCP must use the reader role");
 
 const paperclipMounts = config.services?.paperclip?.volumes ?? [];
 const telegramMount = paperclipMounts.find((mount) => mount.target === "/plugins/enki-telegram-gateway");

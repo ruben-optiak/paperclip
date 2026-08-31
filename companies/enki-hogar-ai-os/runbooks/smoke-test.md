@@ -2,30 +2,33 @@
 
 Run with all schedules paused and record evidence without secrets or PII.
 
-1. Health: all four connector health endpoints return `ok`.
+1. Health: all five connector health endpoints return `ok`.
 2. Catalog: observed tool names equal the allowlist; mutation and indexing probes are denied or absent.
-3. Woo: sales/order summaries work on a bounded period; product/SKU and low-stock reads work; bulk output has no PII. The low-stock call completes inside Paperclip's 10-second remote-tool deadline, reports raw rows, unique IDs and the remote total, excludes duplicate IDs, separates exact quantities from status-only out-of-stock rows, and labels unavailable variation-level quantities as partial.
+3. Woo: sales/order summaries work on a bounded period; product/SKU, live parent/variation structure and low-stock reads work; bulk output has no PII. `woo_get_product_structure` returns current options/prices/stock and only the allowlisted original-PDF-SKU metadata key. The low-stock call completes inside Paperclip's 10-second remote-tool deadline, reports raw rows, unique IDs and the remote total, excludes duplicate IDs, separates exact quantities from status-only out-of-stock rows, and labels unavailable variation-level quantities as partial.
 4. Zero-PII gate: customer lists and every customer-level query are absent from the connector catalog and access profiles.
-5. Google: Ads search, GA4 report, and GSC analytics query run with explicit periods. The observed GA4 catalog contains exactly six approved tools and excludes `list_google_ads_links`; any reappearance is quarantined because its upstream response contains an email field. Do not use production-changing queries.
-6. Brief: manually run complete, partial, stale, and outage fixtures. Missing or historical data remains visibly labelled.
-7. WordPress: `render` and `sync --dry-run` work without credentials; `sync` without dry-run fails.
-8. Agents: Board can assign work directly to each specialist and the reporting tree still has one Director root.
-9. Gateways: there are exactly six active agent-scoped gateways, each uses its matching default-deny profile, every connection has zero installs, and there is no active `gateway_client` token. A tools-list decision matrix must equal each profile's allowlist.
-10. Budgets: company and all six agent monthly hard caps are explicit and positive; record only the decision evidence, not invented values in this package.
-11. Routines: desired-state drift proves exactly the daily and weekly routines are paused, both schedules are disabled, and no unexpected routine exists; manually invoke both and inspect outputs before enabling schedules one at a time.
-12. Telegram: the plugin reports healthy for the Enki company; an allowlisted message creates one Director issue, a reply creates one human-attributed comment, a replay creates no duplicate, an unauthorized sender produces no issue/reply, `/approve` is denied, and approval notices contain only a UI link. A synthetic email/order/token is rejected inbound without creating work and withheld from any Director response sent outbound.
-13. Portability: export the company again and inspect that no secrets, database IDs, connector host paths, managed-home paths, Telegram IDs, or bot token appear; preview a reimport in a disposable target. Plugin installation/configuration remains separate instance state.
+5. Product support: exact Woo SKU and manufacturer-reference resolution converge on the same technical entity; technical profile and evidence contain no price/stock; an explicit Chicandbath relation returns compatible while an absent relation returns `unknown`; configuration rules preserve variation/configurator/component/assisted-sale semantics without Cartesian expansion; coverage clearly says it is not Woo catalogue coverage.
+6. Google: Ads search, GA4 report, and GSC analytics query run with explicit periods. The observed GA4 catalog contains exactly six approved tools and excludes `list_google_ads_links`; any reappearance is quarantined because its upstream response contains an email field. Do not use production-changing queries.
+7. Brief: manually run complete, partial, stale, and outage fixtures. Missing or historical data remains visibly labelled.
+8. WordPress: `render` and `sync --dry-run` work without credentials; `sync` without dry-run fails.
+9. Agents: Board can assign work directly to each specialist and the reporting tree still has one Director root.
+10. Gateways: there are exactly six active agent-scoped gateways, each uses its matching default-deny profile, every connection has zero installs, and there is no active `gateway_client` token. A tools-list decision matrix must equal each profile's allowlist.
+11. Budgets: company and all six agent monthly hard caps are explicit and positive; record only the decision evidence, not invented values in this package.
+12. Routines: desired-state drift proves exactly the daily and weekly routines are paused, both schedules are disabled, and no unexpected routine exists; manually invoke both and inspect outputs before enabling schedules one at a time.
+13. Telegram: the plugin reports healthy for the Enki company; an allowlisted message creates one Director issue, a reply creates one human-attributed comment, a replay creates no duplicate, an unauthorized sender produces no issue/reply, `/approve` is denied, and approval notices contain only a UI link. A synthetic email/order/token is rejected inbound without creating work and withheld from any Director response sent outbound.
+14. Portability: export the company again and inspect that no secrets, database IDs, connector host paths, managed-home paths, Telegram IDs, or bot token appear; preview a reimport in a disposable target. Plugin installation/configuration remains separate instance state.
+
+For read-only audit smokes, the issue disposition follows the deliverable rather than individual fields: `PASS`, `PARTIAL`, and `FAIL` are all valid `done` conclusions once the requested report and evidence are complete. Use task-level `blocked` only when the report itself cannot be produced. Create connector/data remediation as a separate assigned follow-up and block the smoke issue on it only if completion genuinely depends on that repair.
 
 For terminal smoke evidence, write the Board verification before the agent moves the issue to `done`, or restore the final status with a status-only update afterward. In current Paperclip behavior, a human comment on an assigned terminal issue is follow-up intent: it implicitly reopens the issue to `todo`. If the assignee is already paused, recovery can then route the stranded issue to `blocked`. Do not diagnose that transition as a failed read-only run when the latest run itself succeeded; inspect issue activity for `source=comment` followed by `recovery.reconcile_stranded_assigned_issue`, then restore the intended terminal state without adding another comment.
 
 ## Customer Experience zero-PII smoke
 
-The v0.2.0 Customer Experience gate is **deny**, not ask-first. Use a completely
+The v0.4.1 Customer Experience gate is **deny**, not ask-first. Use a completely
 synthetic case to verify classification and a clearly labelled unsent draft.
 Then verify from Board that:
 
 - the WooCommerce catalog contains no exact-order or customer lookup tool;
-- the Customer Experience profile exposes only `woo_get_product`;
+- the Customer Experience profile exposes only the two reviewed Woo product tools plus the eight read-only technical-support tools assigned in desired state;
 - a test call to an existing order capability resolves to `off` with
   `deny_default`, no origin result and no approval request.
 
@@ -46,6 +49,7 @@ Before activating an agent, assign it a synthetic local-only task and retain onl
 - its environment contains no `WOO_*`, `GOOGLE_*`, `*_MCP_TOKEN`, connector bearer, ADC or OAuth token binding; Quickstart may carry an `OPENAI_API_KEY` placeholder, which must be unset or empty (test emptiness without printing the value);
 - it can reach `PAPERCLIP_API_URL`, use its governed MCP gateway, and complete a trivial Codex-authenticated run.
 - its run log shows `default_permissions="enki-readonly-network"` and `features.use_legacy_landlock=true`, with no Bubblewrap namespace failure; filesystem access remains read-only while the governed API/MCP path works.
+- its run log materializes assigned skills below the run-owned temporary `HOME/.agents/skills`, the agent can read the selected `SKILL.md`, and no skill path advertised to the agent points into the credential-bearing managed `CODEX_HOME`;
 - its generated managed MCP block contains `default_tools_approval_mode = "approve"` and `http_headers`, never the ignored legacy `headers` key; the gateway audit must still show every permitted call as `profile_allows_tool` followed by `tool_completed`.
 
 Pause immediately if any probe crosses an isolation boundary. Do not weaken sandbox flags or Docker isolation to make a failed probe pass.

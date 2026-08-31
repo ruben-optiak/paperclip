@@ -15,7 +15,10 @@ import {
   getEmbeddedPostgresTestSupport,
   startEmbeddedPostgresTestDatabase,
 } from "./helpers/embedded-postgres.js";
-import { disableAllRoutinesInConfig } from "../commands/routines.js";
+import {
+  disableAllRoutinesInConfig,
+  disableAllRoutinesViaApi,
+} from "../commands/routines.js";
 
 const embeddedPostgresSupport = await getEmbeddedPostgresTestSupport();
 const describeEmbeddedPostgres = embeddedPostgresSupport.supported ? describe : describe.skip;
@@ -85,6 +88,65 @@ function writeTestConfig(configPath: string, tempRoot: string, connectionString:
   mkdirSync(path.dirname(configPath), { recursive: true });
   writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
 }
+
+describe("disableAllRoutinesViaApi", () => {
+  it("pauses non-archived routines and disables their enabled triggers", async () => {
+    const companyId = randomUUID();
+    const activeRoutineId = randomUUID();
+    const pausedRoutineId = randomUUID();
+    const archivedRoutineId = randomUUID();
+    const activeTriggerId = randomUUID();
+    const disabledTriggerId = randomUUID();
+    const pausedRoutineTriggerId = randomUUID();
+    const archivedTriggerId = randomUUID();
+    const patches: Array<{ path: string; body: unknown }> = [];
+    const records = [
+      {
+        id: activeRoutineId,
+        status: "active",
+        triggers: [
+          { id: activeTriggerId, enabled: true },
+          { id: disabledTriggerId, enabled: false },
+        ],
+      },
+      {
+        id: pausedRoutineId,
+        status: "paused",
+        triggers: [{ id: pausedRoutineTriggerId, enabled: true }],
+      },
+      {
+        id: archivedRoutineId,
+        status: "archived",
+        triggers: [{ id: archivedTriggerId, enabled: true }],
+      },
+    ];
+    const api = {
+      async get<T>(path: string): Promise<T> {
+        expect(path).toBe(`/api/companies/${companyId}/routines`);
+        return records as T;
+      },
+      async patch<T>(path: string, body?: unknown): Promise<T> {
+        patches.push({ path, body });
+        return {} as T;
+      },
+    };
+
+    await expect(disableAllRoutinesViaApi(api, companyId)).resolves.toEqual({
+      companyId,
+      totalRoutines: 3,
+      pausedCount: 1,
+      alreadyPausedCount: 1,
+      archivedCount: 1,
+      disabledTriggerCount: 2,
+      alreadyDisabledTriggerCount: 1,
+    });
+    expect(patches).toEqual([
+      { path: `/api/routines/${activeRoutineId}`, body: { status: "paused" } },
+      { path: `/api/routine-triggers/${activeTriggerId}`, body: { enabled: false } },
+      { path: `/api/routine-triggers/${pausedRoutineTriggerId}`, body: { enabled: false } },
+    ]);
+  });
+});
 
 describeEmbeddedPostgres("disableAllRoutinesInConfig", () => {
   let db!: ReturnType<typeof createDb>;

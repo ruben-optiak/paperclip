@@ -107,9 +107,11 @@ describe("successful run handoff decision", () => {
     expect(decision.instruction).toContain("Record the correct issue disposition.");
     expect(decision.instruction).toContain("1. Mark it `done` (scope complete) or `cancelled` (intentionally stopped).");
     expect(decision.instruction).toContain("2. Move it to `in_review` with a real reviewer path");
-    expect(decision.instruction).toContain("3. Mark it `blocked` with first-class blockers");
+    expect(decision.instruction).toContain("3. Mark it `blocked` only when this issue's requested deliverable cannot continue");
     expect(decision.instruction).toContain("4. Either delegate follow-up work");
-    expect(decision.instruction).toContain("Only mark `done` if you can point at concrete verification evidence");
+    expect(decision.instruction).toContain("may describe a field or finding rather than the task disposition");
+    expect(decision.instruction).toContain("verified PARTIAL/FAIL/unknown conclusion");
+    expect(decision.instruction).toContain("an agent may not name another agent, the board, or a user");
     expect(decision.instruction).toContain("you are on your normal model and allowed to work in this wake");
   });
 

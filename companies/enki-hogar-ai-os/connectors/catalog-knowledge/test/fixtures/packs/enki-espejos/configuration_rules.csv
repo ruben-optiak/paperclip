@@ -1,0 +1,2 @@
+entity_key,rule_key,axis,representation,affects_sku,affects_price,affects_stock,allowed_values_json,condition_json,effect_json,evidence_ref,source_page
+lux,measure,medida,variation,true,true,true,"[""50x70""]",{},"{""requires_live_price"":true,""reference_strategy"":""approved_crosswalk""}",enki-espejos-qa#decision=variation-model,

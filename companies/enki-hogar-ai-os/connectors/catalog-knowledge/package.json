@@ -1,0 +1,19 @@
+{
+  "name": "@enki-hogar/product-support-knowledge-mcp",
+  "version": "0.2.0",
+  "private": true,
+  "license": "MIT AND LicenseRef-Enki-Hogar-Internal",
+  "type": "module",
+  "engines": {"node": ">=24.11.0"},
+  "scripts": {
+    "start": "node src/main.mjs",
+    "migrate": "node src/admin.mjs migrate",
+    "test": "node --test test/*.test.mjs",
+    "test:integration": "node --test test-integration/*.test.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0",
+    "postgres": "3.4.9",
+    "zod": "4.4.3"
+  }
+}

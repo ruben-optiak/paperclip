@@ -11,10 +11,11 @@ In Paperclip, select the existing Enki company and use **Company settings → Ex
 ```sh
 pnpm install --frozen-lockfile
 npm --prefix companies/enki-hogar-ai-os/connectors/woocommerce-readonly-mcp ci --ignore-scripts
+npm --prefix companies/enki-hogar-ai-os/connectors/catalog-knowledge ci --ignore-scripts
 companies/enki-hogar-ai-os/scripts/check.sh
 ```
 
-Create an environment file outside Git from `.env.example`. Generate fresh bearer tokens and use a WooCommerce key whose permission is actually **Read**. Prepare ADC and the GSC OAuth token as described in [connections](connections.md).
+Create an environment file outside Git from `.env.example`. Generate fresh, independent bearer/database values and use a WooCommerce key whose permission is actually **Read**. Prepare ADC and the GSC OAuth token as described in [connections](connections.md). The product-support admin password, reader password and MCP bearer must all differ; leave optional embedding values empty for the initial lexical setup.
 
 Set `GOOGLE_ADC_HOST_PATH`, `GOOGLE_OAUTH_CLIENT_HOST_PATH`, and `GSC_TOKEN_HOST_DIR` to canonical **absolute host paths**. Relative paths are unsafe here because Compose resolves them against the directory of the first `-f` file (`docker/` in the supported command below), not against the environment file. Refuse to start if any value is relative.
 
@@ -57,45 +58,88 @@ curl -fsS http://127.0.0.1:8020/health
 curl -fsS http://127.0.0.1:8010/health
 curl -fsS http://127.0.0.1:8011/health
 curl -fsS http://127.0.0.1:8012/health
+curl -fsS http://127.0.0.1:8030/health
 ```
 
-The extra Compose file also bind-mounts the built Telegram plugin read-only at `/plugins/enki-telegram-gateway` inside the Paperclip container. It does not receive the Telegram token through Compose and does not create a new database or volume.
+The extra Compose file also bind-mounts the built Telegram plugin read-only at `/plugins/enki-telegram-gateway` inside the Paperclip container. It does not receive the Telegram token through Compose. It creates only the package-scoped `enki-product-support-db-data` volume for the rebuildable support projection; this is separate from Paperclip and every unrelated Docker volume. Never run `down -v`.
 
 ## 5. Preview and import
 
 Build a fresh archive; the script validates the package and scans it for secrets before writing anything:
 
 ```sh
-companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.2.0.zip
+companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.4.1.zip
 ```
 
-For v0.2.0, apply imports only by uploading this raw ZIP through the Paperclip
-UI. Do not apply the package with `paperclipai company import`: the current CLI
-local-source reader omits non-Markdown skill assets, so that path cannot install
-the vendored contracts or the restricted WordPress helper completely. A CLI
-`--dry-run` may be used only as a partial topology preview.
+Use the generated raw ZIP as the source. The current Paperclip CLI sends `.zip`
+inputs through its byte-exact transfer path, preserving non-Markdown skill
+assets. The UI raw-ZIP upload is equivalent. Do not apply from the package
+directory: that legacy CLI path filters some JSON/YAML contracts and helper
+scripts.
 
-In the UI, choose import into the existing company, select the generated ZIP printed by the command, and inspect the preview. Require:
-
-- zero collisions in the assumed empty company;
-- six agents and exactly one root;
-- eight company skills;
-- four projects, nine tasks, and two routines;
-- every agent and schedule paused.
-
-Cancel if the target company, counts, reporting tree, or collisions differ. Import only after the preview matches. Importing does not apply connector connections or access profiles.
-
-Immediately after import, run the instance-wide routine kill switch for this company from the Paperclip host or inside the running Paperclip container:
+For an existing company, preview first:
 
 ```sh
-npx paperclipai routines disable-all --company-id <company-id> --json
+npx paperclipai company import /tmp/enki-hogar-ai-os-v0.4.1.zip \
+  --target existing \
+  --company-id <company-id> \
+  --collision replace \
+  --dry-run \
+  --json
 ```
+
+Inspect the CLI or UI preview. For a first import into the assumed empty company, require zero collisions. For a version update, require collisions only for the known Enki entities being replaced and cancel on unrelated entities. In both cases require:
+
+- six agents and exactly one root;
+- nine company skills;
+- four projects, eleven tasks, and two routines;
+- every agent and schedule paused.
+
+Cancel if the target company, counts, reporting tree, or collision set differs. Import only after the preview matches. Remove `--dry-run`, add `--yes`, and keep `--collision replace` to apply the exact reviewed ZIP; alternatively confirm the same raw ZIP in the UI. Importing does not apply connector connections or access profiles.
+
+For a patch over a company that already contains Enki tasks and routine history,
+do not apply that full preview if any bootstrap issue has action `create`.
+Historical imports do not always carry a portable task identity, and replacing
+the complete package can therefore duplicate the eleven bootstrap tasks. Use a
+selective agent/skill patch and require `companyAction: none`, empty project and
+issue plans, six known agent updates, and exactly nine skills:
+
+```sh
+pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.4.1.zip \
+  --include agents,skills \
+  --target existing \
+  --company-id <company-id> \
+  --collision replace \
+  --dry-run \
+  --yes \
+  --api-base http://localhost:3100 \
+  --json
+```
+
+Apply the same command without `--dry-run` only after that selective preview is
+clean. This preserves agent UUIDs, positive budgets and operational issue
+history while replacing managed instructions and skill assignments; import
+safety leaves agents paused.
+
+Immediately after import, run the routine kill switch through the authenticated
+API. This works for Quickstart Docker, pauses every non-archived routine and
+also disables every enabled trigger without exposing the stored Board token:
+
+```sh
+pnpm paperclipai routines disable-all \
+  --company-id <company-id> \
+  --api-base http://localhost:3100 \
+  --json
+```
+
+The legacy form without `--api-base` remains for installations that have a
+local Paperclip `config.json`; do not use that form against Quickstart Docker.
 
 Then run `scripts/check-runtime-drift.mjs --json` and require zero `routine_*` or `unexpected_routine` findings. Other findings are expected until connections, profiles, policies, and budgets are configured in the next step. This kill switch is defense in depth: it does not replace the bundle's paused routine status and disabled triggers, and any mismatch is a failed import gate.
 
 ## 6. Configure and activate safely
 
-Follow [connections](connections.md), including the separate [Telegram gateway setup](connections.md#telegram-director-gateway), apply [the access matrix](../policies/access-matrix.md), and verify each agent's unique managed Codex home is authenticated. Keep MCP connection installs empty. With all MCP connections disabled and agents paused, run `scripts/reconcile-agent-gateways.mjs --apply-disabled`; this creates six agent-scoped gateways and leaves them disabled. Board must choose and configure a positive monthly hard cap for the company and for each of the six agents; this package deliberately does not invent euro values. Run the read-only desired-state drift check before activation. It requires every agent cap to be positive, `managedMcpOnly: true`, six exact active gateways with no persistent client tokens, zero MCP installs, and both routines paused with disabled schedules. Activate one specialist's gateway and agent at a time and run [the smoke test](smoke-test.md). Activate the Director only after specialists pass, then enable the Telegram plugin and run its dedicated smoke test. Manually executing both recurring tasks makes their schedules eligible for a later Board decision; it does not activate them. v0.2.0 deliberately keeps both routines and triggers paused, and enabling either without a matching versioned operational desired state is configuration drift.
+Follow [connections](connections.md), [product-support operations](catalog-knowledge.md), and the separate [Telegram gateway setup](connections.md#telegram-director-gateway), apply [the access matrix](../policies/access-matrix.md), and verify each agent's unique managed Codex home is authenticated. Keep MCP connection installs empty. With all MCP connections disabled and agents paused, run `scripts/reconcile-agent-gateways.mjs --apply-disabled`; this creates six agent-scoped gateways and leaves them disabled. Board must choose and configure a positive monthly hard cap for the company and for each of the six agents; this package deliberately does not invent euro values. Run the read-only desired-state drift check before activation. It requires every agent cap to be positive, `managedMcpOnly: true`, six exact active gateways with no persistent client tokens, zero MCP installs, and both routines paused with disabled schedules. Activate one specialist's gateway and agent at a time and run [the smoke test](smoke-test.md). Activate the Director only after specialists pass, then enable the Telegram plugin and run its dedicated smoke test. Manually executing both recurring tasks makes their schedules eligible for a later Board decision; it does not activate them. v0.4.1 deliberately keeps both routines and triggers paused, and enabling either without a matching versioned operational desired state is configuration drift.
 
 The versioned Codex arguments deliberately select the named `enki-readonly-network` profile, which extends `:read-only`, enables network access for Paperclip/MCP calls, and sets `features.use_legacy_landlock=true`; `dangerouslyBypassApprovalsAndSandbox` remains false. Docker's default seccomp policy blocks the unprivileged user namespaces required by Bubblewrap in the Quickstart container, while current Codex cannot project `workspace-write` onto its legacy Landlock backend. The read-only profile is representable by Landlock and was verified to allow the local health/API path while denying workspace writes. Do not combine it with `--sandbox`, or replace it with `privileged`, `SYS_ADMIN`, `seccomp=unconfined`, or `danger-full-access`.
 

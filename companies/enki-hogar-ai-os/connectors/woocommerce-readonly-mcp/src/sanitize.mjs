@@ -164,3 +164,59 @@ export function productView(product) {
     date_modified_gmt: typeof product.date_modified_gmt === "string" ? product.date_modified_gmt : null,
   };
 }
+
+function allowedMetadata(metaData) {
+  if (!Array.isArray(metaData)) return {};
+  const originalPdfSku = metaData.find((entry) => entry?.key === "_enki_original_pdf_sku")?.value;
+  const safeOriginalPdfSku = typeof originalPdfSku === "string"
+    && originalPdfSku.trim().length > 0
+    && originalPdfSku.trim().length <= 160
+    && !/[\u0000-\u001F\u007F]/.test(originalPdfSku)
+      ? originalPdfSku.trim()
+      : null;
+  return {
+    original_pdf_sku: safeOriginalPdfSku,
+  };
+}
+
+function variationAttributes(attributes) {
+  if (!Array.isArray(attributes)) return [];
+  return attributes.map((attribute) => ({
+    id: Number.isSafeInteger(attribute?.id) ? attribute.id : null,
+    name: typeof attribute?.name === "string" ? attribute.name : null,
+    option: typeof attribute?.option === "string" ? attribute.option : null,
+  }));
+}
+
+/**
+ * A deliberately narrow live WooCommerce view used to inspect a variable product.
+ * Arbitrary metadata, descriptions and media are excluded. The only metadata key
+ * admitted is Enki's non-secret manufacturer-reference bridge.
+ */
+export function productStructureView(product) {
+  return {
+    ...productView(product),
+    permalink: typeof product.permalink === "string" ? product.permalink : null,
+    original_pdf_sku: allowedMetadata(product.meta_data).original_pdf_sku,
+  };
+}
+
+export function variationView(variation) {
+  return {
+    id: variation.id ?? null,
+    parent_id: variation.parent_id ?? null,
+    sku: typeof variation.sku === "string" ? variation.sku : null,
+    status: typeof variation.status === "string" ? variation.status : null,
+    purchasable: typeof variation.purchasable === "boolean" ? variation.purchasable : null,
+    price: decimalValue(variation.price),
+    regular_price: decimalValue(variation.regular_price),
+    sale_price: decimalValue(variation.sale_price),
+    stock_status: typeof variation.stock_status === "string" ? variation.stock_status : null,
+    manage_stock: typeof variation.manage_stock === "boolean" ? variation.manage_stock : null,
+    stock_quantity: stockQuantity(variation.stock_quantity),
+    backorders: typeof variation.backorders === "string" ? variation.backorders : null,
+    attributes: variationAttributes(variation.attributes),
+    original_pdf_sku: allowedMetadata(variation.meta_data).original_pdf_sku,
+    date_modified_gmt: typeof variation.date_modified_gmt === "string" ? variation.date_modified_gmt : null,
+  };
+}

@@ -16,17 +16,221 @@ async function payload(tool, input) {
   return JSON.parse(toolResult.content[0].text);
 }
 
-test("catalog publishes only the five expected read-only operations", () => {
+test("catalog publishes only the six expected read-only operations", () => {
   const tools = createToolDefinitions({}, {now: fixedNow});
   assert.deepEqual(tools.map(({name}) => name), [
     "woo_sales_summary",
     "woo_orders_summary",
     "woo_get_product",
+    "woo_get_product_structure",
     "woo_low_stock",
     "woo_catalog_summary",
   ]);
   assert.equal(tools.every(({annotations}) => annotations.readOnlyHint === true), true);
   assert.equal(tools.some(({name}) => /(create|update|delete|refund|write|set)/i.test(name)), false);
+});
+
+test("product structure reads live variations while exposing only allowlisted metadata", async () => {
+  const parent = {
+    id: 44,
+    name: "Espejo Lux",
+    slug: "espejo-lux",
+    permalink: "https://www.enkihogar.com/producto/espejo-lux/",
+    sku: "ENKI-ESP-LUX",
+    status: "publish",
+    type: "variable",
+    price: "129.90",
+    regular_price: "149.90",
+    sale_price: "129.90",
+    stock_status: "instock",
+    manage_stock: false,
+    stock_quantity: null,
+    categories: [{id: 7, name: "Espejos", slug: "espejos"}],
+    attributes: [{id: 3, name: "Medida", variation: true, options: ["50 cm", "60 cm"]}],
+    meta_data: [
+      {key: "_enki_original_pdf_sku", value: "050100"},
+      {key: "private_supplier_note", value: "must never escape"},
+    ],
+    date_modified_gmt: "2026-08-31T08:00:00",
+  };
+  const variations = [
+    {
+      id: 45,
+      parent_id: 44,
+      sku: "ENKI-ESP-050101",
+      status: "publish",
+      purchasable: true,
+      price: "139.90",
+      regular_price: "139.90",
+      sale_price: "",
+      stock_status: "instock",
+      manage_stock: true,
+      stock_quantity: 3,
+      backorders: "no",
+      attributes: [{id: 3, name: "Medida", option: "50 cm"}],
+      meta_data: [
+        {key: "_enki_original_pdf_sku", value: "050101"},
+        {key: "supplier_cost", value: "50.00"},
+      ],
+      date_modified_gmt: "2026-08-31T08:30:00",
+    },
+  ];
+  const calls = [];
+  const client = {
+    get: async (path, params) => {
+      calls.push({kind: "get", path, params});
+      return {data: path === "/products" ? [parent] : parent};
+    },
+    paginate: async (path, params, maxPages, options) => {
+      calls.push({kind: "paginate", path, params, maxPages, options});
+      return {rows: variations, truncated: false, pagesFetched: 1, totalPages: 1, totalItems: 1};
+    },
+  };
+  const envelope = await payload(toolByName(client, "woo_get_product_structure"), {sku: "ENKI-ESP-LUX", max_pages: 4});
+
+  assert.equal(calls[0].path, "/products");
+  assert.equal(calls[0].params.sku, "ENKI-ESP-LUX");
+  assert.match(calls[0].params._fields, /meta_data/);
+  assert.equal(calls[1].path, "/products/44/variations");
+  assert.equal(calls[1].maxPages, 4);
+  assert.deepEqual(calls[1].options, {concurrency: 6});
+  assert.equal(envelope.data.authority.sellable_structure, "woocommerce_live");
+  assert.deepEqual(envelope.data.resolution, {
+    input_kind: "sku",
+    match_kind: "product",
+    matched_id: 44,
+    matched_sku: "ENKI-ESP-LUX",
+    root_product_id: 44,
+  });
+  assert.equal(envelope.data.product.original_pdf_sku, "050100");
+  assert.equal(envelope.data.variations[0].original_pdf_sku, "050101");
+  assert.equal(envelope.data.variations[0].stock_quantity, 3);
+  assert.equal(envelope.data.coverage.truncated, false);
+  assert.equal(JSON.stringify(envelope).includes("private_supplier_note"), false);
+  assert.equal(JSON.stringify(envelope).includes("supplier_cost"), false);
+  assert.equal(JSON.stringify(envelope).includes("must never escape"), false);
+});
+
+test("product structure expands an exact variation SKU through its variable parent", async () => {
+  const parent = {
+    id: 44,
+    name: "Espejo Lux",
+    sku: "ENKI-ESP-LUX",
+    type: "variable",
+    attributes: [{id: 3, name: "Medida", variation: true, options: ["50 cm", "60 cm"]}],
+    meta_data: [],
+  };
+  const requestedVariation = {
+    id: 46,
+    parent_id: 44,
+    sku: "ENKI-ESP-060301BM",
+    type: "variation",
+    status: "publish",
+    purchasable: true,
+    price: "255.31",
+    stock_status: "instock",
+    manage_stock: false,
+    stock_quantity: null,
+    attributes: [{id: 3, name: "Medida", option: "60 cm"}],
+    meta_data: [{key: "_enki_original_pdf_sku", value: "060301BM"}],
+  };
+  const sibling = {...requestedVariation, id: 45, sku: "ENKI-ESP-050301BM", attributes: [{id: 3, name: "Medida", option: "50 cm"}]};
+  const calls = [];
+  const client = {
+    get: async (path, params) => {
+      calls.push({kind: "get", path, params});
+      if (path === "/products") return {data: [requestedVariation]};
+      if (path === "/products/44") return {data: parent};
+      throw new Error(`Unexpected GET ${path}`);
+    },
+    paginate: async (path, params, maxPages, options) => {
+      calls.push({kind: "paginate", path, params, maxPages, options});
+      return {rows: [sibling, requestedVariation], truncated: false, pagesFetched: 1, totalPages: 1, totalItems: 2};
+    },
+  };
+
+  const envelope = await payload(toolByName(client, "woo_get_product_structure"), {
+    sku: "ENKI-ESP-060301BM",
+    max_pages: 4,
+  });
+
+  assert.deepEqual(calls.map(({path}) => path), ["/products", "/products/44", "/products/44/variations"]);
+  assert.match(calls[0].params._fields, /parent_id/);
+  assert.equal(envelope.data.product.id, 44);
+  assert.equal(envelope.data.product.sku, "ENKI-ESP-LUX");
+  assert.equal(envelope.data.variations.length, 2);
+  assert.equal(envelope.data.variations.some(({sku}) => sku === "ENKI-ESP-060301BM"), true);
+  assert.deepEqual(envelope.data.resolution, {
+    input_kind: "sku",
+    match_kind: "variation",
+    matched_id: 46,
+    matched_sku: "ENKI-ESP-060301BM",
+    root_product_id: 44,
+  });
+});
+
+test("product structure keeps the requested variation when bounded pages are truncated", async () => {
+  const requestedVariation = {
+    id: 250,
+    parent_id: 44,
+    sku: "TARGET-VARIATION",
+    type: "variation",
+    status: "publish",
+    purchasable: true,
+    attributes: [],
+    meta_data: [],
+  };
+  const client = {
+    get: async (path) => path === "/products"
+      ? {data: [requestedVariation]}
+      : {data: {id: 44, sku: "PARENT", type: "variable", attributes: [], meta_data: []}},
+    paginate: async () => ({
+      rows: [{...requestedVariation, id: 1, sku: "FIRST-VARIATION"}],
+      truncated: true,
+      pagesFetched: 1,
+      totalPages: 3,
+      totalItems: 201,
+    }),
+  };
+
+  const envelope = await payload(toolByName(client, "woo_get_product_structure"), {
+    sku: "TARGET-VARIATION",
+    max_pages: 1,
+  });
+
+  assert.equal(envelope.data.variations.some(({sku}) => sku === "TARGET-VARIATION"), true);
+  assert.equal(envelope.data.coverage.truncated, true);
+  assert.equal(envelope.meta.warnings.some((warning) => warning.includes("exact-SKU lookup")), true);
+});
+
+test("product structure rejects a variation whose parent identity cannot be verified", async () => {
+  const missingParent = {
+    get: async () => ({data: [{id: 46, sku: "ORPHAN", type: "variation", parent_id: null}]})
+  };
+  const missingParentResult = await toolByName(missingParent, "woo_get_product_structure").execute({sku: "ORPHAN"});
+  assert.equal(missingParentResult.isError, true);
+  assert.match(missingParentResult.content[0].text, /valid parent_id/);
+
+  const wrongParent = {
+    get: async (path) => path === "/products"
+      ? {data: [{id: 46, sku: "WRONG-PARENT", type: "variation", parent_id: 44}]}
+      : {data: {id: 99, sku: "NOT-THE-PARENT", type: "variable"}},
+  };
+  const wrongParentResult = await toolByName(wrongParent, "woo_get_product_structure").execute({sku: "WRONG-PARENT"});
+  assert.equal(wrongParentResult.isError, true);
+  assert.match(wrongParentResult.content[0].text, /expected variable parent 44/);
+});
+
+test("product structure rejects ambiguous or missing exact SKUs", async () => {
+  const missing = {get: async () => ({data: []})};
+  const missingResult = await toolByName(missing, "woo_get_product_structure").execute({sku: "MISSING"});
+  assert.equal(missingResult.isError, true);
+  assert.match(missingResult.content[0].text, /No WooCommerce/);
+
+  const duplicate = {get: async () => ({data: [{sku: "DUP"}, {sku: "DUP"}]})};
+  const duplicateResult = await toolByName(duplicate, "woo_get_product_structure").execute({sku: "DUP"});
+  assert.equal(duplicateResult.isError, true);
+  assert.match(duplicateResult.content[0].text, /more than one/);
 });
 
 test("order aggregation contains totals but no order rows or identifiers", () => {
@@ -150,6 +354,7 @@ test("every published tool returns the canonical evidence envelope", async () =>
     woo_sales_summary: {start_date: "2026-08-28", end_date: "2026-08-28"},
     woo_orders_summary: {start_date: "2026-08-28", end_date: "2026-08-28"},
     woo_get_product: {product_id: 10},
+    woo_get_product_structure: {product_id: 10, max_pages: 1},
     woo_low_stock: {threshold: 5, max_pages: 1},
     woo_catalog_summary: {},
   };

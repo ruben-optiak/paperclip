@@ -1,0 +1,2 @@
+entity_key,manufacturer_ref,woo_parent_sku,woo_variation_sku,mapping_kind,evidence_ref,approved_by,approved_at
+select-660-negro,SELECT-660-N,MUN-SELECT-660,MUN-SELECT-660-N,variation,mundilite-qa#decision=variation-axes,catalog-owner,2026-08-31T08:00:00+02:00

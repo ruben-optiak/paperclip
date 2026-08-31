@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { inferOpenAiCompatibleBiller, type AdapterExecutionContext, type AdapterExecutionResult } from "@paperclipai/adapter-utils";
@@ -40,7 +41,9 @@ import {
   ensurePaperclipSkillSymlink,
   ensurePathInEnv,
   refreshPaperclipWorkspaceEnvForExecution,
+  isMaterializedPaperclipSkillCopy,
   isPaperclipSkillSourceMissing,
+  materializePaperclipSkillCopy,
   readPaperclipRuntimeSkillEntries,
   readPaperclipIssueWorkModeFromContext,
   renderTemplate,
@@ -265,6 +268,119 @@ async function pruneBrokenUnavailablePaperclipSkillSymlinks(
   }
 }
 
+async function pruneUnavailablePaperclipSkillCopies(
+  skillsHome: string,
+  allowedSkillNames: Iterable<string>,
+  onLog: AdapterExecutionContext["onLog"],
+) {
+  const allowed = new Set(Array.from(allowedSkillNames));
+  const entries = await fs.readdir(skillsHome, { withFileTypes: true }).catch(() => []);
+
+  for (const entry of entries) {
+    if (allowed.has(entry.name) || !entry.isDirectory()) continue;
+
+    const target = path.join(skillsHome, entry.name);
+    if (!(await isMaterializedPaperclipSkillCopy(target))) continue;
+
+    await fs.rm(target, { recursive: true, force: true });
+    await onLog(
+      "stdout",
+      `[paperclip] Removed stale materialized Codex skill "${entry.name}" from ${skillsHome}\n`,
+    );
+  }
+}
+
+/**
+ * Remove only Paperclip-owned skill entries from a managed CODEX_HOME.
+ *
+ * Local heartbeat runs expose their desired skills from the run-owned HOME
+ * instead (see resolveRunScopedCodexUserHome). Keeping an older copy in
+ * CODEX_HOME would make Codex advertise two paths for the same skill, one of
+ * which restrictive Linux profiles cannot read. User-managed directories and
+ * unrelated live symlinks are deliberately preserved.
+ */
+export async function pruneManagedCodexSkillCopies(
+  skillsHome: string,
+  onLog: AdapterExecutionContext["onLog"],
+) {
+  const entries = await fs.readdir(skillsHome, { withFileTypes: true }).catch(() => []);
+
+  for (const entry of entries) {
+    const target = path.join(skillsHome, entry.name);
+    let paperclipOwned = false;
+    if (entry.isDirectory()) {
+      paperclipOwned = await isMaterializedPaperclipSkillCopy(target);
+    } else if (entry.isSymbolicLink()) {
+      const linkedPath = await fs.readlink(target).catch(() => null);
+      const resolvedLinkedPath = linkedPath
+        ? path.resolve(path.dirname(target), linkedPath)
+        : null;
+      paperclipOwned = Boolean(
+        resolvedLinkedPath &&
+        (await isLikelyPaperclipRuntimeSkillPath(resolvedLinkedPath, entry.name, {
+          requireSkillMarkdown: false,
+        })),
+      );
+    }
+    if (!paperclipOwned) continue;
+
+    await fs.rm(target, { recursive: true, force: true });
+    await onLog(
+      "stdout",
+      `[paperclip] Removed managed Codex skill cache "${entry.name}" from ${skillsHome}\n`,
+    );
+  }
+}
+
+type RunScopedCodexUserHomeInput = {
+  managedCodexHome: boolean;
+  executionTargetIsRemote: boolean;
+  paperclipScratch: unknown;
+  configuredScratchDir: unknown;
+  tmpDir?: string;
+};
+
+/**
+ * Resolve an ephemeral HOME for local managed-Codex heartbeats.
+ *
+ * Codex's legacy Landlock read-only backend grants reads to the workspace and
+ * run temp root, but intentionally not to the credential-bearing managed
+ * CODEX_HOME. Codex also discovers user skills from $HOME/.agents/skills, so
+ * placing Paperclip-owned copies below the already-owned heartbeat scratch
+ * gives commands read access to skill instructions without granting access to
+ * auth.json, config.toml, or any other managed-home state.
+ */
+export function resolveRunScopedCodexUserHome(
+  input: RunScopedCodexUserHomeInput,
+): string | null {
+  if (!input.managedCodexHome || input.executionTargetIsRemote) return null;
+
+  const scratch = parseObject(input.paperclipScratch);
+  if (scratch.type !== "heartbeat_run" || scratch.cleanupPolicy !== "terminal_run") {
+    return null;
+  }
+  const contextDir = asString(scratch.dir, "").trim();
+  const configuredDir = asString(input.configuredScratchDir, "").trim();
+  if (!contextDir || !configuredDir) return null;
+
+  const resolvedContextDir = path.resolve(contextDir);
+  const resolvedConfiguredDir = path.resolve(configuredDir);
+  if (resolvedContextDir !== resolvedConfiguredDir) return null;
+
+  const resolvedTmpDir = path.resolve(input.tmpDir ?? os.tmpdir());
+  const relativeToTmp = path.relative(resolvedTmpDir, resolvedContextDir);
+  if (
+    relativeToTmp === "" ||
+    relativeToTmp === ".." ||
+    relativeToTmp.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relativeToTmp)
+  ) {
+    return null;
+  }
+
+  return path.join(resolvedContextDir, "codex-user-home");
+}
+
 function resolveCodexSkillsDir(codexHome: string): string {
   return path.join(codexHome, "skills");
 }
@@ -274,6 +390,7 @@ type EnsureCodexSkillsInjectedOptions = {
   skillsEntries?: Array<{ key: string; runtimeName: string; source: string }>;
   desiredSkillNames?: string[];
   linkSkill?: (source: string, target: string) => Promise<void>;
+  materializeSkills?: boolean;
 };
 
 type CodexTransientFallbackMode =
@@ -520,6 +637,40 @@ export async function ensureCodexSkillsInjected(
 
     try {
       const existing = await fs.lstat(target).catch(() => null);
+      if (options.materializeSkills) {
+        if (existing?.isSymbolicLink()) {
+          const linkedPath = await fs.readlink(target).catch(() => null);
+          const resolvedLinkedPath = linkedPath
+            ? path.resolve(path.dirname(target), linkedPath)
+            : null;
+          if (
+            !resolvedLinkedPath ||
+            (resolvedLinkedPath !== entry.source &&
+              !(await isLikelyPaperclipRuntimeSkillPath(resolvedLinkedPath, entry.runtimeName)))
+          ) {
+            continue;
+          }
+          await fs.unlink(target);
+        } else if (existing && !existing.isDirectory()) {
+          continue;
+        }
+
+        const result = await materializePaperclipSkillCopy(entry.source, target);
+        if (result.copiedFiles > 0) {
+          await onLog(
+            "stdout",
+            `[paperclip] Materialized Codex skill "${entry.runtimeName}" into ${skillsHome}\n`,
+          );
+        }
+        if (result.skippedSymlinks.length > 0) {
+          await onLog(
+            "stderr",
+            `[paperclip] Materialized Codex skill "${entry.runtimeName}" without ${result.skippedSymlinks.length} nested symlink(s).\n`,
+          );
+        }
+        continue;
+      }
+
       if (existing?.isSymbolicLink()) {
         const linkedPath = await fs.readlink(target).catch(() => null);
         const resolvedLinkedPath = linkedPath
@@ -564,6 +715,13 @@ export async function ensureCodexSkillsInjected(
     skillsEntries.map((entry) => entry.runtimeName),
     onLog,
   );
+  if (options.materializeSkills) {
+    await pruneUnavailablePaperclipSkillCopies(
+      skillsHome,
+      skillsEntries.map((entry) => entry.runtimeName),
+      onLog,
+    );
+  }
 }
 
 export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExecutionResult> {
@@ -761,17 +919,34 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     for (const warning of managedMcp.warnings) {
       await onLog("stderr", `[paperclip] ${warning}\n`);
     }
-    // Inject skills into the same CODEX_HOME that Codex will actually run with
-    // (managed home in the default case, or an explicit override from adapter config).
+    // For local managed homes, keep executable skill instructions in the
+    // run-owned temp HOME. The credential-bearing CODEX_HOME remains outside
+    // the command sandbox's readable roots. Remote and external homes retain
+    // the established CODEX_HOME placement.
     const codexSkillsDir = resolveCodexSkillsDir(effectiveCodexHome);
+    const managedCodexHome = configuredCodexHome == null || configuredHomeIsManaged;
+    const runScopedCodexUserHome = resolveRunScopedCodexUserHome({
+      managedCodexHome,
+      executionTargetIsRemote,
+      paperclipScratch: context.paperclipScratch,
+      configuredScratchDir: envConfig.PAPERCLIP_RUN_SCRATCH_DIR,
+    });
+    const runtimeSkillsDir = runScopedCodexUserHome
+      ? path.join(runScopedCodexUserHome, ".agents", "skills")
+      : codexSkillsDir;
     await ensureCodexSkillsInjected(
       onLog,
       {
-        skillsHome: codexSkillsDir,
+        skillsHome: runtimeSkillsDir,
         skillsEntries: codexSkillEntries,
         desiredSkillNames,
+        materializeSkills: managedCodexHome,
       },
     );
+    if (runScopedCodexUserHome) {
+      // Avoid duplicate discovery of an unreadable, older CODEX_HOME copy.
+      await pruneManagedCodexSkillCopies(codexSkillsDir, onLog);
+    }
     const timeoutSec = resolveAdapterExecutionTargetTimeoutSec(
       executionTarget,
       asNumber(config.timeoutSec, 0),
@@ -942,6 +1117,12 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
       executionTargetIsRemote,
       executionCwd: effectiveExecutionCwd,
     });
+    if (runScopedCodexUserHome) {
+      // CODEX_HOME remains the isolated auth/config/session home. HOME is only
+      // the ephemeral, non-secret skill discovery root and is deleted with the
+      // heartbeat scratch directory after the run reaches a terminal state.
+      env.HOME = runScopedCodexUserHome;
+    }
     if (targetWorkspaceRealization) {
       env.PAPERCLIP_WORKSPACE_REALIZATION_MODE = targetWorkspaceRealization.mode;
       env.PAPERCLIP_WORKSPACE_AUTHORITATIVE_ROOT = targetWorkspaceRealization.authoritativeRoot;

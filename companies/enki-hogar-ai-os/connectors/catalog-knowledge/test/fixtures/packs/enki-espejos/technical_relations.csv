@@ -1,0 +1,2 @@
+from_entity_key,relation_type,to_entity_key,condition_json,evidence_ref,source_page
+lux-050101,variant_of,lux,{},enki-espejos-qa#decision=variation-model,

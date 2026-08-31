@@ -77,7 +77,7 @@ const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md schema must be agentcompanies/v1");
 if (company.slug !== "enki-hogar-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.2.0") fail("Unexpected package version");
+if (company.version !== "0.4.1") fail("Unexpected package version");
 if (company.license !== "MIT AND LicenseRef-Enki-Hogar-Internal") fail("Unexpected package license; mixed package scope must be explicit");
 for (const required of [
   "LICENSE",
@@ -102,6 +102,12 @@ const expectedEnvExample = {
   GOOGLE_ADC_HOST_PATH: "/absolute/path/to/application-default-credentials.json",
   GOOGLE_OAUTH_CLIENT_HOST_PATH: "/absolute/path/to/oauth-client.json",
   GSC_TOKEN_HOST_DIR: "/absolute/path/to/gsc-token-directory",
+  SUPPORT_DB_ADMIN_PASSWORD: "change-me-admin-password",
+  SUPPORT_DB_READER_PASSWORD: "change-me-reader-password",
+  SUPPORT_MCP_TOKEN: "change-me-connector-token",
+  SUPPORT_EMBEDDING_BASE_URL: "",
+  SUPPORT_EMBEDDING_API_KEY: "",
+  SUPPORT_EMBEDDING_MODEL: "",
 };
 const actualEnvExample = {};
 for (const line of readFileSync(join(packageDir, ".env.example"), "utf8").split("\n")) {
@@ -172,7 +178,7 @@ for (const path of skillFiles) {
     }
   }
 }
-if (skillFiles.length !== 8) fail(`Expected 8 skills, found ${skillFiles.length}`);
+if (skillFiles.length !== 9) fail(`Expected 9 skills, found ${skillFiles.length}`);
 
 const mirrorContract = jsonYaml("runtime/skill-reference-mirrors.json");
 if (mirrorContract.schema !== "enki-skill-reference-mirrors/v1") fail("Unexpected skill reference mirror schema");
@@ -224,7 +230,7 @@ for (const path of taskFiles) {
   if (doc.slug !== basename(dirname(path))) fail(`Task directory/slug mismatch: ${doc.slug}`);
   tasks.set(doc.slug, doc);
 }
-if (tasks.size !== 9) fail(`Expected 9 tasks, found ${tasks.size}`);
+if (tasks.size !== 11) fail(`Expected 11 tasks, found ${tasks.size}`);
 const recurring = [...tasks.values()].filter((task) => task.recurring === true).map((task) => task.slug).sort();
 if (recurring.join(",") !== "daily-operating-brief,weekly-operating-review") fail("Unexpected recurring task set");
 
@@ -245,7 +251,7 @@ for (const slug of agents.keys()) {
   if (/- --sandbox\n/.test(block)) fail(`${slug} must not mix legacy --sandbox selection with its named permission profile`);
   if (!/- approval_policy="never"/.test(block)) fail(`${slug} must enforce approval_policy=never`);
   if (!/- default_permissions="enki-readonly-network"/.test(block)) fail(`${slug} must select the Enki read-only network permission profile`);
-  if (!/- permissions\.enki-readonly-network\.extends=":read-only"/.test(block)) fail(`${slug} must inherit the Codex read-only filesystem profile`);
+  if (!/- "permissions\.enki-readonly-network\.extends=\\":read-only\\""/.test(block)) fail(`${slug} must inherit the Codex read-only filesystem profile with a YAML-safe quoted scalar`);
   if (!/- permissions\.enki-readonly-network\.network\.enabled=true/.test(block)) fail(`${slug} must enable the network path required for Paperclip API calls`);
   if (!/- features\.use_legacy_landlock=true/.test(block)) fail(`${slug} must use the Landlock fallback required by the restrictive Docker runtime`);
   if (/sandbox_workspace_write\./.test(block)) fail(`${slug} must not carry workspace-write settings in the read-only v1 profile`);
@@ -266,19 +272,25 @@ for (const expected of [
 
 const compatibility = jsonYaml("runtime/compatibility.lock.yaml");
 if (compatibility.schema !== "enki-runtime-compatibility/v1") fail("Unexpected runtime compatibility schema");
-if (compatibility.packageVersion !== "0.2.0") fail("Compatibility lock package version must match 0.2.0");
+if (compatibility.packageVersion !== "0.4.1") fail("Compatibility lock package version must match 0.4.1");
 if (compatibility.paperclipBundleSchemaVersion !== 7) fail("Compatibility lock must target bundle schemaVersion 7");
-if (compatibility.connectors?.woocommerce?.version !== "0.1.1") fail("Compatibility lock must pin WooCommerce connector 0.1.1");
+if (compatibility.connectors?.woocommerce?.version !== "0.2.1") fail("Compatibility lock must pin WooCommerce connector 0.2.1");
 if (compatibility.connectors?.google?.version !== "0.1.1") fail("Compatibility lock must pin Google connector runtime 0.1.1");
 if (compatibility.connectors?.telegramGateway?.version !== "0.2.0") fail("Compatibility lock must pin Telegram gateway 0.2.0");
 if (compatibility.connectors?.telegramGateway?.pluginApiVersion !== 1) fail("Telegram gateway must target plugin API v1");
+if (compatibility.connectors?.productSupportKnowledge?.version !== "0.2.0") fail("Compatibility lock must pin product-support connector 0.2.0");
+if (compatibility.connectors?.productSupportKnowledge?.postgresClient !== "3.4.9") fail("Compatibility lock must pin the support PostgreSQL client");
+if (compatibility.connectors?.productSupportKnowledge?.databaseImageDigest !== "sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f") fail("Product-support pgvector image digest drift");
+if (compatibility.connectors?.productSupportKnowledge?.agentDatabaseRoleStatus !== "verified_read_only_by_integration_test") fail("Support reader role must carry integration-test evidence");
 if (compatibility.paperclip?.upstreamBaseCommit !== "35fca95626a04f5a7ec42cf95989c3d779a1687e") fail("Compatibility lock must identify the reviewed Paperclip base commit");
 if (compatibility.codex?.managedMcpDefaultToolsApprovalMode !== "approve") fail("Compatibility lock must delegate managed MCP dispatch approval to the Paperclip gateway");
 if (!String(compatibility.codex?.managedMcpApprovalModeStatus || "").includes("verified")) fail("Managed MCP approval mode must carry verified runtime evidence");
+if (compatibility.codex?.managedSkillDelivery !== "materialized_copy_inside_run_scoped_home") fail("Managed Codex skills must be materialized inside the sandbox-readable run-scoped home");
 for (const [label, digest, status] of [
   ["Paperclip image", compatibility.paperclip?.imageDigest, compatibility.paperclip?.imageStatus],
   ["WooCommerce connector image", compatibility.connectors?.woocommerce?.imageDigest, compatibility.connectors?.woocommerce?.imageStatus],
   ["Google connector image", compatibility.connectors?.google?.imageDigest, compatibility.connectors?.google?.imageStatus],
+  ["Product-support connector image", compatibility.connectors?.productSupportKnowledge?.imageDigest, compatibility.connectors?.productSupportKnowledge?.imageStatus],
 ]) {
   if (digest !== null) fail(`${label} digest must remain null until independently verified`);
   if (typeof status !== "string" || !status.includes("pending")) fail(`${label} status must explicitly remain pending`);
@@ -297,8 +309,54 @@ const nodeImagePin = "node:24.11.1-bookworm-slim@sha256:48abc13a19400ca3985071e2
 const uvImagePin = "ghcr.io/astral-sh/uv:0.8.15-python3.12-bookworm-slim@sha256:0664f9b563fb559314ae82b9d87cd34d503f98a96d8cd9b37fd9d9cfe76d5ede";
 const wooDockerfile = readFileSync(join(packageDir, "connectors", "woocommerce-readonly-mcp", "Dockerfile"), "utf8");
 const googleDockerfile = readFileSync(join(packageDir, "connectors", "google-mcps", "Dockerfile"), "utf8");
-if (!wooDockerfile.includes(`FROM ${nodeImagePin}`) || !googleDockerfile.includes(`FROM ${nodeImagePin} AS node-runtime`)) fail("Connector Dockerfiles must consume the verified Node digest");
+const catalogDockerfile = readFileSync(join(packageDir, "connectors", "catalog-knowledge", "Dockerfile"), "utf8");
+if (!wooDockerfile.includes(`FROM ${nodeImagePin}`) || !googleDockerfile.includes(`FROM ${nodeImagePin} AS node-runtime`) || !catalogDockerfile.includes(`FROM ${nodeImagePin}`)) fail("Connector Dockerfiles must consume the verified Node digest");
 if (!googleDockerfile.includes(`FROM ${uvImagePin}`)) fail("Google connector Dockerfile must consume the verified uv digest");
+
+const wooPackage = jsonYaml("connectors/woocommerce-readonly-mcp/package.json");
+if (wooPackage.name !== "@enki-hogar/woocommerce-readonly-mcp" || wooPackage.version !== "0.2.1") fail("Unexpected WooCommerce connector package identity");
+const wooTools = readFileSync(join(packageDir, "connectors", "woocommerce-readonly-mcp", "src", "tools.mjs"), "utf8");
+for (const tool of ["woo_sales_summary", "woo_orders_summary", "woo_get_product", "woo_get_product_structure", "woo_low_stock", "woo_catalog_summary"]) {
+  if (!wooTools.includes(`\"${tool}\"`)) fail(`WooCommerce connector is missing reviewed read tool: ${tool}`);
+}
+
+const catalogPackage = jsonYaml("connectors/catalog-knowledge/package.json");
+if (catalogPackage.name !== "@enki-hogar/product-support-knowledge-mcp" || catalogPackage.version !== "0.2.0") fail("Unexpected product-support connector package identity");
+if (catalogPackage.dependencies?.["@modelcontextprotocol/sdk"] !== "1.30.0" || catalogPackage.dependencies?.postgres !== "3.4.9" || catalogPackage.dependencies?.zod !== "4.4.3") fail("Product-support connector dependencies must be exactly pinned");
+const catalogPackageLock = jsonYaml("connectors/catalog-knowledge/package-lock.json");
+if (catalogPackageLock.packages?.["node_modules/postgres"]?.version !== "3.4.9") fail("Catalogue connector lock must pin postgres 3.4.9");
+const catalogTools = readFileSync(join(packageDir, "connectors", "catalog-knowledge", "src", "tools.mjs"), "utf8");
+const expectedCatalogTools = [
+  "knowledge_resolve_product",
+  "knowledge_get_technical_profile",
+  "knowledge_check_compatibility",
+  "knowledge_list_allowed_options",
+  "knowledge_get_configuration_model",
+  "knowledge_search_support",
+  "knowledge_get_evidence",
+  "knowledge_coverage",
+];
+for (const tool of expectedCatalogTools) if (!catalogTools.includes(`\"${tool}\"`)) fail(`Product-support connector is missing read tool: ${tool}`);
+if (!/readOnlyHint:\s*true/.test(catalogTools) || !/destructiveHint:\s*false/.test(catalogTools) || !/openWorldHint:\s*false/.test(catalogTools)) fail("Product-support tools must be closed-world, read-only and non-destructive");
+for (const forbidden of ["knowledge_create", "knowledge_update", "knowledge_delete", "knowledge_archive", "knowledge_restore", "knowledge_purge", "knowledge_import", "knowledge_reindex"]) if (catalogTools.includes(`\"${forbidden}`)) fail(`Product-support MCP must not expose administrative tool: ${forbidden}`);
+const catalogCompose = readFileSync(join(packageDir, "runtime", "docker-compose.integrations.yml"), "utf8");
+if (!catalogCompose.includes("pgvector/pgvector:0.8.6-pg17-bookworm@sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f")) fail("Compose must consume the verified pgvector image digest");
+const catalogMcpComposeBlock = catalogCompose.match(/\n  enki-product-support-knowledge:\n([\s\S]*?)(?=\n  [a-z0-9-]+:\n|\nvolumes:)/)?.[1] || "";
+if (!catalogMcpComposeBlock || /SUPPORT_DB_ADMIN_PASSWORD/.test(catalogMcpComposeBlock)) fail("Product-support MCP service must never receive the database admin password");
+if (!/SUPPORT_DB_USER:\s*enki_support_reader/.test(catalogMcpComposeBlock)) fail("Product-support MCP must connect with the dedicated reader role");
+const catalogMigration = readFileSync(join(packageDir, "connectors", "catalog-knowledge", "src", "migrations.mjs"), "utf8");
+if (!/default_transaction_read_only = on/.test(catalogMigration)) fail("Support migration must enforce read-only transactions on the MCP database role");
+if (/GRANT SELECT ON ALL TABLES/.test(catalogMigration)) fail("Support reader must not receive administrative tables through a blanket grant");
+const catalogSchema = readFileSync(join(packageDir, "connectors", "catalog-knowledge", "migrations", "001_product_support_knowledge.sql"), "utf8");
+if (!catalogSchema.includes("source_revision_kind")) fail("Product-support packs must preserve whether source provenance is a Git commit or source snapshot digest");
+for (const indexName of [
+  "support_packs_one_active_domain_idx",
+  "support_entities_lookup_idx",
+  "support_relations_from_idx",
+  "support_rules_entity_idx",
+  "support_crosswalk_variation_sku_idx",
+  "support_chunks_search_idx",
+]) if (!catalogSchema.includes(indexName)) fail(`Product-support index missing: ${indexName}`);
 
 const telegramPackage = jsonYaml("connectors/telegram-gateway/package.json");
 if (telegramPackage.name !== "@enki-hogar/telegram-gateway" || telegramPackage.version !== "0.2.0") fail("Unexpected Telegram plugin package identity");
@@ -334,6 +392,7 @@ if (!/\/plugins\/enki-telegram-gateway:ro/.test(telegramCompose)) fail("Compose 
 
 const desired = jsonYaml("policies/desired-state.yaml");
 if (desired.schema !== "enki-runtime-desired-state/v1" || desired.mode !== "audit-only") fail("Desired state must be audit-only enki-runtime-desired-state/v1");
+if (desired.packageVersion !== "0.4.1") fail("Desired state package version must match 0.4.1");
 if (desired.rejectUnexpectedActiveConnections !== true) fail("Desired state must reject unexpected active connections");
 if (desired.rejectUnexpectedAgents !== true) fail("Desired state must reject unexpected agents");
 if (desired.rejectUnexpectedProfiles !== true) fail("Desired state must reject unexpected profiles");
@@ -349,7 +408,9 @@ if (desired.plugins?.[0]?.approvalDecisions !== "ui_only" || desired.plugins?.[0
 for (const forbiddenCapability of ["approvals.respond", "issue.interactions.respond", "agents.invoke", "agents.resume", "issues.update"]) {
   if (!(desired.plugins?.[0]?.forbiddenCapabilities || []).includes(forbiddenCapability)) fail(`Telegram desired state must forbid capability: ${forbiddenCapability}`);
 }
-if (desired.connections?.length !== 4 || desired.profiles?.length !== 6 || desired.policies?.length !== 1 || desired.gateways?.length !== 6) fail("Desired state must define 4 connections, 6 profiles, 1 global block policy, and 6 governed gateways");
+if (desired.connections?.length !== 5 || desired.profiles?.length !== 6 || desired.policies?.length !== 1 || desired.gateways?.length !== 6) fail("Desired state must define 5 connections, 6 profiles, 1 global block policy, and 6 governed gateways");
+const desiredCatalogConnection = desired.connections?.find((connection) => connection.key === "product_support_knowledge");
+if (desiredCatalogConnection?.endpoint !== "http://enki-product-support-knowledge:8030/mcp" || (desiredCatalogConnection?.tools || []).sort().join(",") !== [...expectedCatalogTools].sort().join(",")) fail("Desired support connection must expose the exact reviewed eight-tool catalog");
 const desiredToolNames = new Set((desired.connections || []).flatMap((connection) => connection.tools || []));
 const analyticsProxy = jsonYaml("connectors/google-mcps/config/analytics-proxy.json");
 if (analyticsProxy.mcpServers?.default?.tools?.list_google_ads_links?.enabled !== false) fail("GA4 proxy must quarantine list_google_ads_links because its upstream response exposes creator email PII");
@@ -450,7 +511,7 @@ for (const document of inventory.internalDocuments || []) {
   if (document.targetSha256 !== actualSha256) fail(`Internal knowledge hash drift: ${document.target}`);
   if (document.origin !== "package-authored" || document.license !== "LicenseRef-Enki-Hogar-Internal" || document.sensitivity !== "enki_internal") fail(`Unexpected internal document provenance: ${document.target}`);
 }
-if ((inventory.internalDocuments || []).length !== 2) fail("Knowledge inventory must include both package-authored metric and evidence contracts");
+if ((inventory.internalDocuments || []).length !== 6) fail("Knowledge inventory must include metric, evidence, content-ledger, editorial-workflow, and both product-support contracts");
 const wordpressImplementationPath = join(packageDir, "skills", "wordpress-publisher", "scripts", "wordpress_publisher.py");
 const wordpressImplementationSha256 = statSafe(wordpressImplementationPath)
   ? createHash("sha256").update(readFileSync(wordpressImplementationPath)).digest("hex")

@@ -1,0 +1,3 @@
+entity_key,fact_key,value,unit,applicability,evidence_ref,source_page,confidence
+select-660,installation_type,La instalación se muestra como información técnica y no como eje de variación.,,installation,mundilite-catalogo#page=22,22,1
+select-660,material,Compuesto mineral,,material,mundilite-catalogo#page=22,22,0.98

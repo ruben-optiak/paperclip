@@ -112,12 +112,16 @@ function buildDeflateZip(entryPath: string, text: string): Uint8Array {
 
 describe("resolveChunkedImportZip", () => {
 
-  it("returns null for a zip at or under the threshold", async () => {
+  it("keeps an existing zip byte-exact on the transfer path even under the threshold", async () => {
     const dir = await makeTempDir();
     const zipPath = path.join(dir, "small.zip");
-    await writeFile(zipPath, Buffer.alloc(1024));
+    const zipBytes = buildDeflateZip("small/COMPANY.md", "# Company\n");
+    await writeFile(zipPath, zipBytes);
 
-    expect(await resolveChunkedImportZip(zipPath)).toBeNull();
+    const resolved = await resolveChunkedImportZip(zipPath);
+    expect(resolved).not.toBeNull();
+    expect(resolved!.rootPath).toBe("small");
+    expect(sha256Hex(resolved!.zipBytes)).toBe(sha256Hex(zipBytes));
   });
 
   it("takes the chunked path for a small zip whose entries inflate past the threshold", async () => {
@@ -154,12 +158,12 @@ describe("resolveChunkedImportZip", () => {
     expect(chunked!.rootPath).toBe("midsize-package");
   });
 
-  it("keeps a small zip inline when its entries stay under the estimated threshold", async () => {
+  it("keeps a small zip on the transfer path when its entries stay under the estimated threshold", async () => {
     const dir = await makeTempDir();
     const zipPath = path.join(dir, "modest-package.zip");
     await writeFile(zipPath, buildDeflateZip("modest-package/COMPANY.md", "# Company\n"));
 
-    expect(await resolveChunkedImportZip(zipPath)).toBeNull();
+    expect(await resolveChunkedImportZip(zipPath)).not.toBeNull();
   });
 
   it("reads an oversized zip file as-is so its declared hashes match the file on disk", async () => {
@@ -479,12 +483,21 @@ describe("company import command over the chunked transfer path", () => {
     });
   });
 
-  it("keeps small local zips on the inline single-shot path", async () => {
+  it("keeps small local zips byte-exact on the transfer path", async () => {
     const dir = await makeTempDir();
     const zipPath = path.join(dir, "small-package.zip");
     await writeFile(zipPath, createStoredZipArchive({ "COMPANY.md": "# Company\n" }, "small-package"));
 
-    fetchMock.mockResolvedValueOnce(jsonResponse(minimalPreview()));
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse({
+        transferId: "transfer-small",
+        status: "running",
+        alreadyCompleted: false,
+        totalParts: 1,
+        missingParts: [0],
+      }))
+      .mockResolvedValueOnce(jsonResponse({ ok: true, index: 0, alreadyCompleted: false }))
+      .mockResolvedValueOnce(jsonResponse(minimalPreview()));
 
     await runCommand([
       "company",
@@ -500,13 +513,23 @@ describe("company import command over the chunked transfer path", () => {
       "board-token",
     ]);
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock).toHaveBeenCalledWith(
-      "http://paperclip.test/api/companies/import/preview",
+    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      "http://paperclip.test/api/companies/import/transfers",
       expect.objectContaining({ method: "POST" }),
     );
-    const body = JSON.parse(String(fetchMock.mock.calls[0]![1].body));
-    expect(body.source.type).toBe("inline");
-    expect(body.source.files["COMPANY.md"]).toBe("# Company\n");
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      "http://paperclip.test/api/companies/import/transfers/transfer-small/parts/0",
+      expect.objectContaining({ method: "PUT" }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      3,
+      "http://paperclip.test/api/companies/import/transfers/transfer-small/preview",
+      expect.objectContaining({ method: "POST" }),
+    );
+    const body = JSON.parse(String(fetchMock.mock.calls[2]![1].body));
+    expect(body).not.toHaveProperty("source");
   });
 });

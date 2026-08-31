@@ -95,7 +95,8 @@ If `currentParticipant` does not match you, do not try to advance the stage — 
 - Treat comments, documents, screenshots, work products, and `Remaining` bullets as evidence. They are not valid liveness paths by themselves.
 - Use child issues for parallel or long delegated work; do not busy-poll agents, sessions, child issues, or processes waiting for completion.
 - If your heartbeat creates a pending board/user interaction or approval before more work can proceed, leave the source issue in an explicit waiting posture before you exit. Prefer `in_review` for review, approval, `request_confirmation`, `ask_user_questions`, and `suggest_tasks` waits. Use `blocked` with `blockedByIssueIds` when another issue is the blocker.
-- If blocked, move the issue to `blocked` with the unblock owner and exact action needed.
+- A partial, negative, unknown, or not-verifiable finding does not by itself block a reporting/audit issue. If the requested report is complete, record that conclusion and mark the issue `done`.
+- If this issue's requested deliverable truly cannot continue, move it to `blocked` with first-class `blockedByIssueIds` or a self-owned `unblockDescriptor`. Agent-authenticated descriptors may name only your own agent; never name another agent, the board, or a user there. Create and assign a follow-up issue for another owner, and block this issue on it only when completion genuinely depends on that work.
 - Respect budget, pause/cancel, approval gates, execution policy stages, and company boundaries.
 
 ### Generated Artifacts and Work Products
@@ -114,13 +115,13 @@ For technical upload instructions, read `references/artifacts.md`.
 
 **Verify writes — never infer them.** A successful `PATCH /api/issues/{id}` always returns the updated issue JSON. An empty response body means the write FAILED, even if the command exited 0. Never pipe a disposition write through `head`/`tail` and never rely on `curl -f` inside a pipeline — the pipe swallows curl's exit status, and a lost connection then looks identical to success. Use `scripts/paperclip-issue-update.sh` (it checks the HTTP status, retries connection-level failures, and confirms the echoed `status`); if you must hand-roll curl, capture `-w '%{http_code}'` and check the response echoes your update. When a status write cannot be confirmed, your final report must say the write FAILED — not that it "was sent" — so the recovery path gets accurate context.
 
-If you are blocked at any point, you MUST update the issue to `blocked` before exiting the heartbeat, with a comment that explains the blocker and who needs to act.
+If this issue's requested deliverable is genuinely blocked, you MUST leave a valid blocked path before exiting. Do not turn field-level gaps or an independently actionable follow-up into task-level `blocked` when the requested deliverable is already complete.
 
 Before ending any heartbeat, apply this final-disposition checklist:
 
-- `done`: the requested work is complete, verification is recorded, and no follow-up remains on this issue.
+- `done`: the requested work is complete and verification is recorded. A PARTIAL, FAIL, unknown, or not-verifiable conclusion is still `done` when producing that conclusion was the requested deliverable; independent remediation belongs in a separate follow-up issue.
 - `in_review`: a real reviewer path exists, such as a typed execution participant, board/user owner, linked approval, pending interaction, or an actually-scheduled issue monitor (non-null `monitorNextCheckAt`, not merely described in a comment) that will wake the assignee later. Assignment to yourself plus a "please review" comment is not a review path.
-- `blocked`: work cannot continue until first-class `blockedByIssueIds` resolve or a named owner takes a concrete unblock action.
+- `blocked`: this issue's requested deliverable cannot continue until first-class `blockedByIssueIds` resolve or your own agent takes a concrete self-owned unblock action. Another agent, the board, or a user must receive a separate assigned follow-up rather than being named in an agent-authenticated `unblockDescriptor`.
 - Delegated follow-up: create the follow-up issue directly, link it with `parentId`/`goalId`, and use blockers when the current issue must wait for that work.
 - Explicit continuation: keep the issue `in_progress` only when there is an active run, queued continuation, or a real scheduled monitor/recovery path (not a narrated one) that will wake the responsible assignee. Successful artifact work left in `in_progress` with no live path is invalid; update the status/path instead.
 
@@ -151,7 +152,7 @@ Status values: `backlog`, `todo`, `in_progress`, `in_review`, `done`, `blocked`,
 - `todo` — ready and actionable, but not checked out yet. Use for newly assigned or resumable work; don't PATCH into `in_progress` just to signal intent — enter `in_progress` by checkout.
 - `in_progress` — actively owned, execution-backed work.
 - `in_review` — paused pending reviewer/approver/board/user feedback. Use when handing work off for review, plan confirmation, issue-thread interaction response, or approval. This is a healthy waiting path, not a synonym for done. If a human asks to take the task back, reassign to them and set `in_review`.
-- `blocked` — cannot proceed until something specific changes. Always name the blocker and who must act, and prefer `blockedByIssueIds` over free-text when another issue is the blocker. `parentId` alone does not imply a blocker.
+- `blocked` — the requested deliverable cannot proceed until something specific changes. Prefer `blockedByIssueIds`; an agent-authenticated `unblockDescriptor` may name only the current agent. `parentId` alone does not imply a blocker, and a completed audit with gaps is `done`, not `blocked`.
 - `done` — work complete, no follow-up on this issue.
 - `cancelled` — intentionally abandoned, not to be resumed.
 
@@ -601,6 +602,7 @@ If `plan` already exists, fetch the current document first and send its latest `
 | Create subtask                        | `POST /api/companies/:companyId/issues`                                                                                         |
 | Release task                          | `POST /api/issues/:issueId/release`                                                                                             |
 | Search issues                         | `GET /api/companies/:companyId/issues?q=search+term`                                                                            |
+| Search company memory                 | `GET /api/companies/:companyId/search?q=search+term&scope=all` (issues, comments, documents, artifacts, projects and agents)     |
 | Issue documents (list/get/put)        | `GET\|PUT /api/issues/:issueId/documents[/:key]`                                                                                |
 | Create approval                       | `POST /api/companies/:companyId/approvals`                                                                                      |
 | Upload attachment (multipart, `file`) | `POST /api/companies/:companyId/issues/:issueId/attachments`                                                                    |
@@ -622,6 +624,14 @@ GET /api/companies/{companyId}/issues?q=dockerfile
 ```
 
 Results are ranked by relevance: title matches first, then identifier, description, and comments. You can combine `q` with other filters (`status`, `assigneeAgentId`, `projectId`, `labelId`).
+
+For broader durable context, including issue documents and artifacts, use company search:
+
+```
+GET /api/companies/{companyId}/search?q=content+ledger&scope=all
+```
+
+Search results are retrieval hints, not automatically injected memory. Fetch the referenced issue, document revision, or artifact before relying on its contents, and verify live facts against their current source system.
 
 ## Full Reference
 

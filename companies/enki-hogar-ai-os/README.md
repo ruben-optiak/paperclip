@@ -5,10 +5,10 @@ Portable `agentcompanies/v1` package for running a read-only, draft-only Enki Ho
 ## What is versioned
 
 - Six `codex_local` agents and their execution contracts.
-- Four initial projects, bootstrap tasks, and two paused routines.
-- Eight domain skills with examples and offline fixtures.
+- Four initial projects, eleven bootstrap tasks, and two paused routines.
+- Nine domain skills with examples and offline fixtures.
 - Curated, non-secret Enki knowledge with an allowlisted sync process.
-- A read-only WooCommerce MCP, pinned Google MCP runtime, and audited Telegram gateway plugin.
+- A read-only WooCommerce MCP with live parent/variation inspection, pinned Google MCP runtime, audited Telegram gateway plugin, and isolated PostgreSQL/pgvector product-support projection.
 - Desired connection policy, six agent-scoped managed gateways, security controls, tests, and promotion runbooks.
 
 Instance data, Paperclip database rows, Codex homes, OAuth material, API credentials, customer data, and real `.env` files are intentionally not versioned.
@@ -17,44 +17,61 @@ Instance data, Paperclip database rows, Codex homes, OAuth material, API credent
 
 | Agent | Reports to | Primary skills |
 | --- | --- | --- |
-| Director de Operaciones de Enki | organizational root | daily brief, change control, unit economics |
-| Ecommerce & Catalogue Manager | Director | catalogue QA, brand guardian, daily brief, change control |
-| Growth Manager | Director | SEO/SEM, brand guardian, daily brief, WordPress render/dry-run |
+| Director de Operaciones de Enki | organizational root | daily brief, change control, unit economics, support coverage |
+| Ecommerce & Catalogue Manager | Director | catalogue QA and technical product support, brand guardian, daily brief, change control |
+| Growth Manager | Director | SEO/SEM, technical product support, brand guardian, daily brief, WordPress render/dry-run |
 | Finance & BI Manager | Director | unit economics, daily brief |
-| Technology Manager | Director | change control, connector diagnosis, daily brief, brand guardian when drafting customer-facing text |
-| Customer Experience Manager | Director | customer care, brand guardian, change control |
+| Technology Manager | Director | change control, connector diagnosis and support coverage, daily brief, brand guardian when drafting customer-facing text |
+| Customer Experience Manager | Director | customer care, technical product facts, brand guardian, change control |
 
 The workflow is hub-and-spoke with no Chief of Staff layer and with direct Board assignment: all five specialists report to the Director, specialists return evidence-backed work products, and the user may assign an issue directly to any specialist. Ecommerce governs catalogue and Merchant evidence; Growth discovers acquisition and SEO opportunities and hands catalogue implications to Ecommerce.
 
 ## Safe local path
 
-1. Copy `.env.example` to an untracked environment file outside Git and fill only Woo/Google connector-side credentials. Store the Telegram token as a Paperclip Secret, never in `.env`.
+1. Copy `.env.example` to an untracked environment file outside Git and fill only Woo/Google connector-side credentials plus independent product-support database/bearer secrets. Leave all embedding fields empty unless intentionally configured. Store the Telegram token as a Paperclip Secret, never in `.env`.
 2. Follow [local setup](runbooks/local-setup.md), beginning with a company export backup.
 3. Install the locked workspace and offline-test dependencies, then run `./companies/enki-hogar-ai-os/scripts/check.sh` before starting integrations. This also builds and tests the Telegram plugin.
-4. Build the import archive with `./companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.2.0.zip` and import that ZIP through the Paperclip UI using preview first.
+4. Build the import archive with `./companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.4.1.zip` and preview that exact ZIP with the current Paperclip CLI or UI before applying it.
 5. Keep all agents and routines paused while configuring connections and the six disabled agent-scoped gateways; never use connection installs for Enki.
 
-For a new disposable company, the CLI can provide a partial topology preview:
+For a new disposable company, preview the generated ZIP rather than the source directory:
 
 ```sh
-npx paperclipai company import companies/enki-hogar-ai-os \
+npx paperclipai company import /tmp/enki-hogar-ai-os-v0.4.1.zip \
   --target new \
   --new-company-name "Enki Hogar AI OS preflight" \
   --dry-run
 ```
 
-Keep `--dry-run`: the current CLI local-source reader intentionally filters out
-non-Markdown skill assets, including the vendored YAML/JSON contracts and the
-restricted WordPress helper. This preview is useful for inspecting agents,
-projects, tasks, and collisions, but it is not an import-artifact validation and
-must not be applied.
+The current CLI sends a `.zip` through the byte-exact transfer path, preserving
+the vendored JSON/YAML contracts and restricted helper scripts. Its directory
+source path still uses the legacy portable-file filter, so do not use the
+directory as the apply source. The Paperclip UI is an equivalent raw-ZIP path.
+In either client, inspect the preview before applying and keep automations paused.
 
-For v0.2.0, the only supported apply path for the company is to upload the generated ZIP through
-the Paperclip UI. The UI sends the raw archive, preserving every allowlisted
-skill asset. Use its preview workflow for both existing and new companies so
-collisions and complete file contents are validated before import.
+When upgrading an already populated Enki company, import only `agents,skills`
+unless the preview proves that every bootstrap task and routine will update in
+place. Current task identity is not portable across all historical imports, so
+a full replace preview can legitimately plan those tasks as new and would
+duplicate operational history. The reviewed patch path is:
+
+```sh
+pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.4.1.zip \
+  --include agents,skills \
+  --target existing \
+  --company-id <company-id> \
+  --collision replace \
+  --dry-run \
+  --yes \
+  --api-base http://localhost:3100 \
+  --json
+```
 
 Paperclip can assign Board work directly to any specialist even though specialists report to the Director.
+
+Paperclip issues, comments, documents and work products are durable operational history, but they are not all injected into each heartbeat. Editorial work therefore uses explicit company search plus a versioned content-ledger contract, and it treats WordPress/Meta as live publication truth. See [context and editorial memory](runbooks/context-memory.md).
+
+There are three intentionally separate product data paths. WooCommerce live is the sole authority for what is currently sold, its parent/variation structure, price and stock. Bulk audits use fresh complete Woo exports in the `enki-hogar` pipeline. The separate database is only a rebuildable projection of approved technical facts, explicit compatibility, configuration semantics, support text and SKU crosswalks, queried through eight read-only tools. See [product-support operations](runbooks/catalog-knowledge.md).
 
 The Telegram plugin is installed separately at instance level after the company import. It converts authorized messages into ordinary audited issues/comments; it does not bypass Paperclip or expose approval decisions. See [connection setup](runbooks/connections.md#telegram-director-gateway).
 

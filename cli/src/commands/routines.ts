@@ -15,13 +15,14 @@ import {
 import { eq, inArray } from "drizzle-orm";
 import { loadPaperclipEnvFile } from "../config/env.js";
 import { readConfig, resolveConfigPath } from "../config/store.js";
+import {
+  addCommonClientOptions,
+  apiPath,
+  resolveCommandContext,
+  type BaseClientOptions,
+} from "./client/common.js";
 
-type RoutinesDisableAllOptions = {
-  config?: string;
-  dataDir?: string;
-  companyId?: string;
-  json?: boolean;
-};
+type RoutinesDisableAllOptions = BaseClientOptions;
 
 type DisableAllRoutinesResult = {
   companyId: string;
@@ -29,6 +30,19 @@ type DisableAllRoutinesResult = {
   pausedCount: number;
   alreadyPausedCount: number;
   archivedCount: number;
+  disabledTriggerCount?: number;
+  alreadyDisabledTriggerCount?: number;
+};
+
+type RoutineApiRecord = {
+  id: string;
+  status: string;
+  triggers?: Array<{ id: string; enabled: boolean }>;
+};
+
+type RoutineApiClient = {
+  get<T>(path: string): Promise<T | null>;
+  patch<T>(path: string, body?: unknown): Promise<T | null>;
 };
 
 type EmbeddedPostgresInstance = {
@@ -313,8 +327,48 @@ export async function disableAllRoutinesInConfig(
   }
 }
 
+export async function disableAllRoutinesViaApi(
+  api: RoutineApiClient,
+  companyId: string,
+): Promise<DisableAllRoutinesResult> {
+  const existing = await api.get<RoutineApiRecord[]>(apiPath`/api/companies/${companyId}/routines`);
+  if (!Array.isArray(existing)) {
+    throw new Error("Routine API returned an unexpected response.");
+  }
+
+  const activeRoutines = existing.filter((routine) => routine.status !== "archived");
+  const routinesToPause = activeRoutines.filter((routine) => routine.status !== "paused");
+  const triggersToDisable = activeRoutines.flatMap((routine) => routine.triggers ?? []).filter((trigger) => trigger.enabled);
+  const alreadyDisabledTriggerCount = activeRoutines
+    .flatMap((routine) => routine.triggers ?? [])
+    .filter((trigger) => !trigger.enabled)
+    .length;
+
+  for (const routine of routinesToPause) {
+    await api.patch(apiPath`/api/routines/${routine.id}`, { status: "paused" });
+  }
+  for (const trigger of triggersToDisable) {
+    await api.patch(apiPath`/api/routine-triggers/${trigger.id}`, { enabled: false });
+  }
+
+  return {
+    companyId,
+    totalRoutines: existing.length,
+    pausedCount: routinesToPause.length,
+    alreadyPausedCount: activeRoutines.length - routinesToPause.length,
+    archivedCount: existing.length - activeRoutines.length,
+    disabledTriggerCount: triggersToDisable.length,
+    alreadyDisabledTriggerCount,
+  };
+}
+
 export async function disableAllRoutinesCommand(options: RoutinesDisableAllOptions): Promise<void> {
-  const result = await disableAllRoutinesInConfig(options);
+  const result = options.apiBase?.trim()
+    ? await (() => {
+        const context = resolveCommandContext(options, { requireCompany: true });
+        return disableAllRoutinesViaApi(context.api, context.companyId!);
+      })()
+    : await disableAllRoutinesInConfig(options);
 
   if (options.json) {
     console.log(JSON.stringify(result, null, 2));
@@ -333,16 +387,13 @@ export async function disableAllRoutinesCommand(options: RoutinesDisableAllOptio
 }
 
 export function registerRoutineCommands(program: Command): void {
-  const routinesCommand = program.command("routines").description("Local routine maintenance commands");
+  const routinesCommand = program.command("routines").description("Routine maintenance commands");
 
-  routinesCommand
-    .command("disable-all")
-    .description("Pause all non-archived routines in the configured local instance for one company")
-    .option("-c, --config <path>", "Path to config file")
-    .option("-d, --data-dir <path>", "Paperclip data directory root (isolates state from ~/.paperclip)")
-    .option("-C, --company-id <id>", "Company ID")
-    .option("--json", "Output raw JSON")
-    .action(async (opts: RoutinesDisableAllOptions) => {
+  addCommonClientOptions(
+    routinesCommand
+      .command("disable-all")
+      .description("Pause routines and, in API mode, disable their triggers for one company")
+      .action(async (opts: RoutinesDisableAllOptions) => {
       try {
         await disableAllRoutinesCommand(opts);
       } catch (error) {
@@ -350,5 +401,7 @@ export function registerRoutineCommands(program: Command): void {
         console.error(pc.red(message));
         process.exit(1);
       }
-    });
+      }),
+    { includeCompany: true },
+  );
 }

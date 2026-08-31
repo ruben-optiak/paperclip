@@ -1,0 +1,5 @@
+entity_key,rule_key,axis,representation,affects_sku,affects_price,affects_stock,allowed_values_json,condition_json,effect_json,evidence_ref,source_page
+prali-05,width,ancho,variation,true,true,true,"[""60"",""80""]",{},"{""requires_live_price"":true}",chicandbath-qa#decision=configuration-model,
+prali-05,front-finish,acabado-frente,configurator_option,false,true,false,"[""roble"",""blanco""]","{""width"":""60|80""}","{""requires_live_price"":true}",chicandbath-qa#decision=configuration-model,
+prali-05,basin,lavabo,component_product,true,true,true,"[""bonn-basin""]",{},"{""required_entity_key"":""bonn-basin"",""requires_live_price"":true}",chicandbath-qa#decision=component-model,
+prali-05,custom-cutout,mecanizado,assisted_sale,false,true,false,"[""requires-review""]",{},"{""requires_live_price"":true,""requires_human_review"":true}",chicandbath-qa#decision=assisted-sale,

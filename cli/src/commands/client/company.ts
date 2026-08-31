@@ -1081,14 +1081,14 @@ export function buildImportTransferManifest(zipBytes: Uint8Array): CompanyImport
 }
 
 /**
- * Resolve a local import source into raw zip bytes when its package is too
- * large to travel as one inline JSON body: a .zip file is read as-is (so its
- * declared hashes match the file on disk), a folder is packaged as a stored
- * zip in memory with the same walk filters the inline path uses. Both source
- * kinds are measured twice — raw bytes as a fast path, then the estimated
- * inline request size, because base64 inflates binary entries ~4/3 and a
- * compressed zip can expand far past its file size. Returns null for sources
- * under the threshold on both measures — those keep the inline JSON path.
+ * Resolve a local import source into raw zip bytes. An existing .zip always
+ * uses the transfer path, regardless of size, so the server receives the exact
+ * archive and preserves package assets that the legacy inline-file allowlist
+ * does not represent (for example skill JSON, YAML, and helper scripts).
+ *
+ * A directory keeps the size-based behavior: it is packaged as a stored zip
+ * only when its filtered inline representation would exceed the request-size
+ * threshold.
  */
 export async function resolveChunkedImportZip(
   inputPath: string,
@@ -1102,19 +1102,6 @@ export async function resolveChunkedImportZip(
   if (resolvedStat.isFile() && path.extname(resolved).toLowerCase() === ".zip") {
     const zipBytes = new Uint8Array(await readFile(resolved));
     const rootPath = path.basename(resolved, ".zip");
-    if (resolvedStat.size > thresholdBytes) return { zipBytes, rootPath };
-    // A small compressed zip can still expand past server caps as inline
-    // JSON (text compresses well and binary re-inflates ~4/3 as base64), so
-    // the stay-inline decision uses the estimated request size of the same
-    // entries the inline path would send. An unreadable zip stays inline so
-    // that path surfaces its canonical parse error.
-    let archive: Awaited<ReturnType<typeof readZipArchive>>;
-    try {
-      archive = await readZipArchive(zipBytes);
-    } catch {
-      return null;
-    }
-    if (estimateInlineImportBytes(archive.files) <= thresholdBytes) return null;
     return { zipBytes, rootPath };
   }
   if (!resolvedStat.isDirectory()) return null;

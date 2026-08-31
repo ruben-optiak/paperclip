@@ -16,8 +16,8 @@ test("policy denies every planned mutation surface", () => {
   assert.match(policy, /deniedPatterns: \[create, update, delete, refund, batch, customer, set, write\]/);
 });
 
-test("Google and Woo allowlists contain only expected query tools", () => {
-  for (const tool of ["woo_sales_summary", "woo_orders_summary", "search_search", "run_report", "gsc_search_analytics"]) {
+test("Google, Woo and product-support allowlists contain only expected query tools", () => {
+  for (const tool of ["woo_sales_summary", "woo_orders_summary", "woo_get_product_structure", "search_search", "run_report", "gsc_search_analytics"]) {
     assert.match(policy, new RegExp(`\\b${tool}:`));
   }
   assert.doesNotMatch(policy, /^\s+(?:woo_update|woo_refund|woo_customer|gsc_index|ads_mutate)[^:]*:/m);
@@ -25,12 +25,25 @@ test("Google and Woo allowlists contain only expected query tools", () => {
   const analytics = desired.connections.find((connection) => connection.key === "google_analytics");
   assert.equal(analytics?.tools.includes("list_google_ads_links"), false);
   assert.equal(desired.profiles.every((profile) => !profile.allowedTools.includes("list_google_ads_links")), true);
+  const support = desired.connections.find((connection) => connection.key === "product_support_knowledge");
+  assert.equal(support?.tools.length, 8);
+  assert.equal(support?.tools.every((tool) => /^knowledge_(?:resolve|get|check|list|search|coverage)/.test(tool)), true);
 });
 
 test("Customer Experience is zero-PII and cannot reach any order tool", () => {
   const customerProfile = desired.profiles.find((profile) => profile.agentSlug === "customer-experience-manager");
   const wooConnection = desired.connections.find((connection) => connection.key === "woocommerce");
-  assert.deepEqual(customerProfile?.allowedTools, ["woo_get_product"]);
+  assert.deepEqual(customerProfile?.allowedTools, [
+    "woo_get_product",
+    "woo_get_product_structure",
+    "knowledge_resolve_product",
+    "knowledge_get_technical_profile",
+    "knowledge_check_compatibility",
+    "knowledge_list_allowed_options",
+    "knowledge_get_configuration_model",
+    "knowledge_search_support",
+    "knowledge_get_evidence",
+  ]);
   assert.equal(wooConnection?.tools.some((tool) => /(?:get|lookup).*order|order.*(?:get|lookup)/i.test(tool)), false);
   assert.equal(customerProfile?.allowedTools.some((tool) => /order|customer|refund/i.test(tool)), false);
 });

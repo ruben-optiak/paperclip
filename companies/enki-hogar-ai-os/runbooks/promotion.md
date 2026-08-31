@@ -3,10 +3,10 @@
 No infrastructure provider is selected in v1. Promotion is permitted only when the target supplies:
 
 - Paperclip and connector images pinned by immutable version or digest.
-- Managed PostgreSQL and persistent Paperclip file storage.
+- Managed PostgreSQL and persistent Paperclip file storage, plus an isolated managed product-support database with pgvector support.
 - TLS, authenticated deployment, least-privilege operator access, and private MCP networking or governed HTTPS.
 - A secret manager with rotation and audit, never Git or plain deployment manifests.
-- Tested database and file backups with retention and restore evidence.
+- Tested Paperclip and support database/file backups with retention and restore evidence.
 - Monitoring for health, auth failures, tool-catalog drift, PII leakage, and unexpected egress.
 - An SBOM or equivalent complete transitive dependency/license report for each released connector image.
 - A version-pinned private npm artifact or immutable plugin bundle for `enki-hogar.telegram-gateway`; production must not depend on a mutable developer bind mount.
@@ -16,6 +16,6 @@ The current compatibility lock deliberately leaves release/image digests pending
 
 Keep the source package/tag, company exports, and instance database/file backups as separate evidence sets; follow [backup and restore evidence](backup.md). A company export is not a database or file backup.
 
-Promotion sequence: pass the path-filtered Enki CI gate, build the reproducible import ZIP and Telegram plugin artifact and retain both checksums, tag the validated commit, back up the target, deploy digest-pinned images, run the gateway fixture in an isolated preflight company, upload that exact raw ZIP through the Paperclip UI into a new paused company, install/configure the exact Telegram plugin artifact with the company channel disabled, apply connections/policies manually, run the runtime drift check and complete MCP/Telegram smoke tests, activate agents individually, enable Telegram, then make a separate Board decision on routines. The v0.2.0 CLI local-source company path is preview-only because it does not transport every non-Markdown skill asset.
+Promotion sequence: pass the path-filtered Enki CI gate, build the reproducible import ZIP and Telegram plugin artifact and retain both checksums, tag the validated commit, back up the target, deploy digest-pinned images, migrate the isolated support database and import only reviewed approved support packs, run the gateway fixture in an isolated preflight company, preview and import that exact raw ZIP through the current Paperclip CLI transfer path or the UI into a new paused company, install/configure the exact Telegram plugin artifact with the company channel disabled, apply connections/policies manually, run the runtime drift check and complete MCP/support/Telegram smoke tests, activate agents individually, enable Telegram, then make a separate Board decision on routines. Never apply from the source directory because its legacy CLI representation omits non-Markdown skill assets.
 
 Rollback: disable Telegram, pause agents/routines, disconnect MCPs, export incident state for redacted diagnosis, restore the previous company export and instance backups, redeploy previous immutable images/plugin, rotate the bot token when relevant, and repeat the smoke test before activation.

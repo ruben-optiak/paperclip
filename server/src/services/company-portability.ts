@@ -310,6 +310,24 @@ function normalizeSkillSlug(value: string | null | undefined) {
   return value ? normalizeAgentUrlKey(value) ?? null : null;
 }
 
+function portableAgentSlug(metadata: unknown): string | null {
+  if (!isPlainRecord(metadata)) return null;
+  const declared = asString(metadata.portableSlug) ?? asString(metadata.agentSlug);
+  return declared ? normalizeAgentUrlKey(declared) ?? null : null;
+}
+
+function agentIdentitySlugs(agent: {
+  name: string;
+  urlKey?: string | null;
+  metadata?: unknown;
+}): string[] {
+  return Array.from(new Set([
+    portableAgentSlug(agent.metadata),
+    agent.urlKey ? normalizeAgentUrlKey(agent.urlKey) : null,
+    normalizeAgentUrlKey(agent.name),
+  ].filter((value): value is string => Boolean(value))));
+}
+
 function normalizeSkillKey(value: string | null | undefined) {
   if (!value) return null;
   const segments = value
@@ -3946,10 +3964,7 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
     const addAgentReferences = (map: Map<string, typeof liveAgentRows[number]>, agent: typeof liveAgentRows[number]) => {
       map.set(agent.id, agent);
       map.set(agent.name, agent);
-      const normalizedName = normalizeAgentUrlKey(agent.name);
-      if (normalizedName) {
-        map.set(normalizedName, agent);
-      }
+      for (const slug of agentIdentitySlugs(agent)) map.set(slug, agent);
     };
     for (const agent of portableAgentRows) {
       addAgentReferences(agentByReference, agent);
@@ -3988,7 +4003,7 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
     const usedSlugs = new Set<string>();
     const idToSlug = new Map<string, string>();
     for (const agent of agentRows) {
-      const baseSlug = toSafeSlug(agent.name, "agent");
+      const baseSlug = portableAgentSlug(agent.metadata) ?? toSafeSlug(agent.name, "agent");
       const slug = uniqueSlug(baseSlug, usedSlugs);
       idToSlug.set(agent.id, slug);
     }
@@ -5123,10 +5138,13 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
     if (input.target.mode === "existing_company") {
       const existingAgents = await agents.list(input.target.companyId);
       for (const existing of existingAgents) {
-        const slug = normalizeAgentUrlKey(existing.name) ?? existing.id;
-        if (!existingSlugToAgent.has(slug)) existingSlugToAgent.set(slug, existing);
+        const identitySlugs = agentIdentitySlugs(existing);
+        if (identitySlugs.length === 0) identitySlugs.push(existing.id);
+        for (const slug of identitySlugs) {
+          if (!existingSlugToAgent.has(slug)) existingSlugToAgent.set(slug, existing);
+          existingSlugs.add(slug);
+        }
         existingAgentIds.add(existing.id);
-        existingSlugs.add(slug);
       }
       const existingProjects = await projects.list(input.target.companyId);
       for (const existing of existingProjects) {
@@ -5168,7 +5186,9 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
           `Agent ${manifestAgent.slug} references existing manager slug ${manifestAgent.reportsToExistingAgentSlug}, but that agent is not present in the target company.`,
         );
       }
-      const existing = existingSlugToAgent.get(manifestAgent.slug) ?? null;
+      const existing = existingSlugToAgent.get(manifestAgent.slug)
+        ?? existingSlugToAgent.get(normalizeAgentUrlKey(manifestAgent.name) ?? "")
+        ?? null;
       if (!existing) {
         agentPlans.push({
           slug: manifestAgent.slug,
@@ -5636,9 +5656,12 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
       const agentStatusById = new Map<string, string | null | undefined>();
       const existingAgents = await agents.list(targetCompany.id);
       for (const existing of existingAgents) {
-        const slug = normalizeAgentUrlKey(existing.name) ?? existing.id;
-        existingSlugToAgentId.set(slug, existing.id);
-        preImportExistingSlugToAgentId.set(slug, existing.id);
+        const identitySlugs = agentIdentitySlugs(existing);
+        if (identitySlugs.length === 0) identitySlugs.push(existing.id);
+        for (const slug of identitySlugs) {
+          existingSlugToAgentId.set(slug, existing.id);
+          preImportExistingSlugToAgentId.set(slug, existing.id);
+        }
         preImportExistingAgentIds.add(existing.id);
         agentStatusById.set(existing.id, existing.status);
       }
@@ -5736,6 +5759,10 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
             desiredSkills,
             mode,
           );
+          const importedMetadata = {
+            ...(isPlainRecord(manifestAgent.metadata) ? manifestAgent.metadata : {}),
+            portableSlug: manifestAgent.slug,
+          };
           const patch = {
             name: planAgent.plannedName,
             role: manifestAgent.role,
@@ -5746,9 +5773,11 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
             adapterType: normalizedAdapter.adapterType,
             adapterConfig: normalizedAdapter.adapterConfig,
             runtimeConfig: disableImportedTimerHeartbeat(manifestAgent.runtimeConfig),
-            budgetMonthlyCents: manifestAgent.budgetMonthlyCents,
+            ...(planAgent.action === "create" || manifestAgent.budgetMonthlyCents > 0
+              ? { budgetMonthlyCents: manifestAgent.budgetMonthlyCents }
+              : {}),
             permissions: manifestAgent.permissions,
-            metadata: manifestAgent.metadata,
+            metadata: importedMetadata,
           };
           // "import", not "system": the UI reads this to explain that the
           // agent was parked by the import safety default and to offer a
@@ -5800,7 +5829,7 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
               isPlainRecord(updated.adapterConfig) ? updated.adapterConfig.env : undefined,
             );
             importedSlugToAgentId.set(planAgent.slug, updated.id);
-            existingSlugToAgentId.set(normalizeAgentUrlKey(updated.name) ?? updated.id, updated.id);
+            for (const slug of agentIdentitySlugs(updated)) existingSlugToAgentId.set(slug, updated.id);
             resultAgents.push({
               slug: planAgent.slug,
               id: updated.id,
@@ -5848,7 +5877,7 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
             isPlainRecord(created.adapterConfig) ? created.adapterConfig.env : undefined,
           );
           importedSlugToAgentId.set(planAgent.slug, created.id);
-          existingSlugToAgentId.set(normalizeAgentUrlKey(created.name) ?? created.id, created.id);
+          for (const slug of agentIdentitySlugs(created)) existingSlugToAgentId.set(slug, created.id);
           resultAgents.push({
             slug: planAgent.slug,
             id: created.id,

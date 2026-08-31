@@ -3,4 +3,5 @@
 !.env.example
 references/source-snapshots/
 connectors/woocommerce-readonly-mcp/node_modules/
+connectors/catalog-knowledge/node_modules/
 .runtime-secrets/

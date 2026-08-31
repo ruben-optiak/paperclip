@@ -9,6 +9,7 @@ Published tools:
 - `woo_sales_summary`
 - `woo_orders_summary` — aggregate-only; it never returns order rows or identifiers
 - `woo_get_product`
+- `woo_get_product_structure` — live parent/simple product plus bounded variations; an exact variation SKU is expanded through its variable parent
 - `woo_low_stock`
 - `woo_catalog_summary`
 
@@ -23,4 +24,6 @@ quantity. Variable-product parents commonly omit that quantity; the response
 therefore marks variation-level low-stock coverage as partial instead of
 treating a missing value as zero.
 
-The catalog contains no order lookup, customer data, create, update, delete, refund, price, stock, or bulk-order operation. Every successful tool response uses `enki-evidence-envelope/v1`.
+`woo_get_product_structure` accepts one exact parent ID, parent/simple SKU, or variation SKU. A variation SKU is resolved to its declared variable parent, verified against that parent's variation collection, and kept in the result even when a bounded page cap makes sibling coverage partial. The `resolution` object records the exact match and root product. The tool returns current sellable attributes, variation SKU, price, status and stock without persisting them elsewhere. Arbitrary Woo metadata is removed; only `_enki_original_pdf_sku` is exposed as the non-secret bridge to approved manufacturer references. Use a complete fresh Woo export for bulk reconciliation.
+
+The catalog contains no order lookup, customer data, create, update, delete, refund, set-price, set-stock, or bulk-order operation. Every successful tool response uses `enki-evidence-envelope/v1`.

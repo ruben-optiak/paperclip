@@ -11,6 +11,8 @@ source is not relicensed by this package.
 | GSC MCP Server | `@jlnkrth/gsc-mcp-server@1.1.0` | MIT | <https://github.com/jlnkrth/gsc-mcp-server> |
 | Model Context Protocol SDK for TypeScript | `1.30.0` | MIT | <https://github.com/modelcontextprotocol/typescript-sdk> |
 | Zod | `4.4.3` | MIT | <https://github.com/colinhacks/zod> |
+| Postgres.js | `3.4.9` | Unlicense | <https://github.com/porsager/postgres> |
+| pgvector | `0.8.6` / PostgreSQL 17 Bookworm image | PostgreSQL License | <https://github.com/pgvector/pgvector> |
 
 Transitive dependency versions and integrity hashes are recorded in `uv.lock`
 and the connector `package-lock.json` files. A released connector image must

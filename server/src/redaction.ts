@@ -57,6 +57,11 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 
 function sanitizeValue(value: unknown): unknown {
   if (value === null || value === undefined) return value;
+  // Adapter events often place tool stdout inside nested `content`, `output`,
+  // or array values whose keys are not themselves sensitive. Redact secret
+  // shapes in every string so a printed run JWT cannot bypass the record-key
+  // guards merely by carrying a newline or living below an arbitrary key.
+  if (typeof value === "string") return redactSensitiveText(value);
   if (Array.isArray(value)) return value.map(sanitizeValue);
   if (isSecretRefBinding(value)) return value;
   if (isUserSecretRefBinding(value)) return value;

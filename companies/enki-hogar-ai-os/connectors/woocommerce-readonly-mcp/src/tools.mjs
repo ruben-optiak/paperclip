@@ -1,6 +1,6 @@
 import {z} from "zod";
 import {createEvidenceEnvelope} from "./evidence.mjs";
-import {aggregateOrders, productView, stockQuantity} from "./sanitize.mjs";
+import {aggregateOrders, productStructureView, productView, stockQuantity, variationView} from "./sanitize.mjs";
 import {madridPeriodParams, parseLocalDate} from "./time.mjs";
 
 export const SALES_RECOGNIZED_STATUSES = Object.freeze(["processing", "completed", "refunded"]);
@@ -22,6 +22,17 @@ const INVENTORY_FIELDS = Object.freeze([
   "date_modified_gmt",
 ]);
 const INVENTORY_PAGE_CONCURRENCY = 6;
+const PRODUCT_STRUCTURE_FIELDS = Object.freeze([
+  "id", "parent_id", "name", "slug", "permalink", "sku", "status", "type", "catalog_visibility",
+  "purchasable",
+  "price", "regular_price", "sale_price", "stock_status", "manage_stock", "stock_quantity",
+  "backorders", "categories", "attributes", "date_modified_gmt", "meta_data",
+]);
+const VARIATION_STRUCTURE_FIELDS = Object.freeze([
+  "id", "parent_id", "sku", "status", "purchasable", "price", "regular_price", "sale_price",
+  "stock_status", "manage_stock", "stock_quantity", "backorders", "attributes",
+  "date_modified_gmt", "meta_data",
+]);
 const date = z.string().refine((value) => {
   try {
     parseLocalDate(value);
@@ -145,6 +156,76 @@ function collectUniqueInventoryProducts(rows) {
   return {products, duplicateCount, missingIdentityCount};
 }
 
+async function resolveExactProduct(client, {product_id, sku}) {
+  if (product_id) {
+    const product = (await client.get(`/products/${product_id}`, {_fields: PRODUCT_STRUCTURE_FIELDS.join(",")})).data;
+    return {rootProduct: product, requestedVariation: null, resolutionKind: "product"};
+  }
+  const rows = (await client.get("/products", {
+    sku,
+    per_page: 10,
+    _fields: PRODUCT_STRUCTURE_FIELDS.join(","),
+  })).data;
+  if (!Array.isArray(rows)) throw new Error("WooCommerce returned a non-list product response");
+  const exact = rows.filter((row) => typeof row?.sku === "string" && row.sku.trim() === sku);
+  if (exact.length === 0) throw new Error(`No WooCommerce product or variation has exact SKU ${sku}`);
+  if (exact.length > 1) throw new Error(`WooCommerce returned more than one product with exact SKU ${sku}`);
+  const requestedProduct = exact[0];
+  if (requestedProduct.type !== "variation") {
+    return {rootProduct: requestedProduct, requestedVariation: null, resolutionKind: "product"};
+  }
+
+  const parentId = Number(requestedProduct.parent_id);
+  if (!Number.isSafeInteger(parentId) || parentId <= 0) {
+    throw new Error(`WooCommerce variation with exact SKU ${sku} does not declare a valid parent_id`);
+  }
+  const rootProduct = (await client.get(`/products/${parentId}`, {
+    _fields: PRODUCT_STRUCTURE_FIELDS.join(","),
+  })).data;
+  if (Number(rootProduct?.id) !== parentId || rootProduct?.type !== "variable") {
+    throw new Error(`WooCommerce variation with exact SKU ${sku} does not resolve to its expected variable parent ${parentId}`);
+  }
+  return {rootProduct, requestedVariation: requestedProduct, resolutionKind: "variation"};
+}
+
+function exactVariationIdentity(row, requestedVariation, requestedSku) {
+  const rowId = Number(row?.id);
+  const requestedId = Number(requestedVariation?.id);
+  const idMatches = Number.isSafeInteger(rowId) && Number.isSafeInteger(requestedId) && rowId === requestedId;
+  const rowSku = typeof row?.sku === "string" ? row.sku.trim() : "";
+  return {idMatches, skuMatches: rowSku === requestedSku};
+}
+
+function mergeRequestedVariation(rows, requestedVariation, requestedSku, parentId, truncated) {
+  if (!requestedVariation) return {rows, addedFromExactLookup: false};
+  if (Number(requestedVariation.parent_id) !== Number(parentId)) {
+    throw new Error(`WooCommerce variation with exact SKU ${requestedSku} reports a conflicting parent_id`);
+  }
+
+  const candidates = rows.filter((row) => {
+    const identity = exactVariationIdentity(row, requestedVariation, requestedSku);
+    return identity.idMatches || identity.skuMatches;
+  });
+  if (candidates.length > 1) {
+    throw new Error(`WooCommerce parent ${parentId} contains ambiguous matches for exact variation SKU ${requestedSku}`);
+  }
+  if (candidates.length === 1) {
+    const identity = exactVariationIdentity(candidates[0], requestedVariation, requestedSku);
+    if (!identity.idMatches || !identity.skuMatches || Number(candidates[0].parent_id) !== Number(parentId)) {
+      throw new Error(`WooCommerce parent ${parentId} contains a conflicting identity for exact variation SKU ${requestedSku}`);
+    }
+    return {rows, addedFromExactLookup: false};
+  }
+  if (!truncated) {
+    throw new Error(`WooCommerce variation with exact SKU ${requestedSku} is absent from its declared parent ${parentId}`);
+  }
+
+  return {
+    rows: [...rows, requestedVariation].sort((left, right) => Number(left?.id ?? 0) - Number(right?.id ?? 0)),
+    addedFromExactLookup: true,
+  };
+}
+
 export function createToolDefinitions(client, {now = () => new Date()} = {}) {
   return [
     readTool("woo_sales_summary", "Aggregate sales totals for a bounded period; contains no customer PII.", periodSchema, async (input) => {
@@ -211,6 +292,68 @@ export function createToolDefinitions(client, {now = () => new Date()} = {}) {
       if (!Array.isArray(rows)) throw new Error("WooCommerce returned a non-list product response");
       const warnings = ["WooCommerce product responses do not declare currency; price fields must not be aggregated or compared"];
       return evidence({source: "woocommerce.product", now, warnings, partial: true, contracts: ["enki-metrics/v1#woocommerce-product"], data: {matches: rows.map(productView)}});
+    }),
+    readTool("woo_get_product_structure", "Read one live WooCommerce product and its bounded variation structure. An exact variation SKU is expanded through its variable parent. This is the current authority for sellable options, prices and stock.", z.object({
+      product_id: z.number().int().positive().optional(),
+      sku: z.string().trim().min(1).max(100).optional(),
+      max_pages: z.number().int().min(1).max(20).default(10),
+    }).refine((value) => Boolean(value.product_id) !== Boolean(value.sku), "Provide exactly one of product_id or sku"), async ({product_id, sku, max_pages}) => {
+      const {rootProduct: rawProduct, requestedVariation, resolutionKind} = await resolveExactProduct(client, {product_id, sku});
+      const product = productStructureView(rawProduct);
+      let variationPage = {rows: [], truncated: false, pagesFetched: 0, totalPages: 0, totalItems: 0};
+      if (product.type === "variable") {
+        variationPage = await client.paginate(
+          `/products/${product.id}/variations`,
+          {orderby: "id", order: "asc", _fields: VARIATION_STRUCTURE_FIELDS.join(",")},
+          max_pages,
+          {concurrency: INVENTORY_PAGE_CONCURRENCY},
+        );
+      }
+      const mergedVariationPage = mergeRequestedVariation(
+        variationPage.rows,
+        requestedVariation,
+        sku,
+        product.id,
+        variationPage.truncated,
+      );
+      const variations = mergedVariationPage.rows.map(variationView);
+      const warnings = ["WooCommerce product responses do not declare currency; price values are live but currency must be established separately"];
+      if (variationPage.truncated) warnings.push("The variation query reached the pagination limit; the product structure is incomplete");
+      if (mergedVariationPage.addedFromExactLookup) {
+        warnings.push("The requested variation was outside the bounded variation pages and was included from the exact-SKU lookup; sibling coverage remains incomplete");
+      }
+      return evidence({
+        source: "woocommerce.product-structure",
+        now,
+        warnings,
+        partial: true,
+        contracts: ["enki-metrics/v1#woocommerce-product-structure"],
+        data: {
+          authority: {
+            sellable_structure: "woocommerce_live",
+            prices: "woocommerce_live",
+            stock: "woocommerce_live",
+            technical_support: "product_support_knowledge",
+          },
+          resolution: {
+            input_kind: product_id ? "product_id" : "sku",
+            match_kind: resolutionKind,
+            matched_id: requestedVariation?.id ?? product.id,
+            matched_sku: requestedVariation?.sku ?? product.sku,
+            root_product_id: product.id,
+          },
+          product,
+          variations,
+          coverage: {
+            variations_returned: variations.length,
+            reported_total_variations: variationPage.totalItems,
+            pages_fetched: variationPage.pagesFetched,
+            total_pages: variationPage.totalPages,
+            max_pages,
+            truncated: variationPage.truncated,
+          },
+        },
+      });
     }),
     readTool("woo_low_stock", "List product and SKU inventory at or below a threshold; no mutation is possible.", z.object({threshold: z.number().int().min(0).max(1000).default(5), max_pages: z.number().int().min(1).max(20).default(10)}), async ({threshold, max_pages}) => {
       const {rows, truncated, pagesFetched, totalPages, totalItems} = await client.paginate(

@@ -48,7 +48,7 @@ function gatewayPayload(expected, agent, profile) {
     agentId: agent.id,
     metadata: {
       managedBy: "enki-hogar-ai-os",
-      desiredStateVersion: "0.2.0",
+      desiredStateVersion: "0.4.1",
       agentSlug: expected.agentSlug,
     },
   };

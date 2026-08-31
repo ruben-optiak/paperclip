@@ -1,0 +1,4 @@
+from_entity_key,relation_type,to_entity_key,condition_json,evidence_ref,source_page
+prali-05,compatible_with,bonn-basin,"{""width"":""same_selection""}",chicandbath-compatibility#row=12,
+bonn-basin,component_of,prali-05,{},chicandbath-qa#decision=component-model,
+prali-05,accessory_for,prali-mirror,{},chicandbath-compatibility#row=18,

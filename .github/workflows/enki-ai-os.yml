@@ -67,6 +67,10 @@ jobs:
         run: npm ci --ignore-scripts
         working-directory: companies/enki-hogar-ai-os/connectors/woocommerce-readonly-mcp
 
+      - name: Install locked catalogue test dependencies
+        run: npm ci --ignore-scripts
+        working-directory: companies/enki-hogar-ai-os/connectors/catalog-knowledge
+
       - name: Validate, test, scan, and reproduce import artifact
         run: companies/enki-hogar-ai-os/scripts/check.sh
 
@@ -75,3 +79,37 @@ jobs:
 
       - name: Build locked Google connector image
         run: docker build --tag enki-google-mcps:ci --file companies/enki-hogar-ai-os/connectors/google-mcps/Dockerfile companies/enki-hogar-ai-os
+
+      - name: Build locked catalogue connector image
+        run: docker build --tag enki-catalog-knowledge:ci companies/enki-hogar-ai-os/connectors/catalog-knowledge
+
+      - name: Start isolated pgvector integration fixture
+        run: |
+          docker run --detach --name enki-catalog-ci \
+            --env POSTGRES_DB=enki_catalog_test \
+            --env POSTGRES_USER=postgres \
+            --env POSTGRES_PASSWORD=catalog-integration-test-password \
+            --publish 127.0.0.1:55439:5432 \
+            pgvector/pgvector:0.8.6-pg17-bookworm@sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f
+          for attempt in {1..30}; do
+            docker exec enki-catalog-ci pg_isready -U postgres -d enki_catalog_test && exit 0
+            sleep 1
+          done
+          docker logs enki-catalog-ci
+          exit 1
+
+      - name: Test catalogue permissions, retrieval, and lifecycle
+        env:
+          CATALOG_DB_HOST: 127.0.0.1
+          CATALOG_DB_PORT: 55439
+          CATALOG_DB_NAME: enki_catalog_test
+          CATALOG_DB_ADMIN_USER: postgres
+          CATALOG_DB_ADMIN_PASSWORD: catalog-integration-test-password
+          CATALOG_DB_USER: enki_catalog_reader
+          CATALOG_DB_READER_PASSWORD: catalog-reader-integration-password
+        run: npm run test:integration
+        working-directory: companies/enki-hogar-ai-os/connectors/catalog-knowledge
+
+      - name: Remove isolated pgvector integration fixture
+        if: always()
+        run: docker rm --force enki-catalog-ci || true

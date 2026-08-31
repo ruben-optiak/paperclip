@@ -1,6 +1,7 @@
 {
   "schema": "enki-runtime-desired-state/v1",
   "companySlug": "enki-hogar-ai-os",
+  "packageVersion": "0.4.1",
   "mode": "audit-only",
   "rejectUnexpectedActiveConnections": true,
   "rejectUnexpectedAgents": true,
@@ -85,6 +86,7 @@
         "woo_sales_summary",
         "woo_orders_summary",
         "woo_get_product",
+        "woo_get_product_structure",
         "woo_low_stock",
         "woo_catalog_summary"
       ]
@@ -143,6 +145,28 @@
         "gsc_inspect_url",
         "gsc_list_sitemaps"
       ]
+    },
+    {
+      "key": "product_support_knowledge",
+      "name": "Enki Product Support Knowledge Read Only",
+      "transport": "mcp_remote",
+      "authKind": "api_key",
+      "endpoint": "http://enki-product-support-knowledge:8030/mcp",
+      "requiredCredential": {"placement": "header", "key": "Authorization", "prefix": "Bearer "},
+      "status": "active",
+      "enabled": true,
+      "healthStatus": "ok",
+      "strictCatalog": true,
+      "tools": [
+        "knowledge_resolve_product",
+        "knowledge_get_technical_profile",
+        "knowledge_check_compatibility",
+        "knowledge_list_allowed_options",
+        "knowledge_get_configuration_model",
+        "knowledge_search_support",
+        "knowledge_get_evidence",
+        "knowledge_coverage"
+      ]
     }
   ],
   "profiles": [
@@ -169,7 +193,8 @@
         "gsc_list_sites",
         "gsc_search_analytics",
         "gsc_inspect_url",
-        "gsc_list_sitemaps"
+        "gsc_list_sitemaps",
+        "knowledge_coverage"
       ]
     },
     {
@@ -181,6 +206,7 @@
       "strictAllowedTools": true,
       "allowedTools": [
         "woo_get_product",
+        "woo_get_product_structure",
         "woo_low_stock",
         "woo_catalog_summary",
         "customers_list_accessible_customers",
@@ -195,7 +221,14 @@
         "gsc_list_sites",
         "gsc_search_analytics",
         "gsc_inspect_url",
-        "gsc_list_sitemaps"
+        "gsc_list_sitemaps",
+        "knowledge_resolve_product",
+        "knowledge_get_technical_profile",
+        "knowledge_list_allowed_options",
+        "knowledge_get_configuration_model",
+        "knowledge_search_support",
+        "knowledge_get_evidence",
+        "knowledge_coverage"
       ]
     },
     {
@@ -207,8 +240,17 @@
       "strictAllowedTools": true,
       "allowedTools": [
         "woo_get_product",
+        "woo_get_product_structure",
         "woo_low_stock",
-        "woo_catalog_summary"
+        "woo_catalog_summary",
+        "knowledge_resolve_product",
+        "knowledge_get_technical_profile",
+        "knowledge_check_compatibility",
+        "knowledge_list_allowed_options",
+        "knowledge_get_configuration_model",
+        "knowledge_search_support",
+        "knowledge_get_evidence",
+        "knowledge_coverage"
       ]
     },
     {
@@ -238,7 +280,8 @@
         "metadata_get_resource_metadata",
         "get_account_summaries",
         "get_property_details",
-        "gsc_list_sites"
+        "gsc_list_sites",
+        "knowledge_coverage"
       ]
     },
     {
@@ -249,7 +292,15 @@
       "defaultAction": "deny",
       "strictAllowedTools": true,
       "allowedTools": [
-        "woo_get_product"
+        "woo_get_product",
+        "woo_get_product_structure",
+        "knowledge_resolve_product",
+        "knowledge_get_technical_profile",
+        "knowledge_check_compatibility",
+        "knowledge_list_allowed_options",
+        "knowledge_get_configuration_model",
+        "knowledge_search_support",
+        "knowledge_get_evidence"
       ]
     }
   ],

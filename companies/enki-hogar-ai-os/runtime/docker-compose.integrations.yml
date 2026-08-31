@@ -53,3 +53,74 @@ services:
       - "127.0.0.1:${GOOGLE_ADS_MCP_PORT_HOST:-8010}:8010"
       - "127.0.0.1:${GOOGLE_ANALYTICS_MCP_PORT_HOST:-8011}:8011"
       - "127.0.0.1:${GSC_MCP_PORT_HOST:-8012}:8012"
+
+  enki-product-support-db:
+    image: pgvector/pgvector:0.8.6-pg17-bookworm@sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: enki_support_knowledge
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "${SUPPORT_DB_ADMIN_PASSWORD:?SUPPORT_DB_ADMIN_PASSWORD is required}"
+    volumes:
+      - enki-product-support-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d enki_support_knowledge"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    security_opt:
+      - no-new-privileges:true
+
+  enki-product-support-migrate:
+    build:
+      context: ../companies/enki-hogar-ai-os/connectors/catalog-knowledge
+      dockerfile: Dockerfile
+    restart: "no"
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      enki-product-support-db:
+        condition: service_healthy
+    environment:
+      SUPPORT_DB_HOST: enki-product-support-db
+      SUPPORT_DB_NAME: enki_support_knowledge
+      SUPPORT_DB_ADMIN_USER: postgres
+      SUPPORT_DB_ADMIN_PASSWORD: "${SUPPORT_DB_ADMIN_PASSWORD:?SUPPORT_DB_ADMIN_PASSWORD is required}"
+      SUPPORT_DB_READER_PASSWORD: "${SUPPORT_DB_READER_PASSWORD:?SUPPORT_DB_READER_PASSWORD is required}"
+      SUPPORT_EMBEDDING_BASE_URL: "${SUPPORT_EMBEDDING_BASE_URL:-}"
+      SUPPORT_EMBEDDING_API_KEY: "${SUPPORT_EMBEDDING_API_KEY:-}"
+      SUPPORT_EMBEDDING_MODEL: "${SUPPORT_EMBEDDING_MODEL:-}"
+    command: ["node", "src/admin.mjs", "migrate"]
+
+  enki-product-support-knowledge:
+    build:
+      context: ../companies/enki-hogar-ai-os/connectors/catalog-knowledge
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      enki-product-support-migrate:
+        condition: service_completed_successfully
+    environment:
+      SUPPORT_DB_HOST: enki-product-support-db
+      SUPPORT_DB_NAME: enki_support_knowledge
+      SUPPORT_DB_USER: enki_support_reader
+      SUPPORT_DB_READER_PASSWORD: "${SUPPORT_DB_READER_PASSWORD:?SUPPORT_DB_READER_PASSWORD is required}"
+      SUPPORT_MCP_TOKEN: "${SUPPORT_MCP_TOKEN:?SUPPORT_MCP_TOKEN is required}"
+      SUPPORT_MCP_HOST: 0.0.0.0
+      SUPPORT_MCP_PORT: 8030
+      SUPPORT_EMBEDDING_BASE_URL: "${SUPPORT_EMBEDDING_BASE_URL:-}"
+      SUPPORT_EMBEDDING_API_KEY: "${SUPPORT_EMBEDDING_API_KEY:-}"
+      SUPPORT_EMBEDDING_MODEL: "${SUPPORT_EMBEDDING_MODEL:-}"
+    ports:
+      - "127.0.0.1:${SUPPORT_MCP_PORT_HOST:-8030}:8030"
+
+volumes:
+  enki-product-support-db-data:

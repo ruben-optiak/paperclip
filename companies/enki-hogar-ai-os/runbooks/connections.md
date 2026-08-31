@@ -8,6 +8,7 @@ Create exactly these active connections. Names are part of the drift contract; d
 | `Enki Google Ads Read Only` | `http://enki-google-mcps:8010/mcp` | Bearer `GOOGLE_MCP_TOKEN` |
 | `Enki Google Analytics Read Only` | `http://enki-google-mcps:8011/mcp` | Bearer `GOOGLE_MCP_TOKEN` |
 | `Enki Search Console Read Only` | `http://enki-google-mcps:8012/mcp` | Bearer `GOOGLE_MCP_TOKEN` |
+| `Enki Product Support Knowledge Read Only` | `http://enki-product-support-knowledge:8030/mcp` | Bearer `SUPPORT_MCP_TOKEN` |
 
 For each connection select API-key authentication and bind the secret as the `Authorization` header with the `Bearer ` prefix. Paperclip stores and projects that connection bearer. Do not put it in an agent adapter environment or task. `policies/desired-state.yaml` is the machine-readable contract for exact catalogs, six default-deny profiles, six agent-scoped gateways, zero connection installs, and the global block policy.
 
@@ -16,7 +17,7 @@ For each connection select API-key authentication and bind the secret as the `Au
 1. Create a dedicated WooCommerce REST API key with permission **Read**.
 2. Put its values only in the untracked Compose environment.
 3. Create a Paperclip MCP connection for `http://enki-woocommerce-mcp:8020/mcp` with Bearer `WOO_MCP_TOKEN`.
-4. Assign only the five aggregate/product tools in `policies/tool-allowlist.yaml`. v0.1.x permits zero customer-level tools or PII.
+4. Assign only the six aggregate/product tools in `policies/tool-allowlist.yaml`. v0.2.x permits zero customer-level tools or PII.
 5. Verify that the observed catalog contains no write operation.
 
 The inventory call is deliberately bounded: use `max_pages: 10` for the Enki
@@ -27,6 +28,8 @@ status-only (`outofstock`) matches separately. A missing
 parent quantity is never converted to zero. Variation-level quantities are not
 available through the top-level product listing and must remain visibly
 partial.
+
+For one known parent/simple product, `woo_get_product_structure` returns the live parent plus bounded variations. It is the authority for current sellable options, SKU, status, price and stock. It exposes only the allowlisted `_enki_original_pdf_sku` metadata bridge and drops every other metadata key. Use a fresh complete Woo export—not repeated MCP pagination—for bulk audits.
 
 Paperclip marks a remote connection unhealthy after a tool timeout and then
 removes that connection's tools from subsequent gateway listings. After fixing
@@ -111,6 +114,12 @@ Do not create or edit `tokens.json` manually. Set `GSC_TOKEN_HOST_DIR` to the ca
 
 The accepted catalog is list sites, search analytics, inspect URL, and list sitemaps. There is no indexing/submission tool. Any such tool appearing later is quarantined.
 
+## Product-support knowledge
+
+The support connection exposes exactly eight `knowledge_*` query tools from `policies/desired-state.yaml`. Its PostgreSQL login is a dedicated reader with server-enforced read-only transactions. Neither Paperclip nor any agent receives the database administrator password, import command, purge token or embedding API key. The service contains no current price, stock, URL, publication status or full Woo catalogue mirror.
+
+Use the separate [product-support runbook](catalog-knowledge.md) to validate/import an approved support pack and perform operator maintenance. Refresh the Paperclip catalog after a connector version change and quarantine any new tool, especially any name containing `create`, `update`, `delete`, `archive`, `restore`, `purge`, `import`, `reindex` or `write`.
+
 ## Google environment inventory
 
 The untracked Compose environment contains only values or host paths; never paste the JSON file contents into it:
@@ -124,6 +133,12 @@ The untracked Compose environment contains only values or host paths; never past
 | `GOOGLE_ADC_HOST_PATH` | absolute host path to generated ADC JSON | sensitive path |
 | `GOOGLE_OAUTH_CLIENT_HOST_PATH` | absolute host path to OAuth Desktop client JSON | sensitive path |
 | `GSC_TOKEN_HOST_DIR` | absolute host path to the directory containing generated `tokens.json` | sensitive path |
+| `SUPPORT_DB_ADMIN_PASSWORD` | independent random value | yes; migration/admin and PostgreSQL only |
+| `SUPPORT_DB_READER_PASSWORD` | independent random value | yes; read-only MCP and PostgreSQL only |
+| `SUPPORT_MCP_TOKEN` | independent random bearer | yes; Paperclip connection and MCP only |
+| `SUPPORT_EMBEDDING_BASE_URL` | optional OpenAI-compatible endpoint | no; configure with both values below or leave all empty |
+| `SUPPORT_EMBEDDING_API_KEY` | optional embedding provider key | yes; support connector only |
+| `SUPPORT_EMBEDDING_MODEL` | optional embedding model identifier | no |
 
 The OAuth client JSON, ADC JSON, GSC `tokens.json`, developer token, client secret, and connector bearer remain outside Git. Agents receive none of them.
 

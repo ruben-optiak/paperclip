@@ -1,4 +1,9 @@
-export { execute, ensureCodexSkillsInjected } from "./execute.js";
+export {
+  execute,
+  ensureCodexSkillsInjected,
+  pruneManagedCodexSkillCopies,
+  resolveRunScopedCodexUserHome,
+} from "./execute.js";
 export {
   resolveCodexAuthPrecedence,
   CODEX_SANDBOX_AUTH_PRECEDENCE_WARNING,

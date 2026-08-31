@@ -1,0 +1,35 @@
+{
+  "schema": "enki-editorial-workflow/v1",
+  "timezone": "Europe/Madrid",
+  "memoryAnchor": {
+    "taskSlug": "content-memory-ledger",
+    "documentKey": "content-ledger",
+    "ledgerSchema": "enki-content-ledger/v1"
+  },
+  "stages": [
+    {
+      "key": "draft",
+      "owner": "growth-manager",
+      "documentKey": "content-draft",
+      "requiresRevisionId": true,
+      "dependsOn": null
+    },
+    {
+      "key": "brand_catalogue_review",
+      "owner": "ecommerce-catalogue-manager",
+      "documentKey": "content-review",
+      "requiresRevisionId": true,
+      "dependsOn": "draft",
+      "missingInputDisposition": "blocked_not_reviewed",
+      "zeroClaimsMayPass": false
+    },
+    {
+      "key": "publish",
+      "owner": "board",
+      "documentKey": null,
+      "requiresRevisionId": false,
+      "dependsOn": "brand_catalogue_review",
+      "mode": "blocked_v1"
+    }
+  ]
+}

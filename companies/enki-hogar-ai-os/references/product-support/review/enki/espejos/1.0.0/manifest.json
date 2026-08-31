@@ -1,0 +1,124 @@
+{
+  "schema": "enki-product-support-pack/v1",
+  "packKey": "enki-espejos-support",
+  "version": "1.0.0",
+  "brand": {
+    "slug": "enki",
+    "name": "Enki Hogar"
+  },
+  "domain": {
+    "slug": "espejos",
+    "name": "Espejos"
+  },
+  "snapshotDate": "2026-08-31",
+  "approval": {
+    "state": "review_required",
+    "approvedBy": null,
+    "approvedAt": null
+  },
+  "sourceRepository": {
+    "locator": "enki-source://enki-hogar/productos/enki-hogar/espejos",
+    "revisionKind": "source_snapshot_sha256",
+    "revision": "a767ce916cc9c4582c6bb982300d3a990ae909422e48bcb66336ad99814fde93"
+  },
+  "files": {
+    "technical_entities.csv": {
+      "sha256": "b2793edca40631ae4311d091431fc1afa0b4dbcc5e7588218d3f3b2caba833b7",
+      "rows": 43
+    },
+    "technical_facts.csv": {
+      "sha256": "ace6f3e754dc4c705f351b34ae45830b73a6e0e0455704457fdf1d532c861a08",
+      "rows": 288
+    },
+    "technical_relations.csv": {
+      "sha256": "a51088079afecd796b27a3897f22b337baff0a4519b6d27da2c1d1ca712d0dbb",
+      "rows": 33
+    },
+    "configuration_rules.csv": {
+      "sha256": "2d68f4bd72304e7ee27d1b9e92d8a9e45a8e02c61750f1150d2e66de64f15880",
+      "rows": 10
+    },
+    "sku_crosswalk.csv": {
+      "sha256": "92725ba52044f89ab33d58e3d4d6ee4307be5cb08081ff2283f59a6736ec10d2",
+      "rows": 43
+    },
+    "support_chunks.jsonl": {
+      "sha256": "048c902a6660cc593d7be0175a1f6c8b0355a8ad83252ed6c802759f224cf0ca",
+      "rows": 20
+    }
+  },
+  "sources": [
+    {
+      "sourceKey": "enki-espejos-catalog",
+      "title": "Catálogo oficial Enki Espejos",
+      "kind": "manufacturer_catalog",
+      "locator": "enki-source://enki/espejos/catalog/2026-05-31",
+      "snapshotDate": "2026-05-31",
+      "sha256": "4b14e1520d833ebd47a09c0645f0a574b13b8b6a7b8c1571cc5af65e1fc80365"
+    },
+    {
+      "sourceKey": "enki-espejos-master",
+      "title": "Master técnico normalizado Enki Espejos",
+      "kind": "normalized_master",
+      "locator": "enki-source://enki/espejos/normalized/2026-05-31",
+      "snapshotDate": "2026-05-31",
+      "sha256": "36f8f0de4f36b5667b0f98320f66d94972562faa489b985fcbc5bb3267fdc04c"
+    },
+    {
+      "sourceKey": "enki-espejos-qa-issues",
+      "title": "Resultado de incidencias de extracción Enki Espejos",
+      "kind": "qa_result",
+      "locator": "enki-source://enki/espejos/qa/issues/2026-05-31",
+      "snapshotDate": "2026-05-31",
+      "sha256": "81158bb24da2fed655023dcda7d0aaf60f7789a687b41bd25dfbcfee9b61d4b8"
+    },
+    {
+      "sourceKey": "enki-espejos-qa-queue",
+      "title": "Cola de validación Enki Espejos",
+      "kind": "qa_result",
+      "locator": "enki-source://enki/espejos/qa/queue/2026-05-31",
+      "snapshotDate": "2026-05-31",
+      "sha256": "c292c82302610478868a0b0e4b9c232d6372b3be66dd2b7cbf556d66a0568944"
+    },
+    {
+      "sourceKey": "enki-espejos-decisions",
+      "title": "Decisiones operativas Enki Espejos",
+      "kind": "manual_review",
+      "locator": "enki-source://enki/espejos/decisions/2026-06-01",
+      "snapshotDate": "2026-06-01",
+      "sha256": "86d37137fb16383f0c47149117c60b89110afa301c90baf1d0165d2011b9eab1"
+    },
+    {
+      "sourceKey": "enki-espejos-parent-export",
+      "title": "Identidades padre del lote publicado",
+      "kind": "publication_evidence",
+      "locator": "enki-source://enki/espejos/woocommerce/parents/2026-06-01",
+      "snapshotDate": "2026-06-01",
+      "sha256": "701f819639545098b692314be0ce66ded19e953380dc17c5a6100e8bf494e8f3"
+    },
+    {
+      "sourceKey": "enki-espejos-variation-export",
+      "title": "Identidades de variación del lote publicado",
+      "kind": "publication_evidence",
+      "locator": "enki-source://enki/espejos/woocommerce/variations/2026-06-01",
+      "snapshotDate": "2026-06-01",
+      "sha256": "18e1222dc7f3dc30275561362474d226103ddf9088f1063297fb7f0f444a8b4e"
+    },
+    {
+      "sourceKey": "enki-espejos-publication",
+      "title": "Registro de publicación Enki Espejos",
+      "kind": "publication_evidence",
+      "locator": "enki-source://enki/espejos/publication/2026-06-01",
+      "snapshotDate": "2026-06-01",
+      "sha256": "fb46ae9c05cb2e5a86acd8d28b438a46e068063a4867160df1d3ec1137326829"
+    },
+    {
+      "sourceKey": "enki-espejos-live-identity",
+      "title": "Verificación WooCommerce read-only de padres y variaciones",
+      "kind": "live_identity_snapshot",
+      "locator": "enki-source://enki/espejos/woocommerce/identity/2026-08-31",
+      "snapshotDate": "2026-08-31",
+      "sha256": "945028cec8517db63f2ef902cfc5c4aead494c8105c0e3ae676cde39e9388f22"
+    }
+  ]
+}

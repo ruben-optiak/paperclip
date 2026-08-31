@@ -1,0 +1,3 @@
+entity_key,rule_key,axis,representation,affects_sku,affects_price,affects_stock,allowed_values_json,condition_json,effect_json,evidence_ref,source_page
+select-660,finish,acabado,variation,true,true,true,"[""mate"",""brillo""]",{},"{""requires_live_price"":true}",mundilite-qa#decision=variation-axes,
+select-660,color,color,variation,true,true,true,"[""negro"",""blanco""]",{},"{""requires_live_price"":true}",mundilite-qa#decision=variation-axes,
