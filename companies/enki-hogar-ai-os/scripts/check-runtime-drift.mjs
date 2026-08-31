@@ -109,6 +109,9 @@ export function evaluateRuntimeDrift(desired, runtime) {
     if (expected.endpoint && endpointOf(connection) !== expected.endpoint) {
       findings.push(finding("connection_endpoint_drift", `${basePath}.endpoint`, expected.endpoint, endpointOf(connection), `${expected.name} points at an unexpected endpoint`));
     }
+    if (expected.quarantineNewEntries === true && object(connection.config).quarantineNewEntries !== true) {
+      findings.push(finding("connection_quarantine_drift", `${basePath}.config.quarantineNewEntries`, true, object(connection.config).quarantineNewEntries ?? null, `${expected.name} does not quarantine newly discovered or changed tools`));
+    }
     if (expected.requiredCredential) {
       const refs = [...array(connection.credentialRefs), ...array(connection.credentialSecretRefs)];
       const hasRequiredCredential = refs.some((ref) => {
@@ -124,20 +127,33 @@ export function evaluateRuntimeDrift(desired, runtime) {
 
     const catalog = array(catalogs[connection.id]);
     const expectedTools = sortedUnique(expected.tools);
+    const expectedWriteTools = new Set(array(expected.writeTools));
+    const expectedDestructiveTools = new Set(array(expected.destructiveTools));
     const catalogByName = new Map(catalog.map((entry) => [entry.toolName ?? entry.name, entry]));
     for (const toolName of expectedTools) {
       const entry = catalogByName.get(toolName);
       if (!entry) {
-        findings.push(finding("catalog_tool_missing", `${basePath}.catalog.${toolName}`, "active read-only tool", null, `${expected.name} is missing ${toolName}`));
+        findings.push(finding("catalog_tool_missing", `${basePath}.catalog.${toolName}`, "active reviewed tool", null, `${expected.name} is missing ${toolName}`));
         continue;
       }
-      if (entry.status !== "active" || entry.isReadOnly !== true || entry.isWrite === true || entry.isDestructive === true) {
+      const expectedShape = {
+        status: "active",
+        isReadOnly: !expectedWriteTools.has(toolName),
+        isWrite: expectedWriteTools.has(toolName),
+        isDestructive: expectedDestructiveTools.has(toolName),
+      };
+      if (
+        entry.status !== expectedShape.status
+        || entry.isReadOnly !== expectedShape.isReadOnly
+        || entry.isWrite !== expectedShape.isWrite
+        || entry.isDestructive !== expectedShape.isDestructive
+      ) {
         findings.push(finding(
-          "catalog_tool_not_read_only",
+          "catalog_tool_risk_drift",
           `${basePath}.catalog.${toolName}`,
-          {status: "active", isReadOnly: true, isWrite: false, isDestructive: false},
+          expectedShape,
           {status: entry.status ?? null, isReadOnly: entry.isReadOnly ?? null, isWrite: entry.isWrite ?? null, isDestructive: entry.isDestructive ?? null},
-          `${toolName} is not an active read-only catalog entry`,
+          `${toolName} does not match its reviewed catalog risk classification`,
         ));
       }
     }

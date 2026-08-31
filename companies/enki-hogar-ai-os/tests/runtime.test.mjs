@@ -58,6 +58,7 @@ function healthyRuntime(desired) {
     name: connection.name,
     transport: connection.transport,
     authKind: connection.authKind,
+    config: connection.quarantineNewEntries === true ? {url: connection.endpoint, quarantineNewEntries: true} : {url: connection.endpoint},
     transportConfig: {url: connection.endpoint},
     credentialRefs: [{name: "Authorization", secretId: "fixture-secret", ...connection.requiredCredential}],
     status: connection.status,
@@ -71,7 +72,11 @@ function healthyRuntime(desired) {
     connections,
     catalogs: Object.fromEntries(connections.map((connection, index) => [
       connection.id,
-      desired.connections[index].tools.map((toolName) => ({toolName, status: "active", isReadOnly: true, isWrite: false, isDestructive: false})),
+      desired.connections[index].tools.map((toolName) => {
+        const isWrite = (desired.connections[index].writeTools ?? []).includes(toolName);
+        const isDestructive = (desired.connections[index].destructiveTools ?? []).includes(toolName);
+        return {toolName, status: "active", isReadOnly: !isWrite, isWrite, isDestructive};
+      }),
     ])),
     installs: Object.fromEntries(connections.map((connection) => [connection.id, []])),
     profiles: desired.profiles.map((profile) => ({
@@ -137,11 +142,11 @@ test("Google runtime pins upstream commits and complete dependency locks", () =>
 
 test("Compose binds host health ports to loopback and never injects upstream credentials into agents", () => {
   const compose = readFileSync(join(packageDir, "runtime", "docker-compose.integrations.yml"), "utf8");
-  for (const port of [8010, 8011, 8012, 8020, 8030]) assert.match(compose, new RegExp(`127\\.0\\.0\\.1:\\$\\{[^}]+:-${port}}:${port}`));
+  for (const port of [8010, 8011, 8012, 8020, 8030, 8040]) assert.match(compose, new RegExp(`127\\.0\\.0\\.1:\\$\\{[^}]+:-${port}}:${port}`));
   assert.match(compose, /GOOGLE_OAUTH_CLIENT_HOST_PATH[^\n]+:\/run\/secrets\/google\/oauth-client\.json:ro/);
   assert.doesNotMatch(compose, /^\s+GOOGLE_CLIENT_(?:ID|SECRET):/m);
   const agentConfig = readFileSync(join(packageDir, ".paperclip.yaml"), "utf8");
-  assert.doesNotMatch(agentConfig, /WOO_CONSUMER|GOOGLE_ADS_DEVELOPER_TOKEN|GOOGLE_CLIENT_SECRET|SUPPORT_DB_|SUPPORT_MCP_TOKEN|SUPPORT_EMBEDDING/);
+  assert.doesNotMatch(agentConfig, /WOO_CONSUMER|GOOGLE_ADS_DEVELOPER_TOKEN|GOOGLE_CLIENT_SECRET|SUPPORT_DB_|SUPPORT_MCP_TOKEN|SUPPORT_EMBEDDING|WORDPRESS_APP_PASSWORD|META_GRAPH_ACCESS_TOKEN|CONTENT_PUBLISHER_MCP_TOKEN/);
   const catalogMcpBlock = compose.match(/\n  enki-product-support-knowledge:\n([\s\S]*?)(?=\n  [a-z0-9-]+:\n|\nvolumes:)/)?.[1] || "";
   assert.doesNotMatch(catalogMcpBlock, /SUPPORT_DB_ADMIN_PASSWORD/);
   assert.match(catalogMcpBlock, /SUPPORT_DB_USER:\s*enki_support_reader/);
@@ -189,6 +194,7 @@ test("every imported skill is self-contained and its reference mirrors match can
     "enki-daily-brief",
     "enki-seo-sem",
     "enki-unit-economics",
+    "enki-social-publisher",
     "wordpress-publisher",
   ]) {
     const skillDir = resolve(packageDir, "skills", skill);
@@ -233,6 +239,7 @@ test("compatibility lock records verified facts and leaves unverified digests pe
     [lock.connectors.woocommerce.imageDigest, lock.connectors.woocommerce.imageStatus],
     [lock.connectors.google.imageDigest, lock.connectors.google.imageStatus],
     [lock.connectors.productSupportKnowledge.imageDigest, lock.connectors.productSupportKnowledge.imageStatus],
+    [lock.connectors.contentPublisher.imageDigest, lock.connectors.contentPublisher.imageStatus],
   ]) {
     assert.equal(digest, null);
     assert.match(status, /pending/);
@@ -252,8 +259,10 @@ test("compatibility lock records verified facts and leaves unverified digests pe
   assert.equal(lock.connectors.productSupportKnowledge.agentDatabaseRoleStatus, "verified_read_only_by_integration_test");
   const wooDockerfile = readFileSync(join(packageDir, "connectors", "woocommerce-readonly-mcp", "Dockerfile"), "utf8");
   const googleDockerfile = readFileSync(join(packageDir, "connectors", "google-mcps", "Dockerfile"), "utf8");
+  const publisherDockerfile = readFileSync(join(packageDir, "connectors", "content-publisher", "Dockerfile"), "utf8");
   assert.match(wooDockerfile, /node:24\.11\.1-bookworm-slim@sha256:48abc13a19400ca3985071e287bd405a1d99306770eb81d61202fb6b65cf0b57/);
   assert.match(googleDockerfile, /node:24\.11\.1-bookworm-slim@sha256:48abc13a19400ca3985071e287bd405a1d99306770eb81d61202fb6b65cf0b57/);
+  assert.match(publisherDockerfile, /node:24\.11\.1-bookworm-slim@sha256:48abc13a19400ca3985071e287bd405a1d99306770eb81d61202fb6b65cf0b57/);
   assert.match(googleDockerfile, /uv:0\.8\.15-python3\.12-bookworm-slim@sha256:0664f9b563fb559314ae82b9d87cd34d503f98a96d8cd9b37fd9d9cfe76d5ede/);
   const compose = readFileSync(join(packageDir, "runtime", "docker-compose.integrations.yml"), "utf8");
   assert.match(compose, /pgvector\/pgvector:0\.8\.6-pg17-bookworm@sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f/);
@@ -264,7 +273,7 @@ test("runtime drift gate accepts the exact zero-PII, per-agent managed-home stat
   const report = evaluateRuntimeDrift(desired, healthyRuntime(desired));
   assert.equal(report.ok, true, JSON.stringify(report.findings));
   assert.equal(report.summary.expectedProfiles, 6);
-  assert.equal(report.summary.expectedPolicies, 1);
+  assert.equal(report.summary.expectedPolicies, 2);
   assert.equal(report.summary.expectedGateways, 6);
   assert.equal(report.summary.expectedRoutines, 2);
 });

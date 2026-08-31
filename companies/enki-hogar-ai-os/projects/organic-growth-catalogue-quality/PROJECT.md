@@ -5,4 +5,4 @@ slug: organic-growth-catalogue-quality
 owner: ecommerce-catalogue-manager
 ---
 
-Ecommerce owns catalogue quality and reviewable corrections; Growth owns the SEO opportunity task and hands catalogue implications back to Ecommerce. No output is exported or published externally.
+Ecommerce owns catalogue quality and reviewable corrections; Growth owns the SEO opportunity task and hands catalogue implications back to Ecommerce. No output is exported or published externally by default. A content item may leave Paperclip only through the exact reviewed WordPress/Facebook/Instagram workflow, with Board approval, connector kill switch and idempotency journal.

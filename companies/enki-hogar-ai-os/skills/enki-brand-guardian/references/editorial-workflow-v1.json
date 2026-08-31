@@ -29,7 +29,10 @@
       "documentKey": null,
       "requiresRevisionId": false,
       "dependsOn": "brand_catalogue_review",
-      "mode": "blocked_v1"
+      "mode": "paperclip_ask_first",
+      "connector": "content_publisher",
+      "approvalOwner": "board",
+      "requiresIdempotencyKey": true
     }
   ]
 }

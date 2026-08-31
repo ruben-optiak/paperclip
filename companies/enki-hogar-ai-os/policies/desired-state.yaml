@@ -1,8 +1,8 @@
 {
   "schema": "enki-runtime-desired-state/v1",
   "companySlug": "enki-hogar-ai-os",
-  "packageVersion": "0.4.1",
-  "mode": "audit-only",
+  "packageVersion": "0.5.0",
+  "mode": "governed-publishing",
   "rejectUnexpectedActiveConnections": true,
   "rejectUnexpectedAgents": true,
   "rejectUnexpectedProfiles": true,
@@ -167,6 +167,35 @@
         "knowledge_get_evidence",
         "knowledge_coverage"
       ]
+    },
+    {
+      "key": "content_publisher",
+      "name": "Enki Content Publisher",
+      "transport": "mcp_remote",
+      "authKind": "api_key",
+      "endpoint": "http://enki-content-publisher:8040/mcp",
+      "requiredCredential": {"placement": "header", "key": "Authorization", "prefix": "Bearer "},
+      "status": "active",
+      "enabled": true,
+      "healthStatus": "ok",
+      "strictCatalog": true,
+      "quarantineNewEntries": true,
+      "tools": [
+        "publisher_get_capabilities",
+        "wordpress_list_posts",
+        "wordpress_get_article",
+        "wordpress_upsert_post",
+        "facebook_list_page_posts",
+        "facebook_publish_page_post",
+        "instagram_list_media",
+        "instagram_get_publishing_limit",
+        "instagram_publish_image"
+      ],
+      "writeTools": [
+        "wordpress_upsert_post",
+        "facebook_publish_page_post",
+        "instagram_publish_image"
+      ]
     }
   ],
   "profiles": [
@@ -194,7 +223,13 @@
         "gsc_search_analytics",
         "gsc_inspect_url",
         "gsc_list_sitemaps",
-        "knowledge_coverage"
+        "knowledge_coverage",
+        "publisher_get_capabilities",
+        "wordpress_list_posts",
+        "wordpress_get_article",
+        "facebook_list_page_posts",
+        "instagram_list_media",
+        "instagram_get_publishing_limit"
       ]
     },
     {
@@ -228,7 +263,16 @@
         "knowledge_get_configuration_model",
         "knowledge_search_support",
         "knowledge_get_evidence",
-        "knowledge_coverage"
+        "knowledge_coverage",
+        "publisher_get_capabilities",
+        "wordpress_list_posts",
+        "wordpress_get_article",
+        "wordpress_upsert_post",
+        "facebook_list_page_posts",
+        "facebook_publish_page_post",
+        "instagram_list_media",
+        "instagram_get_publishing_limit",
+        "instagram_publish_image"
       ]
     },
     {
@@ -281,7 +325,8 @@
         "get_account_summaries",
         "get_property_details",
         "gsc_list_sites",
-        "knowledge_coverage"
+        "knowledge_coverage",
+        "publisher_get_capabilities"
       ]
     },
     {
@@ -305,6 +350,17 @@
     }
   ],
   "policies": [
+    {
+      "name": "Enki require Board approval for publishing",
+      "policyType": "require_approval",
+      "priority": 100,
+      "enabled": true,
+      "requiredToolNames": [
+        "wordpress_upsert_post",
+        "facebook_publish_page_post",
+        "instagram_publish_image"
+      ]
+    },
     {
       "name": "Enki block write and destructive tools",
       "policyType": "block",

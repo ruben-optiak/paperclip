@@ -1,6 +1,6 @@
 {
   "schema": "enki-runtime-compatibility/v1",
-  "packageVersion": "0.4.1",
+  "packageVersion": "0.5.0",
   "recordedAt": "2026-08-31",
   "agentCompaniesSchema": "agentcompanies/v1",
   "paperclipBundleSchemaVersion": 7,
@@ -23,7 +23,7 @@
     "managedHomeIsolation": "required_per_agent",
     "managedHomeIsolationStatus": "verified_locally_pending_release_tag",
     "managedSkillDelivery": "materialized_copy_inside_run_scoped_home",
-    "managedSkillDeliveryStatus": "verified_by_adapter_tests_and_live_v0.4.1_smoke",
+    "managedSkillDeliveryStatus": "verified_by_adapter_tests_and_live_v0.5.0_selective_import",
     "skipGitRepoCheck": true,
     "sandbox": "read-only",
     "permissionProfile": "enki-readonly-network",
@@ -93,6 +93,19 @@
       "agentDatabaseRole": "enki_support_reader",
       "agentDatabaseRoleStatus": "verified_read_only_by_integration_test",
       "dependencyStatus": "verified_from_package_and_lock"
+    },
+    "contentPublisher": {
+      "version": "0.1.0",
+      "imageDigest": null,
+      "imageStatus": "pending_release_build_and_digest_verification",
+      "mcpSdk": "1.30.0",
+      "zod": "4.4.3",
+      "providers": ["wordpress-rest", "facebook-graph", "instagram-graph"],
+      "writeModes": ["disabled", "wordpress-drafts", "approved"],
+      "dependencyStatus": "verified_from_package_and_lock",
+      "localQuickstartStatus": "verified_healthy_with_exact_nine_tool_catalog_and_zero_drift_2026-08-31",
+      "controlPlaneStatus": "verified_three_writes_require_board_approval_while_connector_write_mode_disabled",
+      "providerConfigurationStatus": "intentionally_unconfigured_pending_separate_canaries"
     }
   },
   "releaseEvidence": {

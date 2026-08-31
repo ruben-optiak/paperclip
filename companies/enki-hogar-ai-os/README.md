@@ -1,14 +1,14 @@
 # Enki Hogar AI OS
 
-Portable `agentcompanies/v1` package for running a read-only, draft-only Enki Hogar operating team in Paperclip.
+Portable `agentcompanies/v1` package for running a read-first, approval-gated Enki Hogar operating team with narrowly governed publishing in Paperclip.
 
 ## What is versioned
 
 - Six `codex_local` agents and their execution contracts.
 - Four initial projects, eleven bootstrap tasks, and two paused routines.
-- Nine domain skills with examples and offline fixtures.
+- Ten domain skills with examples and offline fixtures.
 - Curated, non-secret Enki knowledge with an allowlisted sync process.
-- A read-only WooCommerce MCP with live parent/variation inspection, pinned Google MCP runtime, audited Telegram gateway plugin, and isolated PostgreSQL/pgvector product-support projection.
+- A read-only WooCommerce MCP with live parent/variation inspection, pinned Google MCP runtime, audited Telegram gateway plugin, isolated PostgreSQL/pgvector product-support projection, and a governed WordPress/Facebook/Instagram publisher.
 - Desired connection policy, six agent-scoped managed gateways, security controls, tests, and promotion runbooks.
 
 Instance data, Paperclip database rows, Codex homes, OAuth material, API credentials, customer data, and real `.env` files are intentionally not versioned.
@@ -19,7 +19,7 @@ Instance data, Paperclip database rows, Codex homes, OAuth material, API credent
 | --- | --- | --- |
 | Director de Operaciones de Enki | organizational root | daily brief, change control, unit economics, support coverage |
 | Ecommerce & Catalogue Manager | Director | catalogue QA and technical product support, brand guardian, daily brief, change control |
-| Growth Manager | Director | SEO/SEM, technical product support, brand guardian, daily brief, WordPress render/dry-run |
+| Growth Manager | Director | SEO/SEM, technical product support, brand guardian, daily brief, WordPress and social publishing requests |
 | Finance & BI Manager | Director | unit economics, daily brief |
 | Technology Manager | Director | change control, connector diagnosis and support coverage, daily brief, brand guardian when drafting customer-facing text |
 | Customer Experience Manager | Director | customer care, technical product facts, brand guardian, change control |
@@ -28,16 +28,16 @@ The workflow is hub-and-spoke with no Chief of Staff layer and with direct Board
 
 ## Safe local path
 
-1. Copy `.env.example` to an untracked environment file outside Git and fill only Woo/Google connector-side credentials plus independent product-support database/bearer secrets. Leave all embedding fields empty unless intentionally configured. Store the Telegram token as a Paperclip Secret, never in `.env`.
+1. Copy `.env.example` to an untracked environment file outside Git and fill only connector-side credentials. Keep publishing in `disabled` mode until its separate smoke gate passes. Leave all embedding fields empty unless intentionally configured. Store the Telegram token as a Paperclip Secret, never in `.env`.
 2. Follow [local setup](runbooks/local-setup.md), beginning with a company export backup.
 3. Install the locked workspace and offline-test dependencies, then run `./companies/enki-hogar-ai-os/scripts/check.sh` before starting integrations. This also builds and tests the Telegram plugin.
-4. Build the import archive with `./companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.4.1.zip` and preview that exact ZIP with the current Paperclip CLI or UI before applying it.
-5. Keep all agents and routines paused while configuring connections and the six disabled agent-scoped gateways; never use connection installs for Enki.
+4. Build the import archive with `./companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.5.0.zip` and preview that exact ZIP with the current Paperclip CLI or UI before applying it.
+5. Keep all agents and routines paused while configuring connections and the six disabled agent-scoped gateways; never use connection installs for Enki. Reconcile the publisher with `scripts/reconcile-content-publisher.mjs --apply` only while its independent write mode is `disabled`.
 
 For a new disposable company, preview the generated ZIP rather than the source directory:
 
 ```sh
-npx paperclipai company import /tmp/enki-hogar-ai-os-v0.4.1.zip \
+npx paperclipai company import /tmp/enki-hogar-ai-os-v0.5.0.zip \
   --target new \
   --new-company-name "Enki Hogar AI OS preflight" \
   --dry-run
@@ -56,7 +56,7 @@ a full replace preview can legitimately plan those tasks as new and would
 duplicate operational history. The reviewed patch path is:
 
 ```sh
-pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.4.1.zip \
+pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.5.0.zip \
   --include agents,skills \
   --target existing \
   --company-id <company-id> \
@@ -77,9 +77,9 @@ The Telegram plugin is installed separately at instance level after the company 
 
 ## Safety boundary
 
-Allowed in v1: approved reads, analysis, comparisons, evidence packs, and local drafts. Brand Guardian reviews customer-facing drafts but grants no publication authority. WordPress is limited to local render and `--dry-run`. Customer-level and exact-order access are absent from the connector catalog. Every external mutation is blocked. See [access matrix](policies/access-matrix.md) and [change control](skills/enki-change-control/SKILL.md).
+Allowed in v1: approved reads, analysis, comparisons, evidence packs, local drafts and three narrowly governed publication calls. Brand Guardian reviews customer-facing drafts but grants no publication authority. Growth may request a WordPress post upsert, a Facebook Page post or one Instagram image only after the exact draft/review handoff; Paperclip asks Board and the connector enforces its own kill switch plus idempotency journal. Customer-level and exact-order access remain absent. Every other external mutation is blocked. See [access matrix](policies/access-matrix.md) and [change control](skills/enki-change-control/SKILL.md).
 
-Codex auto-approves only dispatch to Paperclip-managed MCP gateways. Paperclip remains the authorization boundary: agent-scoped default-deny profiles, the global write/destructive block, short-lived tokens, and gateway auditing still apply to every call.
+Codex auto-approves only dispatch to Paperclip-managed MCP gateways. Paperclip remains the authorization boundary: agent-scoped default-deny profiles, the exact three-tool approval policy evaluated before the global write/destructive block, short-lived tokens, and gateway auditing still apply to every call.
 
 El código y la documentación operativa de este paquete se distribuyen bajo MIT. El contenido de `references/` es material interno de Enki Hogar y se rige por `LicenseRef-Enki-Hogar-Internal`; no queda sublicenciado bajo MIT. Consulta `NOTICE.md`, `THIRD_PARTY_NOTICES.md` y `LICENSE-ENKI-INTERNAL.md` antes de redistribuir el paquete.
 

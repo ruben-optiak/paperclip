@@ -101,10 +101,10 @@
     },
     {
       "target": "contracts/editorial-workflow-v1.json",
-      "targetSha256": "bdbb3304c77f51c0c96ba3028bc517167b791fdefb816491a4c622da710637b7",
+      "targetSha256": "c64ad670c2d8d5b4c21e82f341eebb12bb846fe48955af0eaadd28856758eb19",
       "origin": "package-authored",
       "license": "LicenseRef-Enki-Hogar-Internal",
-      "purpose": "Machine-readable phase gate from Growth draft to Ecommerce review with publication blocked",
+      "purpose": "Machine-readable phase gate from Growth draft to Ecommerce review and Board-approved governed publication",
       "sensitivity": "enki_internal"
     },
     {

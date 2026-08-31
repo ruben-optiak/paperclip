@@ -15,9 +15,12 @@ SHA-256 `c25f0156c66b9f32e2385a07f40562c4c48b2fd69979b79ebca54e7e3f5d94f2`;
 the packaged offline rewrite has SHA-256
 `656486d82ad1d293354824bede2947730c74f9e5fc855fbfedaa47b2e9a0580e`.
 The source directory had no verifiable Git revision, so provenance remains
-revision-pending. Only the restricted package file is distributed; the live
-network/publishing implementation is not. “Vendorizada” denotes this
-functional lineage, not a claim that the two files are byte-identical.
+revision-pending. Only the restricted package file is distributed from that
+adaptation; the original live script is not copied into this package.
+`connectors/content-publisher/` is a new, independently authored governed
+implementation against the public WordPress and Meta APIs. “Vendorizada”
+denotes the offline helper's functional lineage, not a claim that either new
+implementation is byte-identical to the source script.
 
 `references/source-snapshots/`, runtime credentials, Paperclip exports, database
 backups, and storage backups are deliberately outside the distributable source

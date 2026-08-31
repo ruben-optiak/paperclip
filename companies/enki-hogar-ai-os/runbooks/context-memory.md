@@ -29,7 +29,7 @@ Before proposing content, Growth must:
 1. Record the current instant and `Europe/Madrid` timezone.
 2. Search Paperclip company data for the topic, product, campaign and related drafts/reviews.
 3. Read the latest `content-ledger` revision and state its coverage.
-4. Query the approved WordPress and Meta read surfaces for current published/scheduled content. Until those connectors exist, mark those channels `unavailable`; do not claim the search is complete.
+4. Query the approved WordPress and Meta read surfaces for current published/scheduled content. If a provider is not configured or healthy, mark that channel `unavailable`; do not claim the search is complete.
 5. Query dated WooCommerce/GA4/GSC/Ads evidence for demand and seasonality. Compare explicit periods; never infer a seasonal pattern from the calendar alone.
 6. Use a current approved market source before claiming a recent external trend. Without it, write `UNKNOWN`.
 
@@ -39,6 +39,6 @@ Before proposing content, Growth must:
 2. The Director inspects that revision after Growth finishes. Dependent review is not launched in parallel.
 3. The Director creates the Ecommerce review with the exact source issue, document key and revision. The review description must be self-contained or contain an accessible exact pointer.
 4. Ecommerce applies Brand Guardian. Missing or inaccessible draft input is `BLOCKED / NOT REVIEWED`, never a zero-claim PASS.
-5. Publication remains blocked in v1. After a human publication, or a future separately approved publisher, Growth reconciles the ledger from the live platform response.
+5. Growth may request publication only through the reviewed `content_publisher` tools with a stable issue/document/revision idempotency key. Paperclip binds approval to the exact arguments; only Board approves. After connector success, Growth reconciles the ledger from the live platform response. An uncertain journal entry blocks retry until operator reconciliation.
 
 Company search is retrieval, not automatic memory. Every content brief must name what was searched, the period covered, missing channels and the freshness of each source.

@@ -16,17 +16,25 @@ if [ ! -d "$package_dir/connectors/catalog-knowledge/node_modules" ]; then
   exit 2
 fi
 
+if [ ! -d "$package_dir/connectors/content-publisher/node_modules" ]; then
+  echo "Content publisher test dependencies are missing. Run: npm --prefix companies/enki-hogar-ai-os/connectors/content-publisher ci --ignore-scripts" >&2
+  exit 2
+fi
+
 node "$package_dir/scripts/validate-package.mjs"
 "$package_dir/scripts/scan-secrets.sh"
 node --check "$package_dir/scripts/check-runtime-drift.mjs"
 node --check "$package_dir/scripts/gateway-preflight.mjs"
 node --check "$package_dir/scripts/reconcile-agent-gateways.mjs"
+node --check "$package_dir/scripts/reconcile-content-publisher.mjs"
 node --check "$package_dir/scripts/init-local-support-secrets.mjs"
+node --check "$package_dir/scripts/init-local-publishing-secrets.mjs"
 node --check "$package_dir/scripts/product-support/generate-enki-espejos.mjs"
 node --check "$package_dir/scripts/product-support/finalize-support-pack.mjs"
 node --test "$package_dir"/tests/*.test.mjs
 npm --prefix "$package_dir/connectors/woocommerce-readonly-mcp" test
 npm --prefix "$package_dir/connectors/catalog-knowledge" test
+npm --prefix "$package_dir/connectors/content-publisher" test
 pnpm --dir "$repo_dir" --filter @enki-hogar/telegram-gateway check
 "$package_dir/scripts/build-import-zip.sh" "$build_check_dir/first.zip" >/dev/null
 "$package_dir/scripts/build-import-zip.sh" "$build_check_dir/second.zip" >/dev/null
@@ -67,6 +75,10 @@ const expected = {
     context: path.join(packageDir, "connectors/catalog-knowledge"),
     dockerfile: "Dockerfile",
   },
+  "enki-content-publisher": {
+    context: path.join(packageDir, "connectors/content-publisher"),
+    dockerfile: "Dockerfile",
+  },
 };
 
 for (const [serviceName, wanted] of Object.entries(expected)) {
@@ -88,6 +100,14 @@ if (Object.prototype.hasOwnProperty.call(catalogMcpEnvironment, "SUPPORT_DB_ADMI
   throw new Error("Product-support MCP must not receive the database admin password");
 }
 if (catalogMcpEnvironment.SUPPORT_DB_USER !== "enki_support_reader") throw new Error("Product-support MCP must use the reader role");
+
+const publisher = config.services?.["enki-content-publisher"];
+if (publisher?.environment?.CONTENT_PUBLISH_WRITE_MODE !== "disabled") throw new Error("Content publisher must default to its disabled kill-switch mode");
+if (publisher?.ports?.[0]?.host_ip !== "127.0.0.1" || publisher?.ports?.[0]?.target !== 8040) throw new Error("Content publisher health port must bind only to host loopback");
+if (!publisher?.volumes?.some((mount) => mount.target === "/data" && mount.type === "volume")) throw new Error("Content publisher must persist its idempotency journal in a named volume");
+for (const key of ["WORDPRESS_APP_PASSWORD", "META_GRAPH_ACCESS_TOKEN", "CONTENT_PUBLISHER_MCP_TOKEN"]) {
+  if (!Object.prototype.hasOwnProperty.call(publisher?.environment ?? {}, key)) throw new Error(`Content publisher is missing provider isolation for ${key}`);
+}
 
 const paperclipMounts = config.services?.paperclip?.volumes ?? [];
 const telegramMount = paperclipMounts.find((mount) => mount.target === "/plugins/enki-telegram-gateway");

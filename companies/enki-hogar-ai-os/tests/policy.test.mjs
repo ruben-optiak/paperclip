@@ -8,12 +8,26 @@ const packageDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 const policy = readFileSync(join(packageDir, "policies", "tool-allowlist.yaml"), "utf8");
 const desired = JSON.parse(readFileSync(join(packageDir, "policies", "desired-state.yaml"), "utf8"));
 
-test("policy denies every planned mutation surface", () => {
+test("policy quarantines every mutation except the three Board-approved publication tools", () => {
   for (const term of ["mutate", "refund", "budget", "index", "publish", "upload", "delete", "update"]) {
     assert.match(policy, new RegExp(term));
   }
   assert.match(policy, /default: quarantine/);
   assert.match(policy, /deniedPatterns: \[create, update, delete, refund, batch, customer, set, write\]/);
+  const publisher = desired.connections.find((connection) => connection.key === "content_publisher");
+  assert.deepEqual(publisher?.writeTools, [
+    "wordpress_upsert_post",
+    "facebook_publish_page_post",
+    "instagram_publish_image",
+  ]);
+  assert.equal(publisher?.quarantineNewEntries, true);
+  const approval = desired.policies.find((candidate) => candidate.name === "Enki require Board approval for publishing");
+  assert.equal(approval?.policyType, "require_approval");
+  assert.equal(approval?.priority, 100);
+  assert.deepEqual(approval?.requiredToolNames, publisher?.writeTools);
+  const block = desired.policies.find((candidate) => candidate.name === "Enki block write and destructive tools");
+  assert.equal(block?.policyType, "block");
+  assert.equal(block?.priority, 1000);
 });
 
 test("Google, Woo and product-support allowlists contain only expected query tools", () => {

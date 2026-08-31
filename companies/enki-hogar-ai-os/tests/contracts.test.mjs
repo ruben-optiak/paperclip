@@ -62,7 +62,10 @@ test("editorial handoffs are phase-gated and absence cannot pass brand review", 
   assert.equal(stages.get("brand_catalogue_review")?.missingInputDisposition, "blocked_not_reviewed");
   assert.equal(stages.get("brand_catalogue_review")?.zeroClaimsMayPass, false);
   assert.equal(stages.get("publish")?.dependsOn, "brand_catalogue_review");
-  assert.equal(stages.get("publish")?.mode, "blocked_v1");
+  assert.equal(stages.get("publish")?.mode, "paperclip_ask_first");
+  assert.equal(stages.get("publish")?.connector, "content_publisher");
+  assert.equal(stages.get("publish")?.approvalOwner, "board");
+  assert.equal(stages.get("publish")?.requiresIdempotencyKey, true);
 });
 
 test("product-support contracts preserve the technical/commercial authority split", () => {

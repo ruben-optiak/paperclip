@@ -77,7 +77,7 @@ const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md schema must be agentcompanies/v1");
 if (company.slug !== "enki-hogar-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.4.1") fail("Unexpected package version");
+if (company.version !== "0.5.0") fail("Unexpected package version");
 if (company.license !== "MIT AND LicenseRef-Enki-Hogar-Internal") fail("Unexpected package license; mixed package scope must be explicit");
 for (const required of [
   "LICENSE",
@@ -108,6 +108,17 @@ const expectedEnvExample = {
   SUPPORT_EMBEDDING_BASE_URL: "",
   SUPPORT_EMBEDDING_API_KEY: "",
   SUPPORT_EMBEDDING_MODEL: "",
+  CONTENT_PUBLISHER_MCP_TOKEN: "change-me-connector-token",
+  CONTENT_PUBLISH_WRITE_MODE: "disabled",
+  WORDPRESS_BASE_URL: "",
+  WORDPRESS_USERNAME: "",
+  WORDPRESS_APP_PASSWORD: "",
+  META_GRAPH_API_VERSION: "",
+  META_GRAPH_BASE_URL: "https://graph.facebook.com",
+  META_INSTAGRAM_GRAPH_BASE_URL: "",
+  META_GRAPH_ACCESS_TOKEN: "",
+  META_FACEBOOK_PAGE_ID: "",
+  META_INSTAGRAM_USER_ID: "",
 };
 const actualEnvExample = {};
 for (const line of readFileSync(join(packageDir, ".env.example"), "utf8").split("\n")) {
@@ -178,7 +189,7 @@ for (const path of skillFiles) {
     }
   }
 }
-if (skillFiles.length !== 9) fail(`Expected 9 skills, found ${skillFiles.length}`);
+if (skillFiles.length !== 10) fail(`Expected 10 skills, found ${skillFiles.length}`);
 
 const mirrorContract = jsonYaml("runtime/skill-reference-mirrors.json");
 if (mirrorContract.schema !== "enki-skill-reference-mirrors/v1") fail("Unexpected skill reference mirror schema");
@@ -272,7 +283,7 @@ for (const expected of [
 
 const compatibility = jsonYaml("runtime/compatibility.lock.yaml");
 if (compatibility.schema !== "enki-runtime-compatibility/v1") fail("Unexpected runtime compatibility schema");
-if (compatibility.packageVersion !== "0.4.1") fail("Compatibility lock package version must match 0.4.1");
+if (compatibility.packageVersion !== "0.5.0") fail("Compatibility lock package version must match 0.5.0");
 if (compatibility.paperclipBundleSchemaVersion !== 7) fail("Compatibility lock must target bundle schemaVersion 7");
 if (compatibility.connectors?.woocommerce?.version !== "0.2.1") fail("Compatibility lock must pin WooCommerce connector 0.2.1");
 if (compatibility.connectors?.google?.version !== "0.1.1") fail("Compatibility lock must pin Google connector runtime 0.1.1");
@@ -282,6 +293,8 @@ if (compatibility.connectors?.productSupportKnowledge?.version !== "0.2.0") fail
 if (compatibility.connectors?.productSupportKnowledge?.postgresClient !== "3.4.9") fail("Compatibility lock must pin the support PostgreSQL client");
 if (compatibility.connectors?.productSupportKnowledge?.databaseImageDigest !== "sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f") fail("Product-support pgvector image digest drift");
 if (compatibility.connectors?.productSupportKnowledge?.agentDatabaseRoleStatus !== "verified_read_only_by_integration_test") fail("Support reader role must carry integration-test evidence");
+if (compatibility.connectors?.contentPublisher?.version !== "0.1.0") fail("Compatibility lock must pin content publisher connector 0.1.0");
+if (compatibility.connectors?.contentPublisher?.mcpSdk !== "1.30.0" || compatibility.connectors?.contentPublisher?.zod !== "4.4.3") fail("Compatibility lock must pin content publisher dependencies");
 if (compatibility.paperclip?.upstreamBaseCommit !== "35fca95626a04f5a7ec42cf95989c3d779a1687e") fail("Compatibility lock must identify the reviewed Paperclip base commit");
 if (compatibility.codex?.managedMcpDefaultToolsApprovalMode !== "approve") fail("Compatibility lock must delegate managed MCP dispatch approval to the Paperclip gateway");
 if (!String(compatibility.codex?.managedMcpApprovalModeStatus || "").includes("verified")) fail("Managed MCP approval mode must carry verified runtime evidence");
@@ -291,6 +304,7 @@ for (const [label, digest, status] of [
   ["WooCommerce connector image", compatibility.connectors?.woocommerce?.imageDigest, compatibility.connectors?.woocommerce?.imageStatus],
   ["Google connector image", compatibility.connectors?.google?.imageDigest, compatibility.connectors?.google?.imageStatus],
   ["Product-support connector image", compatibility.connectors?.productSupportKnowledge?.imageDigest, compatibility.connectors?.productSupportKnowledge?.imageStatus],
+  ["Content publisher connector image", compatibility.connectors?.contentPublisher?.imageDigest, compatibility.connectors?.contentPublisher?.imageStatus],
 ]) {
   if (digest !== null) fail(`${label} digest must remain null until independently verified`);
   if (typeof status !== "string" || !status.includes("pending")) fail(`${label} status must explicitly remain pending`);
@@ -310,7 +324,8 @@ const uvImagePin = "ghcr.io/astral-sh/uv:0.8.15-python3.12-bookworm-slim@sha256:
 const wooDockerfile = readFileSync(join(packageDir, "connectors", "woocommerce-readonly-mcp", "Dockerfile"), "utf8");
 const googleDockerfile = readFileSync(join(packageDir, "connectors", "google-mcps", "Dockerfile"), "utf8");
 const catalogDockerfile = readFileSync(join(packageDir, "connectors", "catalog-knowledge", "Dockerfile"), "utf8");
-if (!wooDockerfile.includes(`FROM ${nodeImagePin}`) || !googleDockerfile.includes(`FROM ${nodeImagePin} AS node-runtime`) || !catalogDockerfile.includes(`FROM ${nodeImagePin}`)) fail("Connector Dockerfiles must consume the verified Node digest");
+const publisherDockerfile = readFileSync(join(packageDir, "connectors", "content-publisher", "Dockerfile"), "utf8");
+if (!wooDockerfile.includes(`FROM ${nodeImagePin}`) || !googleDockerfile.includes(`FROM ${nodeImagePin} AS node-runtime`) || !catalogDockerfile.includes(`FROM ${nodeImagePin}`) || !publisherDockerfile.includes(`FROM ${nodeImagePin}`)) fail("Connector Dockerfiles must consume the verified Node digest");
 if (!googleDockerfile.includes(`FROM ${uvImagePin}`)) fail("Google connector Dockerfile must consume the verified uv digest");
 
 const wooPackage = jsonYaml("connectors/woocommerce-readonly-mcp/package.json");
@@ -319,6 +334,34 @@ const wooTools = readFileSync(join(packageDir, "connectors", "woocommerce-readon
 for (const tool of ["woo_sales_summary", "woo_orders_summary", "woo_get_product", "woo_get_product_structure", "woo_low_stock", "woo_catalog_summary"]) {
   if (!wooTools.includes(`\"${tool}\"`)) fail(`WooCommerce connector is missing reviewed read tool: ${tool}`);
 }
+
+const publisherPackage = jsonYaml("connectors/content-publisher/package.json");
+if (publisherPackage.name !== "@enki-hogar/content-publisher-mcp" || publisherPackage.version !== "0.1.0") fail("Unexpected content publisher connector package identity");
+if (publisherPackage.dependencies?.["@modelcontextprotocol/sdk"] !== "1.30.0" || publisherPackage.dependencies?.zod !== "4.4.3") fail("Content publisher connector dependencies must be exactly pinned");
+const publisherPackageLock = jsonYaml("connectors/content-publisher/package-lock.json");
+if (publisherPackageLock.packages?.["node_modules/@modelcontextprotocol/sdk"]?.version !== "1.30.0" || publisherPackageLock.packages?.["node_modules/zod"]?.version !== "4.4.3") fail("Content publisher connector lock must preserve reviewed dependency versions");
+const expectedPublisherTools = [
+  "publisher_get_capabilities",
+  "wordpress_list_posts",
+  "wordpress_get_article",
+  "wordpress_upsert_post",
+  "facebook_list_page_posts",
+  "facebook_publish_page_post",
+  "instagram_list_media",
+  "instagram_get_publishing_limit",
+  "instagram_publish_image",
+];
+const expectedPublisherWriteTools = [
+  "wordpress_upsert_post",
+  "facebook_publish_page_post",
+  "instagram_publish_image",
+];
+const publisherTools = readFileSync(join(packageDir, "connectors", "content-publisher", "src", "tools.mjs"), "utf8");
+for (const tool of expectedPublisherTools) if (!publisherTools.includes(`\"${tool}\"`)) fail(`Content publisher connector is missing reviewed tool: ${tool}`);
+for (const forbidden of ["delete", "comment", "direct_message", "refund", "upload_media", "publish_reel", "publish_story", "publish_carousel"]) if (publisherTools.includes(`\"${forbidden}`)) fail(`Content publisher MCP must not expose unsupported operation: ${forbidden}`);
+if (!/readOnlyHint:\s*readOnly/.test(publisherTools) || !/idempotentHint:\s*idempotent/.test(publisherTools) || !/destructiveHint:\s*false/.test(publisherTools)) fail("Content publisher tools must declare reviewed MCP risk annotations");
+if (!/assertWriteAllowed\(config,\s*"wordpress"/.test(publisherTools) || !/assertWriteAllowed\(config,\s*"facebook"/.test(publisherTools) || !/assertWriteAllowed\(config,\s*"instagram"/.test(publisherTools)) fail("Every content publisher write path must enforce the connector kill switch");
+if ((publisherTools.match(/idempotency_key:/g) || []).length !== expectedPublisherWriteTools.length) fail("Every content publisher write tool must require exactly one idempotency key");
 
 const catalogPackage = jsonYaml("connectors/catalog-knowledge/package.json");
 if (catalogPackage.name !== "@enki-hogar/product-support-knowledge-mcp" || catalogPackage.version !== "0.2.0") fail("Unexpected product-support connector package identity");
@@ -391,8 +434,8 @@ const telegramCompose = readFileSync(join(packageDir, "runtime", "docker-compose
 if (!/\/plugins\/enki-telegram-gateway:ro/.test(telegramCompose)) fail("Compose must mount the Telegram plugin read-only");
 
 const desired = jsonYaml("policies/desired-state.yaml");
-if (desired.schema !== "enki-runtime-desired-state/v1" || desired.mode !== "audit-only") fail("Desired state must be audit-only enki-runtime-desired-state/v1");
-if (desired.packageVersion !== "0.4.1") fail("Desired state package version must match 0.4.1");
+if (desired.schema !== "enki-runtime-desired-state/v1" || desired.mode !== "governed-publishing") fail("Desired state must be governed-publishing enki-runtime-desired-state/v1");
+if (desired.packageVersion !== "0.5.0") fail("Desired state package version must match 0.5.0");
 if (desired.rejectUnexpectedActiveConnections !== true) fail("Desired state must reject unexpected active connections");
 if (desired.rejectUnexpectedAgents !== true) fail("Desired state must reject unexpected agents");
 if (desired.rejectUnexpectedProfiles !== true) fail("Desired state must reject unexpected profiles");
@@ -408,9 +451,13 @@ if (desired.plugins?.[0]?.approvalDecisions !== "ui_only" || desired.plugins?.[0
 for (const forbiddenCapability of ["approvals.respond", "issue.interactions.respond", "agents.invoke", "agents.resume", "issues.update"]) {
   if (!(desired.plugins?.[0]?.forbiddenCapabilities || []).includes(forbiddenCapability)) fail(`Telegram desired state must forbid capability: ${forbiddenCapability}`);
 }
-if (desired.connections?.length !== 5 || desired.profiles?.length !== 6 || desired.policies?.length !== 1 || desired.gateways?.length !== 6) fail("Desired state must define 5 connections, 6 profiles, 1 global block policy, and 6 governed gateways");
+if (desired.connections?.length !== 6 || desired.profiles?.length !== 6 || desired.policies?.length !== 2 || desired.gateways?.length !== 6) fail("Desired state must define 6 connections, 6 profiles, 2 publishing policies, and 6 governed gateways");
 const desiredCatalogConnection = desired.connections?.find((connection) => connection.key === "product_support_knowledge");
 if (desiredCatalogConnection?.endpoint !== "http://enki-product-support-knowledge:8030/mcp" || (desiredCatalogConnection?.tools || []).sort().join(",") !== [...expectedCatalogTools].sort().join(",")) fail("Desired support connection must expose the exact reviewed eight-tool catalog");
+const desiredPublisherConnection = desired.connections?.find((connection) => connection.key === "content_publisher");
+if (desiredPublisherConnection?.endpoint !== "http://enki-content-publisher:8040/mcp" || [...(desiredPublisherConnection?.tools || [])].sort().join(",") !== [...expectedPublisherTools].sort().join(",")) fail("Desired content publisher connection must expose the exact reviewed nine-tool catalog");
+if ([...(desiredPublisherConnection?.writeTools || [])].sort().join(",") !== [...expectedPublisherWriteTools].sort().join(",")) fail("Desired content publisher connection must identify exactly the three governed write tools");
+if (desiredPublisherConnection?.quarantineNewEntries !== true) fail("Desired content publisher connection must quarantine newly discovered or changed tools");
 const desiredToolNames = new Set((desired.connections || []).flatMap((connection) => connection.tools || []));
 const analyticsProxy = jsonYaml("connectors/google-mcps/config/analytics-proxy.json");
 if (analyticsProxy.mcpServers?.default?.tools?.list_google_ads_links?.enabled !== false) fail("GA4 proxy must quarantine list_google_ads_links because its upstream response exposes creator email PII");
@@ -456,7 +503,9 @@ for (const gateway of desired.gateways || []) {
   if (gateway.status !== "active" || gateway.defaultProfileMode !== "gateway_only" || gateway.contextScopeType !== "agent") fail(`Desired gateway ${gateway.key || "unknown"} must be active, gateway-only, and agent-scoped`);
 }
 if (gatewayAgents.size !== agents.size || gatewayProfiles.size !== desiredProfilesByKey.size) fail("Desired gateways must cover every Enki agent and profile exactly once");
-const blockPolicy = desired.policies?.[0] || {};
+const approvalPolicy = desired.policies?.find((policy) => policy.name === "Enki require Board approval for publishing") || {};
+if (approvalPolicy.policyType !== "require_approval" || approvalPolicy.priority !== 100 || approvalPolicy.enabled !== true || [...(approvalPolicy.requiredToolNames || [])].sort().join(",") !== [...expectedPublisherWriteTools].sort().join(",")) fail("Desired state must require Board approval for the exact three publication tools before the global block");
+const blockPolicy = desired.policies?.find((policy) => policy.name === "Enki block write and destructive tools") || {};
 if (blockPolicy.name !== "Enki block write and destructive tools" || blockPolicy.policyType !== "block" || blockPolicy.priority !== 1000 || blockPolicy.enabled !== true || [...(blockPolicy.requiredRiskLevels || [])].sort().join(",") !== "destructive,write") fail("Desired state must contain the exact global write/destructive block policy");
 const desiredRuntime = desired.agentRuntime || {};
 for (const [key, value] of Object.entries({

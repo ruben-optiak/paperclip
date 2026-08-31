@@ -2,20 +2,22 @@
 
 Run with all schedules paused and record evidence without secrets or PII.
 
-1. Health: all five connector health endpoints return `ok`.
+1. Health: all six connector health endpoints return `ok`; the content publisher reports no account IDs or secrets and starts with writes disabled.
 2. Catalog: observed tool names equal the allowlist; mutation and indexing probes are denied or absent.
 3. Woo: sales/order summaries work on a bounded period; product/SKU, live parent/variation structure and low-stock reads work; bulk output has no PII. `woo_get_product_structure` returns current options/prices/stock and only the allowlisted original-PDF-SKU metadata key. The low-stock call completes inside Paperclip's 10-second remote-tool deadline, reports raw rows, unique IDs and the remote total, excludes duplicate IDs, separates exact quantities from status-only out-of-stock rows, and labels unavailable variation-level quantities as partial.
 4. Zero-PII gate: customer lists and every customer-level query are absent from the connector catalog and access profiles.
 5. Product support: exact Woo SKU and manufacturer-reference resolution converge on the same technical entity; technical profile and evidence contain no price/stock; an explicit Chicandbath relation returns compatible while an absent relation returns `unknown`; configuration rules preserve variation/configurator/component/assisted-sale semantics without Cartesian expansion; coverage clearly says it is not Woo catalogue coverage.
 6. Google: Ads search, GA4 report, and GSC analytics query run with explicit periods. The observed GA4 catalog contains exactly six approved tools and excludes `list_google_ads_links`; any reappearance is quarantined because its upstream response contains an email field. Do not use production-changing queries.
 7. Brief: manually run complete, partial, stale, and outage fixtures. Missing or historical data remains visibly labelled.
-8. WordPress: `render` and `sync --dry-run` work without credentials; `sync` without dry-run fails.
-9. Agents: Board can assign work directly to each specialist and the reporting tree still has one Director root.
-10. Gateways: there are exactly six active agent-scoped gateways, each uses its matching default-deny profile, every connection has zero installs, and there is no active `gateway_client` token. A tools-list decision matrix must equal each profile's allowlist.
-11. Budgets: company and all six agent monthly hard caps are explicit and positive; record only the decision evidence, not invented values in this package.
-12. Routines: desired-state drift proves exactly the daily and weekly routines are paused, both schedules are disabled, and no unexpected routine exists; manually invoke both and inspect outputs before enabling schedules one at a time.
-13. Telegram: the plugin reports healthy for the Enki company; an allowlisted message creates one Director issue, a reply creates one human-attributed comment, a replay creates no duplicate, an unauthorized sender produces no issue/reply, `/approve` is denied, and approval notices contain only a UI link. A synthetic email/order/token is rejected inbound without creating work and withheld from any Director response sent outbound.
-14. Portability: export the company again and inspect that no secrets, database IDs, connector host paths, managed-home paths, Telegram IDs, or bot token appear; preview a reimport in a disposable target. Plugin installation/configuration remains separate instance state.
+8. Publishing offline: WordPress `render` and legacy `sync --dry-run` work without credentials; legacy `sync` without dry-run fails.
+9. Publishing connector: with its kill switch `disabled`, `publisher_get_capabilities` reports all unconfigured providers without IDs or secrets; the remaining reads, including `wordpress_get_article`, either return bounded provider data or a clear `not configured` result, and all three write tools fail before any provider call. Verify the observed catalog is exactly nine tools and the three writes are classified write/non-destructive/idempotent. Simulate all three policy decisions through `/tools/policy/test` and require `decision=require_approval` without creating an action request.
+10. Governed draft canary: only after the previous gate passes, set `wordpress-drafts`, restart only `enki-content-publisher`, and request one synthetic uniquely slugged WordPress `draft` through Growth. Paperclip must show an exact-argument Board approval; rejection performs no write, approval creates one draft, and replay with the same key returns the same result without a second post. Delete the synthetic draft manually in WordPress after recording sanitized evidence. Keep Facebook and Instagram blocked until their own production canary is explicitly approved.
+11. Agents: Board can assign work directly to each specialist and the reporting tree still has one Director root.
+12. Gateways: there are exactly six active agent-scoped gateways, each uses its matching default-deny profile, every connection has zero installs, and there is no active `gateway_client` token. A tools-list decision matrix must equal each profile's allowlist.
+13. Budgets: company and all six agent monthly hard caps are explicit and positive; record only the decision evidence, not invented values in this package.
+14. Routines: desired-state drift proves exactly the daily and weekly routines are paused, both schedules are disabled, and no unexpected routine exists; manually invoke both and inspect outputs before enabling schedules one at a time.
+15. Telegram: the plugin reports healthy for the Enki company; an allowlisted message creates one Director issue, a reply creates one human-attributed comment, a replay creates no duplicate, an unauthorized sender produces no issue/reply, `/approve` is denied, and approval notices contain only a UI link. A synthetic email/order/token is rejected inbound without creating work and withheld from any Director response sent outbound.
+16. Portability: export the company again and inspect that no secrets, database IDs, connector host paths, managed-home paths, Telegram IDs, bot token or publication-journal content appear; preview a reimport in a disposable target. Plugin installation/configuration remains separate instance state.
 
 For read-only audit smokes, the issue disposition follows the deliverable rather than individual fields: `PASS`, `PARTIAL`, and `FAIL` are all valid `done` conclusions once the requested report and evidence are complete. Use task-level `blocked` only when the report itself cannot be produced. Create connector/data remediation as a separate assigned follow-up and block the smoke issue on it only if completion genuinely depends on that repair.
 
@@ -23,7 +25,7 @@ For terminal smoke evidence, write the Board verification before the agent moves
 
 ## Customer Experience zero-PII smoke
 
-The v0.4.1 Customer Experience gate is **deny**, not ask-first. Use a completely
+The v0.5.0 Customer Experience gate is **deny**, not ask-first. Use a completely
 synthetic case to verify classification and a clearly labelled unsent draft.
 Then verify from Board that:
 

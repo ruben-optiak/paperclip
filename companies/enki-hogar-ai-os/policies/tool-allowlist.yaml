@@ -47,4 +47,17 @@ connectors:
     allowed:
       render: local-draft
       sync_dry_run: local-draft
-    deniedPatterns: [publish, create, update, delete, upload, schedule]
+    deniedPatterns: [publish, create, update, delete, upload, schedule, credential, direct_api]
+  content_publisher:
+    allowed:
+      publisher_get_capabilities: read
+      wordpress_list_posts: read
+      wordpress_get_article: read
+      facebook_list_page_posts: read
+      instagram_list_media: read
+      instagram_get_publishing_limit: read
+    askFirst:
+      wordpress_upsert_post: write
+      facebook_publish_page_post: write
+      instagram_publish_image: write
+    deniedPatterns: [delete, comment, message, dm, account, bulk, plugin, page, upload_media, reel, story, carousel]

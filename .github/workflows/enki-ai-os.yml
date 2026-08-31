@@ -71,6 +71,10 @@ jobs:
         run: npm ci --ignore-scripts
         working-directory: companies/enki-hogar-ai-os/connectors/catalog-knowledge
 
+      - name: Install locked content publisher test dependencies
+        run: npm ci --ignore-scripts
+        working-directory: companies/enki-hogar-ai-os/connectors/content-publisher
+
       - name: Validate, test, scan, and reproduce import artifact
         run: companies/enki-hogar-ai-os/scripts/check.sh
 
@@ -82,6 +86,9 @@ jobs:
 
       - name: Build locked catalogue connector image
         run: docker build --tag enki-catalog-knowledge:ci companies/enki-hogar-ai-os/connectors/catalog-knowledge
+
+      - name: Build locked content publisher connector image
+        run: docker build --tag enki-content-publisher:ci companies/enki-hogar-ai-os/connectors/content-publisher
 
       - name: Start isolated pgvector integration fixture
         run: |

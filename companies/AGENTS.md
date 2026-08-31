@@ -8,6 +8,7 @@ For every package:
 - Never commit credentials, tokens, customer PII, database identifiers, machine-specific paths, or a real `.env` file.
 - Keep imported agents and routines paused until the package smoke tests have passed.
 - Treat connector catalogs as deny-by-default: new or mutating tools stay quarantined until a human reviews them.
+- For an intentionally approved external write, require an exact-tool Paperclip approval policy ahead of the global block, a connector-side kill switch, stable idempotency, a durable uncertainty journal, least-privilege provider credentials, and a documented rollback. Never expose a generic mutation surface.
 - Keep company-owned connector storage separate from Paperclip's database. Its migrations, volumes, backup/restore path, and lifecycle CLI belong inside the package; do not add company data to `packages/db`.
 - Give agents only least-privilege query credentials. Import, archive, restore, reindex, purge, and other storage administration remain operator-only and must not appear in an agent MCP catalog.
 - Run the package's own validation, secret scan, and tests before import or promotion.

@@ -122,5 +122,36 @@ services:
     ports:
       - "127.0.0.1:${SUPPORT_MCP_PORT_HOST:-8030}:8030"
 
+  enki-content-publisher:
+    build:
+      context: ../companies/enki-hogar-ai-os/connectors/content-publisher
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      CONTENT_PUBLISHER_MCP_TOKEN: "${CONTENT_PUBLISHER_MCP_TOKEN:?CONTENT_PUBLISHER_MCP_TOKEN is required}"
+      CONTENT_PUBLISHER_MCP_HOST: "0.0.0.0"
+      CONTENT_PUBLISHER_MCP_PORT: "8040"
+      CONTENT_PUBLISH_WRITE_MODE: "${CONTENT_PUBLISH_WRITE_MODE:-disabled}"
+      CONTENT_PUBLISH_LEDGER_PATH: "/data/publication-ledger.json"
+      WORDPRESS_BASE_URL: "${WORDPRESS_BASE_URL:-}"
+      WORDPRESS_USERNAME: "${WORDPRESS_USERNAME:-}"
+      WORDPRESS_APP_PASSWORD: "${WORDPRESS_APP_PASSWORD:-}"
+      META_GRAPH_API_VERSION: "${META_GRAPH_API_VERSION:-}"
+      META_GRAPH_BASE_URL: "${META_GRAPH_BASE_URL:-https://graph.facebook.com}"
+      META_INSTAGRAM_GRAPH_BASE_URL: "${META_INSTAGRAM_GRAPH_BASE_URL:-}"
+      META_GRAPH_ACCESS_TOKEN: "${META_GRAPH_ACCESS_TOKEN:-}"
+      META_FACEBOOK_PAGE_ID: "${META_FACEBOOK_PAGE_ID:-}"
+      META_INSTAGRAM_USER_ID: "${META_INSTAGRAM_USER_ID:-}"
+    volumes:
+      - enki-content-publication-journal:/data
+    ports:
+      - "127.0.0.1:${CONTENT_PUBLISHER_MCP_PORT_HOST:-8040}:8040"
+
 volumes:
   enki-product-support-db-data:
+  enki-content-publication-journal:

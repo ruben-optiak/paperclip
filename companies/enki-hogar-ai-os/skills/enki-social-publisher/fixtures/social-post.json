@@ -1,0 +1,11 @@
+{
+  "channel": "instagram",
+  "issue": "ENK-FIXTURE",
+  "document_key": "content-draft",
+  "revision": "1",
+  "idempotency_key": "ENK-FIXTURE:content-draft:1",
+  "image_url": "https://www.example.invalid/enki-fixture.jpg",
+  "caption": "Copy de fixture sin afirmaciones comerciales reales.",
+  "alt_text": "Espejo de baño de ejemplo sobre una pared clara",
+  "status": "draft_not_published"
+}

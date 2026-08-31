@@ -21,7 +21,7 @@ scan() {
 }
 
 scan "private key material" '-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----'
-scan "provider token" '(?:sk-(?:proj-|ant-)?|ghp_|github_pat_|AIza|ya29\.)[A-Za-z0-9_\-]{16,}'
+scan "provider token" '(?:(?:sk-(?:proj-|ant-)?|ghp_|github_pat_|AIza|ya29\.)[A-Za-z0-9_\-]{16,}|\bEA[A-Za-z0-9]{40,}\b)'
 scan "JWT-like value" '\beyJ[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{16,}\.[A-Za-z0-9_-]{8,}\b'
 scan "machine-specific path" '(?:/Users/[A-Za-z0-9._/-]+|/home/[A-Za-z0-9._/-]+|[A-Za-z]:\\Users\\)'
 scan "database UUID" '\b[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\b'
