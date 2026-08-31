@@ -11,7 +11,7 @@ Run with all schedules paused and record evidence without secrets or PII.
 7. Brief: manually run complete, partial, stale, and outage fixtures. Missing or historical data remains visibly labelled.
 8. Publishing offline: WordPress `render` and legacy `sync --dry-run` work without credentials; legacy `sync` without dry-run fails.
 9. Publishing connector: with its kill switch `disabled`, `publisher_get_capabilities` reports all unconfigured providers without IDs or secrets; the remaining reads, including `wordpress_get_article`, either return bounded provider data or a clear `not configured` result, and all three write tools fail before any provider call. Verify the observed catalog is exactly nine tools and the three writes are classified write/non-destructive/idempotent. Simulate all three policy decisions through `/tools/policy/test` and require `decision=require_approval` without creating an action request.
-10. Governed draft canary: only after the previous gate passes, set `wordpress-drafts`, restart only `enki-content-publisher`, and request one synthetic uniquely slugged WordPress `draft` through Growth. Paperclip must show an exact-argument Board approval; rejection performs no write, approval creates one draft, and replay with the same key returns the same result without a second post. Delete the synthetic draft manually in WordPress after recording sanitized evidence. Keep Facebook and Instagram blocked until their own production canary is explicitly approved.
+10. Governed draft canary: only after the previous gate passes, set `wordpress-drafts`, restart only `enki-content-publisher`, and request one synthetic uniquely slugged WordPress `draft` through Growth. Paperclip must show an exact-argument Board approval; rejection performs no write, approval creates one draft, and replay with the same key returns the same result without a second post. Verify the result against WordPress, then immediately run `scripts/disable-local-publishing.mjs --env-file /path/to/untracked-enki.env` and recreate only `enki-content-publisher`. Delete the synthetic draft manually in WordPress after recording sanitized evidence. Keep Facebook and Instagram blocked until their own production canary is explicitly approved.
 11. Agents: Board can assign work directly to each specialist and the reporting tree still has one Director root.
 12. Gateways: there are exactly six active agent-scoped gateways, each uses its matching default-deny profile, every connection has zero installs, and there is no active `gateway_client` token. A tools-list decision matrix must equal each profile's allowlist.
 13. Budgets: company and all six agent monthly hard caps are explicit and positive; record only the decision evidence, not invented values in this package.
@@ -25,7 +25,7 @@ For terminal smoke evidence, write the Board verification before the agent moves
 
 ## Customer Experience zero-PII smoke
 
-The v0.5.0 Customer Experience gate is **deny**, not ask-first. Use a completely
+The v0.5.1 Customer Experience gate is **deny**, not ask-first. Use a completely
 synthetic case to verify classification and a clearly labelled unsent draft.
 Then verify from Board that:
 

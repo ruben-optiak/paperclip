@@ -1,5 +1,9 @@
 services:
   paperclip:
+    environment:
+      # Independent from BETTER_AUTH_SECRET. Paperclip signs the exact payload
+      # of every ask-first tool action with this key.
+      PAPERCLIP_TOOL_ACTION_SIGNING_SECRET: "${PAPERCLIP_TOOL_ACTION_SIGNING_SECRET:?PAPERCLIP_TOOL_ACTION_SIGNING_SECRET is required}"
     volumes:
       # Built on the host and installed from this container-visible path.
       # No Telegram secret is projected through Compose.

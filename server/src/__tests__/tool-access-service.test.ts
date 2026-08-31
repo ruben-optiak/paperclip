@@ -1530,8 +1530,11 @@ describeEmbeddedPostgres("tool access service", () => {
       id: "paperclip-tool-test",
       result: { content: [{ type: "text", text: "sent" }] },
     }));
+    const timeoutSpy = vi.spyOn(globalThis, "setTimeout");
     await gateway.approveActionRequest({ companyId: company.id, actionRequestId, actor: { userId } });
     expect(fetchMock).toHaveBeenCalled();
+    expect(timeoutSpy.mock.calls.some(([, delay]) => delay === 60_000)).toBe(true);
+    timeoutSpy.mockRestore();
 
     // 4. Status mutates into the completed result shape with the real response.
     const done = await request(app)

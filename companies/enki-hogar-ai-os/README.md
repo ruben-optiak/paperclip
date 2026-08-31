@@ -28,16 +28,16 @@ The workflow is hub-and-spoke with no Chief of Staff layer and with direct Board
 
 ## Safe local path
 
-1. Copy `.env.example` to an untracked environment file outside Git and fill only connector-side credentials. Keep publishing in `disabled` mode until its separate smoke gate passes. Leave all embedding fields empty unless intentionally configured. Store the Telegram token as a Paperclip Secret, never in `.env`.
+1. Copy `.env.example` to an untracked environment file outside Git, generate the independent Paperclip tool-action signing secret with the provided helper, and fill only connector-side credentials. Keep publishing in `disabled` mode until its separate smoke gate passes. Leave all embedding fields empty unless intentionally configured. Store the Telegram token as a Paperclip Secret, never in `.env`.
 2. Follow [local setup](runbooks/local-setup.md), beginning with a company export backup.
 3. Install the locked workspace and offline-test dependencies, then run `./companies/enki-hogar-ai-os/scripts/check.sh` before starting integrations. This also builds and tests the Telegram plugin.
-4. Build the import archive with `./companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.5.0.zip` and preview that exact ZIP with the current Paperclip CLI or UI before applying it.
+4. Build the import archive with `./companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.5.1.zip` and preview that exact ZIP with the current Paperclip CLI or UI before applying it.
 5. Keep all agents and routines paused while configuring connections and the six disabled agent-scoped gateways; never use connection installs for Enki. Reconcile the publisher with `scripts/reconcile-content-publisher.mjs --apply` only while its independent write mode is `disabled`.
 
 For a new disposable company, preview the generated ZIP rather than the source directory:
 
 ```sh
-npx paperclipai company import /tmp/enki-hogar-ai-os-v0.5.0.zip \
+npx paperclipai company import /tmp/enki-hogar-ai-os-v0.5.1.zip \
   --target new \
   --new-company-name "Enki Hogar AI OS preflight" \
   --dry-run
@@ -56,7 +56,7 @@ a full replace preview can legitimately plan those tasks as new and would
 duplicate operational history. The reviewed patch path is:
 
 ```sh
-pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.5.0.zip \
+pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.5.1.zip \
   --include agents,skills \
   --target existing \
   --company-id <company-id> \

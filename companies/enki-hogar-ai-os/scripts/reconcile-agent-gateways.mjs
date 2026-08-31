@@ -36,7 +36,7 @@ function gatewaySlug(gateway) {
   return gateway.slug ?? gateway.displaySlug ?? null;
 }
 
-function gatewayPayload(expected, agent, profile) {
+function gatewayPayload(expected, agent, profile, desiredStateVersion) {
   return {
     name: expected.name,
     slug: expected.slug,
@@ -48,7 +48,7 @@ function gatewayPayload(expected, agent, profile) {
     agentId: agent.id,
     metadata: {
       managedBy: "enki-hogar-ai-os",
-      desiredStateVersion: "0.5.0",
+      desiredStateVersion,
       agentSlug: expected.agentSlug,
     },
   };
@@ -198,7 +198,7 @@ export async function reconcileAgentGateways({apiUrl, companyId, token, applyDis
     const matches = state.gateways.filter((gateway) => gatewaySlug(gateway) === expected.slug);
     if (matches.length > 1) throw new Error(`Duplicate gateway slug: ${expected.slug}`);
     let gateway = matches[0] ?? null;
-    const payload = gatewayPayload(expected, agent, profile);
+    const payload = gatewayPayload(expected, agent, profile, desired.packageVersion);
     if (!gateway) {
       gateway = await api(`${companyPath}/tools/gateways`, {method: "POST", body: payload});
     } else if (gateway.profileId !== profile.id || gateway.agentId !== agent.id) {

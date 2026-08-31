@@ -16,12 +16,16 @@ npm --prefix companies/enki-hogar-ai-os/connectors/content-publisher ci --ignore
 companies/enki-hogar-ai-os/scripts/check.sh
 ```
 
-Create an environment file outside Git from `.env.example`. Generate fresh, independent bearer/database values and use a WooCommerce key whose permission is actually **Read**. Prepare ADC and the GSC OAuth token as described in [connections](connections.md). The product-support admin password, reader password and MCP bearer must all differ; leave optional embedding values empty for the initial lexical setup. Initialize the independent publishing bearer without printing it and keep the connector disabled:
+Create an environment file outside Git from `.env.example`. Generate fresh, independent bearer/database values and use a WooCommerce key whose permission is actually **Read**. Prepare ADC and the GSC OAuth token as described in [connections](connections.md). The product-support admin password, reader password and MCP bearer must all differ; leave optional embedding values empty for the initial lexical setup. Initialize Paperclip's exact-action signing secret and the independent publishing bearer without printing either value, then keep the connector disabled:
 
 ```sh
+node companies/enki-hogar-ai-os/scripts/init-local-control-plane-secrets.mjs \
+  --env-file /path/to/untracked-enki.env
 node companies/enki-hogar-ai-os/scripts/init-local-publishing-secrets.mjs \
   --env-file /path/to/untracked-enki.env
 ```
+
+The action-signing secret must differ from `BETTER_AUTH_SECRET`, `PAPERCLIP_AGENT_JWT_SECRET`, and every connector bearer. It is projected only into Paperclip. Rotating it invalidates approvals that are still pending, so drain or reject those approvals before rotation.
 
 Provider credentials are optional at startup. Add the WordPress/Meta values only after following the publishing section of the connections runbook; do not change `CONTENT_PUBLISH_WRITE_MODE=disabled` yet.
 
@@ -77,7 +81,7 @@ The extra Compose file also bind-mounts the built Telegram plugin read-only at `
 Build a fresh archive; the script validates the package and scans it for secrets before writing anything:
 
 ```sh
-companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.5.0.zip
+companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.5.1.zip
 ```
 
 Use the generated raw ZIP as the source. The current Paperclip CLI sends `.zip`
@@ -89,7 +93,7 @@ scripts.
 For an existing company, preview first:
 
 ```sh
-npx paperclipai company import /tmp/enki-hogar-ai-os-v0.5.0.zip \
+npx paperclipai company import /tmp/enki-hogar-ai-os-v0.5.1.zip \
   --target existing \
   --company-id <company-id> \
   --collision replace \
@@ -114,7 +118,7 @@ selective agent/skill patch and require `companyAction: none`, empty project and
 issue plans, six known agent updates, and exactly ten skills:
 
 ```sh
-pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.5.0.zip \
+pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.5.1.zip \
   --include agents,skills \
   --target existing \
   --company-id <company-id> \
@@ -148,7 +152,7 @@ Then run `scripts/check-runtime-drift.mjs --json` and require zero `routine_*` o
 
 ## 6. Configure and activate safely
 
-Follow [connections](connections.md), [product-support operations](catalog-knowledge.md), and the separate [Telegram gateway setup](connections.md#telegram-director-gateway), apply [the access matrix](../policies/access-matrix.md), and verify each agent's unique managed Codex home is authenticated. Keep MCP connection installs empty. With all MCP connections disabled and agents paused, run `scripts/reconcile-agent-gateways.mjs --apply-disabled`; this creates six agent-scoped gateways and leaves them disabled. Once the publisher sidecar is healthy in `disabled` mode and its bearer exists as a Paperclip Secret, run `scripts/reconcile-content-publisher.mjs --apply` with `PAPERCLIP_COMPANY_ID` and `PAPERCLIP_BOARD_TOKEN` in the operator environment. The script verifies the exact nine-tool catalog before adding permissions, installs the specific Board-approval policy ahead of the global block, quarantines future catalog drift and finishes with the full desired-state gate. Board must choose and configure a positive monthly hard cap for the company and for each of the six agents; this package deliberately does not invent euro values. Run the desired-state drift check before activation. It requires every agent cap to be positive, `managedMcpOnly: true`, six exact active gateways with no persistent client tokens, zero MCP installs, the exact publishing-approval policy before the global block, and both routines paused with disabled schedules. Activate one specialist's gateway and agent at a time and run [the smoke test](smoke-test.md). Keep `CONTENT_PUBLISH_WRITE_MODE=disabled` while validating read tools, then test `wordpress-drafts` separately before considering `approved`. Activate the Director only after specialists pass, then enable the Telegram plugin and run its dedicated smoke test. Manually executing both recurring tasks makes their schedules eligible for a later Board decision; it does not activate them. v0.5.0 deliberately keeps both routines and triggers paused, and enabling either without a matching versioned operational desired state is configuration drift.
+Follow [connections](connections.md), [product-support operations](catalog-knowledge.md), and the separate [Telegram gateway setup](connections.md#telegram-director-gateway), apply [the access matrix](../policies/access-matrix.md), and verify each agent's unique managed Codex home is authenticated. Keep MCP connection installs empty. With all MCP connections disabled and agents paused, run `scripts/reconcile-agent-gateways.mjs --apply-disabled`; this creates six agent-scoped gateways and leaves them disabled. Once the publisher sidecar is healthy in `disabled` mode and its bearer exists as a Paperclip Secret, run `scripts/reconcile-content-publisher.mjs --apply` with `PAPERCLIP_COMPANY_ID` and `PAPERCLIP_BOARD_TOKEN` in the operator environment. The script verifies the exact nine-tool catalog before adding permissions, installs the specific Board-approval policy ahead of the global block, quarantines future catalog drift and finishes with the full desired-state gate. Board must choose and configure a positive monthly hard cap for the company and for each of the six agents; this package deliberately does not invent euro values. Run the desired-state drift check before activation. It requires every agent cap to be positive, `managedMcpOnly: true`, six exact active gateways with no persistent client tokens, zero MCP installs, the exact publishing-approval policy before the global block, and both routines paused with disabled schedules. Activate one specialist's gateway and agent at a time and run [the smoke test](smoke-test.md). Keep `CONTENT_PUBLISH_WRITE_MODE=disabled` while validating read tools, then test `wordpress-drafts` separately before considering `approved`. Activate the Director only after specialists pass, then enable the Telegram plugin and run its dedicated smoke test. Manually executing both recurring tasks makes their schedules eligible for a later Board decision; it does not activate them. v0.5.1 deliberately keeps both routines and triggers paused, and enabling either without a matching versioned operational desired state is configuration drift.
 
 The versioned Codex arguments deliberately select the named `enki-readonly-network` profile, which extends `:read-only`, enables network access for Paperclip/MCP calls, and sets `features.use_legacy_landlock=true`; `dangerouslyBypassApprovalsAndSandbox` remains false. Docker's default seccomp policy blocks the unprivileged user namespaces required by Bubblewrap in the Quickstart container, while current Codex cannot project `workspace-write` onto its legacy Landlock backend. The read-only profile is representable by Landlock and was verified to allow the local health/API path while denying workspace writes. Do not combine it with `--sandbox`, or replace it with `privileged`, `SYS_ADMIN`, `seccomp=unconfined`, or `danger-full-access`.
 

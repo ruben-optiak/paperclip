@@ -29,6 +29,8 @@ node --check "$package_dir/scripts/reconcile-agent-gateways.mjs"
 node --check "$package_dir/scripts/reconcile-content-publisher.mjs"
 node --check "$package_dir/scripts/init-local-support-secrets.mjs"
 node --check "$package_dir/scripts/init-local-publishing-secrets.mjs"
+node --check "$package_dir/scripts/init-local-control-plane-secrets.mjs"
+node --check "$package_dir/scripts/disable-local-publishing.mjs"
 node --check "$package_dir/scripts/product-support/generate-enki-espejos.mjs"
 node --check "$package_dir/scripts/product-support/finalize-support-pack.mjs"
 node --test "$package_dir"/tests/*.test.mjs
@@ -46,7 +48,8 @@ echo "Reproducible import ZIP check passed."
 
 if command -v docker >/dev/null 2>&1; then
   compose_json="$build_check_dir/compose.json"
-  BETTER_AUTH_SECRET=validation-placeholder-not-a-secret \
+  BETTER_AUTH_SECRET=validation-auth-secret-not-for-runtime \
+  PAPERCLIP_TOOL_ACTION_SIGNING_SECRET=validation-tool-signing-secret-not-for-runtime \
     docker compose \
       --env-file "$package_dir/.env.example" \
       -f "$repo_dir/docker/docker-compose.quickstart.yml" \
@@ -110,6 +113,13 @@ for (const key of ["WORDPRESS_APP_PASSWORD", "META_GRAPH_ACCESS_TOKEN", "CONTENT
 }
 
 const paperclipMounts = config.services?.paperclip?.volumes ?? [];
+const paperclipEnvironment = config.services?.paperclip?.environment ?? {};
+if (paperclipEnvironment.PAPERCLIP_TOOL_ACTION_SIGNING_SECRET !== "validation-tool-signing-secret-not-for-runtime") {
+  throw new Error("Paperclip must receive the independently supplied tool-action signing secret");
+}
+if (paperclipEnvironment.PAPERCLIP_TOOL_ACTION_SIGNING_SECRET === paperclipEnvironment.BETTER_AUTH_SECRET) {
+  throw new Error("Tool-action signing and login/session secrets must be independent");
+}
 const telegramMount = paperclipMounts.find((mount) => mount.target === "/plugins/enki-telegram-gateway");
 const expectedTelegramSource = path.join(packageDir, "connectors/telegram-gateway");
 if (!telegramMount || path.resolve(telegramMount.source) !== path.resolve(expectedTelegramSource) || telegramMount.read_only !== true) {

@@ -4,11 +4,13 @@ Fecha: 2026-08-29
 Rama: `feat/enki-hogar-approach`
 Paquete: `companies/enki-hogar-ai-os/`
 Versión inicial: `0.1.0`
-Versión actual: `0.5.0`
+Versión actual: `0.5.1`
+
+> Este documento conserva la implementación y sus evidencias históricas. El estado actual, las prioridades y el siguiente trabajo se mantienen en el [backlog vivo de Enki Hogar AI OS](2026-08-31-enki-hogar-ai-os-backlog.md).
 
 ## Objetivo
 
-Entregar una definición reproducible `agentcompanies/v1` para operar Enki Hogar desde Paperclip con seis agentes, fuentes gobernadas y autonomía por defecto limitada a lectura, análisis y borradores. v0.5.0 añade únicamente tres publicaciones ask-first, con revisión exacta, aprobación Board, kill switch e idempotencia independientes. Las importaciones se hacen con agentes, heartbeats y rutinas pausados.
+Entregar una definición reproducible `agentcompanies/v1` para operar Enki Hogar desde Paperclip con seis agentes, fuentes gobernadas y autonomía por defecto limitada a lectura, análisis y borradores. v0.5.1 conserva únicamente tres publicaciones ask-first y endurece su operación con firma independiente de acciones exactas, timeout explícito de ejecución aprobada y restauración fail-safe del kill switch. Las importaciones se hacen con agentes, heartbeats y rutinas pausados.
 
 No se cambia la UI, el contrato de API, el esquema de base de datos ni las migraciones. Como excepciones de seguridad al alcance inicial, se endurece internamente el importador para asignar un `CODEX_HOME` gestionado y único por agente importado, se conserva la carga de proveedores Codex en ese home y el adaptador entrega los MCP gestionados con cabeceras HTTP válidas y delegación explícita de aprobación al gateway de Paperclip. El paquete portable no puede calcular esos paths porque los UUID se generan al importar.
 
@@ -31,6 +33,7 @@ No se cambia la UI, el contrato de API, el esquema de base de datos ni las migra
 - [x] Separación de licencia MIT para código/configuración y `LicenseRef-Enki-Hogar-Internal` para conocimiento de Enki.
 - [x] Artefacto ZIP determinista, allowlist de importación y workflow CI limitado a los paths de Enki y del hardening del importador.
 - [x] Gate automatizado de v0.5.0: paquete 44/44, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 16/16, plugin Telegram 13/13, diez skills válidas, ZIP reproducible y Compose combinado.
+- [x] Gate automatizado de v0.5.1: paquete 48/48, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 19/19, plugin Telegram 13/13, 126 pruebas del servicio de herramientas, typecheck TypeScript directo del servidor, ZIP reproducible y Compose combinado.
 - [x] Backup de la compañía local existente completado antes de las pruebas de activación.
 - [ ] Preflight del gateway en una compañía desechable con una sesión Board real.
 - [x] Importación local de v0.2.0 completada y topología verificada: 6 agentes, 8 skills, 4 proyectos, 9 tareas y 2 rutinas.
@@ -48,7 +51,7 @@ No se cambia la UI, el contrato de API, el esquema de base de datos ni las migra
 - [x] Smoke test con cuentas reales y activación individual: los cinco especialistas y el Director han superado el perímetro read-only/zero-PII; los informes del Director son operativamente `PARTIAL` porque declaran fuentes y decisiones todavía ausentes.
 - [x] Ejecución manual de Daily Brief y Weekly Review con un único run cada una, disposición terminal y restauración posterior del Director a `paused`.
 - [ ] Instalación/configuración del plugin Telegram en la instancia local y smoke con bot/IDs reales; el código y el mount están listos, pero la instancia todavía no tiene plugins instalados.
-- [ ] Activación de horarios — requiere decisión explícita de Board; el desired state de v0.5.0 mantiene ambas rutinas pausadas y sus triggers deshabilitados.
+- [ ] Activación de horarios — requiere decisión explícita de Board; el desired state de v0.5.1 mantiene ambas rutinas pausadas y sus triggers deshabilitados.
 
 El preview anterior de cinco agentes y siete skills queda superado por el hardening de v0.1.0 y no cuenta como evidencia de la versión actual.
 
@@ -136,6 +139,14 @@ Las incompatibilidades del core detectadas durante los smokes quedan corregidas.
 - WordPress y Meta siguen siendo la verdad de publicación; el content ledger es memoria derivada y nunca suplanta el estado live.
 - El import selectivo v0.5.0 conservó toda la historia operativa. El reconciliador versionado creó la conexión desde estado deshabilitado, validó primero el catálogo, aplicó después perfiles/política y terminó con drift cero. Una simulación independiente confirmó `require_approval` en las tres escrituras sin llamar a ningún proveedor.
 
+### Versión 0.5.1 — hardening operativo (2026-08-31)
+
+- Paperclip recibe un `PAPERCLIP_TOOL_ACTION_SIGNING_SECRET` generado localmente e independiente de auth, JWT y todos los bearers MCP; el valor nunca se imprime ni se guarda en Git.
+- Las ejecuciones procedentes de una aprobación ask-first en la pestaña de Test usan el mismo timeout explícito de 60 segundos que las ejecuciones aprobadas de agentes.
+- El operador dispone de un helper atómico e idempotente para devolver inmediatamente `CONTENT_PUBLISH_WRITE_MODE` a `disabled` tras cada canary.
+- El gate completo de v0.5.1 y las 126 pruebas del servicio de herramientas pasan; el `tsc --noEmit` directo del servidor también pasa. El wrapper global sigue necesitando `cargo` para compilar el runner Rust, limitación del host ya documentada y ajena a este diff.
+- La instancia conserva v0.5.0 como último import selectivo; v0.5.1 es el paquete fuente de hardening y requiere preview antes de cualquier import futuro.
+
 ## Organización
 
 El flujo es hub-and-spoke, sin Chief of Staff:
@@ -152,7 +163,7 @@ Board / usuario
 
 El Director es la única raíz compatible con el rol interno CEO de Paperclip, pero no obtiene autoridad de Board. El usuario puede asignar issues directamente a cualquier especialista. Ecommerce es owner del catálogo, stock, producto y evidencia de Merchant; Growth es owner de SEO, adquisición y oportunidades; Finance valida rentabilidad; Technology opera diagnósticos; CX produce únicamente borradores con contexto anonimizado.
 
-## Fronteras de autonomía v0.5.0
+## Fronteras de autonomía v0.5.1
 
 - Verde: lecturas autorizadas, análisis, comparativas, evidencias, delegación interna y borradores locales.
 - Amarillo: propuestas para incorporar una nueva fuente, herramienta, conexión, perfil, agente o rutina; requieren revisión Board antes de configurar nada.
@@ -204,9 +215,9 @@ Las pruebas de portabilidad cubren creación y actualización con homes Codex ge
 
 Los gates globales del monorepo no están verdes en este host por causas ajenas al diff: `pnpm -r typecheck` y `pnpm build` llegan al runner Rust y paran porque `cargo` no está instalado; `pnpm test:run` alcanza `workspace-runtime.test.ts`, donde la configuración global `commit.gpgsign=true` rompe los repos Git efímeros sin TTY. Deshabilitando esa firma solo para el proceso pasan 150/154; los cuatro casos restantes reproducen diferencias locales de macOS (`/var` frente a `/private/var`), un timeout y su conflicto de puerto derivado. No existe diff de esta rama en `workspace-runtime.ts` ni en su test. Los typechecks TypeScript directos de server/adapter y todos los tests que cubren este cambio sí pasan.
 
-El preview/import inicial, la autenticación Codex, el named-gateway smoke, los cinco pilotos de especialistas, los dos pilotos manuales del Director, la memoria editorial y el primer pack técnico real ya están completados. v0.5.0 quedó importada selectivamente y desplegada sobre Quickstart: Woo, Google, Product Support y Content Publisher están sanos; ENK-23 prueba el flujo live de variación más soporte técnico; y el publicador presenta catálogo/políticas/perfiles con drift cero pero mantiene `write_mode=disabled` y los tres proveedores sin configurar. Por tanto no se ha publicado nada. El prototipo v0.3.0 permanece superseded: no se carga un master comercial completo en PostgreSQL. Quedan los canaries separados de WordPress, Facebook e Instagram y la instalación/configuración del plugin Telegram con bot e identidades reales. La activación de horarios sigue siendo una decisión Board separada; hasta entonces el desired state y el estado observado mantienen agentes, rutinas y triggers pausados.
+El preview/import inicial, la autenticación Codex, el named-gateway smoke, los cinco pilotos de especialistas, los dos pilotos manuales del Director, la memoria editorial y el primer pack técnico real ya están completados. v0.5.0 quedó importada selectivamente y desplegada sobre Quickstart: Woo, Google, Product Support y Content Publisher están sanos; ENK-23 prueba el flujo live de variación más soporte técnico; y el publicador presenta catálogo/políticas/perfiles con drift cero y `write_mode=disabled`. v0.5.1 conserva esa topología y añade hardening local/control-plane; todavía no se ha importado como paquete. El prototipo v0.3.0 permanece superseded: no se carga un master comercial completo en PostgreSQL. Quedan los canaries separados de Facebook e Instagram y la instalación/configuración del plugin Telegram con bot e identidades reales. La activación de horarios sigue siendo una decisión Board separada; hasta entonces el desired state y el estado observado mantienen agentes, rutinas y triggers pausados.
 
-## GO/NO-GO v0.5.0
+## GO/NO-GO v0.5.1
 
 La arquitectura pasa a la siguiente fase solo si, de forma repetible:
 

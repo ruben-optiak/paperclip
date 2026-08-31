@@ -5,6 +5,7 @@
 - Keep FastMCP provider handoff configs mode `600` inside the connector's `/tmp` tmpfs. They must contain only the minimum environment for that provider and disappear when the container is removed.
 - Require actual read-only upstream roles in addition to tool filtering.
 - Protect every `/mcp` route with a bearer token; `/health` contains no account identifiers, tool output, credential status, or customer data.
+- Give Paperclip an independent `PAPERCLIP_TOOL_ACTION_SIGNING_SECRET`; never reuse `BETTER_AUTH_SECRET`, `PAPERCLIP_AGENT_JWT_SECRET`, or a connector bearer. Drain or reject pending approvals before rotating it because rotation invalidates their signatures.
 - Compare the observed tool catalog against `policies/tool-allowlist.yaml` after builds and upgrades.
 - Keep `list_google_ads_links` disabled at both proxy and profile layers; read-only operations that return PII are still prohibited.
 - Keep every customer-level access path absent from the v0.1.x connector catalog.

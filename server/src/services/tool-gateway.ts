@@ -4016,6 +4016,7 @@ export function createToolGatewayService(
         argumentsSummary,
         reasonCode: "approval_granted",
         matchedPolicyIds: invocation.matchedPolicyIds ?? [],
+        timeoutMs: APPROVED_EXECUTION_TIMEOUT_MS,
       });
       await reflectToolActionInteractionLifecycle({ actionRequestId, status: "executed" });
     } catch (err) {
