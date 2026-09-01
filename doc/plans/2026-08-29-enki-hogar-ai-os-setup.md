@@ -4,13 +4,13 @@ Fecha: 2026-08-29
 Rama: `feat/enki-hogar-approach`
 Paquete: `companies/enki-hogar-ai-os/`
 Versión inicial: `0.1.0`
-Versión actual: `0.6.0`
+Versión actual: `0.7.0`
 
 > Este documento conserva la implementación y sus evidencias históricas. El estado actual, las prioridades y el siguiente trabajo se mantienen en el [backlog vivo de Enki Hogar AI OS](2026-08-31-enki-hogar-ai-os-backlog.md).
 
 ## Objetivo
 
-Entregar una definición reproducible `agentcompanies/v1` para operar Enki Hogar desde Paperclip con seis agentes, fuentes gobernadas y autonomía por defecto limitada a lectura, análisis y borradores. v0.6.0 conserva únicamente tres publicaciones ask-first y añade planificación editorial trazable antes de redactar: investigación, shortlist, validación exacta, decisión Board aplicada a una nueva revisión, borrador, revisión y publicación. Las importaciones se hacen con agentes, heartbeats y rutinas pausados.
+Entregar una definición reproducible `agentcompanies/v1` para operar Enki Hogar desde Paperclip con seis agentes, fuentes gobernadas y autonomía por defecto limitada a lectura, análisis y borradores. v0.7.0 conserva únicamente tres publicaciones ask-first, exige planificación editorial trazable antes de redactar y añade aprendizaje gobernado después de publicar: feedback ligado a la revisión exacta, hipótesis congelada, retrospectivas a 7/28/90 días y promoción de reglas exclusivamente por Board. Las importaciones se hacen con agentes, heartbeats y rutinas pausados.
 
 No se cambia la UI, el contrato de API, el esquema de base de datos ni las migraciones. Como excepciones de seguridad al alcance inicial, se endurece internamente el importador para asignar un `CODEX_HOME` gestionado y único por agente importado, se conserva la carga de proveedores Codex en ese home y el adaptador entrega los MCP gestionados con cabeceras HTTP válidas y delegación explícita de aprobación al gateway de Paperclip. El paquete portable no puede calcular esos paths porque los UUID se generan al importar.
 
@@ -18,7 +18,7 @@ No se cambia la UI, el contrato de API, el esquema de base de datos ni las migra
 
 - [x] Paquete portable con `COMPANY.md`, `README.md`, `.paperclip.yaml`, licencias y procedencia.
 - [x] Seis agentes `codex_local`, una única raíz y contratos explícitos de ejecución, fuentes, handoffs y bloqueo.
-- [x] Once skills versionadas, incluidas `enki-brand-guardian`, `enki-product-support`, `enki-social-publisher` y `enki-editorial-planning`, con ejemplos y fixtures offline.
+- [x] Doce skills versionadas, incluidas `enki-brand-guardian`, `enki-product-support`, `enki-social-publisher`, `enki-editorial-planning` y `enki-editorial-learning`, con ejemplos y fixtures offline.
 - [x] Cuatro proyectos, once tareas iniciales y dos rutinas con triggers deshabilitados.
 - [x] Snapshot curado mediante allowlist, inventario con hashes y sincronización con escaneo de secretos.
 - [x] MCP WooCommerce autenticado, estrictamente GET y con seis herramientas sin pedidos individuales ni PII; incluye estructura live padre/variaciones con metadata allowlisted.
@@ -35,6 +35,7 @@ No se cambia la UI, el contrato de API, el esquema de base de datos ni las migra
 - [x] Gate automatizado de v0.5.0: paquete 44/44, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 16/16, plugin Telegram 13/13, diez skills válidas, ZIP reproducible y Compose combinado.
 - [x] Gate automatizado de v0.5.1: paquete 48/48, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 19/19, plugin Telegram 13/13, 126 pruebas del servicio de herramientas, typecheck TypeScript directo del servidor, ZIP reproducible y Compose combinado.
 - [x] Gate automatizado de v0.6.0: paquete 58/58, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 19/19, plugin Telegram 13/13, nueva skill validada oficialmente, ZIP reproducible y Compose combinado.
+- [x] Gate automatizado de v0.7.0: paquete 73/73, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 19/19, plugin Telegram 13/13, contratos Ajv estrictos, nueva skill validada oficialmente, ZIP reproducible y Compose combinado.
 - [x] Backup de la compañía local existente completado antes de las pruebas de activación.
 - [ ] Preflight del gateway en una compañía desechable con una sesión Board real.
 - [x] Importación local de v0.2.0 completada y topología verificada: 6 agentes, 8 skills, 4 proyectos, 9 tareas y 2 rutinas.
@@ -52,7 +53,7 @@ No se cambia la UI, el contrato de API, el esquema de base de datos ni las migra
 - [x] Smoke test con cuentas reales y activación individual: los cinco especialistas y el Director han superado el perímetro read-only/zero-PII; los informes del Director son operativamente `PARTIAL` porque declaran fuentes y decisiones todavía ausentes.
 - [x] Ejecución manual de Daily Brief y Weekly Review con un único run cada una, disposición terminal y restauración posterior del Director a `paused`.
 - [ ] Instalación/configuración del plugin Telegram en la instancia local y smoke con bot/IDs reales; el código y el mount están listos, pero la instancia todavía no tiene plugins instalados.
-- [ ] Activación de horarios — requiere decisión explícita de Board; el desired state de v0.6.0 mantiene ambas rutinas pausadas y sus triggers deshabilitados.
+- [ ] Activación de horarios — requiere decisión explícita de Board; el desired state de v0.7.0 mantiene ambas rutinas pausadas y sus triggers deshabilitados.
 
 El preview anterior de cinco agentes y siete skills queda superado por el hardening de v0.1.0 y no cuenta como evidencia de la versión actual.
 
@@ -157,6 +158,15 @@ Las incompatibilidades del core detectadas durante los smokes quedan corregidas.
 - El fixture saneado de `ENK-24` reproduce 3,75/3,60/2,60, conserva C1 solo como investigación y evita incluir UUID de base de datos o tratar el fixture como evidencia live.
 - Pasan 58 pruebas del paquete, 63 pruebas de conectores y 13 del plugin Telegram, además del validador oficial de skills, secretos, ZIP reproducible y Compose. La instancia sigue sin importar v0.6.0 y no se modificó su estado.
 
+### Versión 0.7.0 — feedback y aprendizaje editorial (2026-09-01)
+
+- `enki-editorial-learning` registra feedback humano y revisiones de agentes como observaciones no-PII ligadas al issue, documento, revisión y contenido exactos; una observación nunca modifica por sí sola una regla.
+- `publication-retrospective/v1` congela antes de publicar la hipótesis, baseline y plan de medición. Un draft canary no inicia el reloj; una publicación live usa el `published_at` del proveedor y ventanas naturales de 7, 28 y 90 días en `Europe/Madrid`.
+- Datos parciales, caídos o con volumen insuficiente quedan inconclusos y nunca se convierten en cero ni en éxito. Una afirmación de mejora exige como mínimo evidencia completa a 28 días y comparador explícito.
+- Solo Board puede promover una lección; debe elegir la mínima superficie portable, enlazar evidencias y añadir una regresión. Repetición exige al menos dos contenidos independientes, salvo riesgo alto/crítico demostrado.
+- Los contratos canónicos, mirrors, ejemplos, fixtures positivos/negativos y validador determinista pasan Ajv estricto y el validador oficial de skills.
+- Pasan 73 pruebas del paquete, 63 pruebas de conectores y 13 del plugin Telegram, además de secretos, ZIP reproducible y Compose. No se importó v0.7.0 ni se modificaron agentes, rutinas, WordPress o conectores live.
+
 ## Organización
 
 El flujo es hub-and-spoke, sin Chief of Staff:
@@ -173,13 +183,14 @@ Board / usuario
 
 El Director es la única raíz compatible con el rol interno CEO de Paperclip, pero no obtiene autoridad de Board. El usuario puede asignar issues directamente a cualquier especialista. Ecommerce es owner del catálogo, stock, producto y evidencia de Merchant; Growth es owner de SEO, adquisición y oportunidades; Finance valida rentabilidad; Technology opera diagnósticos; CX produce únicamente borradores con contexto anonimizado.
 
-## Fronteras de autonomía v0.6.0
+## Fronteras de autonomía v0.7.0
 
 - Verde: lecturas autorizadas, análisis, comparativas, evidencias, delegación interna y borradores locales.
 - Amarillo: propuestas para incorporar una nueva fuente, herramienta, conexión, perfil, agente o rutina; requieren revisión Board antes de configurar nada.
 - Naranja: solo `wordpress_upsert_post`, `facebook_publish_page_post` e `instagram_publish_image` pueden llegar a ask-first con el flujo editorial completo; campañas, precios, stock, emails, indexing, feeds y cualquier otra publicación/cambio web siguen bloqueados.
 - Rojo: PII, pedidos individuales, reembolsos, presupuestos, despliegues, secretos y operaciones masivas; bloqueado.
 - Cualquier herramienta MCP nueva queda en cuarentena hasta revisar catálogo, riesgo y política.
+- El feedback y las métricas pueden generar candidatos de aprendizaje, pero únicamente Board puede promoverlos a reglas versionadas con evidencia y prueba de regresión.
 - Importar/reindexar packs técnicos o purgar una versión completa superseded queda fuera de los agentes y solo existe en el CLI local del operador. No hay borrado por producto/serie/fila.
 
 ## Paquete fuente y backups
@@ -200,7 +211,7 @@ No se exige igualdad byte a byte entre ambos. La compatibilidad se demuestra med
 5. Arrancar Quickstart y `runtime/docker-compose.integrations.yml` bajo el mismo proyecto Compose.
 6. Comprobar `/health` para WooCommerce, GA4, GSC, Google Ads, product support y content publisher; este último debe iniciar con writes `disabled`.
 7. Construir el ZIP determinista con `scripts/build-import-zip.sh` y guardar el SHA-256.
-8. Ejecutar el preview del ZIP exacto por la ruta de transferencia CLI o por la UI sobre la compañía existente y exigir 6 agentes, 10 skills, 4 proyectos, 11 tareas, 2 rutinas y una raíz. En primera importación se exigen cero colisiones; en un parche solo se admiten reemplazos de entidades Enki conocidas.
+8. Ejecutar el preview del ZIP exacto por la ruta de transferencia CLI o por la UI sobre la compañía existente y exigir 6 agentes, 12 skills, 4 proyectos, 11 tareas, 2 rutinas y una raíz. En primera importación se exigen cero colisiones; en un parche solo se admiten reemplazos de entidades Enki conocidas.
 9. Importar con todo pausado y ejecutar en el host de Paperclip el kill switch documentado: `npx paperclipai routines disable-all --company-id <company-id> --json`.
 10. Configurar conexiones, perfiles y políticas siguiendo los runbooks; mantener installs MCP vacíos, reconciliar el Content Publisher con `scripts/reconcile-content-publisher.mjs --apply` para validar catálogo antes de permisos, aplicar la aprobación exacta de tres herramientas antes del bloqueo global, y reconciliar por API los seis gateways agent-scoped en estado disabled.
 11. Ejecutar el detector de drift y exigir resultado limpio antes de activar nada.
@@ -219,15 +230,15 @@ El gate del paquete es:
 companies/enki-hogar-ai-os/scripts/check.sh
 ```
 
-Incluye validación estructural, licencia/procedencia, allowlist, hashes, rutas, secretos, configuración de runtime, skills autocontenidas y sus mirrors byte a byte del conocimiento canónico, brief con datos completos/parciales/obsoletos/caídos, contratos de evidencia y métricas, políticas, drift, gateway MCP seguro, WordPress render/dry-run, MCP WooCommerce, content publisher, plugin Telegram, PII, idempotencia, deduplicación, paginación, errores, rate limits y Compose. CI construye las imágenes de conectores desde bases fijadas por digest.
+Incluye validación estructural, licencia/procedencia, allowlist, hashes, rutas, secretos, configuración de runtime, skills autocontenidas y sus mirrors byte a byte del conocimiento canónico, brief con datos completos/parciales/obsoletos/caídos, contratos de evidencia y métricas, feedback con revisión exacta, retrospectiva 7/28/90, promoción Board-only, políticas, drift, gateway MCP seguro, WordPress render/dry-run, MCP WooCommerce, content publisher, plugin Telegram, PII, idempotencia, deduplicación, paginación, errores, rate limits y Compose. CI construye las imágenes de conectores desde bases fijadas por digest.
 
 Las pruebas de portabilidad cubren creación y actualización con homes Codex gestionados por UUID, rechazo de overrides inseguros y export sin paths locales. Las pruebas del adaptador cubren que un home gestionado siga recibiendo la configuración de proveedores Codex. La autenticación de named gateways queda cubierta por 21 pruebas dirigidas del middleware y 51 pruebas del gateway, además del smoke real descrito arriba.
 
 Los gates globales del monorepo no están verdes en este host por causas ajenas al diff: `pnpm -r typecheck` y `pnpm build` llegan al runner Rust y paran porque `cargo` no está instalado; `pnpm test:run` alcanza `workspace-runtime.test.ts`, donde la configuración global `commit.gpgsign=true` rompe los repos Git efímeros sin TTY. Deshabilitando esa firma solo para el proceso pasan 150/154; los cuatro casos restantes reproducen diferencias locales de macOS (`/var` frente a `/private/var`), un timeout y su conflicto de puerto derivado. No existe diff de esta rama en `workspace-runtime.ts` ni en su test. Los typechecks TypeScript directos de server/adapter y todos los tests que cubren este cambio sí pasan.
 
-El preview/import inicial, la autenticación Codex, el named-gateway smoke, los cinco pilotos de especialistas, los dos pilotos manuales del Director, la memoria editorial y el primer pack técnico real ya están completados. v0.5.0 quedó importada selectivamente y desplegada sobre Quickstart: Woo, Google, Product Support y Content Publisher están sanos; ENK-23 prueba el flujo live de variación más soporte técnico; y el publicador presenta catálogo/políticas/perfiles con drift cero y `write_mode=disabled`. v0.6.0 conserva esa topología, incorpora el hardening 0.5.1 y añade el workflow editorial v2; todavía no se ha importado como paquete. El prototipo v0.3.0 permanece superseded: no se carga un master comercial completo en PostgreSQL. Quedan los canaries separados de Facebook e Instagram y la instalación/configuración del plugin Telegram con bot e identidades reales. La activación de horarios sigue siendo una decisión Board separada; hasta entonces el desired state y el estado observado mantienen agentes, rutinas y triggers pausados.
+El preview/import inicial, la autenticación Codex, el named-gateway smoke, los cinco pilotos de especialistas, los dos pilotos manuales del Director, la memoria editorial y el primer pack técnico real ya están completados. v0.5.0 quedó importada selectivamente y desplegada sobre Quickstart: Woo, Google, Product Support y Content Publisher están sanos; ENK-23 prueba el flujo live de variación más soporte técnico; y el publicador presenta catálogo/políticas/perfiles con drift cero y `write_mode=disabled`. v0.7.0 conserva esa topología, incorpora el hardening 0.5.1, el workflow editorial v2 y el ciclo de aprendizaje gobernado; todavía no se ha importado como paquete. El prototipo v0.3.0 permanece superseded: no se carga un master comercial completo en PostgreSQL. Quedan la reconciliación de medición, los canaries separados de Facebook e Instagram y la instalación/configuración del plugin Telegram con bot e identidades reales. La activación de horarios sigue siendo una decisión Board separada; hasta entonces el desired state y el estado observado mantienen agentes, rutinas y triggers pausados.
 
-## GO/NO-GO v0.6.0
+## GO/NO-GO v0.7.0
 
 La arquitectura pasa a la siguiente fase solo si, de forma repetible:
 
@@ -241,6 +252,7 @@ La arquitectura pasa a la siguiente fase solo si, de forma repetible:
 8. Un pack nuevo supersede atómicamente al anterior y el purge solo acepta la versión completa superseded tras preview sin cambios.
 9. En modo `disabled`, las tres escrituras fallan antes del proveedor; el canary `wordpress-drafts` no duplica al repetir la misma idempotency key y Facebook/Instagram permanecen bloqueados hasta canaries separados.
 10. Todo contenido pasa por un `editorial-brief` versionado: Ecommerce valida el fingerprint exacto, los scores se recalculan y la decisión Board se aplica en una revisión posterior antes de abrir `content-draft`.
+11. Todo contenido live conserva hipótesis y plan prepublicación, retrospectiva 7/28/90 y feedback ligado a revisiones exactas; ninguna observación o métrica cambia skills, contratos o runbooks sin decisión Board, evidencia y regresión.
 
 Hasta superar este hito no se añaden Merchant Center live, formatos sociales adicionales, media upload, pricing ni mayor autonomía.
 

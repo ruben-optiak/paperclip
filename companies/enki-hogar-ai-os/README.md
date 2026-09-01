@@ -6,7 +6,7 @@ Portable `agentcompanies/v1` package for running a read-first, approval-gated En
 
 - Six `codex_local` agents and their execution contracts.
 - Four initial projects, eleven bootstrap tasks, and two paused routines.
-- Eleven domain skills with examples and offline fixtures, including decision-gated editorial planning.
+- Twelve domain skills with examples and offline fixtures, including decision-gated editorial planning and human-governed learning.
 - Curated, non-secret Enki knowledge with an allowlisted sync process.
 - A read-only WooCommerce MCP with live parent/variation inspection, pinned Google MCP runtime, audited Telegram gateway plugin, isolated PostgreSQL/pgvector product-support projection, and a governed WordPress/Facebook/Instagram publisher.
 - Desired connection policy, six agent-scoped managed gateways, security controls, tests, and promotion runbooks.
@@ -17,9 +17,9 @@ Instance data, Paperclip database rows, Codex homes, OAuth material, API credent
 
 | Agent | Reports to | Primary skills |
 | --- | --- | --- |
-| Director de Operaciones de Enki | organizational root | daily brief, change control, unit economics, support coverage, editorial planning |
+| Director de Operaciones de Enki | organizational root | daily brief, change control, unit economics, support coverage, editorial planning and learning governance |
 | Ecommerce & Catalogue Manager | Director | catalogue QA and technical product support, brand guardian, editorial candidate validation, daily brief, change control |
-| Growth Manager | Director | SEO/SEM, editorial research and shortlist, technical product support, brand guardian, WordPress and social publishing requests |
+| Growth Manager | Director | SEO/SEM, editorial research, shortlist, 7/28/90-day learning, technical product support, brand guardian, WordPress and social publishing requests |
 | Finance & BI Manager | Director | unit economics, daily brief |
 | Technology Manager | Director | change control, connector diagnosis and support coverage, daily brief, brand guardian when drafting customer-facing text |
 | Customer Experience Manager | Director | customer care, technical product facts, brand guardian, change control |
@@ -31,13 +31,13 @@ The workflow is hub-and-spoke with no Chief of Staff layer and with direct Board
 1. Copy `.env.example` to an untracked environment file outside Git, generate the independent Paperclip tool-action signing secret with the provided helper, and fill only connector-side credentials. Keep publishing in `disabled` mode until its separate smoke gate passes. Leave all embedding fields empty unless intentionally configured. Store the Telegram token as a Paperclip Secret, never in `.env`.
 2. Follow [local setup](runbooks/local-setup.md), beginning with a company export backup.
 3. Install the locked workspace and offline-test dependencies, then run `./companies/enki-hogar-ai-os/scripts/check.sh` before starting integrations. This also builds and tests the Telegram plugin.
-4. Build the import archive with `./companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.6.0.zip` and preview that exact ZIP with the current Paperclip CLI or UI before applying it.
+4. Build the import archive with `./companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.7.0.zip` and preview that exact ZIP with the current Paperclip CLI or UI before applying it.
 5. Keep all agents and routines paused while configuring connections and the six disabled agent-scoped gateways; never use connection installs for Enki. Reconcile the publisher with `scripts/reconcile-content-publisher.mjs --apply` only while its independent write mode is `disabled`.
 
 For a new disposable company, preview the generated ZIP rather than the source directory:
 
 ```sh
-npx paperclipai company import /tmp/enki-hogar-ai-os-v0.6.0.zip \
+npx paperclipai company import /tmp/enki-hogar-ai-os-v0.7.0.zip \
   --target new \
   --new-company-name "Enki Hogar AI OS preflight" \
   --dry-run
@@ -56,7 +56,7 @@ a full replace preview can legitimately plan those tasks as new and would
 duplicate operational history. The reviewed patch path is:
 
 ```sh
-pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.6.0.zip \
+pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.7.0.zip \
   --include agents,skills \
   --target existing \
   --company-id <company-id> \
@@ -69,7 +69,7 @@ pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.6.0.zip \
 
 Paperclip can assign Board work directly to any specialist even though specialists report to the Director.
 
-Paperclip issues, comments, documents and work products are durable operational history, but they are not all injected into each heartbeat. Editorial work therefore uses explicit company search, a versioned content ledger and a seven-stage brief contract. Growth, Ecommerce and Board stay aligned on one candidate fingerprint, and Board decisions must be applied in a newer brief before drafting. WordPress/Meta remain live publication truth. See [context and editorial memory](runbooks/context-memory.md).
+Paperclip issues, comments, documents and work products are durable operational history, but they are not all injected into each heartbeat. Editorial work therefore uses explicit company search, a versioned content ledger, a seven-stage brief contract, exact feedback and publication retrospectives. Growth, Ecommerce and Board stay aligned on one candidate fingerprint; Board decisions must be applied in a newer brief before drafting, and lessons require a separate Board promotion. WordPress/Meta remain live publication truth. See [context and editorial memory](runbooks/context-memory.md).
 
 There are three intentionally separate product data paths. WooCommerce live is the sole authority for what is currently sold, its parent/variation structure, price and stock. Bulk audits use fresh complete Woo exports in the `enki-hogar` pipeline. The separate database is only a rebuildable projection of approved technical facts, explicit compatibility, configuration semantics, support text and SKU crosswalks, queried through eight read-only tools. See [product-support operations](runbooks/catalog-knowledge.md).
 

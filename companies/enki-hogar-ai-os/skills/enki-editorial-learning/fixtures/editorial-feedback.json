@@ -1,0 +1,73 @@
+{
+  "schema": "enki-editorial-feedback/v1",
+  "timezone": "Europe/Madrid",
+  "generated_at": "2026-09-01T12:00:00+02:00",
+  "provenance": {
+    "kind": "sanitized_fixture",
+    "sourceIssue": "ENK-FIXTURE",
+    "authority": "recorded_observation_not_automatic_rule"
+  },
+  "revision": {
+    "revisionId": "feedback-r2",
+    "revisionNumber": 2,
+    "supersedesRevisionId": "feedback-r1"
+  },
+  "observations": [
+    {
+      "feedbackKey": "board-opening-clarity",
+      "recordedAt": "2026-08-19T16:00:00+02:00",
+      "source": {
+        "actorType": "board",
+        "actorRef": "board",
+        "sourceKind": "board_comment",
+        "sourceRef": "ENK-FIXTURE:comment-board-1"
+      },
+      "subject": {
+        "contentKey": "fixture-blog-storage-guide",
+        "stage": "draft",
+        "artifact": {"issueKey": "ENK-FIXTURE", "documentKey": "content-draft", "revisionId": "draft-r3"},
+        "publication": null
+      },
+      "category": "editorial_quality",
+      "sentiment": "mixed",
+      "severity": "medium",
+      "observation": "La apertura tarda demasiado en responder a la duda principal.",
+      "suggestedChange": "Responder primero y mover el contexto secundario después.",
+      "evidenceRefs": [
+        {"source": "paperclip", "reference": "ENK-FIXTURE:content-draft:draft-r3", "fetchedAt": "2026-08-19T16:00:00+02:00", "periodStart": null, "periodEnd": null, "status": "ok"}
+      ],
+      "piiStatus": "none_or_anonymized",
+      "status": "triaged",
+      "lessonCandidate": true,
+      "supersedesFeedbackKey": null
+    },
+    {
+      "feedbackKey": "agent-claim-evidence",
+      "recordedAt": "2026-08-19T17:00:00+02:00",
+      "source": {
+        "actorType": "agent",
+        "actorRef": "ecommerce-catalogue-manager",
+        "sourceKind": "agent_review",
+        "sourceRef": "ENK-FIXTURE:content-review:review-r1"
+      },
+      "subject": {
+        "contentKey": "fixture-blog-storage-guide",
+        "stage": "review",
+        "artifact": {"issueKey": "ENK-FIXTURE", "documentKey": "content-review", "revisionId": "review-r1"},
+        "publication": null
+      },
+      "category": "factual_accuracy",
+      "sentiment": "negative",
+      "severity": "high",
+      "observation": "Una afirmación técnica no identifica fabricante, SKU ni evidencia aprobada.",
+      "suggestedChange": "Eliminar la afirmación o enlazarla a la ficha técnica aprobada exacta.",
+      "evidenceRefs": [
+        {"source": "product_support", "reference": "fixture-support-query", "fetchedAt": "2026-08-19T16:50:00+02:00", "periodStart": null, "periodEnd": null, "status": "partial"}
+      ],
+      "piiStatus": "none_or_anonymized",
+      "status": "triaged",
+      "lessonCandidate": true,
+      "supersedesFeedbackKey": null
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 Última actualización: 2026-09-01
 Rama de trabajo: `feat/enki-hogar-approach`
-Paquete actual: `companies/enki-hogar-ai-os/` (`0.6.0`)
+Paquete actual: `companies/enki-hogar-ai-os/` (`0.7.0`)
 
 ## Propósito
 
@@ -35,29 +35,28 @@ Snapshot comprobado el 2026-09-01:
 - No hay plugins instalados; Telegram sigue pendiente de instalación y smoke real.
 - Quedan seis issues bootstrap vigentes en backlog: `ENK-2`, `ENK-4`, `ENK-5`, `ENK-6`, `ENK-7` y `ENK-8`. `ENK-1` fue cancelado como onboarding obsoleto y `ENK-3` se cerró con evidencia de los smokes `ENK-9` a `ENK-15`.
 - `ENK-5` está bloqueado por `ENK-2`; `ENK-8` está bloqueado por `ENK-4`. Ninguno de los seis issues retenidos se movió a `todo`.
-- El workflow editorial v2 queda consolidado como paquete fuente `0.6.0`; la sincronización con el upstream actual sigue separada bajo `EAI-016`.
+- El workflow editorial v2 y su ciclo de feedback, retrospectiva 7/28/90 y aprendizaje Board-only quedan consolidados como paquete fuente `0.7.0`; la instancia aún conserva el último import selectivo y la sincronización con upstream sigue separada bajo `EAI-016`.
 - `EAI-002` quedó cerrado mediante `ENK-29`–`ENK-31`: el brief canónico de `ENK-24` es la revisión 7 y conserva C1 únicamente como prioridad de investigación, sin autorizar consolidación ni mutaciones externas.
 
 ## Orden inmediato
 
-1. Convertir las lecciones confirmadas en un workflow editorial v2.
-2. Versionar el ciclo de feedback y aprendizaje editorial.
-3. Solo después decidir la primera ejecución editorial real; C1 sigue siendo una investigación y no una consolidación preaprobada.
+1. Previsualizar e importar selectivamente `0.7.0` con agentes, rutinas y triggers pausados; verificar las doce skills sin ejecutar trabajo editorial.
+2. Reconciliar la medición GA4/GSC bajo `EAI-006` y declarar qué métricas editoriales son utilizables.
+3. Solo después solicitar una nueva decisión Board para la primera ejecución editorial real; C1 sigue siendo una investigación y no una consolidación preaprobada.
 
 ## Backlog priorizado
 
 | ID | Prioridad | Estado | Trabajo | Siguiente acción | Evidencia de cierre |
 | --- | --- | --- | --- | --- | --- |
-| `EAI-005` | P1 | NOW | Ciclo de feedback y aprendizaje | Definir `editorial-feedback` y `publication-retrospective` con feedback humano, revisiones de agentes, hipótesis y resultados a 7/28/90 días | Feedback queda ligado a contenido/revisión; las lecciones recurrentes pueden promoverse a skills/contratos con evidencia y tests |
-| `EAI-006` | P1 | READY | Reconciliar medición GA4 | Technology investiga la divergencia GA4/GSC, cobertura de páginas editoriales, consentimiento, eventos e ingresos; Growth documenta qué métricas son utilizables | Baseline de medición con fuentes, limitaciones y consultas reproducibles; se actualizan los contratos afectados |
-| `EAI-007` | P1 | BLOCKED | Primera ejecución editorial real | Tras `EAI-005` y una nueva decisión Board, decidir entre seguir investigando C1 o elegir otro tema no solapado; producir primero un borrador local y revisión exacta | Borrador y revisión versionados; si Board autoriza canary, WordPress crea un único draft idempotente y se verifica live |
+| `EAI-006` | P1 | NOW | Reconciliar medición GA4 | Technology investiga la divergencia GA4/GSC, cobertura de páginas editoriales, consentimiento, eventos e ingresos; Growth documenta qué métricas son utilizables | Baseline de medición con fuentes, limitaciones y consultas reproducibles; se actualizan los contratos afectados |
+| `EAI-007` | P1 | BLOCKED | Primera ejecución editorial real | Tras `EAI-006` y una nueva decisión Board, decidir entre seguir investigando C1 o elegir otro tema no solapado; producir primero un borrador local y revisión exacta | Borrador y revisión versionados; si Board autoriza canary, WordPress crea un único draft idempotente y se verifica live |
 | `EAI-008` | P1 | READY | Datos financieros mínimos | Ejecutar `ENK-2`; mantener `ENK-5` bloqueado hasta disponer del contrato de COGS, fiscalidad, transporte, comisiones, devoluciones y atribución | Contrato de fuentes financieras y lista explícita de métricas disponibles/no disponibles |
 | `EAI-009` | P1 | READY | Telegram local | Instalar el plugin, crear secret-ref del bot, fijar user/chat allowlists y ejecutar el smoke bidireccional sin autoridad de aprobación | Mensaje autorizado crea issue/comentario atribuido; reporte llega al chat; PII y decisiones de aprobación siguen bloqueadas |
 | `EAI-010` | P2 | BLOCKED | Facebook e Instagram | Configurar credenciales y ejecutar canaries separados; no compartir aprobación ni estado de escritura con WordPress | Cada proveedor supera lectura, aprobación exacta, idempotencia y reconciliación live de forma independiente |
 | `EAI-011` | P2 | BLOCKED | Activar rutinas | Requiere backlog limpio, medición reconciliada y varios briefs/revisiones manuales aceptados por Board | Board habilita cada trigger por separado; primer run programado termina correctamente y no crea trabajo duplicado |
 | `EAI-012` | P2 | READY | Merchant Center | Ejecutar el `ENK-6` ya reespecificado: verificar la causa actual mediante fuente autorizada y preparar recuperación sin mutaciones automáticas | Diagnóstico fechado, evidencias, acciones humanas y criterios de recuperación; sin tratar DevDocs como estado real |
 | `EAI-013` | P2 | READY | Catálogo y soporte técnico | Ejecutar el `ENK-7` ya reespecificado: auditoría desde export Woo fresco y selección del siguiente pack técnico por marca/dominio; no usar IDs editoriales ni el resumen agregado como evidencia de producto | Mismatches reproducibles sin duplicar catálogo; pack aprobado e importable con ciclo de supersede/purge completo; las consultas live usan SKU/product ID Woo exacto |
-| `EAI-014` | P2 | READY | SEO y adquisición | Ejecutar primero `ENK-4`; después de reconciliar medición y aprobar `EAI-004`, ejecutar `ENK-8` con señales comparables | Backlog priorizado por impacto, confianza, esfuerzo y riesgo; consultas y periodos reproducibles |
+| `EAI-014` | P2 | READY | SEO y adquisición | Ejecutar primero `ENK-4`; después de reconciliar medición bajo `EAI-006`, ejecutar `ENK-8` con el workflow editorial v2 y señales comparables | Backlog priorizado por impacto, confianza, esfuerzo y riesgo; consultas y periodos reproducibles |
 | `EAI-015` | P3 | LATER | Promoción a producción | Elegir infraestructura, fijar tag/commit, digests OCI y SHA-256 del ZIP; probar import pausado, backup, restore, smoke y rollback | Todos los campos de `runtime/compatibility.lock.yaml` completos y evidencia de restauración/promoción |
 | `EAI-016` | P3 | LATER | Sincronización con upstream Paperclip | Probar periódicamente `upstream/master` en una rama de sync, resolver conflictos allí y ejecutar gates antes de integrar en Enki | Merge de upstream aislado, verificado y documentado; nunca se experimenta directamente sobre la rama operativa |
 
@@ -76,7 +75,7 @@ La reconciliación se aplicó mediante la API Board de Paperclip. Los seis agent
 
 ## Reglas del ciclo de feedback
 
-1. El feedback humano y de agentes se conserva primero como observación ligada al issue, documento y revisión exactos.
+1. El feedback humano y de agentes se conserva primero bajo `enki-editorial-feedback/v1` como observación ligada al issue, documento, revisión y contenido exactos.
 2. Los resultados publicados se comparan con la hipótesis original usando periodos cerrados a 7, 28 y 90 días cuando haya volumen suficiente.
 3. Una observación no se convierte automáticamente en regla. Se promueve si se repite, evita un riesgo grave o demuestra una mejora con evidencia.
 4. Una promoción modifica la mínima superficie adecuada: prompt/contrato, skill, fixture/eval, runbook o conector.
@@ -84,7 +83,7 @@ La reconciliación se aplicó mediante la API Board de Paperclip. Los seis agent
 
 ## No iniciar todavía
 
-- No redactar ni actualizar el contenido de `ENK-24` hasta cerrar `EAI-005` y obtener una nueva decisión Board explícita bajo el workflow v2; `EAI-002` no autorizó consolidación.
+- No redactar ni actualizar el contenido de `ENK-24` hasta cerrar `EAI-006` y obtener una nueva decisión Board explícita bajo el workflow v2; `EAI-002` no autorizó consolidación.
 - No habilitar triggers de rutinas.
 - No cambiar `CONTENT_PUBLISH_WRITE_MODE` fuera de un canary aprobado y acotado.
 - No configurar Facebook/Instagram como un único rollout conjunto.
@@ -92,6 +91,7 @@ La reconciliación se aplicó mediante la API Board de Paperclip. Los seis agent
 
 ## Registro de cerrados
 
+- 2026-09-01 — `EAI-005` completado: paquete fuente `0.7.0` con `enki-editorial-learning`, `enki-editorial-feedback/v1`, `enki-publication-retrospective/v1` y política de promoción humana. El feedback queda ligado a issue/documento/revisión/contenido exactos; el plan se congela antes del live, un draft no inicia el reloj y las ventanas son 7/28/90 días naturales. Datos parciales o insuficientes permanecen inconclusos. Solo Board puede promover la mínima regla portable con evidencia y regresión; repetición exige dos contenidos independientes y una mejora exige evidencia completa a 28 días con comparador. Pasan Ajv estricto, el validador oficial de skills, 73 pruebas del paquete, 63 de conectores, 13 del plugin Telegram, secretos, ZIP reproducible y Compose; no hubo import, runs ni mutaciones live.
 - 2026-09-01 — `EAI-004` completado: paquete fuente `0.6.0` con `enki-editorial-planning`, `enki-editorial-brief/v2` y workflow de siete etapas. El fixture saneado de `ENK-24` reproduce C1/C2/C3 como 3,75/3,60/2,60 y conserva C1 solo como investigación. Las pruebas rechazan IDs WordPress usados como identidad Woo, drift entre shortlist y validación, una decisión sobre otra revisión de Ecommerce, sumas manuales incorrectas y decisiones no aplicadas en una revisión posterior. Pasan el validador oficial de skills, el gate completo de 58 pruebas del paquete, 63 pruebas de conectores, 13 del plugin Telegram, secretos, ZIP reproducible y Compose; no hubo cambios live ni mutaciones externas.
 - 2026-09-01 — `EAI-002` completado: `ENK-30` Growth (`eai-002-growth-evidence` rev1 `1ad699cb-13b9-4215-802f-1883a86a2540`) cubrió 13/13 canonicals con GSC `page + query` y GA4 exacto y leyó 11/11 artículos; `ENK-31` Ecommerce (`eai-002-ecommerce-validation` rev2 `344e8375-ff1d-49ec-b29e-543da7a1028a`) validó el mismo shortlist y descartó correctamente los IDs editoriales como identidad Woo; `ENK-29` quedó `done` con resumen rev4 `1cc93f9d-03bb-4275-8e40-06fa8a3dafe8`. El brief canónico de `ENK-24` es rev7 `c70ff915-adde-4f80-b39f-a83e36fee9e7`: C1 permanece como prioridad de investigación, la canibalización SERP no está demostrada, las puntuaciones reproducibles son 3,75/3,60/2,60 y ninguna consolidación, redirección, desindexación, reescritura o publicación queda autorizada. Se verificaron cero llamadas a `wordpress_upsert_post`, write mode `disabled`, seis agentes y dos rutinas pausados y ambos triggers deshabilitados.
 - 2026-08-31 — `EAI-003` completado: paquete fuente `0.5.1` con secreto de firma independiente, cierre atómico del kill switch y timeout de 60 s para ejecuciones aprobadas; pasan el gate completo del paquete, 126 pruebas del servicio de herramientas y el typecheck TypeScript directo del servidor.

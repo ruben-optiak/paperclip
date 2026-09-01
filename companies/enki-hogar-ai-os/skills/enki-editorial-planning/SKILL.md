@@ -15,7 +15,8 @@ license: MIT AND LicenseRef-Enki-Hogar-Internal
 3. **Candidate validation — Ecommerce.** Valida la revisión y el fingerprint exactos, sin añadir ni omitir candidatos. Woo live prueba catálogo comercial; el pack técnico prueba solo hechos estables. Evidencia inaplicable o ausente es `not_applicable`/`partial`, no PASS inventado.
 4. **Board decision.** Presenta candidatos, puntuaciones recalculadas, riesgos, unknowns y decisión pedida. Solo Board decide sobre esa revisión exacta.
 5. **Decision application — Director/Growth.** Crea una revisión posterior de `editorial-brief` que incorpore decisión, condiciones y siguiente acción. La decisión no abre `draft` hasta que exista esa revisión nueva.
-6. **Draft → review → publish.** Growth crea `content-draft`; Ecommerce revisa esa revisión exacta; publicar sigue siendo otra aprobación Board sobre argumentos exactos e idempotencia.
+6. **Draft → review.** Growth crea `content-draft`; Ecommerce revisa esa revisión exacta.
+7. **Publish → learn.** Antes de una publicación live congela hipótesis y medición con `enki-editorial-learning`. Publicar sigue siendo otra aprobación Board sobre argumentos exactos e idempotencia; un draft canary no inicia los checkpoints.
 
 No avances una etapa dependiente en paralelo. Si falta el artefacto o no coincide el fingerprint, devuelve `BLOCKED / NOT VALIDATED`. Si el informe puede cerrarse con huecos explícitos, devuelve `PARTIAL` y crea seguimiento separado.
 

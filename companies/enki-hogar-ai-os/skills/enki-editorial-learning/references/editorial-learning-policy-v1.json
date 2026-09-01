@@ -1,0 +1,64 @@
+{
+  "schema": "enki-editorial-learning-policy/v1",
+  "timezone": "Europe/Madrid",
+  "documents": {
+    "feedback": {"documentKey": "editorial-feedback", "schema": "enki-editorial-feedback/v1"},
+    "retrospective": {"documentKey": "publication-retrospective", "schema": "enki-publication-retrospective/v1"}
+  },
+  "measurement": {
+    "clockSource": "live_provider_published_at",
+    "draftCanaryStartsClock": false,
+    "checkpointDays": [7, 28, 90],
+    "evaluateClosedWindowsOnly": true,
+    "missingIsZero": false,
+    "minimumVolumeFailureDisposition": "insufficient_volume_and_inconclusive",
+    "partialOrUnavailablePerformanceDisposition": "inconclusive",
+    "sourceAuthority": {
+      "publicationState": "wordpress_or_meta_live",
+      "search": "gsc",
+      "onsiteBehavior": "ga4",
+      "commerce": "woocommerce",
+      "paidMedia": "google_ads",
+      "decisionsAndFeedback": "paperclip"
+    }
+  },
+  "promotion": {
+    "automaticPromotion": false,
+    "decisionOwner": "board",
+    "minimalTargetRequired": true,
+    "allowedTargets": ["agent_contract", "skill", "contract", "fixture_eval", "runbook", "connector"],
+    "bases": {
+      "repeated_observation": {
+        "minimumIndependentContentItems": 2,
+        "requiresConsistentEvidence": true
+      },
+      "severe_risk": {
+        "minimumSeverity": "high",
+        "singleConfirmedObservationMayQualify": true,
+        "regressionTestRequired": true
+      },
+      "demonstrated_improvement": {
+        "minimumCheckpoint": "28d",
+        "completeMeasurementRequired": true,
+        "comparatorRequired": true
+      },
+      "measurement_fix": {
+        "mayUsePartialOrUnavailableEvidence": true,
+        "mayNotClaimPerformanceImprovement": true
+      }
+    },
+    "implementation": {
+      "versionedChangeRequired": true,
+      "evidenceReferencesRequired": true,
+      "testsRequired": true,
+      "liveMutationAuthority": false,
+      "supportsSupersededRules": true
+    }
+  },
+  "privacy": {
+    "rawPiiAllowed": false,
+    "audienceFeedback": "aggregate_or_anonymized_only",
+    "credentialsAllowed": false,
+    "rawAnalyticsPayloadsAllowed": false
+  }
+}

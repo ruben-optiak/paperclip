@@ -41,11 +41,21 @@
     "references/contracts/editorial-brief-v2.schema.json": [
       "skills/enki-editorial-planning/references/editorial-brief-v2.schema.json"
     ],
+    "references/contracts/editorial-feedback-v1.schema.json": [
+      "skills/enki-editorial-learning/references/editorial-feedback-v1.schema.json"
+    ],
+    "references/contracts/editorial-learning-policy-v1.json": [
+      "skills/enki-editorial-learning/references/editorial-learning-policy-v1.json"
+    ],
+    "references/contracts/publication-retrospective-v1.schema.json": [
+      "skills/enki-editorial-learning/references/publication-retrospective-v1.schema.json"
+    ],
     "references/contracts/product-support-result-v1.schema.json": [
       "skills/enki-product-support/references/product-support-result-v1.schema.json"
     ],
     "references/contracts/editorial-workflow-v2.json": [
       "skills/enki-brand-guardian/references/editorial-workflow-v2.json",
+      "skills/enki-editorial-learning/references/editorial-workflow-v2.json",
       "skills/enki-editorial-planning/references/editorial-workflow-v2.json",
       "skills/enki-seo-sem/references/editorial-workflow-v2.json"
     ],

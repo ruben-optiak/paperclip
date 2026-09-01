@@ -8,6 +8,7 @@ Paperclip stores durable work, but it does not inject the whole company history 
 | --- | --- | --- |
 | Stable rules | This package: agent contracts, skills and curated references | Brand, safety, schemas, metric definitions and historical baselines |
 | Operational history | Paperclip database: issues, comments, issue documents and work products | Decisions, briefs, drafts, reviews, approvals and handoffs |
+| Editorial feedback and learning | Paperclip documents `editorial-feedback` and `publication-retrospective` | Exact observations, frozen hypotheses, checkpoints, proposed/promoted/superseded lessons |
 | Published content | WordPress and Meta, read through approved connectors | Current post IDs, URLs, state and publication dates |
 | Demand and seasonality | WooCommerce, GA4, GSC and Google Ads | What sold, what was searched, channel performance and comparison periods |
 | Live commercial catalogue | WooCommerce | What is sold now: SKU, parent/variations, status, URL, price and stock |
@@ -41,8 +42,16 @@ Before proposing content, Growth must:
 4. **Board decision.** The Director presents the validated revision, computed totals, risks, unknowns and requested next step. Only Board records `accepted`, `accepted_with_conditions` or `rejected` against that exact revision. The decision itself grants no external-write authority.
 5. **Apply the decision.** Director or Growth creates a strictly newer `editorial-brief` revision that records the decision, conditions and next action. Until it exists, the decision gate is incomplete. `draft` remains forbidden unless Board explicitly selected it as the next stage.
 6. **Draft and review.** Growth creates `content-draft` only from the authorized post-decision brief. The Director then creates the Ecommerce review with the exact source issue, document key and revision. Ecommerce applies Brand Guardian; missing or inaccessible input is `BLOCKED / NOT REVIEWED`, never a zero-claim PASS.
-7. **Publish.** Growth may request publication only through the reviewed `content_publisher` tools with a stable issue/document/revision idempotency key. Paperclip binds a separate approval to the exact arguments; only Board approves. After connector success, Growth reconciles the ledger from the live response. An uncertain journal entry blocks retry until operator reconciliation.
+7. **Publish.** Before a live publication, Growth initializes `publication-retrospective` and freezes the hypothesis and measurement plan. Growth may request publication only through the reviewed `content_publisher` tools with a stable issue/document/revision idempotency key. Paperclip binds a separate approval to the exact arguments; only Board approves. After connector success, Growth reconciles the ledger and retrospective from the live response. A draft canary does not start the measurement clock; an uncertain journal entry blocks retry until operator reconciliation.
 
 Before each handoff, run the validator vendored with `enki-editorial-planning`. Its fixtures preserve the corrected `ENK-24` lessons without carrying live database identifiers: category/article identity separation, exact candidate alignment, deterministic score totals and a mandatory post-decision revision.
+
+## Feedback, outcomes and promoted learning
+
+Use `editorial-feedback` for observations from Board, agents, operators, anonymized audience patterns or platforms. Every observation points to the exact content lineage and revision it evaluates. It is not a replacement for `content-review`, and it never stores raw customer text, PII or analytics payloads.
+
+Use `publication-retrospective` for one content lineage. Freeze hypothesis, primary metric, baseline, comparison rule and limitations before the item is scheduled or published. WordPress/Meta live supplies the publication timestamp; checkpoints become eligible after 7, 28 and 90 local calendar days. Evaluate only closed windows. Missing data is not zero, insufficient volume is not failure, and partial/unavailable measurement cannot support a performance claim.
+
+A learning candidate can be promoted only when it repeats across independent content, prevents a confirmed high/critical risk, demonstrates improvement with a comparator and complete 28-day evidence, or fixes measurement without claiming performance. The Director presents the evidence; only Board decides. Implementation occurs later in the minimum versioned target with a regression test and may be `superseded`. Agents never edit the imported package from an operational run.
 
 Company search is retrieval, not automatic memory. Every content brief must name what was searched, the period covered, missing channels and the freshness of each source.

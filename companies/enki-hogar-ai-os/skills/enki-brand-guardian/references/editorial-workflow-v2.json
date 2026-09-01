@@ -15,6 +15,14 @@
     "decisionMustTargetExactValidationRevision": true,
     "decisionMustBeAppliedInNewerRevision": true
   },
+  "learningArtifacts": {
+    "feedback": {"documentKey": "editorial-feedback", "schema": "enki-editorial-feedback/v1"},
+    "retrospective": {"documentKey": "publication-retrospective", "schema": "enki-publication-retrospective/v1"},
+    "policy": "enki-editorial-learning-policy/v1",
+    "freezeHypothesisBeforeLivePublication": true,
+    "checkpointDaysAfterPublication": [7, 28, 90],
+    "automaticRulePromotionBlocked": true
+  },
   "stages": [
     {
       "key": "research",
@@ -83,7 +91,10 @@
       "connector": "content_publisher",
       "approvalOwner": "board",
       "requiresIdempotencyKey": true,
-      "requiresExactReviewedRevision": true
+      "requiresExactReviewedRevision": true,
+      "requiresRetrospectiveBeforeLivePublication": true,
+      "draftCanaryStartsMeasurementClock": false,
+      "measurementClockSource": "live_provider_published_at"
     }
   ],
   "invariants": [
@@ -92,6 +103,8 @@
     "Candidate validation uses the exact shortlist revision and fingerprint without additions or omissions.",
     "Scores are recomputed from declared weights; a typed total is not trusted.",
     "A Board decision does not complete the gate until a newer editorial-brief revision records it and the next action.",
-    "Planning, decisions and approvals do not authorize external writes; publishing remains a separate exact-argument approval."
+    "Planning, decisions and approvals do not authorize external writes; publishing remains a separate exact-argument approval.",
+    "Feedback is an observation, not a rule; promotion requires Board, evidence, a versioned target and regression tests.",
+    "Performance conclusions use closed 7/28/90-day windows; partial, unavailable or insufficient-volume evidence remains inconclusive."
   ]
 }

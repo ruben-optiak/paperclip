@@ -8,7 +8,7 @@ Run with all schedules paused and record evidence without secrets or PII.
 4. Zero-PII gate: customer lists and every customer-level query are absent from the connector catalog and access profiles.
 5. Product support: exact Woo SKU and manufacturer-reference resolution converge on the same technical entity; technical profile and evidence contain no price/stock; an explicit Chicandbath relation returns compatible while an absent relation returns `unknown`; configuration rules preserve variation/configurator/component/assisted-sale semantics without Cartesian expansion; coverage clearly says it is not Woo catalogue coverage.
 6. Google: Ads search, GA4 report, and GSC analytics query run with explicit periods. The observed GA4 catalog contains exactly six approved tools and excludes `list_google_ads_links`; any reappearance is quarantined because its upstream response contains an email field. Do not use production-changing queries.
-7. Brief: manually run complete, partial, stale, and outage fixtures. Missing or historical data remains visibly labelled.
+7. Brief and learning: manually run complete, partial, stale, and outage brief fixtures plus feedback/retrospective fixtures. Missing or historical data remains visibly labelled; a draft canary starts no clock, insufficient volume stays inconclusive, and no lesson is promoted without Board plus a regression test.
 8. Publishing offline: WordPress `render` and legacy `sync --dry-run` work without credentials; legacy `sync` without dry-run fails.
 9. Publishing connector: with its kill switch `disabled`, `publisher_get_capabilities` reports all unconfigured providers without IDs or secrets; the remaining reads, including `wordpress_get_article`, either return bounded provider data or a clear `not configured` result, and all three write tools fail before any provider call. Verify the observed catalog is exactly nine tools and the three writes are classified write/non-destructive/idempotent. Simulate all three policy decisions through `/tools/policy/test` and require `decision=require_approval` without creating an action request.
 10. Governed draft canary: only after the previous gate passes, set `wordpress-drafts`, restart only `enki-content-publisher`, and request one synthetic uniquely slugged WordPress `draft` through Growth. Paperclip must show an exact-argument Board approval; rejection performs no write, approval creates one draft, and replay with the same key returns the same result without a second post. Verify the result against WordPress, then immediately run `scripts/disable-local-publishing.mjs --env-file /path/to/untracked-enki.env` and recreate only `enki-content-publisher`. Delete the synthetic draft manually in WordPress after recording sanitized evidence. Keep Facebook and Instagram blocked until their own production canary is explicitly approved.
@@ -25,7 +25,7 @@ For terminal smoke evidence, write the Board verification before the agent moves
 
 ## Customer Experience zero-PII smoke
 
-The v0.6.0 Customer Experience gate is **deny**, not ask-first. Use a completely
+The v0.7.0 Customer Experience gate is **deny**, not ask-first. Use a completely
 synthetic case to verify classification and a clearly labelled unsent draft.
 Then verify from Board that:
 

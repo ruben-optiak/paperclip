@@ -81,7 +81,7 @@ The extra Compose file also bind-mounts the built Telegram plugin read-only at `
 Build a fresh archive; the script validates the package and scans it for secrets before writing anything:
 
 ```sh
-companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.6.0.zip
+companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.7.0.zip
 ```
 
 Use the generated raw ZIP as the source. The current Paperclip CLI sends `.zip`
@@ -93,7 +93,7 @@ scripts.
 For an existing company, preview first:
 
 ```sh
-npx paperclipai company import /tmp/enki-hogar-ai-os-v0.6.0.zip \
+npx paperclipai company import /tmp/enki-hogar-ai-os-v0.7.0.zip \
   --target existing \
   --company-id <company-id> \
   --collision replace \
@@ -104,7 +104,7 @@ npx paperclipai company import /tmp/enki-hogar-ai-os-v0.6.0.zip \
 Inspect the CLI or UI preview. For a first import into the assumed empty company, require zero collisions. For a version update, require collisions only for the known Enki entities being replaced and cancel on unrelated entities. In both cases require:
 
 - six agents and exactly one root;
-- eleven company skills;
+- twelve company skills;
 - four projects, eleven tasks, and two routines;
 - every agent and schedule paused.
 
@@ -115,10 +115,10 @@ do not apply that full preview if any bootstrap issue has action `create`.
 Historical imports do not always carry a portable task identity, and replacing
 the complete package can therefore duplicate the eleven bootstrap tasks. Use a
 selective agent/skill patch and require `companyAction: none`, empty project and
-issue plans, six known agent updates, and exactly eleven skills:
+issue plans, six known agent updates, and exactly twelve skills:
 
 ```sh
-pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.6.0.zip \
+pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.7.0.zip \
   --include agents,skills \
   --target existing \
   --company-id <company-id> \
@@ -152,7 +152,7 @@ Then run `scripts/check-runtime-drift.mjs --json` and require zero `routine_*` o
 
 ## 6. Configure and activate safely
 
-Follow [connections](connections.md), [product-support operations](catalog-knowledge.md), and the separate [Telegram gateway setup](connections.md#telegram-director-gateway), apply [the access matrix](../policies/access-matrix.md), and verify each agent's unique managed Codex home is authenticated. Keep MCP connection installs empty. With all MCP connections disabled and agents paused, run `scripts/reconcile-agent-gateways.mjs --apply-disabled`; this creates six agent-scoped gateways and leaves them disabled. Once the publisher sidecar is healthy in `disabled` mode and its bearer exists as a Paperclip Secret, run `scripts/reconcile-content-publisher.mjs --apply` with `PAPERCLIP_COMPANY_ID` and `PAPERCLIP_BOARD_TOKEN` in the operator environment. The script verifies the exact nine-tool catalog before adding permissions, installs the specific Board-approval policy ahead of the global block, quarantines future catalog drift and finishes with the full desired-state gate. Board must choose and configure a positive monthly hard cap for the company and for each of the six agents; this package deliberately does not invent euro values. Run the desired-state drift check before activation. It requires every agent cap to be positive, `managedMcpOnly: true`, six exact active gateways with no persistent client tokens, zero MCP installs, the exact publishing-approval policy before the global block, and both routines paused with disabled schedules. Activate one specialist's gateway and agent at a time and run [the smoke test](smoke-test.md). Keep `CONTENT_PUBLISH_WRITE_MODE=disabled` while validating read tools, then test `wordpress-drafts` separately before considering `approved`. Activate the Director only after specialists pass, then enable the Telegram plugin and run its dedicated smoke test. Manually executing both recurring tasks makes their schedules eligible for a later Board decision; it does not activate them. v0.6.0 deliberately keeps both routines and triggers paused, and enabling either without a matching versioned operational desired state is configuration drift.
+Follow [connections](connections.md), [product-support operations](catalog-knowledge.md), and the separate [Telegram gateway setup](connections.md#telegram-director-gateway), apply [the access matrix](../policies/access-matrix.md), and verify each agent's unique managed Codex home is authenticated. Keep MCP connection installs empty. With all MCP connections disabled and agents paused, run `scripts/reconcile-agent-gateways.mjs --apply-disabled`; this creates six agent-scoped gateways and leaves them disabled. Once the publisher sidecar is healthy in `disabled` mode and its bearer exists as a Paperclip Secret, run `scripts/reconcile-content-publisher.mjs --apply` with `PAPERCLIP_COMPANY_ID` and `PAPERCLIP_BOARD_TOKEN` in the operator environment. The script verifies the exact nine-tool catalog before adding permissions, installs the specific Board-approval policy ahead of the global block, quarantines future catalog drift and finishes with the full desired-state gate. Board must choose and configure a positive monthly hard cap for the company and for each of the six agents; this package deliberately does not invent euro values. Run the desired-state drift check before activation. It requires every agent cap to be positive, `managedMcpOnly: true`, six exact active gateways with no persistent client tokens, zero MCP installs, the exact publishing-approval policy before the global block, and both routines paused with disabled schedules. Activate one specialist's gateway and agent at a time and run [the smoke test](smoke-test.md). Keep `CONTENT_PUBLISH_WRITE_MODE=disabled` while validating read tools, then test `wordpress-drafts` separately before considering `approved`. Activate the Director only after specialists pass, then enable the Telegram plugin and run its dedicated smoke test. Manually executing both recurring tasks makes their schedules eligible for a later Board decision; it does not activate them. v0.7.0 deliberately keeps both routines and triggers paused, and enabling either without a matching versioned operational desired state is configuration drift.
 
 The versioned Codex arguments deliberately select the named `enki-readonly-network` profile, which extends `:read-only`, enables network access for Paperclip/MCP calls, and sets `features.use_legacy_landlock=true`; `dangerouslyBypassApprovalsAndSandbox` remains false. Docker's default seccomp policy blocks the unprivileged user namespaces required by Bubblewrap in the Quickstart container, while current Codex cannot project `workspace-write` onto its legacy Landlock backend. The read-only profile is representable by Landlock and was verified to allow the local health/API path while denying workspace writes. Do not combine it with `--sandbox`, or replace it with `privileged`, `SYS_ADMIN`, `seccomp=unconfined`, or `danger-full-access`.
 

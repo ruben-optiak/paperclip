@@ -1,0 +1,266 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:enki:publication-retrospective:v1",
+  "title": "Enki publication retrospective v1",
+  "description": "Versioned hypothesis, 7/28/90-day evidence and human-governed learning candidates for one exact content lineage. Cross-field gates are enforced by enki-editorial-learning/scripts/validate_editorial_learning.mjs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "timezone", "generated_at", "provenance", "lifecycle", "revision", "subject", "hypothesis", "baseline", "measurementPlan", "checkpoints", "feedbackRefs", "outcome", "learningCandidates", "promotionDecisions", "gates"],
+  "properties": {
+    "schema": {"const": "enki-publication-retrospective/v1"},
+    "timezone": {"const": "Europe/Madrid"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "sourceIssue", "authority"],
+      "properties": {
+        "kind": {"enum": ["operational", "sanitized_fixture"]},
+        "sourceIssue": {"type": ["string", "null"]},
+        "authority": {"const": "derived_analysis_not_live_source"}
+      }
+    },
+    "lifecycle": {"enum": ["initialized", "measuring", "closed", "superseded"]},
+    "revision": {"$ref": "#/$defs/revision"},
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contentKey", "planningBrief", "draft", "review", "publication"],
+      "properties": {
+        "contentKey": {"type": "string", "minLength": 1},
+        "planningBrief": {"$ref": "#/$defs/artifactRef"},
+        "draft": {"$ref": "#/$defs/artifactRef"},
+        "review": {"$ref": "#/$defs/artifactRef"},
+        "publication": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["channel", "externalId", "canonicalUrl", "status", "publishedAt", "publishedLocalDate", "liveVerifiedAt"],
+              "properties": {
+                "channel": {"enum": ["blog", "facebook", "instagram", "other"]},
+                "externalId": {"type": "string", "minLength": 1},
+                "canonicalUrl": {"type": ["string", "null"], "format": "uri"},
+                "status": {"enum": ["scheduled", "published", "archived"]},
+                "publishedAt": {"type": "string", "format": "date-time"},
+                "publishedLocalDate": {"type": "string", "format": "date"},
+                "liveVerifiedAt": {"type": "string", "format": "date-time"}
+              }
+            }
+          ]
+        }
+      }
+    },
+    "hypothesis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["frozenAt", "sourceBriefRevisionId", "statement", "audience", "primaryMetric", "expectedDirection", "decisionRule", "assumptions", "confounders"],
+      "properties": {
+        "frozenAt": {"type": "string", "format": "date-time"},
+        "sourceBriefRevisionId": {"type": "string", "minLength": 1},
+        "statement": {"type": "string", "minLength": 1},
+        "audience": {"type": "string", "minLength": 1},
+        "primaryMetric": {"enum": ["gsc_clicks", "gsc_impressions", "gsc_ctr", "ga4_sessions", "ga4_engaged_sessions", "ga4_key_events", "woocommerce_orders", "woocommerce_net_revenue", "social_reach", "social_engagement", "qualitative_only", "other"]},
+        "expectedDirection": {"enum": ["increase", "decrease", "maintain", "qualitative"]},
+        "decisionRule": {"type": "string", "minLength": 1},
+        "assumptions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "confounders": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "baseline": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "periodStart", "periodEnd", "sources", "warnings"],
+      "properties": {
+        "status": {"enum": ["complete", "partial", "unavailable", "not_applicable"]},
+        "periodStart": {"type": ["string", "null"], "format": "date"},
+        "periodEnd": {"type": ["string", "null"], "format": "date"},
+        "sources": {"type": "array", "items": {"$ref": "#/$defs/evidenceRef"}},
+        "warnings": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "measurementPlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["frozenAt", "checkpointDays", "minimumVolumeRule", "comparisonStrategy", "attributionLimitations"],
+      "properties": {
+        "frozenAt": {"type": "string", "format": "date-time"},
+        "checkpointDays": {
+          "type": "array",
+          "prefixItems": [{"const": 7}, {"const": 28}, {"const": 90}],
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "minimumVolumeRule": {"type": "string", "minLength": 1},
+        "comparisonStrategy": {"type": "string", "minLength": 1},
+        "attributionLimitations": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "checkpoints": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {"$ref": "#/$defs/checkpoint"}
+    },
+    "feedbackRefs": {"type": "array", "items": {"$ref": "#/$defs/feedbackRef"}, "uniqueItems": true},
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "evaluatedThrough", "summary", "confidence"],
+      "properties": {
+        "status": {"enum": ["pending", "supported", "not_supported", "mixed", "inconclusive"]},
+        "evaluatedThrough": {"enum": ["none", "7d", "28d", "90d"]},
+        "summary": {"type": "string"},
+        "confidence": {"enum": ["unknown", "low", "medium", "high"]}
+      }
+    },
+    "learningCandidates": {"type": "array", "items": {"$ref": "#/$defs/learningCandidate"}},
+    "promotionDecisions": {"type": "array", "items": {"$ref": "#/$defs/promotionDecision"}},
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["externalWritesBlocked", "automaticRulePromotionBlocked", "boardDecisionRequired", "rawPiiBlocked"],
+      "properties": {
+        "externalWritesBlocked": {"const": true},
+        "automaticRulePromotionBlocked": {"const": true},
+        "boardDecisionRequired": {"const": true},
+        "rawPiiBlocked": {"const": true}
+      }
+    }
+  },
+  "$defs": {
+    "revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revisionId", "revisionNumber", "supersedesRevisionId"],
+      "properties": {
+        "revisionId": {"type": "string", "minLength": 1},
+        "revisionNumber": {"type": "integer", "minimum": 1},
+        "supersedesRevisionId": {"type": ["string", "null"]}
+      }
+    },
+    "artifactRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issueKey", "documentKey", "revisionId"],
+      "properties": {
+        "issueKey": {"type": "string", "minLength": 1},
+        "documentKey": {"type": "string", "minLength": 1},
+        "revisionId": {"type": "string", "minLength": 1}
+      }
+    },
+    "evidenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "reference", "fetchedAt", "periodStart", "periodEnd", "status"],
+      "properties": {
+        "source": {"enum": ["paperclip", "wordpress", "facebook", "instagram", "woocommerce", "ga4", "gsc", "google_ads", "operator"]},
+        "reference": {"type": "string", "minLength": 1},
+        "fetchedAt": {"type": ["string", "null"], "format": "date-time"},
+        "periodStart": {"type": ["string", "null"], "format": "date"},
+        "periodEnd": {"type": ["string", "null"], "format": "date"},
+        "status": {"enum": ["ok", "partial", "unavailable", "not_applicable"]}
+      }
+    },
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "source", "value", "representation", "unit", "quality", "baselineValue", "comparisonNote"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "source": {"enum": ["woocommerce", "ga4", "gsc", "google_ads", "facebook", "instagram", "operator"]},
+        "value": {
+          "anyOf": [
+            {"type": "number"},
+            {"type": "string"},
+            {"type": "null"}
+          ]
+        },
+        "representation": {"enum": ["number", "decimal_string", "null"]},
+        "unit": {"enum": ["count", "ratio", "percent", "currency", "score", "qualitative"]},
+        "quality": {"enum": ["complete", "partial", "unavailable", "insufficient_volume", "not_applicable"]},
+        "baselineValue": {
+          "anyOf": [
+            {"type": "number"},
+            {"type": "string"},
+            {"type": "null"}
+          ]
+        },
+        "comparisonNote": {"type": "string", "minLength": 1}
+      }
+    },
+    "checkpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "daysAfterPublication", "eligibleOn", "evaluatedAt", "status", "periodStart", "periodEnd", "minimumVolumeMet", "sources", "metrics", "conclusion", "limitations"],
+      "properties": {
+        "key": {"enum": ["7d", "28d", "90d"]},
+        "daysAfterPublication": {"enum": [7, 28, 90]},
+        "eligibleOn": {"type": ["string", "null"], "format": "date"},
+        "evaluatedAt": {"type": ["string", "null"], "format": "date-time"},
+        "status": {"enum": ["pending", "complete", "partial", "unavailable", "insufficient_volume", "not_applicable"]},
+        "periodStart": {"type": ["string", "null"], "format": "date"},
+        "periodEnd": {"type": ["string", "null"], "format": "date"},
+        "minimumVolumeMet": {"type": ["boolean", "null"]},
+        "sources": {"type": "array", "items": {"$ref": "#/$defs/evidenceRef"}},
+        "metrics": {"type": "array", "items": {"$ref": "#/$defs/metric"}},
+        "conclusion": {"enum": ["pending", "supports", "does_not_support", "mixed", "inconclusive"]},
+        "limitations": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "feedbackRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issueKey", "documentKey", "revisionId", "feedbackKey"],
+      "properties": {
+        "issueKey": {"type": "string", "minLength": 1},
+        "documentKey": {"const": "editorial-feedback"},
+        "revisionId": {"type": "string", "minLength": 1},
+        "feedbackKey": {"type": "string", "minLength": 1}
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path"],
+      "properties": {
+        "kind": {"enum": ["agent_contract", "skill", "contract", "fixture_eval", "runbook", "connector"]},
+        "path": {"type": "string", "minLength": 1}
+      }
+    },
+    "learningCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["learningKey", "claim", "basis", "evidenceRefs", "independentContentKeys", "riskSeverity", "checkpointKeys", "comparatorRef", "proposedTarget", "status"],
+      "properties": {
+        "learningKey": {"type": "string", "pattern": "^[A-Za-z0-9._:-]+$"},
+        "claim": {"type": "string", "minLength": 1},
+        "basis": {"enum": ["repeated_observation", "severe_risk", "demonstrated_improvement", "measurement_fix"]},
+        "evidenceRefs": {"type": "array", "minItems": 1, "items": {"type": "string"}, "uniqueItems": true},
+        "independentContentKeys": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "riskSeverity": {"enum": ["none", "low", "medium", "high", "critical"]},
+        "checkpointKeys": {"type": "array", "items": {"enum": ["7d", "28d", "90d"]}, "uniqueItems": true},
+        "comparatorRef": {"type": ["string", "null"]},
+        "proposedTarget": {"$ref": "#/$defs/target"},
+        "status": {"enum": ["observed", "candidate", "proposed", "promoted", "rejected", "superseded"]}
+      }
+    },
+    "promotionDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["learningKey", "status", "decidedBy", "decidedAt", "rationale", "target", "requiredTests", "implementationRef", "supersedesRuleRef"],
+      "properties": {
+        "learningKey": {"type": "string", "minLength": 1},
+        "status": {"enum": ["pending", "accepted", "rejected", "implemented", "superseded"]},
+        "decidedBy": {"enum": ["board", null]},
+        "decidedAt": {"type": ["string", "null"], "format": "date-time"},
+        "rationale": {"type": "string"},
+        "target": {"$ref": "#/$defs/target"},
+        "requiredTests": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "implementationRef": {"type": ["string", "null"]},
+        "supersedesRuleRef": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

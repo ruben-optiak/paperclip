@@ -1,0 +1,110 @@
+{
+  "schema": "enki-editorial-learning-validation-cases/v1",
+  "baseFeedbackFixture": "editorial-feedback.json",
+  "baseRetrospectiveFixture": "publication-retrospective.json",
+  "validRepeatedPromotion": {
+    "candidate": {
+      "learningKey": "direct-answer-opening",
+      "claim": "Responder la duda principal en la apertura mejora de forma consistente la revisión editorial.",
+      "basis": "repeated_observation",
+      "evidenceRefs": ["feedback:content-a", "feedback:content-b"],
+      "independentContentKeys": ["content-a", "content-b"],
+      "riskSeverity": "none",
+      "checkpointKeys": [],
+      "comparatorRef": null,
+      "proposedTarget": {"kind": "skill", "path": "skills/enki-brand-guardian/SKILL.md"},
+      "status": "promoted"
+    },
+    "decision": {
+      "learningKey": "direct-answer-opening",
+      "status": "implemented",
+      "decidedBy": "board",
+      "decidedAt": "2026-09-01T13:00:00+02:00",
+      "rationale": "The pattern appears in two independent reviewed content items.",
+      "target": {"kind": "skill", "path": "skills/enki-brand-guardian/SKILL.md"},
+      "requiredTests": ["tests/editorial-learning.test.mjs"],
+      "implementationRef": "commit:fixture-learning-change",
+      "supersedesRuleRef": null
+    }
+  },
+  "cases": [
+    {
+      "name": "reject feedback without an exact subject revision",
+      "base": "feedback",
+      "operation": "set",
+      "path": ["observations", 0, "subject", "artifact", "revisionId"],
+      "value": "",
+      "expectedCode": "feedback.subject_revision"
+    },
+    {
+      "name": "reject checkpoint evaluation before eligibility",
+      "base": "retrospective",
+      "operation": "set",
+      "path": ["checkpoints", 0, "evaluatedAt"],
+      "value": "2026-08-26T09:00:00+02:00",
+      "expectedCode": "retrospective.early_evaluation"
+    },
+    {
+      "name": "reject success claimed with insufficient volume",
+      "base": "retrospective",
+      "operation": "set",
+      "path": ["checkpoints", 0, "conclusion"],
+      "value": "supports",
+      "expectedCode": "retrospective.insufficient_volume"
+    },
+    {
+      "name": "reject agent promotion",
+      "base": "promoted",
+      "operation": "set",
+      "path": ["promotionDecisions", 0, "decidedBy"],
+      "value": "growth-manager",
+      "expectedCode": "learning.board_decision"
+    },
+    {
+      "name": "reject one observation as repeated learning",
+      "base": "promoted",
+      "operation": "set",
+      "path": ["learningCandidates", 0, "independentContentKeys"],
+      "value": ["content-a"],
+      "expectedCode": "learning.repetition_insufficient"
+    },
+    {
+      "name": "reject performance promotion before complete 28d evidence",
+      "base": "retrospective",
+      "operation": "use_unproven_improvement",
+      "expectedCode": "learning.improvement_not_demonstrated"
+    },
+    {
+      "name": "reject non-portable promotion target",
+      "base": "promoted",
+      "operation": "set_both_targets",
+      "value": "../outside.md",
+      "expectedCode": "learning.target_path"
+    }
+  ],
+  "unprovenImprovement": {
+    "candidate": {
+      "learningKey": "performance-opening-improvement",
+      "claim": "The opening increased organic performance.",
+      "basis": "demonstrated_improvement",
+      "evidenceRefs": ["checkpoint:28d"],
+      "independentContentKeys": ["fixture-blog-storage-guide"],
+      "riskSeverity": "none",
+      "checkpointKeys": ["28d"],
+      "comparatorRef": "comparison:fixture-control",
+      "proposedTarget": {"kind": "skill", "path": "skills/enki-brand-guardian/SKILL.md"},
+      "status": "proposed"
+    },
+    "decision": {
+      "learningKey": "performance-opening-improvement",
+      "status": "accepted",
+      "decidedBy": "board",
+      "decidedAt": "2026-09-01T13:15:00+02:00",
+      "rationale": "Fixture must reject this because 28d is still pending.",
+      "target": {"kind": "skill", "path": "skills/enki-brand-guardian/SKILL.md"},
+      "requiredTests": ["tests/editorial-learning.test.mjs"],
+      "implementationRef": null,
+      "supersedesRuleRef": null
+    }
+  }
+}

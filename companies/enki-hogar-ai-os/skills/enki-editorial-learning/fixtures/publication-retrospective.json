@@ -1,0 +1,152 @@
+{
+  "schema": "enki-publication-retrospective/v1",
+  "timezone": "Europe/Madrid",
+  "generated_at": "2026-09-01T12:15:00+02:00",
+  "provenance": {
+    "kind": "sanitized_fixture",
+    "sourceIssue": "ENK-FIXTURE",
+    "authority": "derived_analysis_not_live_source"
+  },
+  "lifecycle": "measuring",
+  "revision": {
+    "revisionId": "retrospective-r2",
+    "revisionNumber": 2,
+    "supersedesRevisionId": "retrospective-r1"
+  },
+  "subject": {
+    "contentKey": "fixture-blog-storage-guide",
+    "planningBrief": {"issueKey": "ENK-FIXTURE", "documentKey": "editorial-brief", "revisionId": "brief-post-decision-r3"},
+    "draft": {"issueKey": "ENK-FIXTURE", "documentKey": "content-draft", "revisionId": "draft-r3"},
+    "review": {"issueKey": "ENK-FIXTURE", "documentKey": "content-review", "revisionId": "review-r1"},
+    "publication": {
+      "channel": "blog",
+      "externalId": "wp-post-fixture",
+      "canonicalUrl": "https://fixture.invalid/blog/storage-guide/",
+      "status": "published",
+      "publishedAt": "2026-08-20T08:00:00+02:00",
+      "publishedLocalDate": "2026-08-20",
+      "liveVerifiedAt": "2026-08-20T08:05:00+02:00"
+    }
+  },
+  "hypothesis": {
+    "frozenAt": "2026-08-19T18:00:00+02:00",
+    "sourceBriefRevisionId": "brief-post-decision-r3",
+    "statement": "Una respuesta más directa puede mejorar la captación orgánica sin crear solapamiento editorial.",
+    "audience": "Personas que comparan soluciones de almacenaje para baño",
+    "primaryMetric": "gsc_clicks",
+    "expectedDirection": "increase",
+    "decisionRule": "No concluir hasta tener una ventana cerrada, volumen mínimo y medición comparable.",
+    "assumptions": ["La URL permanece indexable durante la ventana"],
+    "confounders": ["Estacionalidad", "Cambios de ranking ajenos al contenido", "Divergencia GA4/GSC"]
+  },
+  "baseline": {
+    "status": "partial",
+    "periodStart": "2026-07-23",
+    "periodEnd": "2026-08-19",
+    "sources": [
+      {"source": "gsc", "reference": "fixture-gsc-baseline-query", "fetchedAt": "2026-08-19T18:00:00+02:00", "periodStart": "2026-07-23", "periodEnd": "2026-08-19", "status": "ok"},
+      {"source": "ga4", "reference": "fixture-ga4-baseline-query", "fetchedAt": "2026-08-19T18:05:00+02:00", "periodStart": "2026-07-23", "periodEnd": "2026-08-19", "status": "partial"}
+    ],
+    "warnings": ["GA4 and GSC coverage are not yet reconciled"]
+  },
+  "measurementPlan": {
+    "frozenAt": "2026-08-19T18:00:00+02:00",
+    "checkpointDays": [7, 28, 90],
+    "minimumVolumeRule": "At least ten comparable GSC clicks before a directional content conclusion.",
+    "comparisonStrategy": "Compare the exact canonical URL with an equal preceding period and retain source-specific definitions.",
+    "attributionLimitations": ["Traffic changes do not prove causality", "GA4 sessions and GSC clicks are not interchangeable"]
+  },
+  "checkpoints": [
+    {
+      "key": "7d",
+      "daysAfterPublication": 7,
+      "eligibleOn": "2026-08-27",
+      "evaluatedAt": "2026-08-28T09:00:00+02:00",
+      "status": "insufficient_volume",
+      "periodStart": "2026-08-20",
+      "periodEnd": "2026-08-26",
+      "minimumVolumeMet": false,
+      "sources": [
+        {"source": "gsc", "reference": "fixture-gsc-7d-query", "fetchedAt": "2026-08-28T08:45:00+02:00", "periodStart": "2026-08-20", "periodEnd": "2026-08-26", "status": "ok"},
+        {"source": "ga4", "reference": "fixture-ga4-7d-query", "fetchedAt": "2026-08-28T08:50:00+02:00", "periodStart": "2026-08-20", "periodEnd": "2026-08-26", "status": "partial"}
+      ],
+      "metrics": [
+        {"name": "gsc_clicks", "source": "gsc", "value": null, "representation": "null", "unit": "count", "quality": "insufficient_volume", "baselineValue": 4, "comparisonNote": "Observed sample is below the frozen minimum-volume rule."},
+        {"name": "ga4_sessions", "source": "ga4", "value": null, "representation": "null", "unit": "count", "quality": "partial", "baselineValue": 6, "comparisonNote": "Coverage warning prevents an authoritative comparison."}
+      ],
+      "conclusion": "inconclusive",
+      "limitations": ["Insufficient search volume", "GA4/GSC divergence remains unresolved"]
+    },
+    {
+      "key": "28d",
+      "daysAfterPublication": 28,
+      "eligibleOn": "2026-09-17",
+      "evaluatedAt": null,
+      "status": "pending",
+      "periodStart": "2026-08-20",
+      "periodEnd": "2026-09-16",
+      "minimumVolumeMet": null,
+      "sources": [],
+      "metrics": [],
+      "conclusion": "pending",
+      "limitations": []
+    },
+    {
+      "key": "90d",
+      "daysAfterPublication": 90,
+      "eligibleOn": "2026-11-18",
+      "evaluatedAt": null,
+      "status": "pending",
+      "periodStart": "2026-08-20",
+      "periodEnd": "2026-11-17",
+      "minimumVolumeMet": null,
+      "sources": [],
+      "metrics": [],
+      "conclusion": "pending",
+      "limitations": []
+    }
+  ],
+  "feedbackRefs": [
+    {"issueKey": "ENK-FIXTURE", "documentKey": "editorial-feedback", "revisionId": "feedback-r2", "feedbackKey": "board-opening-clarity"},
+    {"issueKey": "ENK-FIXTURE", "documentKey": "editorial-feedback", "revisionId": "feedback-r2", "feedbackKey": "agent-claim-evidence"}
+  ],
+  "outcome": {
+    "status": "inconclusive",
+    "evaluatedThrough": "7d",
+    "summary": "La primera ventana no alcanza volumen y la medición sigue parcial.",
+    "confidence": "low"
+  },
+  "learningCandidates": [
+    {
+      "learningKey": "measurement-ga4-gsc-coverage",
+      "claim": "La divergencia GA4/GSC debe corregirse antes de usar sesiones como confirmación del rendimiento editorial.",
+      "basis": "measurement_fix",
+      "evidenceRefs": ["checkpoint:7d", "baseline:ga4", "baseline:gsc"],
+      "independentContentKeys": ["fixture-blog-storage-guide"],
+      "riskSeverity": "medium",
+      "checkpointKeys": ["7d"],
+      "comparatorRef": null,
+      "proposedTarget": {"kind": "contract", "path": "references/metrics/metric-contracts.yaml"},
+      "status": "candidate"
+    }
+  ],
+  "promotionDecisions": [
+    {
+      "learningKey": "measurement-ga4-gsc-coverage",
+      "status": "pending",
+      "decidedBy": null,
+      "decidedAt": null,
+      "rationale": "Requires Technology investigation before a versioned change is proposed.",
+      "target": {"kind": "contract", "path": "references/metrics/metric-contracts.yaml"},
+      "requiredTests": [],
+      "implementationRef": null,
+      "supersedesRuleRef": null
+    }
+  ],
+  "gates": {
+    "externalWritesBlocked": true,
+    "automaticRulePromotionBlocked": true,
+    "boardDecisionRequired": true,
+    "rawPiiBlocked": true
+  }
+}

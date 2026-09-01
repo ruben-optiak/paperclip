@@ -22,6 +22,7 @@ del conector gobernado.
    el pack aprobado. No inventes tendencias ni disponibilidad.
 5. Guarda el copy completo y los assets/URLs en `content-draft`; obtén
    `content-review` para esa revisión exacta antes de solicitar publicación.
+6. Congela hipótesis, baseline, limitaciones y checkpoints en `publication-retrospective`; el reloj empieza únicamente con el timestamp live del proveedor.
 
 ## Publicación
 
@@ -32,7 +33,7 @@ del conector gobernado.
 - Usa `idempotency_key=<issue>:content-draft:<revision>` y conserva exactamente
   los argumentos revisados. La llamada debe quedar **Ask a human first** en la
   UI; Director y agentes no pueden aprobarla.
-- Tras éxito, actualiza el ledger desde la respuesta real. Si el conector marca
+- Tras éxito, actualiza el ledger y la retrospectiva desde la respuesta real. Si el conector marca
   resultado incierto, no repitas la llamada: Technology y el operador deben
   reconciliar el journal contra la plataforma live.
 

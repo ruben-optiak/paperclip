@@ -192,6 +192,7 @@ test("every imported skill is self-contained and its reference mirrors match can
     "enki-change-control",
     "enki-customer-care",
     "enki-daily-brief",
+    "enki-editorial-learning",
     "enki-editorial-planning",
     "enki-seo-sem",
     "enki-unit-economics",

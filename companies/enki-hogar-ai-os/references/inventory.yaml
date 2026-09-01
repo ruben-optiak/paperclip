@@ -109,7 +109,7 @@
     },
     {
       "target": "contracts/editorial-workflow-v2.json",
-      "targetSha256": "9517e621af5e902bc0de762a7efa7fc79d3cc33ad37c37aa4e65c478ec76e5da",
+      "targetSha256": "929524c000013b43ad8d326c0e87f037bad00ffed95510bf842a13747c1646e1",
       "origin": "package-authored",
       "license": "LicenseRef-Enki-Hogar-Internal",
       "purpose": "Seven-stage gate from dated research through exact-candidate validation, Board decision, draft, review and governed publication",
@@ -121,6 +121,30 @@
       "origin": "package-authored",
       "license": "LicenseRef-Enki-Hogar-Internal",
       "purpose": "Canonical planning artifact for typed candidate identity, evidence coverage, reproducible scoring and post-decision revision control",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/editorial-feedback-v1.schema.json",
+      "targetSha256": "795549a1dfe529cfcf0a7b3f3e086f50b80fbc2fe5b2d91c5f3f6118c1f520f3",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Canonical non-PII observations tied to exact editorial issues, documents and revisions",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/publication-retrospective-v1.schema.json",
+      "targetSha256": "b3b84e976feaf270b13c9e6c586dff15425d14b5e0eedc08178c064daf20536f",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Canonical frozen hypothesis, live publication lineage, 7/28/90-day checkpoints and promotion decisions",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/editorial-learning-policy-v1.json",
+      "targetSha256": "e6253c1ff63e40982629cfecdfa0b5f6400d17ea330cd5d311f6b98556726e52",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Human-only promotion thresholds for repeated observations, severe risk, demonstrated improvement and measurement fixes",
       "sensitivity": "enki_internal"
     },
     {

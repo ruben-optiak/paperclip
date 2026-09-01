@@ -22,11 +22,12 @@ esa barrera, leas variables de entorno ni llames directamente a WordPress.
 2. Guarda el borrador completo en el documento `content-draft` y fija su revisión.
 3. Obtén `content-review` de Ecommerce/Brand Guardian para esa revisión exacta.
 4. Renderiza localmente y compara título, slug, excerpt y HTML con lo revisado.
-5. Llama `wordpress_upsert_post` con un `idempotency_key` estable
+5. Para `future` o `publish`, congela antes hipótesis y plan en `publication-retrospective`; `draft` y `pending` no inician el reloj 7/28/90.
+6. Llama `wordpress_upsert_post` con un `idempotency_key` estable
    `<issue>:content-draft:<revision>`. Esa llamada debe abrir **Ask a human
    first** en Paperclip. No cambies argumentos después de la revisión.
-6. Solo tras el resultado del conector registra `external_id`, URL, estado y
-   fecha en el ledger. Si el resultado queda incierto, no reintentes: entrega a
+7. Solo tras el resultado del conector registra `external_id`, URL, estado y
+   fecha en el ledger. Si el estado queda live, registra el timestamp del proveedor en la retrospectiva; si sigue como borrador, conserva todos los checkpoints sin fecha. Si el resultado queda incierto, no reintentes: entrega a
    Technology la reconciliación operator-only del journal.
 
 El conector admite `draft`, `pending`, `future` y `publish`; todos son cambios

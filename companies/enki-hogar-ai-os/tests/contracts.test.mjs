@@ -10,6 +10,9 @@ const envelopeSchema = JSON.parse(readFileSync(join(packageDir, "references", "c
 const contentLedgerSchema = JSON.parse(readFileSync(join(packageDir, "references", "contracts", "content-ledger-v1.schema.json"), "utf8"));
 const contentLedgerFixture = JSON.parse(readFileSync(join(packageDir, "skills", "enki-seo-sem", "fixtures", "content-ledger.json"), "utf8"));
 const editorialWorkflow = JSON.parse(readFileSync(join(packageDir, "references", "contracts", "editorial-workflow-v2.json"), "utf8"));
+const editorialFeedbackSchema = JSON.parse(readFileSync(join(packageDir, "references", "contracts", "editorial-feedback-v1.schema.json"), "utf8"));
+const publicationRetrospectiveSchema = JSON.parse(readFileSync(join(packageDir, "references", "contracts", "publication-retrospective-v1.schema.json"), "utf8"));
+const editorialLearningPolicy = JSON.parse(readFileSync(join(packageDir, "references", "contracts", "editorial-learning-policy-v1.json"), "utf8"));
 const productSupportSchema = JSON.parse(readFileSync(join(packageDir, "references", "contracts", "product-support-result-v1.schema.json"), "utf8"));
 const productSupportPackSchema = JSON.parse(readFileSync(join(packageDir, "references", "contracts", "product-support-pack-v1.schema.json"), "utf8"));
 
@@ -69,6 +72,21 @@ test("editorial planning and publication handoffs are phase-gated", () => {
   assert.equal(stages.get("publish")?.connector, "content_publisher");
   assert.equal(stages.get("publish")?.approvalOwner, "board");
   assert.equal(stages.get("publish")?.requiresIdempotencyKey, true);
+  assert.equal(stages.get("publish")?.requiresRetrospectiveBeforeLivePublication, true);
+  assert.equal(stages.get("publish")?.draftCanaryStartsMeasurementClock, false);
+});
+
+test("editorial learning contracts preserve exact lineage and human-only promotion", () => {
+  assert.equal(editorialFeedbackSchema.$id, "urn:enki:editorial-feedback:v1");
+  assert.equal(publicationRetrospectiveSchema.$id, "urn:enki:publication-retrospective:v1");
+  assert.equal(editorialLearningPolicy.schema, "enki-editorial-learning-policy/v1");
+  assert.deepEqual(editorialLearningPolicy.measurement.checkpointDays, [7, 28, 90]);
+  assert.equal(editorialLearningPolicy.measurement.missingIsZero, false);
+  assert.equal(editorialLearningPolicy.promotion.automaticPromotion, false);
+  assert.equal(editorialLearningPolicy.promotion.decisionOwner, "board");
+  assert.equal(editorialLearningPolicy.promotion.implementation.testsRequired, true);
+  assert.deepEqual(publicationRetrospectiveSchema.$defs.artifactRef.required, ["issueKey", "documentKey", "revisionId"]);
+  assert.equal(publicationRetrospectiveSchema.properties.gates.properties.rawPiiBlocked.const, true);
 });
 
 test("product-support contracts preserve the technical/commercial authority split", () => {
