@@ -1,0 +1,95 @@
+{
+  "schema": "enki-catalog-adapter/v1",
+  "adapterKey": "buades-2026-04-11-v1",
+  "brandSlug": "buades",
+  "version": "1.0.0",
+  "implementation": "buades_v1",
+  "scope": {
+    "inputStage": "classified_page_geometry",
+    "sourceSnapshotDates": ["2026-04-11"],
+    "sourcePages": [17, 39],
+    "fixtureKeys": ["buades-table-multi-price", "buades-detail-card"],
+    "features": ["table", "detail", "columns", "multi_sku_price"],
+    "unknownSnapshots": "deny",
+    "unknownPages": "deny"
+  },
+  "fixtureBindings": [
+    {
+      "fixtureKey": "buades-table-multi-price",
+      "sha256": "5fdc8c83e1ac3e1f15a6601945ce851fa794af2d2b7f5bbd803a0932a47c85a5",
+      "sourceSnapshotDate": "2026-04-11",
+      "sourcePage": 17,
+      "features": ["table", "columns", "multi_sku_price"],
+      "ruleKey": "buades-table-next-price-v1",
+      "expectedPairCount": 3
+    },
+    {
+      "fixtureKey": "buades-detail-card",
+      "sha256": "1755fc3b743d3125f8eddbabef7dfed0a2cca588737e10eec937d87ba4c4580e",
+      "sourceSnapshotDate": "2026-04-11",
+      "sourcePage": 39,
+      "features": ["detail"],
+      "ruleKey": "buades-detail-rows-v1",
+      "expectedPairCount": 3
+    }
+  ],
+  "rules": [
+    {
+      "ruleKey": "buades-table-next-price-v1",
+      "version": "1.0.0",
+      "strategy": "row_left_to_right",
+      "strategyOwner": "core",
+      "subjectKind": "reference",
+      "valueKind": "price",
+      "headerKind": null,
+      "evidenceHeaderElementKey": "buades-table-header",
+      "rowTolerance": 8,
+      "columnTolerance": 120,
+      "rightSideTolerance": 8,
+      "outputField": {
+        "group": "commercial",
+        "name": "official_price_ex_vat",
+        "critical": true,
+        "unit": "EUR"
+      }
+    },
+    {
+      "ruleKey": "buades-detail-rows-v1",
+      "version": "1.0.0",
+      "strategy": "row_left_to_right",
+      "strategyOwner": "core",
+      "subjectKind": "reference",
+      "valueKind": "price",
+      "headerKind": null,
+      "evidenceHeaderElementKey": "buades-detail-header",
+      "rowTolerance": 8,
+      "columnTolerance": 100,
+      "rightSideTolerance": 8,
+      "outputField": {
+        "group": "commercial",
+        "name": "official_price_ex_vat",
+        "critical": true,
+        "unit": "EUR"
+      }
+    }
+  ],
+  "qualityGate": {
+    "expectedFixtureCount": 2,
+    "expectedPairCount": 6,
+    "minimumFixturePassRate": 1,
+    "minimumSubjectCoverage": 1,
+    "maximumPairErrorRate": 0
+  },
+  "historicalBasis": {
+    "sourceRepository": "enki-hogar",
+    "reviewedImplementationPaths": ["productos/scripts/pdf_catalog_extract.py"],
+    "oracleSuite": "enki-catalog-regression-suite/v1",
+    "note": "Row grouping and next-price semantics were retained; title, finish and family heuristics remain local and outside the common core."
+  },
+  "authority": {
+    "isLiveCommercialTruth": false,
+    "isExternalMutationAuthority": false,
+    "canGenerateWooImport": false,
+    "outputMode": "local_observation_only"
+  }
+}

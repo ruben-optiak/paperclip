@@ -4,6 +4,9 @@ import {lstatSync, readFileSync, readdirSync, statSync} from "node:fs";
 import {basename, dirname, join, relative, resolve, sep} from "node:path";
 import {fileURLToPath} from "node:url";
 
+import {validateCatalogRegressionSuite} from "../skills/enki-catalog-qa/scripts/validate_catalog_regression.mjs";
+import {validateCatalogReconciliationFixture} from "../skills/enki-catalog-qa/scripts/validate_catalog_reconciliation.mjs";
+
 const packageDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const errors = [];
 const symlinkPaths = [];
@@ -11,7 +14,7 @@ const symlinkPaths = [];
 function filesBelow(root) {
   const found = [];
   for (const entry of readdirSync(root)) {
-    if (entry === "node_modules" || entry === "source-snapshots") continue;
+    if (entry === "node_modules" || entry === ".venv" || entry === "__pycache__" || entry === "source-snapshots" || entry === ".runtime-secrets") continue;
     const path = join(root, entry);
     const stats = lstatSync(path);
     if (stats.isSymbolicLink()) symlinkPaths.push(path);
@@ -77,7 +80,7 @@ const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md schema must be agentcompanies/v1");
 if (company.slug !== "enki-hogar-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.7.0") fail("Unexpected package version");
+if (company.version !== "0.12.0") fail("Unexpected package version");
 if (company.license !== "MIT AND LicenseRef-Enki-Hogar-Internal") fail("Unexpected package license; mixed package scope must be explicit");
 for (const required of [
   "LICENSE",
@@ -173,8 +176,8 @@ for (const path of skillFiles) {
   const skillDir = dirname(path);
   const folder = relative(join(packageDir, "skills"), skillDir).split(sep)[0];
   if (doc.name !== folder || !slugPattern.test(doc.name || "")) fail(`Skill name/path mismatch in ${relative(packageDir, path)}`);
-  if (!statSafe(join(skillDir, "examples", readdirSync(join(skillDir, "examples"))[0] || "missing"))) fail(`Skill has no example: ${doc.name}`);
-  if (!statSafe(join(skillDir, "fixtures", readdirSync(join(skillDir, "fixtures"))[0] || "missing"))) fail(`Skill has no fixture: ${doc.name}`);
+  if (filesBelow(join(skillDir, "examples")).length === 0) fail(`Skill has no example: ${doc.name}`);
+  if (filesBelow(join(skillDir, "fixtures")).length === 0) fail(`Skill has no fixture: ${doc.name}`);
 
   const skillText = readFileSync(path, "utf8");
   if (/(?:^|[\s('"`])\.\.\//m.test(skillText)) fail(`Skill path escapes its portable subtree: ${doc.name}`);
@@ -220,6 +223,64 @@ const actualMirrors = filesBelow(join(packageDir, "skills"))
   .filter((path) => /^skills\/[^/]+\/references\//.test(path));
 for (const mirror of actualMirrors) if (!declaredMirrors.has(mirror)) fail(`Runtime skill reference mirror is not governed by the hash matrix: ${mirror}`);
 for (const mirror of declaredMirrors) if (!actualMirrors.includes(mirror)) fail(`Declared runtime skill reference mirror is not present: ${mirror}`);
+
+const catalogRegression = validateCatalogRegressionSuite({
+  manifestPath: join(packageDir, "skills", "enki-catalog-qa", "fixtures", "catalog-regression", "v1", "manifest.json"),
+});
+if (!catalogRegression.valid) {
+  for (const error of catalogRegression.errors) fail(`Catalogue regression ${error.code} at ${error.path}: ${error.message}`);
+}
+if (catalogRegression.summary?.suiteVersion !== "1.0.0" || catalogRegression.summary?.fixtures !== 6 || catalogRegression.summary?.evidenceRecords !== 21) fail("Catalogue regression summary drift");
+if ((catalogRegression.summary?.brands || []).join(",") !== "buades,chicandbath,enki-espejos,mundilite") fail("Catalogue regression brand coverage drift");
+if ((catalogRegression.summary?.features || []).join(",") !== "columns,configurator,detail,finish_matrix,grid,multi_sku_price,table") fail("Catalogue regression feature coverage drift");
+if (catalogRegression.summary?.duplicateWooHeaders !== 2) fail("Catalogue regression must preserve the two reviewed duplicate Woo headers");
+
+const catalogReconciliation = validateCatalogReconciliationFixture({
+  manifestPath: join(packageDir, "skills", "enki-catalog-qa", "fixtures", "catalog-reconciliation", "v1", "manifest.json"),
+});
+if (!catalogReconciliation.valid) {
+  for (const error of catalogReconciliation.errors) fail(`Catalogue reconciliation ${error.code} at ${error.path}: ${error.message}`);
+}
+if (catalogReconciliation.summary?.files !== 5 || catalogReconciliation.summary?.entities !== 2 || catalogReconciliation.summary?.candidates !== 5 || catalogReconciliation.summary?.expectedChanges !== 3 || catalogReconciliation.summary?.expectedMatches !== 2) fail("Catalogue reconciliation fixture coverage drift");
+
+const catalogAdapterRegistryPath = join(packageDir, "scripts", "catalog-pipeline", "adapters", "registry.json");
+const catalogAdapterRegistry = jsonYaml("scripts/catalog-pipeline/adapters/registry.json");
+if (catalogAdapterRegistry.schema !== "enki-catalog-adapter-registry/v1" || catalogAdapterRegistry.version !== "1.0.0" || catalogAdapterRegistry.coreVersion !== "0.2.0") fail("Catalogue adapter registry identity drift");
+if (catalogAdapterRegistry.inputContract !== "classified_page_geometry/v1" || catalogAdapterRegistry.outputContract !== "enki-catalog-adapter-result/v1") fail("Catalogue adapter input/output contract drift");
+if ((catalogAdapterRegistry.adapters || []).length !== 4) fail("Catalogue adapter registry must define exactly four adapters");
+const catalogAdapterBrands = new Set();
+const catalogAdapterFixtures = new Set();
+let catalogAdapterExpectedPairs = 0;
+for (const entry of catalogAdapterRegistry.adapters || []) {
+  const definitionPath = join(dirname(catalogAdapterRegistryPath), entry.path || "");
+  if (dirname(definitionPath) !== dirname(catalogAdapterRegistryPath) || !statSafe(definitionPath)) {
+    fail(`Catalogue adapter definition path is not a direct portable file: ${entry.adapterKey || "unknown"}`);
+    continue;
+  }
+  const definitionBytes = readFileSync(definitionPath);
+  const definitionSha256 = createHash("sha256").update(definitionBytes).digest("hex");
+  if (definitionSha256 !== entry.sha256) fail(`Catalogue adapter definition hash drift: ${entry.adapterKey || "unknown"}`);
+  let definition = {};
+  try { definition = JSON.parse(definitionBytes.toString("utf8")); } catch { fail(`Catalogue adapter definition must be JSON: ${entry.adapterKey || "unknown"}`); continue; }
+  if (definition.schema !== "enki-catalog-adapter/v1" || definition.version !== "1.0.0" || definition.adapterKey !== entry.adapterKey || definition.brandSlug !== entry.brandSlug || definition.implementation !== entry.implementation) fail(`Catalogue adapter definition identity drift: ${entry.adapterKey || "unknown"}`);
+  if (catalogAdapterBrands.has(entry.brandSlug)) fail(`Duplicate catalogue adapter brand: ${entry.brandSlug || "unknown"}`);
+  catalogAdapterBrands.add(entry.brandSlug);
+  if (definition.scope?.unknownSnapshots !== "deny" || definition.scope?.unknownPages !== "deny" || definition.scope?.inputStage !== "classified_page_geometry") fail(`Catalogue adapter must deny unknown scope: ${entry.adapterKey || "unknown"}`);
+  const bindings = definition.fixtureBindings || [];
+  if (definition.qualityGate?.expectedFixtureCount !== bindings.length || definition.qualityGate?.minimumFixturePassRate !== 1 || definition.qualityGate?.minimumSubjectCoverage !== 1 || definition.qualityGate?.maximumPairErrorRate !== 0) fail(`Catalogue adapter quality gate drift: ${entry.adapterKey || "unknown"}`);
+  const expectedPairs = bindings.reduce((sum, binding) => sum + Number(binding.expectedPairCount || 0), 0);
+  if (definition.qualityGate?.expectedPairCount !== expectedPairs) fail(`Catalogue adapter pair-count declaration drift: ${entry.adapterKey || "unknown"}`);
+  catalogAdapterExpectedPairs += expectedPairs;
+  for (const binding of bindings) {
+    if (catalogAdapterFixtures.has(binding.fixtureKey)) fail(`Catalogue fixture has multiple adapter owners: ${binding.fixtureKey || "unknown"}`);
+    catalogAdapterFixtures.add(binding.fixtureKey);
+  }
+  if (definition.authority?.isLiveCommercialTruth !== false || definition.authority?.isExternalMutationAuthority !== false || definition.authority?.canGenerateWooImport !== false || definition.authority?.outputMode !== "local_observation_only") fail(`Catalogue adapter authority drift: ${entry.adapterKey || "unknown"}`);
+}
+if ([...catalogAdapterBrands].sort().join(",") !== "buades,chicandbath,enki-espejos,mundilite") fail("Catalogue adapter brand coverage drift");
+if (catalogAdapterFixtures.size !== 6 || catalogAdapterExpectedPairs !== 21) fail("Catalogue adapter fixture or pair coverage drift");
+const corePromotions = catalogAdapterRegistry.corePromotions || [];
+if (corePromotions.length !== 1 || corePromotions[0]?.strategy !== "row_left_to_right" || new Set(corePromotions[0]?.evidenceBrands || []).size < 2) fail("Catalogue core promotion must retain exact multi-brand evidence");
 
 const projectFiles = filesBelow(join(packageDir, "projects")).filter((path) => path.endsWith(`${sep}PROJECT.md`));
 const projects = new Set();
@@ -284,7 +345,7 @@ for (const expected of [
 
 const compatibility = jsonYaml("runtime/compatibility.lock.yaml");
 if (compatibility.schema !== "enki-runtime-compatibility/v1") fail("Unexpected runtime compatibility schema");
-if (compatibility.packageVersion !== "0.7.0") fail("Compatibility lock package version must match 0.7.0");
+if (compatibility.packageVersion !== "0.12.0") fail("Compatibility lock package version must match 0.12.0");
 if (compatibility.paperclipBundleSchemaVersion !== 7) fail("Compatibility lock must target bundle schemaVersion 7");
 if (compatibility.connectors?.woocommerce?.version !== "0.2.1") fail("Compatibility lock must pin WooCommerce connector 0.2.1");
 if (compatibility.connectors?.google?.version !== "0.1.1") fail("Compatibility lock must pin Google connector runtime 0.1.1");
@@ -306,6 +367,7 @@ for (const [label, digest, status] of [
   ["Google connector image", compatibility.connectors?.google?.imageDigest, compatibility.connectors?.google?.imageStatus],
   ["Product-support connector image", compatibility.connectors?.productSupportKnowledge?.imageDigest, compatibility.connectors?.productSupportKnowledge?.imageStatus],
   ["Content publisher connector image", compatibility.connectors?.contentPublisher?.imageDigest, compatibility.connectors?.contentPublisher?.imageStatus],
+  ["Catalogue pipeline image", compatibility.runtimes?.catalogPipeline?.imageDigest, compatibility.runtimes?.catalogPipeline?.imageStatus],
 ]) {
   if (digest !== null) fail(`${label} digest must remain null until independently verified`);
   if (typeof status !== "string" || !status.includes("pending")) fail(`${label} status must explicitly remain pending`);
@@ -320,6 +382,34 @@ for (const [label, digest, status] of [
 }
 if (compatibility.runtimes?.connectorNodeImageDigest !== "sha256:48abc13a19400ca3985071e287bd405a1d99306770eb81d61202fb6b65cf0b57") fail("Connector Node base image digest drift");
 if (compatibility.runtimes?.uvImageDigest !== "sha256:0664f9b563fb559314ae82b9d87cd34d503f98a96d8cd9b37fd9d9cfe76d5ede") fail("uv base image digest drift");
+const catalogRegressionLock = compatibility.runtimes?.catalogPipeline?.regression || {};
+if (catalogRegressionLock.version !== "1.0.0" || catalogRegressionLock.schema !== "enki-catalog-regression-suite/v1" || catalogRegressionLock.validator !== "enki-catalog-qa/scripts/validate_catalog_regression.mjs") fail("Catalogue regression compatibility lock drift");
+if ([...(catalogRegressionLock.brands || [])].sort().join(",") !== "buades,chicandbath,enki-espejos,mundilite") fail("Catalogue regression compatibility brand drift");
+if ([...(catalogRegressionLock.features || [])].sort().join(",") !== "columns,configurator,detail,finish_matrix,grid,multi_sku_price,table") fail("Catalogue regression compatibility feature drift");
+if (catalogRegressionLock.evidenceContract !== "enki-catalog-field-evidence/v1" || catalogRegressionLock.status !== "verified_with_hashed_sanitized_multibrand_fixtures") fail("Catalogue regression compatibility evidence status drift");
+const catalogAdapterLock = compatibility.runtimes?.catalogPipeline?.adapterRegistry || {};
+const catalogAdapterRegistrySha256 = createHash("sha256").update(readFileSync(catalogAdapterRegistryPath)).digest("hex");
+if (catalogAdapterLock.version !== "1.0.0" || catalogAdapterLock.schema !== "enki-catalog-adapter-registry/v1" || catalogAdapterLock.definitionSchema !== "enki-catalog-adapter/v1" || catalogAdapterLock.resultSchema !== "enki-catalog-adapter-result/v1") fail("Catalogue adapter compatibility contract drift");
+if (catalogAdapterLock.registrySha256 !== catalogAdapterRegistrySha256) fail("Catalogue adapter registry compatibility hash drift");
+if ([...(catalogAdapterLock.brands || [])].sort().join(",") !== "buades,chicandbath,enki-espejos,mundilite" || catalogAdapterLock.fixtureCount !== 6 || catalogAdapterLock.pairCount !== 21) fail("Catalogue adapter compatibility coverage drift");
+if (catalogAdapterLock.subjectCoverage !== 1 || catalogAdapterLock.pairErrorRate !== 0 || catalogAdapterLock.status !== "verified_independently_against_immutable_eai019_oracle") fail("Catalogue adapter compatibility metrics drift");
+if ([...(catalogAdapterLock.coreStrategies || [])].join(",") !== "row_left_to_right" || [...(catalogAdapterLock.adapterLocalStrategies || [])].join(",") !== "matrix_by_headers") fail("Catalogue adapter strategy ownership drift");
+const catalogReconciliationLock = compatibility.runtimes?.catalogPipeline?.reconciliation || {};
+if (catalogReconciliationLock.version !== "1.0.0" || catalogReconciliationLock.schema !== "enki-catalog-reconciliation-profile/v1" || catalogReconciliationLock.fixtureManifest !== "enki-catalog-reconciliation-fixture-manifest/v1") fail("Catalogue reconciliation compatibility contract drift");
+if (catalogReconciliationLock.positionalHeaders !== true || catalogReconciliationLock.parentVariationIdentity !== true || catalogReconciliationLock.idempotentChangeSets !== true || catalogReconciliationLock.postImportAudit !== true || catalogReconciliationLock.canGenerateWooImport !== false || catalogReconciliationLock.status !== "verified_with_sanitized_exports_and_bounded_historical_layout_replay") fail("Catalogue reconciliation compatibility evidence drift");
+const historicalLayoutReplayLock = catalogReconciliationLock.historicalLayoutReplay || {};
+if (
+  historicalLayoutReplayLock.schema !== "enki-bounded-historical-layout-replay-receipt/v1" ||
+  historicalLayoutReplayLock.receipt !== "references/replay-receipts/eai-021-buades-2026-04-26.json" ||
+  historicalLayoutReplayLock.sourceSnapshotSha256 !== "9ca8155e25cf0b658cd3a2868e64639602af62f71aef63b48b19d0aa13dc4a59" ||
+  historicalLayoutReplayLock.rows !== 1196 ||
+  historicalLayoutReplayLock.columns !== 376 ||
+  historicalLayoutReplayLock.duplicateHeaderGroups !== 4 ||
+  historicalLayoutReplayLock.artifactFingerprintSha256 !== "d4ce6190c1abdd1d365ddd83e844852853354d52351f27eaa613392398b72911" ||
+  historicalLayoutReplayLock.sourceValuesRetained !== false ||
+  historicalLayoutReplayLock.artifactsPersisted !== false ||
+  historicalLayoutReplayLock.isCurrentCommercialTruth !== false
+) fail("Catalogue bounded historical layout replay lock drift");
 const nodeImagePin = "node:24.11.1-bookworm-slim@sha256:48abc13a19400ca3985071e287bd405a1d99306770eb81d61202fb6b65cf0b57";
 const uvImagePin = "ghcr.io/astral-sh/uv:0.8.15-python3.12-bookworm-slim@sha256:0664f9b563fb559314ae82b9d87cd34d503f98a96d8cd9b37fd9d9cfe76d5ede";
 const wooDockerfile = readFileSync(join(packageDir, "connectors", "woocommerce-readonly-mcp", "Dockerfile"), "utf8");
@@ -328,6 +418,56 @@ const catalogDockerfile = readFileSync(join(packageDir, "connectors", "catalog-k
 const publisherDockerfile = readFileSync(join(packageDir, "connectors", "content-publisher", "Dockerfile"), "utf8");
 if (!wooDockerfile.includes(`FROM ${nodeImagePin}`) || !googleDockerfile.includes(`FROM ${nodeImagePin} AS node-runtime`) || !catalogDockerfile.includes(`FROM ${nodeImagePin}`) || !publisherDockerfile.includes(`FROM ${nodeImagePin}`)) fail("Connector Dockerfiles must consume the verified Node digest");
 if (!googleDockerfile.includes(`FROM ${uvImagePin}`)) fail("Google connector Dockerfile must consume the verified uv digest");
+
+const catalogPipeline = compatibility.runtimes?.catalogPipeline || {};
+if (
+  catalogPipeline.version !== "0.3.0" ||
+  catalogPipeline.python !== "3.12" ||
+  catalogPipeline.renderer !== "pdfium" ||
+  catalogPipeline.extractor !== "pdfplumber" ||
+  catalogPipeline.pdfplumber !== "0.11.10" ||
+  catalogPipeline.pypdfium2 !== "5.13.0" ||
+  catalogPipeline.pillow !== "12.3.0"
+) fail("Catalogue pipeline runtime versions must stay exactly pinned");
+if (catalogPipeline.baseImageDigest !== compatibility.runtimes?.uvImageDigest) fail("Catalogue pipeline must consume the verified uv base-image digest");
+if (catalogPipeline.networkMode !== "none" || catalogPipeline.inputMount !== "read_only" || catalogPipeline.outputMount !== "separate_read_write" || catalogPipeline.defaultDpi !== 300) fail("Catalogue pipeline isolation contract drift");
+if (catalogPipeline.dependencyStatus !== "verified_from_pyproject_uv_lock_and_unit_tests") fail("Catalogue pipeline dependency evidence is missing");
+const catalogContracts = catalogPipeline.contracts || {};
+if (
+  catalogContracts.catalogRun !== "enki-catalog-run/v1" ||
+  catalogContracts.catalogFieldEvidence !== "enki-catalog-field-evidence/v1" ||
+  catalogContracts.catalogChangeSet !== "enki-catalog-change-set/v1" ||
+  catalogContracts.catalogReconciliation !== "enki-catalog-reconciliation/v1" ||
+  catalogContracts.jsonSchema !== "2020-12-strict" ||
+  catalogContracts.semanticValidator !== "enki-catalog-qa/scripts/validate_catalog_contracts.mjs" ||
+  catalogContracts.reconciliationFixtureValidator !== "enki-catalog-qa/scripts/validate_catalog_reconciliation.mjs" ||
+  catalogContracts.status !== "verified_with_sanitized_positive_and_negative_fixtures"
+) fail("Catalogue contract compatibility evidence drift");
+const catalogPipelineRoot = join(packageDir, "scripts", "catalog-pipeline");
+const catalogPipelineProject = readFileSync(join(catalogPipelineRoot, "pyproject.toml"), "utf8");
+const catalogPipelineLock = readFileSync(join(catalogPipelineRoot, "uv.lock"), "utf8");
+const catalogPipelineDockerfile = readFileSync(join(catalogPipelineRoot, "Dockerfile"), "utf8");
+const catalogPipelineRunner = readFileSync(join(catalogPipelineRoot, "run-docker.sh"), "utf8");
+if (
+  !/^name = "enki-catalog-pipeline"$/m.test(catalogPipelineProject) ||
+  !/^version = "0\.3\.0"$/m.test(catalogPipelineProject) ||
+  !/^requires-python = ">=3\.12,<3\.13"$/m.test(catalogPipelineProject) ||
+  !/"pdfplumber==0\.11\.10"/.test(catalogPipelineProject) ||
+  !/"Pillow==12\.3\.0"/.test(catalogPipelineProject) ||
+  !/"pypdfium2==5\.13\.0"/.test(catalogPipelineProject)
+) fail("Catalogue pipeline pyproject identity or dependency pin drift");
+for (const [dependency, version] of [["pdfplumber", "0.11.10"], ["pillow", "12.3.0"], ["pypdfium2", "5.13.0"]]) {
+  const escapedVersion = version.replaceAll(".", "\\.");
+  if (!new RegExp(`name = "${dependency}"\\nversion = "${escapedVersion}"`).test(catalogPipelineLock) || !new RegExp(`name = "${dependency}", specifier = "==${escapedVersion}"`).test(catalogPipelineLock)) fail(`Catalogue pipeline uv.lock must pin ${dependency} ${version}`);
+}
+if (!catalogPipelineDockerfile.includes(`FROM ${uvImagePin}`) || !/COPY adapters \.\/adapters/.test(catalogPipelineDockerfile) || !/USER 65532:65532/.test(catalogPipelineDockerfile) || !/ENTRYPOINT \["\/app\/\.venv\/bin\/python", "-m", "enki_catalog_pipeline"\]/.test(catalogPipelineDockerfile)) fail("Catalogue pipeline Dockerfile must consume the pinned image, include locked adapters and run unprivileged");
+if (/^\s*(?:ARG|EXPOSE)\b/m.test(catalogPipelineDockerfile)) fail("Catalogue pipeline image must not declare credential args or network ports");
+for (const requiredFlag of ["--network none", "--read-only", "--cap-drop=ALL", "--security-opt=no-new-privileges", "dst=/input,readonly", "dst=/output"]) if (!catalogPipelineRunner.includes(requiredFlag)) fail(`Catalogue pipeline runner isolation flag missing: ${requiredFlag}`);
+if (/--env(?:-file)?\b/.test(catalogPipelineRunner)) fail("Catalogue pipeline runner must never inject environment or credential files");
+const catalogPipelineSource = filesBelow(join(catalogPipelineRoot, "src")).map((path) => readFileSync(path, "utf8")).join("\n");
+if (/\b(?:requests|httpx|urllib|socket)\b/.test(catalogPipelineSource)) fail("Catalogue pipeline source must remain networkless");
+for (const requiredContract of ["enki-catalog-runtime/v1", "enki-catalog-adapter-result/v1", "enki-catalog-reconciliation-profile/v1", "enki-catalog-reconciliation-report/v1", "enki-catalog-post-import-audit/v1", "source_sha256", "image_path", "x0", "y0", "x1", "y1", "refusing to overwrite an existing run directory", "refusing to overwrite an existing reconciliation run", "canGenerateWooImport"]) if (!catalogPipelineSource.includes(requiredContract)) fail(`Catalogue pipeline contract is missing: ${requiredContract}`);
+for (const forbiddenDependency of ["pymupdf", "fitz"]) if (catalogPipelineSource.toLowerCase().includes(forbiddenDependency)) fail(`Catalogue pipeline must not depend on AGPL/commercial PDF runtime: ${forbiddenDependency}`);
 
 const wooPackage = jsonYaml("connectors/woocommerce-readonly-mcp/package.json");
 if (wooPackage.name !== "@enki-hogar/woocommerce-readonly-mcp" || wooPackage.version !== "0.2.1") fail("Unexpected WooCommerce connector package identity");
@@ -436,7 +576,7 @@ if (!/\/plugins\/enki-telegram-gateway:ro/.test(telegramCompose)) fail("Compose 
 
 const desired = jsonYaml("policies/desired-state.yaml");
 if (desired.schema !== "enki-runtime-desired-state/v1" || desired.mode !== "governed-publishing") fail("Desired state must be governed-publishing enki-runtime-desired-state/v1");
-if (desired.packageVersion !== "0.7.0") fail("Desired state package version must match 0.7.0");
+if (desired.packageVersion !== "0.12.0") fail("Desired state package version must match 0.12.0");
 if (desired.rejectUnexpectedActiveConnections !== true) fail("Desired state must reject unexpected active connections");
 if (desired.rejectUnexpectedAgents !== true) fail("Desired state must reject unexpected agents");
 if (desired.rejectUnexpectedProfiles !== true) fail("Desired state must reject unexpected profiles");
@@ -561,7 +701,27 @@ for (const document of inventory.internalDocuments || []) {
   if (document.targetSha256 !== actualSha256) fail(`Internal knowledge hash drift: ${document.target}`);
   if (document.origin !== "package-authored" || document.license !== "LicenseRef-Enki-Hogar-Internal" || document.sensitivity !== "enki_internal") fail(`Unexpected internal document provenance: ${document.target}`);
 }
-if ((inventory.internalDocuments || []).length !== 11) fail("Knowledge inventory must include metric, evidence, content-ledger, editorial planning/feedback/retrospective/learning contracts, legacy workflow, and both product-support contracts");
+if ((inventory.internalDocuments || []).length !== 18) fail("Knowledge inventory must include metric, evidence, content-ledger, editorial planning/feedback/retrospective/learning, catalogue processing/reconciliation contracts and replay receipt, catalogue regression and adapter contracts, legacy workflow, and both product-support contracts");
+const historicalReplayReceipt = jsonYaml("references/replay-receipts/eai-021-buades-2026-04-26.json");
+if (
+  historicalReplayReceipt.schema !== "enki-bounded-historical-layout-replay-receipt/v1" ||
+  historicalReplayReceipt.sourceSnapshot?.sha256 !== "9ca8155e25cf0b658cd3a2868e64639602af62f71aef63b48b19d0aa13dc4a59" ||
+  historicalReplayReceipt.sourceSnapshot?.rows !== 1196 ||
+  historicalReplayReceipt.sourceSnapshot?.columns !== 376 ||
+  historicalReplayReceipt.sourceSnapshot?.widthAnomalies !== 0 ||
+  historicalReplayReceipt.sourceSnapshot?.duplicateIds !== 0 ||
+  historicalReplayReceipt.sourceSnapshot?.duplicateSkus !== 0 ||
+  historicalReplayReceipt.sourceSnapshot?.rowKinds?.unknown !== 0 ||
+  historicalReplayReceipt.sourceSnapshot?.orphanVariations !== 0 ||
+  historicalReplayReceipt.sanitizedReplay?.candidateFields !== 4 ||
+  historicalReplayReceipt.sanitizedReplay?.matches !== 2 ||
+  historicalReplayReceipt.sanitizedReplay?.changes !== 2 ||
+  historicalReplayReceipt.authority?.sourceValuesRetained !== false ||
+  historicalReplayReceipt.authority?.artifactsPersisted !== false ||
+  historicalReplayReceipt.authority?.isCurrentCommercialTruth !== false ||
+  historicalReplayReceipt.authority?.isExternalMutationAuthority !== false ||
+  historicalReplayReceipt.authority?.canGenerateWooImport !== false
+) fail("Bounded historical Woo layout replay receipt drift");
 const wordpressImplementationPath = join(packageDir, "skills", "wordpress-publisher", "scripts", "wordpress_publisher.py");
 const wordpressImplementationSha256 = statSafe(wordpressImplementationPath)
   ? createHash("sha256").update(readFileSync(wordpressImplementationPath)).digest("hex")

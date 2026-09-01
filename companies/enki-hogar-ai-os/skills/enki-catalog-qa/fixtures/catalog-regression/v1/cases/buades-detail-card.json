@@ -1,0 +1,31 @@
+{
+  "schema": "enki-catalog-regression-fixture/v1",
+  "fixtureKey": "buades-detail-card",
+  "brand": {"slug": "buades", "name": "Buades"},
+  "features": ["detail"],
+  "provenance": {"kind": "sanitized_fixture", "sourceSnapshotDate": "2026-04-11", "sourcePage": 39, "layoutOnly": true, "sourceValuesRetained": false, "sourceMediaRetained": false, "sanitizationNote": "Only a compact three-row detail-card geometry was retained; all commercial values are invented."},
+  "source": {"sourceKey": "buades-detail-layout-fixture", "snapshotAt": "2026-04-11T00:00:00+02:00", "documentPath": "sanitized-sources/buades-detail-layout.pdf", "documentSha256": "b3f7f7ae47bcf1de85ce5016ee1e8440894e4271be2f74e75a8fdf57d17fe815", "pageImagePath": "sanitized-sources/buades-detail-page.raster", "pageImageSha256": "28a6dd44e720f0141b5c7f2bf147bc9d2e0a9a52dcc357e9b36ff48ede12363b", "page": 39, "pageWidth": 1200, "pageHeight": 840, "coordinateSpace": "pdf_points_top_left"},
+  "pairing": {"strategy": "row_left_to_right", "subjectKind": "reference", "valueKind": "price", "headerKind": null, "evidenceHeaderElementKey": "buades-detail-header", "rowTolerance": 8, "columnTolerance": 100, "rightSideTolerance": 8, "outputField": {"group": "commercial", "name": "official_price_ex_vat", "critical": true, "unit": "EUR"}},
+  "elements": [
+    {"elementKey": "buades-detail-header", "kind": "header", "text": "DETALLE DE PRUEBA", "rawValue": null, "normalizedValue": null, "unit": null, "headerKey": null, "box": {"x0": 70, "y0": 590, "x1": 360, "y1": 615}, "entity": null},
+    {"elementKey": "bds-detail-a", "kind": "reference", "text": "BDS-FX-D-A", "rawValue": "BDS-FX-D-A", "normalizedValue": "BDS-FX-D-A", "unit": null, "headerKey": null, "box": {"x0": 80, "y0": 630, "x1": 190, "y1": 650}, "entity": {"entityKey": "bds-fx-d-a", "kind": "variation", "manufacturerRef": "BDS-FX-D-A", "canonicalSku": "BDS-FX-D-A", "qaState": "auto_clear", "confidenceScore": 0.94, "confidenceReasons": ["One reference and one price share a unique row."]}},
+    {"elementKey": "bds-detail-price-a", "kind": "price", "text": "88.00 EUR", "rawValue": "88.00 EUR", "normalizedValue": 88, "unit": "EUR", "headerKey": null, "box": {"x0": 250, "y0": 630, "x1": 330, "y1": 650}, "entity": null},
+    {"elementKey": "bds-detail-b", "kind": "reference", "text": "BDS-FX-D-B", "rawValue": "BDS-FX-D-B", "normalizedValue": "BDS-FX-D-B", "unit": null, "headerKey": null, "box": {"x0": 80, "y0": 665, "x1": 190, "y1": 685}, "entity": {"entityKey": "bds-fx-d-b", "kind": "variation", "manufacturerRef": "BDS-FX-D-B", "canonicalSku": "BDS-FX-D-B", "qaState": "auto_clear", "confidenceScore": 0.94, "confidenceReasons": ["One reference and one price share a unique row."]}},
+    {"elementKey": "bds-detail-price-b", "kind": "price", "text": "99.00 EUR", "rawValue": "99.00 EUR", "normalizedValue": 99, "unit": "EUR", "headerKey": null, "box": {"x0": 250, "y0": 665, "x1": 330, "y1": 685}, "entity": null},
+    {"elementKey": "bds-detail-c", "kind": "reference", "text": "BDS-FX-D-C", "rawValue": "BDS-FX-D-C", "normalizedValue": "BDS-FX-D-C", "unit": null, "headerKey": null, "box": {"x0": 80, "y0": 700, "x1": 190, "y1": 720}, "entity": {"entityKey": "bds-fx-d-c", "kind": "variation", "manufacturerRef": "BDS-FX-D-C", "canonicalSku": "BDS-FX-D-C", "qaState": "auto_clear", "confidenceScore": 0.94, "confidenceReasons": ["One reference and one price share a unique row."]}},
+    {"elementKey": "bds-detail-price-c", "kind": "price", "text": "104.00 EUR", "rawValue": "104.00 EUR", "normalizedValue": 104, "unit": "EUR", "headerKey": null, "box": {"x0": 250, "y0": 700, "x1": 330, "y1": 720}, "entity": null}
+  ],
+  "expected": {
+    "elementCounts": [{"key": "header", "count": 1}, {"key": "price", "count": 3}, {"key": "reference", "count": 3}],
+    "pairs": [
+      {"pairKey": "bds-detail-a:bds-detail-price-a", "subjectElementKey": "bds-detail-a", "valueElementKey": "bds-detail-price-a", "headerElementKey": "buades-detail-header", "qaState": "auto_clear"},
+      {"pairKey": "bds-detail-b:bds-detail-price-b", "subjectElementKey": "bds-detail-b", "valueElementKey": "bds-detail-price-b", "headerElementKey": "buades-detail-header", "qaState": "auto_clear"},
+      {"pairKey": "bds-detail-c:bds-detail-price-c", "subjectElementKey": "bds-detail-c", "valueElementKey": "bds-detail-price-c", "headerElementKey": "buades-detail-header", "qaState": "auto_clear"}
+    ],
+    "evidenceCount": 3,
+    "evidenceEntityKindCounts": [{"key": "variation", "count": 3}],
+    "declaredEntityKindCounts": [{"key": "variation", "count": 3}],
+    "qaStateCounts": [{"key": "auto_clear", "count": 3}]
+  },
+  "authority": {"isLiveCommercialTruth": false, "isExternalMutationAuthority": false, "outputMode": "test_evidence_only"}
+}

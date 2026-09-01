@@ -1,0 +1,148 @@
+{
+  "schema": "enki-catalog-reconciliation-profile/v1",
+  "version": "1.0.0",
+  "profileKey": "buades-reconciliation-fixture-v1",
+  "runKey": "catalog-run-buades-reconciliation-fixture",
+  "createdAt": "2026-09-01T10:00:00+02:00",
+  "timezone": "Europe/Madrid",
+  "provenance": {
+    "kind": "sanitized_fixture",
+    "sourceIssue": "EAI-021-fixture"
+  },
+  "brand": {"slug": "buades", "name": "Buades"},
+  "domain": {"slug": "mirrors", "name": "Espejos"},
+  "sources": [
+    {
+      "sourceKey": "buades-official-sanitized",
+      "title": "Sanitized official Buades catalogue evidence",
+      "role": "official_source",
+      "kind": "official_pdf",
+      "authority": "official_technical",
+      "snapshotAt": "2026-09-01T08:00:00+02:00",
+      "coverage": "complete",
+      "freshness": "current_for_run",
+      "path": "sources/buades/catalogue-sanitized.pdf",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "immutable": true,
+      "pageCount": 12,
+      "csvLayout": null
+    },
+    {
+      "sourceKey": "content-rules-sanitized",
+      "title": "Sanitized reviewed content field rules",
+      "role": "manual_rules",
+      "kind": "manual_rules_csv",
+      "authority": "operator_rule",
+      "snapshotAt": "2026-09-01T08:15:00+02:00",
+      "coverage": "partial",
+      "freshness": "current_for_run",
+      "path": "sources/rules/content-fields.csv",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "immutable": true,
+      "rowCount": 2,
+      "csvLayout": {
+        "headerRow": 1,
+        "columnIdentity": "zero_based_position_plus_original_and_deduplicated_header",
+        "duplicateHeadersPreserved": true
+      }
+    },
+    {
+      "sourceKey": "woo-full-export-sanitized-eai021",
+      "title": "Sanitized complete Woo export before the simulated import",
+      "role": "commercial_snapshot",
+      "kind": "woo_export_csv",
+      "authority": "current_commercial_snapshot",
+      "snapshotAt": "2026-09-01T09:00:00+02:00",
+      "coverage": "complete",
+      "freshness": "current_for_run",
+      "path": "sources/woocommerce/products-full.csv",
+      "sha256": "78ec452389aa1aeb157391f00ab5e5efc8607e403e9784057ef9053f47456adb",
+      "immutable": true,
+      "rowCount": 3,
+      "csvLayout": {
+        "headerRow": 1,
+        "columnIdentity": "zero_based_position_plus_original_and_deduplicated_header",
+        "duplicateHeadersPreserved": true
+      }
+    }
+  ],
+  "wooSnapshotSourceKey": "woo-full-export-sanitized-eai021",
+  "identity": {
+    "productId": {"columnIndex": 0, "columnIndexBase": 0, "originalHeader": "ID", "deduplicatedHeader": "ID"},
+    "productType": {"columnIndex": 1, "columnIndexBase": 0, "originalHeader": "Product Type", "deduplicatedHeader": "Product Type"},
+    "parentProductId": {"columnIndex": 2, "columnIndexBase": 0, "originalHeader": "Parent Product ID", "deduplicatedHeader": "Parent Product ID"},
+    "sku": {"columnIndex": 3, "columnIndexBase": 0, "originalHeader": "SKU", "deduplicatedHeader": "SKU"},
+    "roleRules": "simple_no_parent_variable_parent_no_parent_variation_with_parent",
+    "pageOwnerRule": "simple_self_parent_self_variation_parent"
+  },
+  "scope": {
+    "entities": [
+      {"entityKey": "buades-demo-parent", "sku": "BUA-DEMO-PARENT", "manufacturerRef": "DEMO-PARENT", "expectedKind": "parent"},
+      {"entityKey": "buades-demo-variation-cromo", "sku": "BUA-DEMO-CR", "manufacturerRef": "DEMO-CR", "expectedKind": "variation"}
+    ],
+    "targets": [
+      {
+        "targetKey": "variation-price-gross",
+        "entityKey": "buades-demo-variation-cromo",
+        "surface": "sku",
+        "fieldGroup": "commercial",
+        "fieldName": "regular_price_eur_gross",
+        "wooColumn": {"columnIndex": 6, "columnIndexBase": 0, "originalHeader": "Regular Price", "deduplicatedHeader": "Regular Price"},
+        "normalization": {"kind": "money", "unit": "EUR", "fiscalBasis": "gross_including_vat"},
+        "critical": true,
+        "riskLevel": "orange"
+      },
+      {
+        "targetKey": "parent-seo-title",
+        "entityKey": "buades-demo-parent",
+        "surface": "product_page",
+        "fieldGroup": "content",
+        "fieldName": "seo_title",
+        "wooColumn": {"columnIndex": 10, "columnIndexBase": 0, "originalHeader": "_yoast_wpseo_title", "deduplicatedHeader": "_yoast_wpseo_title"},
+        "normalization": {"kind": "text", "unit": null, "fiscalBasis": "not_applicable"},
+        "critical": false,
+        "riskLevel": "yellow"
+      },
+      {
+        "targetKey": "parent-featured-image",
+        "entityKey": "buades-demo-parent",
+        "surface": "product_page",
+        "fieldGroup": "content",
+        "fieldName": "featured_image",
+        "wooColumn": {"columnIndex": 8, "columnIndexBase": 0, "originalHeader": "Images", "deduplicatedHeader": "Images"},
+        "normalization": {"kind": "csv_first", "unit": null, "fiscalBasis": "not_applicable"},
+        "critical": false,
+        "riskLevel": "yellow"
+      },
+      {
+        "targetKey": "variation-finish",
+        "entityKey": "buades-demo-variation-cromo",
+        "surface": "sku",
+        "fieldGroup": "finish",
+        "fieldName": "finish",
+        "wooColumn": {"columnIndex": 12, "columnIndexBase": 0, "originalHeader": "Attribute Value (pa_acabado)", "deduplicatedHeader": "Attribute Value (pa_acabado)"},
+        "normalization": {"kind": "text", "unit": null, "fiscalBasis": "not_applicable"},
+        "critical": false,
+        "riskLevel": "yellow"
+      },
+      {
+        "targetKey": "parent-product-title",
+        "entityKey": "buades-demo-parent",
+        "surface": "product_page",
+        "fieldGroup": "content",
+        "fieldName": "product_title",
+        "wooColumn": {"columnIndex": 4, "columnIndexBase": 0, "originalHeader": "Title", "deduplicatedHeader": "Title"},
+        "normalization": {"kind": "text", "unit": null, "fiscalBasis": "not_applicable"},
+        "critical": false,
+        "riskLevel": "yellow"
+      }
+    ]
+  },
+  "audit": {"ignoredColumns": [], "unexpectedChanges": "fail"},
+  "authority": {
+    "isLiveCommercialTruth": false,
+    "isExternalMutationAuthority": false,
+    "canGenerateWooImport": false,
+    "outputMode": "local_change_set_only"
+  }
+}

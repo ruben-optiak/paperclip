@@ -1,0 +1,38 @@
+{
+  "schema": "enki-bounded-historical-layout-replay-receipt/v1",
+  "executedAt": "2026-09-01T18:21:28+02:00",
+  "sourceSnapshot": {
+    "label": "Buades Woo legacy full export, snapshot 2026-04-26",
+    "sha256": "9ca8155e25cf0b658cd3a2868e64639602af62f71aef63b48b19d0aa13dc4a59",
+    "rows": 1196,
+    "columns": 376,
+    "widthAnomalies": 0,
+    "duplicateHeaderGroups": 4,
+    "duplicateIds": 0,
+    "duplicateSkus": 0,
+    "rowKinds": {
+      "simple": 84,
+      "parent": 179,
+      "variation": 933,
+      "unknown": 0
+    },
+    "orphanVariations": 0
+  },
+  "sanitizedReplay": {
+    "rows": 3,
+    "inScopeEntities": 2,
+    "outsideScopeRows": 1,
+    "candidateFields": 4,
+    "matches": 2,
+    "changes": 2,
+    "criticalChanges": 1,
+    "artifactFingerprintSha256": "d4ce6190c1abdd1d365ddd83e844852853354d52351f27eaa613392398b72911"
+  },
+  "authority": {
+    "sourceValuesRetained": false,
+    "artifactsPersisted": false,
+    "isCurrentCommercialTruth": false,
+    "isExternalMutationAuthority": false,
+    "canGenerateWooImport": false
+  }
+}

@@ -1,0 +1,4 @@
+ID,Product Type,Parent Product ID,SKU,Title,Title,Regular Price,Regular Price,Images,Images,_yoast_wpseo_title,_yoast_wpseo_metadesc,Attribute Value (pa_acabado),Stock
+100,variable,0,BUA-DEMO-PARENT,Espejo Demo Buades,Título de adjunto que no es producto,,,buades-demo-main-new.webp,old-gallery.webp,Comprar espejo Demo | Buades,Descripción actual,,
+101,variable,999,BUA-DEMO-CR,Cromo,Adjunto cromo,121.00,99.00,variation.webp,variant-gallery.webp,,,Cromo,8
+200,simple,0,OUTSIDE-1,Producto fuera de alcance,Adjunto fuera,55.00,44.00,outside.webp,outside-gallery.webp,Outside SEO,Outside desc,Negro,3

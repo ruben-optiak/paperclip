@@ -1,0 +1,67 @@
+{
+  "schema": "enki-catalog-adapter/v1",
+  "adapterKey": "mundilite-2026-04-27-v1",
+  "brandSlug": "mundilite",
+  "version": "1.0.0",
+  "implementation": "mundilite_v1",
+  "scope": {
+    "inputStage": "classified_page_geometry",
+    "sourceSnapshotDates": ["2026-04-27"],
+    "sourcePages": [12],
+    "fixtureKeys": ["mundilite-finish-matrix"],
+    "features": ["table", "finish_matrix", "multi_sku_price"],
+    "unknownSnapshots": "deny",
+    "unknownPages": "deny"
+  },
+  "fixtureBindings": [
+    {
+      "fixtureKey": "mundilite-finish-matrix",
+      "sha256": "a53cf71695203f2c00ac1b2fd37726377499230a2a3fc60564f8f96ec40f91c7",
+      "sourceSnapshotDate": "2026-04-27",
+      "sourcePage": 12,
+      "features": ["table", "finish_matrix", "multi_sku_price"],
+      "ruleKey": "mundilite-finish-rows-v1",
+      "expectedPairCount": 4
+    }
+  ],
+  "rules": [
+    {
+      "ruleKey": "mundilite-finish-rows-v1",
+      "version": "1.0.0",
+      "strategy": "row_left_to_right",
+      "strategyOwner": "core",
+      "subjectKind": "finish",
+      "valueKind": "price",
+      "headerKind": null,
+      "evidenceHeaderElementKey": "mundilite-finish-header",
+      "rowTolerance": 8,
+      "columnTolerance": 100,
+      "rightSideTolerance": 4,
+      "outputField": {
+        "group": "commercial",
+        "name": "official_price_ex_vat",
+        "critical": true,
+        "unit": "EUR"
+      }
+    }
+  ],
+  "qualityGate": {
+    "expectedFixtureCount": 1,
+    "expectedPairCount": 4,
+    "minimumFixturePassRate": 1,
+    "minimumSubjectCoverage": 1,
+    "maximumPairErrorRate": 0
+  },
+  "historicalBasis": {
+    "sourceRepository": "enki-hogar",
+    "reviewedImplementationPaths": ["productos/scripts/mundilite_fregaderos_extract.py"],
+    "oracleSuite": "enki-catalog-regression-suite/v1",
+    "note": "Each finish row owns its price. The base reference remains an unpriced parent and cannot inherit a finish price."
+  },
+  "authority": {
+    "isLiveCommercialTruth": false,
+    "isExternalMutationAuthority": false,
+    "canGenerateWooImport": false,
+    "outputMode": "local_observation_only"
+  }
+}

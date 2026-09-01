@@ -1,0 +1,67 @@
+{
+  "schema": "enki-catalog-adapter/v1",
+  "adapterKey": "chicandbath-2026-07-11-v1",
+  "brandSlug": "chicandbath",
+  "version": "1.0.0",
+  "implementation": "chicandbath_v1",
+  "scope": {
+    "inputStage": "classified_page_geometry",
+    "sourceSnapshotDates": ["2026-07-11"],
+    "sourcePages": [60],
+    "fixtureKeys": ["chicandbath-configurator-matrix"],
+    "features": ["table", "columns", "multi_sku_price", "configurator"],
+    "unknownSnapshots": "deny",
+    "unknownPages": "deny"
+  },
+  "fixtureBindings": [
+    {
+      "fixtureKey": "chicandbath-configurator-matrix",
+      "sha256": "a5c566c1fcf56ffad634d205e5ab9b296672c8013b8976654932683221c25ae8",
+      "sourceSnapshotDate": "2026-07-11",
+      "sourcePage": 60,
+      "features": ["table", "columns", "multi_sku_price", "configurator"],
+      "ruleKey": "chicandbath-configurator-width-matrix-v1",
+      "expectedPairCount": 4
+    }
+  ],
+  "rules": [
+    {
+      "ruleKey": "chicandbath-configurator-width-matrix-v1",
+      "version": "1.0.0",
+      "strategy": "matrix_by_headers",
+      "strategyOwner": "adapter",
+      "subjectKind": "configuration",
+      "valueKind": "price",
+      "headerKind": "width_header",
+      "evidenceHeaderElementKey": null,
+      "rowTolerance": 12,
+      "columnTolerance": 55,
+      "rightSideTolerance": 4,
+      "outputField": {
+        "group": "configuration",
+        "name": "official_price_by_width_ex_vat",
+        "critical": true,
+        "unit": "EUR"
+      }
+    }
+  ],
+  "qualityGate": {
+    "expectedFixtureCount": 1,
+    "expectedPairCount": 4,
+    "minimumFixturePassRate": 1,
+    "minimumSubjectCoverage": 1,
+    "maximumPairErrorRate": 0
+  },
+  "historicalBasis": {
+    "sourceRepository": "enki-hogar",
+    "reviewedImplementationPaths": ["productos/scripts/chicandbath_catalog_2026_extract.py"],
+    "oracleSuite": "enki-catalog-regression-suite/v1",
+    "note": "Width-header pairing and configurator roles stay local to Chicandbath until another brand proves the same semantics."
+  },
+  "authority": {
+    "isLiveCommercialTruth": false,
+    "isExternalMutationAuthority": false,
+    "canGenerateWooImport": false,
+    "outputMode": "local_observation_only"
+  }
+}

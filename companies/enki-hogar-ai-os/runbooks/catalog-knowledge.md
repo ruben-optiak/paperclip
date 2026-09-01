@@ -43,6 +43,8 @@ Extraction and commercial catalogue QA continue in the Enki operating repository
 
 `fuentes → normalizado → comparativa → QA → aprobación → export`
 
+Prepare new official PDFs first with the [pinned catalogue runtime](catalog-pipeline.md), represent the run, each field observation and every proposed delta with the [catalogue v1 contracts](catalog-contract-migration.md), and validate the complete bundle. Page rasters and geometric inventory are evidence inputs only: they are not a normalized master, Woo comparison or approved support pack. A locally approved catalogue change set is also not automatically a support pack or Woo import.
+
 A support pack is a separate curated output grouped by one `brand + domain`. It contains exactly:
 
 - `manifest.json`

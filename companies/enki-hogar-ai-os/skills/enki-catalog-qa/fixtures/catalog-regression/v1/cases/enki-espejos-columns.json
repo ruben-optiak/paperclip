@@ -1,0 +1,34 @@
+{
+  "schema": "enki-catalog-regression-fixture/v1",
+  "fixtureKey": "enki-espejos-columns",
+  "brand": {"slug": "enki-espejos", "name": "Enki Espejos"},
+  "features": ["table", "columns"],
+  "provenance": {"kind": "sanitized_fixture", "sourceSnapshotDate": "2026-05-31", "sourcePage": 22, "layoutOnly": true, "sourceValuesRetained": false, "sourceMediaRetained": false, "sanitizationNote": "The two independent table columns were retained; product references, finish codes, lumen values and prices are invented."},
+  "source": {"sourceKey": "enki-espejos-columns-layout-fixture", "snapshotAt": "2026-05-31T00:00:00+02:00", "documentPath": "sanitized-sources/enki-espejos-columns-layout.pdf", "documentSha256": "52716a92b40579e6615ffd89fbdddc31f8a9e9d24a2f8fc6fdc5914e89585336", "pageImagePath": "sanitized-sources/enki-espejos-columns-page.raster", "pageImageSha256": "f022b0ec64c256b5e0b324218ecdaa68a12d38bd0d334d09adbde77681ab016a", "page": 22, "pageWidth": 600, "pageHeight": 840, "coordinateSpace": "pdf_points_top_left"},
+  "pairing": {"strategy": "row_left_to_right", "subjectKind": "reference", "valueKind": "price", "headerKind": null, "evidenceHeaderElementKey": "enki-columns-header", "rowTolerance": 8, "columnTolerance": 100, "rightSideTolerance": 4, "outputField": {"group": "commercial", "name": "official_price_ex_vat", "critical": true, "unit": "EUR"}},
+  "elements": [
+    {"elementKey": "enki-columns-header", "kind": "header", "text": "DOS TABLAS INDEPENDIENTES DE PRUEBA", "rawValue": null, "normalizedValue": null, "unit": null, "headerKey": null, "box": {"x0": 30, "y0": 440, "x1": 575, "y1": 465}, "entity": null},
+    {"elementKey": "enki-col-left-a", "kind": "reference", "text": "ENK-FX-C-L1", "rawValue": "ENK-FX-C-L1", "normalizedValue": "ENK-FX-C-L1", "unit": null, "headerKey": null, "box": {"x0": 40, "y0": 490, "x1": 140, "y1": 508}, "entity": {"entityKey": "enk-fx-c-l1", "kind": "variation", "manufacturerRef": "ENK-FX-C-L1", "canonicalSku": "ENK-FX-C-L1", "qaState": "auto_clear", "confidenceScore": 0.92, "confidenceReasons": ["Pair is isolated inside the left table column."]}},
+    {"elementKey": "enki-col-left-price-a", "kind": "price", "text": "35.00 EUR", "rawValue": "35.00 EUR", "normalizedValue": 35, "unit": "EUR", "headerKey": null, "box": {"x0": 210, "y0": 490, "x1": 275, "y1": 508}, "entity": null},
+    {"elementKey": "enki-col-right-a", "kind": "reference", "text": "ENK-FX-C-R1", "rawValue": "ENK-FX-C-R1", "normalizedValue": "ENK-FX-C-R1", "unit": null, "headerKey": null, "box": {"x0": 330, "y0": 490, "x1": 430, "y1": 508}, "entity": {"entityKey": "enk-fx-c-r1", "kind": "variation", "manufacturerRef": "ENK-FX-C-R1", "canonicalSku": "ENK-FX-C-R1", "qaState": "auto_clear", "confidenceScore": 0.92, "confidenceReasons": ["Pair is isolated inside the right table column."]}},
+    {"elementKey": "enki-col-right-price-a", "kind": "price", "text": "48.00 EUR", "rawValue": "48.00 EUR", "normalizedValue": 48, "unit": "EUR", "headerKey": null, "box": {"x0": 505, "y0": 490, "x1": 570, "y1": 508}, "entity": null},
+    {"elementKey": "enki-col-left-b", "kind": "reference", "text": "ENK-FX-C-L2", "rawValue": "ENK-FX-C-L2", "normalizedValue": "ENK-FX-C-L2", "unit": null, "headerKey": null, "box": {"x0": 40, "y0": 530, "x1": 140, "y1": 548}, "entity": {"entityKey": "enk-fx-c-l2", "kind": "variation", "manufacturerRef": "ENK-FX-C-L2", "canonicalSku": "ENK-FX-C-L2", "qaState": "needs_review", "confidenceScore": 0.74, "confidenceReasons": ["Fixture preserves a finish-count ambiguity requiring manual confirmation."]}},
+    {"elementKey": "enki-col-left-price-b", "kind": "price", "text": "39.00 EUR", "rawValue": "39.00 EUR", "normalizedValue": 39, "unit": "EUR", "headerKey": null, "box": {"x0": 210, "y0": 530, "x1": 275, "y1": 548}, "entity": null},
+    {"elementKey": "enki-col-right-b", "kind": "reference", "text": "ENK-FX-C-R2", "rawValue": "ENK-FX-C-R2", "normalizedValue": "ENK-FX-C-R2", "unit": null, "headerKey": null, "box": {"x0": 330, "y0": 530, "x1": 430, "y1": 548}, "entity": {"entityKey": "enk-fx-c-r2", "kind": "variation", "manufacturerRef": "ENK-FX-C-R2", "canonicalSku": "ENK-FX-C-R2", "qaState": "auto_clear", "confidenceScore": 0.92, "confidenceReasons": ["Pair is isolated inside the right table column."]}},
+    {"elementKey": "enki-col-right-price-b", "kind": "price", "text": "54.00 EUR", "rawValue": "54.00 EUR", "normalizedValue": 54, "unit": "EUR", "headerKey": null, "box": {"x0": 505, "y0": 530, "x1": 570, "y1": 548}, "entity": null}
+  ],
+  "expected": {
+    "elementCounts": [{"key": "header", "count": 1}, {"key": "price", "count": 4}, {"key": "reference", "count": 4}],
+    "pairs": [
+      {"pairKey": "enki-col-left-a:enki-col-left-price-a", "subjectElementKey": "enki-col-left-a", "valueElementKey": "enki-col-left-price-a", "headerElementKey": "enki-columns-header", "qaState": "auto_clear"},
+      {"pairKey": "enki-col-right-a:enki-col-right-price-a", "subjectElementKey": "enki-col-right-a", "valueElementKey": "enki-col-right-price-a", "headerElementKey": "enki-columns-header", "qaState": "auto_clear"},
+      {"pairKey": "enki-col-left-b:enki-col-left-price-b", "subjectElementKey": "enki-col-left-b", "valueElementKey": "enki-col-left-price-b", "headerElementKey": "enki-columns-header", "qaState": "needs_review"},
+      {"pairKey": "enki-col-right-b:enki-col-right-price-b", "subjectElementKey": "enki-col-right-b", "valueElementKey": "enki-col-right-price-b", "headerElementKey": "enki-columns-header", "qaState": "auto_clear"}
+    ],
+    "evidenceCount": 4,
+    "evidenceEntityKindCounts": [{"key": "variation", "count": 4}],
+    "declaredEntityKindCounts": [{"key": "variation", "count": 4}],
+    "qaStateCounts": [{"key": "auto_clear", "count": 3}, {"key": "needs_review", "count": 1}]
+  },
+  "authority": {"isLiveCommercialTruth": false, "isExternalMutationAuthority": false, "outputMode": "test_evidence_only"}
+}

@@ -1,0 +1,47 @@
+{
+  "schema": "enki-catalog-change-set/v1",
+  "changeSetKey": "changes-buades-sanitized-2026-08-31",
+  "runKey": "catalog-run-buades-sanitized-2026-08-31",
+  "revision": {"revisionId": "changes-buades-sanitized-2026-08-31.r1", "revisionNumber": 1, "supersedesRevisionId": null},
+  "brand": {"slug": "buades", "name": "Buades"},
+  "createdAt": "2026-08-31T10:00:00+02:00",
+  "timezone": "Europe/Madrid",
+  "provenance": "sanitized_fixture",
+  "scope": {
+    "entityKinds": ["simple"],
+    "fieldGroups": ["commercial"],
+    "includeEntityKeys": ["buades-ref-demo-001"],
+    "excludeEntityKeys": [],
+    "wooSnapshotSourceKey": "woo-full-export-sanitized"
+  },
+  "execution": {"mode": "local_draft", "externalWritesBlocked": true, "publicationAuthority": "none", "requiresFreshPostImportExport": true},
+  "changes": [
+    {
+      "changeKey": "chg-buades-demo-price",
+      "operation": "set_field",
+      "target": {
+        "entityKey": "buades-ref-demo-001",
+        "entityKind": "simple",
+        "surface": "sku",
+        "fieldGroup": "commercial",
+        "fieldName": "regular_price_eur_gross",
+        "wooColumn": {"columnIndex": 26, "columnIndexBase": 0, "originalHeader": "Precio normal", "deduplicatedHeader": "Precio normal__26"}
+      },
+      "current": {"present": true, "rawValue": "106,00", "normalizedValue": 106, "evidenceKeys": ["ev-buades-demo-price-current"]},
+      "candidate": {"present": true, "rawValue": "88,47 € + IVA", "normalizedValue": 107.05, "evidenceKeys": ["ev-buades-demo-price-candidate"]},
+      "comparison": {"status": "mismatch", "reason": "El PVP bruto normalizado del PDF oficial difiere del snapshot Woo.", "fiscalBasis": "gross_including_vat"},
+      "confidence": {"score": 0.94, "level": "high", "reasons": ["Emparejado geométrico preciso y snapshot Woo posicional."]},
+      "risk": {"level": "orange", "criticalField": true, "reasons": ["El precio afecta compra y feeds; requiere aprobación humana."]},
+      "decision": {"state": "needs_review", "actorType": "none", "actorRef": null, "decidedAt": null, "note": "La evidencia está completa, pero un humano debe decidir.", "isExternalMutationAuthority": false},
+      "exportEligibility": {"eligible": false, "blockers": ["board_approval_required"]},
+      "lineage": {"supersedesChangeKey": null, "legacyRows": [{"dataset": "legacy/buades/comparativa_catalogo_vs_web.csv", "rowNumber": 2, "rowSha256": "2222222222222222222222222222222222222222222222222222222222222222"}]}
+    }
+  ],
+  "summary": {"total": 1, "proposed": 0, "needsReview": 1, "approvedForLocalExport": 0, "rejected": 0, "blockedSourceConflict": 0, "superseded": 0, "eligibleForLocalExport": 0, "criticalBlocked": 1},
+  "lineage": {
+    "sourceEvidenceKeys": ["ev-buades-demo-price-current", "ev-buades-demo-price-candidate"],
+    "supersedesChangeSetKey": null,
+    "migrationRefs": [{"dataset": "legacy/buades/comparativa_catalogo_vs_web.csv", "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", "rows": 1}]
+  },
+  "decision": {"state": "pending", "actorType": "none", "actorRef": null, "decidedAt": null, "note": "Ningún cambio está aprobado.", "isExternalMutationAuthority": false}
+}

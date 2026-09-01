@@ -21,6 +21,11 @@ if [ ! -d "$package_dir/connectors/content-publisher/node_modules" ]; then
   exit 2
 fi
 
+if ! command -v uv >/dev/null 2>&1; then
+  echo "uv is required for the pinned catalogue-pipeline tests" >&2
+  exit 2
+fi
+
 node "$package_dir/scripts/validate-package.mjs"
 "$package_dir/scripts/scan-secrets.sh"
 node --check "$package_dir/scripts/check-runtime-drift.mjs"
@@ -33,6 +38,25 @@ node --check "$package_dir/scripts/init-local-control-plane-secrets.mjs"
 node --check "$package_dir/scripts/disable-local-publishing.mjs"
 node --check "$package_dir/scripts/product-support/generate-enki-espejos.mjs"
 node --check "$package_dir/scripts/product-support/finalize-support-pack.mjs"
+node --check "$package_dir/skills/enki-catalog-qa/scripts/validate_catalog_contracts.mjs"
+node --check "$package_dir/skills/enki-catalog-qa/scripts/validate_catalog_regression.mjs"
+node --check "$package_dir/skills/enki-catalog-qa/scripts/validate_catalog_reconciliation.mjs"
+node "$package_dir/skills/enki-catalog-qa/scripts/validate_catalog_regression.mjs" \
+  --manifest "$package_dir/skills/enki-catalog-qa/fixtures/catalog-regression/v1/manifest.json"
+node "$package_dir/skills/enki-catalog-qa/scripts/validate_catalog_reconciliation.mjs" \
+  --manifest "$package_dir/skills/enki-catalog-qa/fixtures/catalog-reconciliation/v1/manifest.json"
+uv lock --project "$package_dir/scripts/catalog-pipeline" --check
+PYTHONPATH="$package_dir/scripts/catalog-pipeline/src" PYTHONDONTWRITEBYTECODE=1 uv run \
+  --project "$package_dir/scripts/catalog-pipeline" \
+  --locked --isolated --no-env-file \
+  python -m unittest discover \
+  -s "$package_dir/scripts/catalog-pipeline/tests" \
+  -v
+PYTHONPATH="$package_dir/scripts/catalog-pipeline/src" PYTHONDONTWRITEBYTECODE=1 uv run \
+  --project "$package_dir/scripts/catalog-pipeline" \
+  --locked --isolated --no-env-file \
+  python -m enki_catalog_pipeline adapter-regression \
+  --manifest "$package_dir/skills/enki-catalog-qa/fixtures/catalog-regression/v1/manifest.json"
 node --test "$package_dir"/tests/*.test.mjs
 npm --prefix "$package_dir/connectors/woocommerce-readonly-mcp" test
 npm --prefix "$package_dir/connectors/catalog-knowledge" test

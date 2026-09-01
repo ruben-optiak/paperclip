@@ -1,0 +1,291 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:enki:catalog-field-evidence:v1",
+  "title": "Enki catalogue field evidence v1",
+  "description": "One traceable observation for one entity field. Geometry, hashes, cross-document consistency and approval precision are checked by the semantic validator.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "evidenceKey", "runKey", "revision", "observedAt", "timezone", "provenance", "entity", "field", "source", "location", "extraction", "confidence", "decision", "lineage", "authority"],
+  "properties": {
+    "schema": {"const": "enki-catalog-field-evidence/v1"},
+    "evidenceKey": {"$ref": "#/$defs/key"},
+    "runKey": {"$ref": "#/$defs/key"},
+    "revision": {"$ref": "#/$defs/revision"},
+    "observedAt": {"type": "string", "format": "date-time"},
+    "timezone": {"const": "Europe/Madrid"},
+    "provenance": {"enum": ["operational", "sanitized_fixture"]},
+    "entity": {"$ref": "#/$defs/entity"},
+    "field": {"$ref": "#/$defs/field"},
+    "source": {"$ref": "#/$defs/source"},
+    "location": {
+      "oneOf": [
+        {"$ref": "#/$defs/pdfRegion"},
+        {"$ref": "#/$defs/pdfPage"},
+        {"$ref": "#/$defs/csvCell"},
+        {"$ref": "#/$defs/webResource"},
+        {"$ref": "#/$defs/reviewRecord"}
+      ]
+    },
+    "extraction": {"$ref": "#/$defs/extraction"},
+    "confidence": {"$ref": "#/$defs/confidence"},
+    "decision": {"$ref": "#/$defs/decision"},
+    "lineage": {"$ref": "#/$defs/lineage"},
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["isObservation", "isCurrentCommercialTruth", "isExternalMutationAuthority"],
+      "properties": {
+        "isObservation": {"const": true},
+        "isCurrentCommercialTruth": {"type": "boolean"},
+        "isExternalMutationAuthority": {"const": false}
+      }
+    }
+  },
+  "$defs": {
+    "key": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "relativePath": {"type": "string", "pattern": "^[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"},
+    "value": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "string"},
+        {"type": "number"},
+        {"type": "boolean"},
+        {"type": "array", "items": {"oneOf": [{"type": "string"}, {"type": "number"}, {"type": "boolean"}, {"type": "null"}]}}
+      ]
+    },
+    "revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revisionId", "revisionNumber", "supersedesRevisionId"],
+      "properties": {
+        "revisionId": {"$ref": "#/$defs/key"},
+        "revisionNumber": {"type": "integer", "minimum": 1},
+        "supersedesRevisionId": {"type": ["string", "null"]}
+      }
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entityKey", "kind", "manufacturerRef", "canonicalSku", "brandSlug", "wooIdentity"],
+      "properties": {
+        "entityKey": {"$ref": "#/$defs/key"},
+        "kind": {"enum": ["simple", "parent", "variation", "configurator_option", "component", "assisted_sale", "unknown"]},
+        "manufacturerRef": {"type": ["string", "null"]},
+        "canonicalSku": {"type": ["string", "null"]},
+        "brandSlug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+        "wooIdentity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["productId", "variationId", "sku", "parentSku", "ean", "slug"],
+          "properties": {
+            "productId": {"type": ["integer", "null"], "minimum": 1},
+            "variationId": {"type": ["integer", "null"], "minimum": 1},
+            "sku": {"type": ["string", "null"]},
+            "parentSku": {"type": ["string", "null"]},
+            "ean": {"type": ["string", "null"]},
+            "slug": {"type": ["string", "null"]}
+          }
+        }
+      }
+    },
+    "field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["group", "name", "critical", "rawValue", "normalizedValue", "unit", "transformations"],
+      "properties": {
+        "group": {"enum": ["identity", "classification", "commercial", "dimensions", "technical", "compatibility", "finish", "configuration", "content", "lifecycle", "other"]},
+        "name": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "critical": {"type": "boolean"},
+        "rawValue": {"$ref": "#/$defs/value"},
+        "normalizedValue": {"$ref": "#/$defs/value"},
+        "unit": {"type": ["string", "null"]},
+        "transformations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "version", "note"],
+            "properties": {
+              "name": {"type": "string", "minLength": 1},
+              "version": {"type": "string", "minLength": 1},
+              "note": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceKey", "kind", "authority", "snapshotAt", "coverage", "freshness", "path", "sha256"],
+      "properties": {
+        "sourceKey": {"$ref": "#/$defs/key"},
+        "kind": {"enum": ["official_pdf", "woo_export_csv", "manufacturer_web", "manufacturer_file", "manual_rules_csv", "normalized_csv", "comparison_csv", "review_csv", "other"]},
+        "authority": {"enum": ["official_technical", "current_commercial_snapshot", "supporting_media", "operator_rule", "derived", "secondary_unverified"]},
+        "snapshotAt": {"type": "string", "format": "date-time"},
+        "coverage": {"enum": ["complete", "partial", "unknown"]},
+        "freshness": {"enum": ["current_for_run", "historical", "unknown"]},
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "box": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "text", "x0", "y0", "x1", "y1"],
+      "properties": {
+        "role": {"enum": ["reference", "value", "unit", "header", "context", "other"]},
+        "text": {"type": "string"},
+        "x0": {"type": "number", "minimum": 0},
+        "y0": {"type": "number", "minimum": 0},
+        "x1": {"type": "number", "exclusiveMinimum": 0},
+        "y1": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "pdfRegion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "documentPath", "documentSha256", "page", "pageImagePath", "pageImageSha256", "coordinateSpace", "pageWidth", "pageHeight", "boxes"],
+      "properties": {
+        "kind": {"const": "pdf_region"},
+        "documentPath": {"$ref": "#/$defs/relativePath"},
+        "documentSha256": {"$ref": "#/$defs/sha256"},
+        "page": {"type": "integer", "minimum": 1},
+        "pageImagePath": {"$ref": "#/$defs/relativePath"},
+        "pageImageSha256": {"$ref": "#/$defs/sha256"},
+        "coordinateSpace": {"const": "pdf_points_top_left"},
+        "pageWidth": {"type": "number", "exclusiveMinimum": 0},
+        "pageHeight": {"type": "number", "exclusiveMinimum": 0},
+        "boxes": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/box"}}
+      }
+    },
+    "pdfPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "documentPath", "documentSha256", "page", "precision", "reasonGeometryUnavailable"],
+      "properties": {
+        "kind": {"const": "pdf_page"},
+        "documentPath": {"$ref": "#/$defs/relativePath"},
+        "documentSha256": {"$ref": "#/$defs/sha256"},
+        "page": {"type": "integer", "minimum": 1},
+        "precision": {"const": "page_only"},
+        "reasonGeometryUnavailable": {"type": "string", "minLength": 1}
+      }
+    },
+    "csvCell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "filePath", "fileSha256", "rowNumber", "rowSha256", "columnIndex", "columnIndexBase", "originalHeader", "deduplicatedHeader"],
+      "properties": {
+        "kind": {"const": "csv_cell"},
+        "filePath": {"$ref": "#/$defs/relativePath"},
+        "fileSha256": {"$ref": "#/$defs/sha256"},
+        "rowNumber": {"type": "integer", "minimum": 2},
+        "rowSha256": {"$ref": "#/$defs/sha256"},
+        "columnIndex": {"type": "integer", "minimum": 0},
+        "columnIndexBase": {"const": 0},
+        "originalHeader": {"type": "string"},
+        "deduplicatedHeader": {"type": "string", "minLength": 1}
+      }
+    },
+    "webResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "url", "fragment", "contentSha256"],
+      "properties": {
+        "kind": {"const": "web_resource"},
+        "url": {"type": "string", "format": "uri"},
+        "fragment": {"type": ["string", "null"]},
+        "contentSha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "reviewRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "filePath", "fileSha256", "rowNumber", "rowSha256"],
+      "properties": {
+        "kind": {"const": "review_record"},
+        "filePath": {"$ref": "#/$defs/relativePath"},
+        "fileSha256": {"$ref": "#/$defs/sha256"},
+        "rowNumber": {"type": "integer", "minimum": 2},
+        "rowSha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "extraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "component", "componentVersion", "ruleKey", "ruleVersion"],
+      "properties": {
+        "method": {"enum": ["geometry", "text", "csv_position", "web_snapshot", "manual_review", "migration"]},
+        "component": {"type": "string", "minLength": 1},
+        "componentVersion": {"type": "string", "minLength": 1},
+        "ruleKey": {"type": ["string", "null"]},
+        "ruleVersion": {"type": ["string", "null"]}
+      }
+    },
+    "confidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score", "level", "reasons"],
+      "properties": {
+        "score": {"type": "number", "minimum": 0, "maximum": 1},
+        "level": {"enum": ["low", "medium", "high"]},
+        "reasons": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "actorType", "actorRef", "decidedAt", "note", "isExternalMutationAuthority"],
+      "properties": {
+        "state": {"enum": ["observed", "candidate", "needs_review", "approved", "rejected", "blocked_source_conflict", "superseded"]},
+        "actorType": {"enum": ["none", "board"]},
+        "actorRef": {"type": ["string", "null"]},
+        "decidedAt": {"type": ["string", "null"], "format": "date-time"},
+        "note": {"type": ["string", "null"]},
+        "isExternalMutationAuthority": {"const": false}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"state": {"enum": ["approved", "rejected", "superseded"]}}, "required": ["state"]},
+          "then": {
+            "properties": {
+              "actorType": {"const": "board"},
+              "actorRef": {"type": "string", "minLength": 1},
+              "decidedAt": {"type": "string", "format": "date-time"}
+            }
+          },
+          "else": {
+            "properties": {
+              "actorType": {"const": "none"},
+              "actorRef": {"type": "null"},
+              "decidedAt": {"type": "null"}
+            }
+          }
+        }
+      ]
+    },
+    "legacyRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dataset", "rowNumber", "rowSha256", "legacyLocatorSha256"],
+      "properties": {
+        "dataset": {"$ref": "#/$defs/relativePath"},
+        "rowNumber": {"type": "integer", "minimum": 2},
+        "rowSha256": {"$ref": "#/$defs/sha256"},
+        "legacyLocatorSha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["derivedFromEvidenceKeys", "supersedesEvidenceKey", "legacyRows"],
+      "properties": {
+        "derivedFromEvidenceKeys": {"type": "array", "items": {"$ref": "#/$defs/key"}},
+        "supersedesEvidenceKey": {"type": ["string", "null"]},
+        "legacyRows": {"type": "array", "items": {"$ref": "#/$defs/legacyRow"}}
+      }
+    }
+  }
+}

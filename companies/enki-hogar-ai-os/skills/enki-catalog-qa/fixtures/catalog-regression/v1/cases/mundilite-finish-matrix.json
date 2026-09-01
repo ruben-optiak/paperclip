@@ -1,0 +1,35 @@
+{
+  "schema": "enki-catalog-regression-fixture/v1",
+  "fixtureKey": "mundilite-finish-matrix",
+  "brand": {"slug": "mundilite", "name": "Mundilite"},
+  "features": ["table", "finish_matrix", "multi_sku_price"],
+  "provenance": {"kind": "sanitized_fixture", "sourceSnapshotDate": "2026-04-27", "sourcePage": 12, "layoutOnly": true, "sourceValuesRetained": false, "sourceMediaRetained": false, "sanitizationNote": "The single base reference plus four finish-price rows was retained; identifiers, finishes and amounts are invented."},
+  "source": {"sourceKey": "mundilite-finish-layout-fixture", "snapshotAt": "2026-04-27T00:00:00+02:00", "documentPath": "sanitized-sources/mundilite-finish-layout.pdf", "documentSha256": "8700f5dbf7b0e8e87145a4218605023cbca7b23e9632c4b474b04007e0adc828", "pageImagePath": "sanitized-sources/mundilite-finish-page.raster", "pageImageSha256": "a7b83f1dd63a7b439a5b80c0024c0b78de46667bb7034b36c6e47fee3aedc0d0", "page": 12, "pageWidth": 1200, "pageHeight": 840, "coordinateSpace": "pdf_points_top_left"},
+  "pairing": {"strategy": "row_left_to_right", "subjectKind": "finish", "valueKind": "price", "headerKind": null, "evidenceHeaderElementKey": "mundilite-finish-header", "rowTolerance": 8, "columnTolerance": 100, "rightSideTolerance": 4, "outputField": {"group": "commercial", "name": "official_price_ex_vat", "critical": true, "unit": "EUR"}},
+  "elements": [
+    {"elementKey": "mundilite-base-ref", "kind": "reference", "text": "MUN-FX-BASE", "rawValue": "MUN-FX-BASE", "normalizedValue": "MUN-FX-BASE", "unit": null, "headerKey": null, "box": {"x0": 70, "y0": 80, "x1": 190, "y1": 100}, "entity": {"entityKey": "mun-fx-base", "kind": "parent", "manufacturerRef": "MUN-FX-BASE", "canonicalSku": "MUN-FX-BASE", "qaState": "needs_review", "confidenceScore": 0.79, "confidenceReasons": ["The parent has no standalone commercial price in this fixture."]}},
+    {"elementKey": "mundilite-finish-header", "kind": "header", "text": "ACABADO DE PRUEBA / PRECIO", "rawValue": null, "normalizedValue": null, "unit": null, "headerKey": null, "box": {"x0": 70, "y0": 500, "x1": 360, "y1": 525}, "entity": null},
+    {"elementKey": "mun-finish-a", "kind": "finish", "text": "ACABADO FX A", "rawValue": "ACABADO FX A", "normalizedValue": "finish_fx_a", "unit": null, "headerKey": null, "box": {"x0": 80, "y0": 550, "x1": 230, "y1": 570}, "entity": {"entityKey": "mun-fx-base-finish-a", "kind": "variation", "manufacturerRef": "MUN-FX-BASE", "canonicalSku": "MUN-FX-BASE.FX-A", "qaState": "needs_review", "confidenceScore": 0.78, "confidenceReasons": ["Finish expansion remains a local candidate pending QA."]}},
+    {"elementKey": "mun-price-a", "kind": "price", "text": "510.00 EUR", "rawValue": "510.00 EUR", "normalizedValue": 510, "unit": "EUR", "headerKey": null, "box": {"x0": 300, "y0": 550, "x1": 390, "y1": 570}, "entity": null},
+    {"elementKey": "mun-finish-b", "kind": "finish", "text": "ACABADO FX B", "rawValue": "ACABADO FX B", "normalizedValue": "finish_fx_b", "unit": null, "headerKey": null, "box": {"x0": 80, "y0": 585, "x1": 230, "y1": 605}, "entity": {"entityKey": "mun-fx-base-finish-b", "kind": "variation", "manufacturerRef": "MUN-FX-BASE", "canonicalSku": "MUN-FX-BASE.FX-B", "qaState": "needs_review", "confidenceScore": 0.78, "confidenceReasons": ["Finish expansion remains a local candidate pending QA."]}},
+    {"elementKey": "mun-price-b", "kind": "price", "text": "530.00 EUR", "rawValue": "530.00 EUR", "normalizedValue": 530, "unit": "EUR", "headerKey": null, "box": {"x0": 300, "y0": 585, "x1": 390, "y1": 605}, "entity": null},
+    {"elementKey": "mun-finish-c", "kind": "finish", "text": "ACABADO FX C", "rawValue": "ACABADO FX C", "normalizedValue": "finish_fx_c", "unit": null, "headerKey": null, "box": {"x0": 80, "y0": 620, "x1": 230, "y1": 640}, "entity": {"entityKey": "mun-fx-base-finish-c", "kind": "variation", "manufacturerRef": "MUN-FX-BASE", "canonicalSku": "MUN-FX-BASE.FX-C", "qaState": "needs_review", "confidenceScore": 0.78, "confidenceReasons": ["Finish expansion remains a local candidate pending QA."]}},
+    {"elementKey": "mun-price-c", "kind": "price", "text": "565.00 EUR", "rawValue": "565.00 EUR", "normalizedValue": 565, "unit": "EUR", "headerKey": null, "box": {"x0": 300, "y0": 620, "x1": 390, "y1": 640}, "entity": null},
+    {"elementKey": "mun-finish-d", "kind": "finish", "text": "ACABADO FX D", "rawValue": "ACABADO FX D", "normalizedValue": "finish_fx_d", "unit": null, "headerKey": null, "box": {"x0": 80, "y0": 655, "x1": 230, "y1": 675}, "entity": {"entityKey": "mun-fx-base-finish-d", "kind": "variation", "manufacturerRef": "MUN-FX-BASE", "canonicalSku": "MUN-FX-BASE.FX-D", "qaState": "needs_review", "confidenceScore": 0.78, "confidenceReasons": ["Finish expansion remains a local candidate pending QA."]}},
+    {"elementKey": "mun-price-d", "kind": "price", "text": "600.00 EUR", "rawValue": "600.00 EUR", "normalizedValue": 600, "unit": "EUR", "headerKey": null, "box": {"x0": 300, "y0": 655, "x1": 390, "y1": 675}, "entity": null}
+  ],
+  "expected": {
+    "elementCounts": [{"key": "finish", "count": 4}, {"key": "header", "count": 1}, {"key": "price", "count": 4}, {"key": "reference", "count": 1}],
+    "pairs": [
+      {"pairKey": "mun-finish-a:mun-price-a", "subjectElementKey": "mun-finish-a", "valueElementKey": "mun-price-a", "headerElementKey": "mundilite-finish-header", "qaState": "needs_review"},
+      {"pairKey": "mun-finish-b:mun-price-b", "subjectElementKey": "mun-finish-b", "valueElementKey": "mun-price-b", "headerElementKey": "mundilite-finish-header", "qaState": "needs_review"},
+      {"pairKey": "mun-finish-c:mun-price-c", "subjectElementKey": "mun-finish-c", "valueElementKey": "mun-price-c", "headerElementKey": "mundilite-finish-header", "qaState": "needs_review"},
+      {"pairKey": "mun-finish-d:mun-price-d", "subjectElementKey": "mun-finish-d", "valueElementKey": "mun-price-d", "headerElementKey": "mundilite-finish-header", "qaState": "needs_review"}
+    ],
+    "evidenceCount": 4,
+    "evidenceEntityKindCounts": [{"key": "variation", "count": 4}],
+    "declaredEntityKindCounts": [{"key": "parent", "count": 1}, {"key": "variation", "count": 4}],
+    "qaStateCounts": [{"key": "needs_review", "count": 4}]
+  },
+  "authority": {"isLiveCommercialTruth": false, "isExternalMutationAuthority": false, "outputMode": "test_evidence_only"}
+}

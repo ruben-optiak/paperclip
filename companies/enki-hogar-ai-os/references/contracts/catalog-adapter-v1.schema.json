@@ -1,0 +1,250 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:enki:catalog-adapter:v1",
+  "title": "Enki catalogue adapter registry and definition v1",
+  "description": "Strict registry and snapshot-scoped brand rules for credential-free catalogue extraction observations.",
+  "oneOf": [
+    {"$ref": "#/$defs/registry"},
+    {"$ref": "#/$defs/adapter"}
+  ],
+  "$defs": {
+    "key": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+    "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "semver": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "relativePath": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$"},
+    "feature": {
+      "enum": ["table", "grid", "detail", "columns", "multi_sku_price", "finish_matrix", "configurator"]
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["isLiveCommercialTruth", "isExternalMutationAuthority", "canGenerateWooImport", "outputMode"],
+      "properties": {
+        "isLiveCommercialTruth": {"const": false},
+        "isExternalMutationAuthority": {"const": false},
+        "canGenerateWooImport": {"const": false},
+        "outputMode": {"const": "local_observation_only"}
+      }
+    },
+    "outputField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["group", "name", "critical", "unit"],
+      "properties": {
+        "group": {"enum": ["commercial", "configuration"]},
+        "name": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "critical": {"const": true},
+        "unit": {"type": ["string", "null"]}
+      }
+    },
+    "rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ruleKey", "version", "strategy", "strategyOwner", "subjectKind", "valueKind", "headerKind", "evidenceHeaderElementKey", "rowTolerance", "columnTolerance", "rightSideTolerance", "outputField"],
+      "properties": {
+        "ruleKey": {"$ref": "#/$defs/key"},
+        "version": {"$ref": "#/$defs/semver"},
+        "strategy": {"enum": ["row_left_to_right", "matrix_by_headers"]},
+        "strategyOwner": {"enum": ["core", "adapter"]},
+        "subjectKind": {"enum": ["reference", "finish", "configuration"]},
+        "valueKind": {"const": "price"},
+        "headerKind": {"type": ["string", "null"], "enum": ["width_header", null]},
+        "evidenceHeaderElementKey": {"type": ["string", "null"]},
+        "rowTolerance": {"type": "number", "exclusiveMinimum": 0},
+        "columnTolerance": {"type": "number", "exclusiveMinimum": 0},
+        "rightSideTolerance": {"type": "number", "minimum": 0},
+        "outputField": {"$ref": "#/$defs/outputField"}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"strategy": {"const": "row_left_to_right"}}, "required": ["strategy"]},
+          "then": {
+            "properties": {
+              "strategyOwner": {"const": "core"},
+              "headerKind": {"type": "null"}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"strategy": {"const": "matrix_by_headers"}}, "required": ["strategy"]},
+          "then": {
+            "properties": {
+              "strategyOwner": {"const": "adapter"},
+              "headerKind": {"const": "width_header"},
+              "evidenceHeaderElementKey": {"type": "null"}
+            }
+          }
+        }
+      ]
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fixtureKey", "sha256", "sourceSnapshotDate", "sourcePage", "features", "ruleKey", "expectedPairCount"],
+      "properties": {
+        "fixtureKey": {"$ref": "#/$defs/key"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "sourceSnapshotDate": {"type": "string", "format": "date"},
+        "sourcePage": {"type": "integer", "minimum": 1},
+        "features": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/feature"}
+        },
+        "ruleKey": {"$ref": "#/$defs/key"},
+        "expectedPairCount": {"type": "integer", "minimum": 1}
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inputStage", "sourceSnapshotDates", "sourcePages", "fixtureKeys", "features", "unknownSnapshots", "unknownPages"],
+      "properties": {
+        "inputStage": {"const": "classified_page_geometry"},
+        "sourceSnapshotDates": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "format": "date"}
+        },
+        "sourcePages": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "integer", "minimum": 1}
+        },
+        "fixtureKeys": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/key"}
+        },
+        "features": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/feature"}
+        },
+        "unknownSnapshots": {"const": "deny"},
+        "unknownPages": {"const": "deny"}
+      }
+    },
+    "qualityGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expectedFixtureCount", "expectedPairCount", "minimumFixturePassRate", "minimumSubjectCoverage", "maximumPairErrorRate"],
+      "properties": {
+        "expectedFixtureCount": {"type": "integer", "minimum": 1},
+        "expectedPairCount": {"type": "integer", "minimum": 1},
+        "minimumFixturePassRate": {"const": 1},
+        "minimumSubjectCoverage": {"const": 1},
+        "maximumPairErrorRate": {"const": 0}
+      }
+    },
+    "historicalBasis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceRepository", "reviewedImplementationPaths", "oracleSuite", "note"],
+      "properties": {
+        "sourceRepository": {"const": "enki-hogar"},
+        "reviewedImplementationPaths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"}
+        },
+        "oracleSuite": {"const": "enki-catalog-regression-suite/v1"},
+        "note": {"type": "string", "minLength": 1}
+      }
+    },
+    "adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "adapterKey", "brandSlug", "version", "implementation", "scope", "fixtureBindings", "rules", "qualityGate", "historicalBasis", "authority"],
+      "properties": {
+        "schema": {"const": "enki-catalog-adapter/v1"},
+        "adapterKey": {"$ref": "#/$defs/key"},
+        "brandSlug": {"$ref": "#/$defs/slug"},
+        "version": {"const": "1.0.0"},
+        "implementation": {"enum": ["buades_v1", "enki_espejos_v1", "mundilite_v1", "chicandbath_v1"]},
+        "scope": {"$ref": "#/$defs/scope"},
+        "fixtureBindings": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/binding"}
+        },
+        "rules": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/rule"}
+        },
+        "qualityGate": {"$ref": "#/$defs/qualityGate"},
+        "historicalBasis": {"$ref": "#/$defs/historicalBasis"},
+        "authority": {"$ref": "#/$defs/authority"}
+      }
+    },
+    "promotion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "version", "evidenceBrands", "evidenceFixtureKeys"],
+      "properties": {
+        "strategy": {"const": "row_left_to_right"},
+        "version": {"const": "1.0.0"},
+        "evidenceBrands": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/slug"}
+        },
+        "evidenceFixtureKeys": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/key"}
+        }
+      }
+    },
+    "registryEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["adapterKey", "brandSlug", "version", "implementation", "path", "sha256"],
+      "properties": {
+        "adapterKey": {"$ref": "#/$defs/key"},
+        "brandSlug": {"$ref": "#/$defs/slug"},
+        "version": {"const": "1.0.0"},
+        "implementation": {"enum": ["buades_v1", "enki_espejos_v1", "mundilite_v1", "chicandbath_v1"]},
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "registry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "version", "coreVersion", "inputContract", "outputContract", "corePromotions", "adapters", "authority"],
+      "properties": {
+        "schema": {"const": "enki-catalog-adapter-registry/v1"},
+        "version": {"const": "1.0.0"},
+        "coreVersion": {"const": "0.2.0"},
+        "inputContract": {"const": "classified_page_geometry/v1"},
+        "outputContract": {"const": "enki-catalog-adapter-result/v1"},
+        "corePromotions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {"$ref": "#/$defs/promotion"}
+        },
+        "adapters": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {"$ref": "#/$defs/registryEntry"}
+        },
+        "authority": {"$ref": "#/$defs/authority"}
+      }
+    }
+  }
+}

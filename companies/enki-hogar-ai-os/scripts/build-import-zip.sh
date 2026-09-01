@@ -25,8 +25,12 @@ if ! command -v zip >/dev/null 2>&1; then
   echo "zip is required" >&2
   exit 4
 fi
+if ! command -v uv >/dev/null 2>&1; then
+  echo "uv is required to verify the locked catalogue adapters" >&2
+  exit 4
+fi
 symlinks=$(find "$package_dir" \
-  \( -type d \( -name node_modules -o -name source-snapshots -o -name .runtime-secrets \) -prune \) \
+  \( -type d \( -name node_modules -o -name .venv -o -name __pycache__ -o -name source-snapshots -o -name .runtime-secrets \) -prune \) \
   -o -type l -print)
 if [ -n "$symlinks" ]; then
   echo "Refusing symlinked package inputs:" >&2
@@ -36,6 +40,12 @@ fi
 
 "$package_dir/scripts/validate-package.mjs"
 "$package_dir/scripts/scan-secrets.sh"
+PYTHONPATH="$package_dir/scripts/catalog-pipeline/src" PYTHONDONTWRITEBYTECODE=1 uv run \
+  --project "$package_dir/scripts/catalog-pipeline" \
+  --locked --isolated --no-env-file \
+  python -m enki_catalog_pipeline adapter-regression \
+  --manifest "$package_dir/skills/enki-catalog-qa/fixtures/catalog-regression/v1/manifest.json" \
+  >/dev/null
 
 output_dir=$(CDPATH= cd -- "$(dirname -- "$output")" && pwd)
 output_path="$output_dir/$(basename -- "$output")"
@@ -68,6 +78,8 @@ is_allowed() {
     ! -path './connectors/*/node_modules/*' \
     ! -path './connectors/*/dist/*' \
     ! -path './connectors/*/.paperclip-sdk/*' \
+    ! -path './scripts/catalog-pipeline/.venv/*' \
+    ! -path '*/__pycache__/*' \
     ! -path './references/source-snapshots/*' \
     ! -path './.runtime-secrets/*' \
     ! -name '*.DS_Store' \

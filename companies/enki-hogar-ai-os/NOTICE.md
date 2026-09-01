@@ -25,3 +25,13 @@ implementation is byte-identical to the source script.
 `references/source-snapshots/`, runtime credentials, Paperclip exports, database
 backups, and storage backups are deliberately outside the distributable source
 package.
+
+The catalogue regression fixtures are independently authored synthetic test
+data informed by visual review of historical manufacturer layouts. They retain
+only minimal geometry and invented values. The original catalogues, page
+images, commercial values, and manufacturer content are not distributed or
+relicensed by this package; brand names identify compatibility coverage only.
+The adapter definitions and Python implementation are new package code informed
+by Enki's internal historical extractor behavior. They retain logical source
+paths, geometry strategies and invented regression values only; no original PDF,
+commercial tariff, manufacturer media or customer data is distributed.

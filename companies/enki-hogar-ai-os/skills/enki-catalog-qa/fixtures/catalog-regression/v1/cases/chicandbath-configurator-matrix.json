@@ -1,0 +1,36 @@
+{
+  "schema": "enki-catalog-regression-fixture/v1",
+  "fixtureKey": "chicandbath-configurator-matrix",
+  "brand": {"slug": "chicandbath", "name": "Chicandbath"},
+  "features": ["table", "columns", "multi_sku_price", "configurator"],
+  "provenance": {"kind": "sanitized_fixture", "sourceSnapshotDate": "2026-07-11", "sourcePage": 60, "layoutOnly": true, "sourceValuesRetained": false, "sourceMediaRetained": false, "sanitizationNote": "Only a two-row by two-width configurator matrix and entity-role separation were retained; all references, amounts and option labels are invented."},
+  "source": {"sourceKey": "chicandbath-configurator-layout-fixture", "snapshotAt": "2026-07-11T00:00:00+02:00", "documentPath": "sanitized-sources/chicandbath-configurator-layout.pdf", "documentSha256": "d5a16b1ac1175077b4dcf1fbba8b9bee1aadfea1e83e7e56e24bb2e24e146188", "pageImagePath": "sanitized-sources/chicandbath-configurator-page.raster", "pageImageSha256": "b0e5ea78134c3b379bca557d9eb07bb1411022a69b8838916ba96b61ffb979dd", "page": 60, "pageWidth": 1400, "pageHeight": 920, "coordinateSpace": "pdf_points_top_left"},
+  "pairing": {"strategy": "matrix_by_headers", "subjectKind": "configuration", "valueKind": "price", "headerKind": "width_header", "evidenceHeaderElementKey": null, "rowTolerance": 12, "columnTolerance": 55, "rightSideTolerance": 4, "outputField": {"group": "configuration", "name": "official_price_by_width_ex_vat", "critical": true, "unit": "EUR"}},
+  "elements": [
+    {"elementKey": "chic-matrix-header", "kind": "header", "text": "CONFIGURADOR DE PRUEBA", "rawValue": null, "normalizedValue": null, "unit": null, "headerKey": null, "box": {"x0": 620, "y0": 230, "x1": 1050, "y1": 255}, "entity": null},
+    {"elementKey": "chic-width-60", "kind": "width_header", "text": "60", "rawValue": "60", "normalizedValue": 60, "unit": "cm", "headerKey": "w60", "box": {"x0": 820, "y0": 300, "x1": 850, "y1": 320}, "entity": null},
+    {"elementKey": "chic-width-80", "kind": "width_header", "text": "80", "rawValue": "80", "normalizedValue": 80, "unit": "cm", "headerKey": "w80", "box": {"x0": 960, "y0": 300, "x1": 990, "y1": 320}, "entity": null},
+    {"elementKey": "chic-config-a", "kind": "configuration", "text": "CHIC-FX-CONFIG-A", "rawValue": "CHIC-FX-CONFIG-A", "normalizedValue": "CHIC-FX-CONFIG-A", "unit": null, "headerKey": null, "box": {"x0": 620, "y0": 380, "x1": 760, "y1": 402}, "entity": {"entityKey": "chic-fx-config-a", "kind": "configurator_option", "manufacturerRef": "CHIC-FX-CONFIG-A", "canonicalSku": null, "qaState": "needs_manual_review", "confidenceScore": 0.68, "confidenceReasons": ["Width is a configurator axis and must not be expanded blindly into Woo variations."]}},
+    {"elementKey": "chic-price-a-60", "kind": "price", "text": "310.00 EUR", "rawValue": "310.00 EUR", "normalizedValue": 310, "unit": "EUR", "headerKey": null, "box": {"x0": 800, "y0": 380, "x1": 870, "y1": 402}, "entity": null},
+    {"elementKey": "chic-price-a-80", "kind": "price", "text": "335.00 EUR", "rawValue": "335.00 EUR", "normalizedValue": 335, "unit": "EUR", "headerKey": null, "box": {"x0": 940, "y0": 380, "x1": 1010, "y1": 402}, "entity": null},
+    {"elementKey": "chic-config-b", "kind": "configuration", "text": "CHIC-FX-COMPONENT-B", "rawValue": "CHIC-FX-COMPONENT-B", "normalizedValue": "CHIC-FX-COMPONENT-B", "unit": null, "headerKey": null, "box": {"x0": 620, "y0": 430, "x1": 770, "y1": 452}, "entity": {"entityKey": "chic-fx-component-b", "kind": "component", "manufacturerRef": "CHIC-FX-COMPONENT-B", "canonicalSku": null, "qaState": "needs_manual_review", "confidenceScore": 0.68, "confidenceReasons": ["A priced component must retain its own identity inside the configurator."]}},
+    {"elementKey": "chic-price-b-60", "kind": "price", "text": "125.00 EUR", "rawValue": "125.00 EUR", "normalizedValue": 125, "unit": "EUR", "headerKey": null, "box": {"x0": 800, "y0": 430, "x1": 870, "y1": 452}, "entity": null},
+    {"elementKey": "chic-price-b-80", "kind": "price", "text": "145.00 EUR", "rawValue": "145.00 EUR", "normalizedValue": 145, "unit": "EUR", "headerKey": null, "box": {"x0": 940, "y0": 430, "x1": 1010, "y1": 452}, "entity": null},
+    {"elementKey": "chic-component-extra", "kind": "component_reference", "text": "CHIC-FX-EXTRA-C", "rawValue": "CHIC-FX-EXTRA-C", "normalizedValue": "CHIC-FX-EXTRA-C", "unit": null, "headerKey": null, "box": {"x0": 620, "y0": 500, "x1": 760, "y1": 522}, "entity": {"entityKey": "chic-fx-extra-c", "kind": "component", "manufacturerRef": "CHIC-FX-EXTRA-C", "canonicalSku": null, "qaState": "needs_manual_review", "confidenceScore": 0.65, "confidenceReasons": ["Component relation is declared but is not part of the price matrix."]}},
+    {"elementKey": "chic-assisted-sale", "kind": "context", "text": "VENTA ASISTIDA DE PRUEBA", "rawValue": "VENTA ASISTIDA DE PRUEBA", "normalizedValue": "assisted_sale", "unit": null, "headerKey": null, "box": {"x0": 100, "y0": 100, "x1": 360, "y1": 130}, "entity": {"entityKey": "chic-fx-assisted-sale", "kind": "assisted_sale", "manufacturerRef": null, "canonicalSku": null, "qaState": "needs_manual_review", "confidenceScore": 0.66, "confidenceReasons": ["The configuration requires a dedicated assisted workflow."]}}
+  ],
+  "expected": {
+    "elementCounts": [{"key": "component_reference", "count": 1}, {"key": "configuration", "count": 2}, {"key": "context", "count": 1}, {"key": "header", "count": 1}, {"key": "price", "count": 4}, {"key": "width_header", "count": 2}],
+    "pairs": [
+      {"pairKey": "chic-config-a:w60", "subjectElementKey": "chic-config-a", "valueElementKey": "chic-price-a-60", "headerElementKey": "chic-width-60", "qaState": "needs_manual_review"},
+      {"pairKey": "chic-config-a:w80", "subjectElementKey": "chic-config-a", "valueElementKey": "chic-price-a-80", "headerElementKey": "chic-width-80", "qaState": "needs_manual_review"},
+      {"pairKey": "chic-config-b:w60", "subjectElementKey": "chic-config-b", "valueElementKey": "chic-price-b-60", "headerElementKey": "chic-width-60", "qaState": "needs_manual_review"},
+      {"pairKey": "chic-config-b:w80", "subjectElementKey": "chic-config-b", "valueElementKey": "chic-price-b-80", "headerElementKey": "chic-width-80", "qaState": "needs_manual_review"}
+    ],
+    "evidenceCount": 4,
+    "evidenceEntityKindCounts": [{"key": "component", "count": 2}, {"key": "configurator_option", "count": 2}],
+    "declaredEntityKindCounts": [{"key": "assisted_sale", "count": 1}, {"key": "component", "count": 2}, {"key": "configurator_option", "count": 1}],
+    "qaStateCounts": [{"key": "needs_manual_review", "count": 4}]
+  },
+  "authority": {"isLiveCommercialTruth": false, "isExternalMutationAuthority": false, "outputMode": "test_evidence_only"}
+}

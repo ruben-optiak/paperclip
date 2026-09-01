@@ -1,0 +1,39 @@
+{
+  "schema": "enki-catalog-regression-suite/v1",
+  "version": "1.0.0",
+  "createdAt": "2026-09-01T12:00:00+02:00",
+  "timezone": "Europe/Madrid",
+  "provenance": {
+    "kind": "sanitized_fixture",
+    "retainedData": "layout_geometry_and_invented_values_only",
+    "purpose": "deterministic_cross_brand_regression"
+  },
+  "contracts": {
+    "catalogRun": "enki-catalog-run/v1",
+    "catalogFieldEvidence": "enki-catalog-field-evidence/v1",
+    "catalogChangeSet": "enki-catalog-change-set/v1",
+    "regression": "enki-catalog-regression-fixture/v1"
+  },
+  "requiredBrands": ["buades", "enki-espejos", "mundilite", "chicandbath"],
+  "requiredFeatures": ["table", "grid", "detail", "columns", "multi_sku_price", "finish_matrix", "configurator"],
+  "fixtures": [
+    {"fixtureKey": "buades-table-multi-price", "brandSlug": "buades", "path": "cases/buades-table-multi-price.json", "sha256": "5fdc8c83e1ac3e1f15a6601945ce851fa794af2d2b7f5bbd803a0932a47c85a5"},
+    {"fixtureKey": "buades-detail-card", "brandSlug": "buades", "path": "cases/buades-detail-card.json", "sha256": "1755fc3b743d3125f8eddbabef7dfed0a2cca588737e10eec937d87ba4c4580e"},
+    {"fixtureKey": "enki-espejos-grid", "brandSlug": "enki-espejos", "path": "cases/enki-espejos-grid.json", "sha256": "f02f66facfcbe06ec57ce79f259792f0bf3bce296c5baad42f8e41e655cdab0b"},
+    {"fixtureKey": "enki-espejos-columns", "brandSlug": "enki-espejos", "path": "cases/enki-espejos-columns.json", "sha256": "c185dd9f5256b9f298f09c9cbaa9fd1359e3f8ca6d1b8c793be2e7ae7d663109"},
+    {"fixtureKey": "mundilite-finish-matrix", "brandSlug": "mundilite", "path": "cases/mundilite-finish-matrix.json", "sha256": "a53cf71695203f2c00ac1b2fd37726377499230a2a3fc60564f8f96ec40f91c7"},
+    {"fixtureKey": "chicandbath-configurator-matrix", "brandSlug": "chicandbath", "path": "cases/chicandbath-configurator-matrix.json", "sha256": "a5c566c1fcf56ffad634d205e5ab9b296672c8013b8976654932683221c25ae8"}
+  ],
+  "wooHeaderFixture": {
+    "path": "woo/duplicate-headers.csv",
+    "sha256": "b08da1c142674f66fbaa99a5067a3feefd4b8c77c11946ae748688f94876d3d5",
+    "rowCount": 2,
+    "originalHeaders": ["ID", "Type", "SKU", "Regular Price", "Regular Price", "Images", "Images"],
+    "deduplicatedHeaders": ["ID", "Type", "SKU", "Regular Price", "Regular Price__2", "Images", "Images__2"]
+  },
+  "authority": {
+    "isLiveCommercialTruth": false,
+    "isExternalMutationAuthority": false,
+    "outputMode": "test_evidence_only"
+  }
+}

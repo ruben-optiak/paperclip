@@ -148,6 +148,62 @@
       "sensitivity": "enki_internal"
     },
     {
+      "target": "contracts/catalog-run-v1.schema.json",
+      "targetSha256": "979cb833586de77b912d6a026ea701a79ea5dab2679382c0d85feec540a9df86",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Immutable catalogue-run manifest for sources, runtime, rules, artifacts, stages, lineage and local-only approval",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/catalog-field-evidence-v1.schema.json",
+      "targetSha256": "bfa46e8e611501a0a01d4907e87d0cae950de4a08490a3b86b6d0864ab916f62",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Field-level raw and normalized evidence with exact PDF, CSV, web or review location and conservative decision lineage",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/catalog-change-set-v1.schema.json",
+      "targetSha256": "5e6fcccd955cecfd6c8e53348a02589bef7dea200a36ab9fe79ebfb916305980",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Reviewable catalogue deltas whose maximum authority is inclusion in a local export draft",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/catalog-regression-v1.schema.json",
+      "targetSha256": "52e4003616287dca3b16e44f196e9a77fb1c2fb8e9c278aca567bc0eb9b42f84",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Strict manifests and sanitized geometric fixtures for deterministic cross-brand catalogue regression",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/catalog-adapter-v1.schema.json",
+      "targetSha256": "d404dd57ac2007b490dc2d550b904c3922575e48190e757daf263af28ea9cf3b",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Strict registry and snapshot-scoped brand adapter definitions with exact coverage and error gates",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/catalog-reconciliation-v1.schema.json",
+      "targetSha256": "fa93358fb095e37cc7b332efed26ff63dafcb23ea92037a78137c28d7f242588",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Strict Woo positional profile, local reconciliation report and post-import audit without import authority",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "replay-receipts/eai-021-buades-2026-04-26.json",
+      "targetSha256": "2bad6c6ffd005ed5b26505abc2529602303a280d9dd7006243719643c758b68c",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Sanitized aggregate receipt proving the bounded EAI-021 replay against a reviewed historical Woo layout without retaining commercial rows",
+      "sensitivity": "enki_internal"
+    },
+    {
       "target": "contracts/product-support-result-v1.schema.json",
       "targetSha256": "077bf89b7189120a854b331d5ad4f51033af54e8446c77e5bb9ec1a773886d10",
       "origin": "package-authored",

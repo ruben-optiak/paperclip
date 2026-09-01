@@ -5,4 +5,6 @@ references/source-snapshots/
 connectors/woocommerce-readonly-mcp/node_modules/
 connectors/catalog-knowledge/node_modules/
 connectors/content-publisher/node_modules/
+scripts/catalog-pipeline/.venv/
+scripts/catalog-pipeline/**/__pycache__/
 .runtime-secrets/

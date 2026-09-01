@@ -1,0 +1,59 @@
+{
+  "schema": "enki-catalog-regression-fixture/v1",
+  "fixtureKey": "buades-table-multi-price",
+  "brand": {"slug": "buades", "name": "Buades"},
+  "features": ["table", "columns", "multi_sku_price"],
+  "provenance": {
+    "kind": "sanitized_fixture",
+    "sourceSnapshotDate": "2026-04-11",
+    "sourcePage": 17,
+    "layoutOnly": true,
+    "sourceValuesRetained": false,
+    "sourceMediaRetained": false,
+    "sanitizationNote": "Only the relative row and column geometry was retained; references, prices and labels are invented."
+  },
+  "source": {
+    "sourceKey": "buades-table-layout-fixture",
+    "snapshotAt": "2026-04-11T00:00:00+02:00",
+    "documentPath": "sanitized-sources/buades-table-layout.pdf",
+    "documentSha256": "8211e5e90f03dff0a13a32a8f622eaca91353f45fb41becce8542e594832d175",
+    "pageImagePath": "sanitized-sources/buades-table-page.raster",
+    "pageImageSha256": "1caa7a0cf7d1be2afc35600387c3031234dd07c4c1e81e790b5f5a219bb4cef6",
+    "page": 17,
+    "pageWidth": 1200,
+    "pageHeight": 840,
+    "coordinateSpace": "pdf_points_top_left"
+  },
+  "pairing": {
+    "strategy": "row_left_to_right",
+    "subjectKind": "reference",
+    "valueKind": "price",
+    "headerKind": null,
+    "evidenceHeaderElementKey": "buades-table-header",
+    "rowTolerance": 8,
+    "columnTolerance": 120,
+    "rightSideTolerance": 8,
+    "outputField": {"group": "commercial", "name": "official_price_ex_vat", "critical": true, "unit": "EUR"}
+  },
+  "elements": [
+    {"elementKey": "buades-table-header", "kind": "header", "text": "REFERENCIA DE PRUEBA / PRECIO", "rawValue": null, "normalizedValue": null, "unit": null, "headerKey": null, "box": {"x0": 70, "y0": 340, "x1": 760, "y1": 370}, "entity": null},
+    {"elementKey": "bds-ref-a", "kind": "reference", "text": "BDS-FX-T-A", "rawValue": "BDS-FX-T-A", "normalizedValue": "BDS-FX-T-A", "unit": null, "headerKey": null, "box": {"x0": 80, "y0": 400, "x1": 180, "y1": 420}, "entity": {"entityKey": "bds-fx-t-a", "kind": "variation", "manufacturerRef": "BDS-FX-T-A", "canonicalSku": "BDS-FX-T-A", "qaState": "needs_review", "confidenceScore": 0.72, "confidenceReasons": ["A shared next-price cell requires explicit QA."]}},
+    {"elementKey": "bds-ref-b", "kind": "reference", "text": "BDS-FX-T-B", "rawValue": "BDS-FX-T-B", "normalizedValue": "BDS-FX-T-B", "unit": null, "headerKey": null, "box": {"x0": 220, "y0": 400, "x1": 320, "y1": 420}, "entity": {"entityKey": "bds-fx-t-b", "kind": "variation", "manufacturerRef": "BDS-FX-T-B", "canonicalSku": "BDS-FX-T-B", "qaState": "needs_review", "confidenceScore": 0.72, "confidenceReasons": ["A shared next-price cell requires explicit QA."]}},
+    {"elementKey": "bds-price-shared", "kind": "price", "text": "110.00 EUR", "rawValue": "110.00 EUR", "normalizedValue": 110, "unit": "EUR", "headerKey": null, "box": {"x0": 390, "y0": 400, "x1": 470, "y1": 420}, "entity": null},
+    {"elementKey": "bds-ref-c", "kind": "reference", "text": "BDS-FX-T-C", "rawValue": "BDS-FX-T-C", "normalizedValue": "BDS-FX-T-C", "unit": null, "headerKey": null, "box": {"x0": 520, "y0": 400, "x1": 620, "y1": 420}, "entity": {"entityKey": "bds-fx-t-c", "kind": "variation", "manufacturerRef": "BDS-FX-T-C", "canonicalSku": "BDS-FX-T-C", "qaState": "auto_clear", "confidenceScore": 0.91, "confidenceReasons": ["Reference and price form an unambiguous right-side pair."]}},
+    {"elementKey": "bds-price-c", "kind": "price", "text": "145.00 EUR", "rawValue": "145.00 EUR", "normalizedValue": 145, "unit": "EUR", "headerKey": null, "box": {"x0": 690, "y0": 400, "x1": 770, "y1": 420}, "entity": null}
+  ],
+  "expected": {
+    "elementCounts": [{"key": "header", "count": 1}, {"key": "price", "count": 2}, {"key": "reference", "count": 3}],
+    "pairs": [
+      {"pairKey": "bds-ref-a:bds-price-shared", "subjectElementKey": "bds-ref-a", "valueElementKey": "bds-price-shared", "headerElementKey": "buades-table-header", "qaState": "needs_review"},
+      {"pairKey": "bds-ref-b:bds-price-shared", "subjectElementKey": "bds-ref-b", "valueElementKey": "bds-price-shared", "headerElementKey": "buades-table-header", "qaState": "needs_review"},
+      {"pairKey": "bds-ref-c:bds-price-c", "subjectElementKey": "bds-ref-c", "valueElementKey": "bds-price-c", "headerElementKey": "buades-table-header", "qaState": "auto_clear"}
+    ],
+    "evidenceCount": 3,
+    "evidenceEntityKindCounts": [{"key": "variation", "count": 3}],
+    "declaredEntityKindCounts": [{"key": "variation", "count": 3}],
+    "qaStateCounts": [{"key": "auto_clear", "count": 1}, {"key": "needs_review", "count": 2}]
+  },
+  "authority": {"isLiveCommercialTruth": false, "isExternalMutationAuthority": false, "outputMode": "test_evidence_only"}
+}

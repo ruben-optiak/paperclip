@@ -1,0 +1,64 @@
+{
+  "schema": "enki-catalog-field-evidence/v1",
+  "evidenceKey": "ev-buades-demo-price-candidate",
+  "runKey": "catalog-run-buades-sanitized-2026-08-31",
+  "revision": {"revisionId": "ev-buades-demo-price-candidate.r1", "revisionNumber": 1, "supersedesRevisionId": null},
+  "observedAt": "2026-08-31T09:40:00+02:00",
+  "timezone": "Europe/Madrid",
+  "provenance": "sanitized_fixture",
+  "entity": {
+    "entityKey": "buades-ref-demo-001",
+    "kind": "simple",
+    "manufacturerRef": "DEMO-001",
+    "canonicalSku": "BUA-DEMO-001",
+    "brandSlug": "buades",
+    "wooIdentity": {"productId": 90001, "variationId": null, "sku": "BUA-DEMO-001", "parentSku": null, "ean": null, "slug": "grifo-demo-001"}
+  },
+  "field": {
+    "group": "commercial",
+    "name": "regular_price_eur_gross",
+    "critical": true,
+    "rawValue": "88,47 € + IVA",
+    "normalizedValue": 107.05,
+    "unit": "EUR",
+    "transformations": [
+      {"name": "decimal-comma", "version": "1.0.0", "note": "88,47 convertido a decimal 88.47."},
+      {"name": "vat-es-21", "version": "1.0.0", "note": "Precio neto multiplicado por 1.21 y redondeado a dos decimales."}
+    ]
+  },
+  "source": {
+    "sourceKey": "buades-official-pdf-sanitized",
+    "kind": "official_pdf",
+    "authority": "official_technical",
+    "snapshotAt": "2026-08-31T09:00:00+02:00",
+    "coverage": "complete",
+    "freshness": "current_for_run",
+    "path": "sources/buades/catalogo-oficial.pdf",
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "location": {
+    "kind": "pdf_region",
+    "documentPath": "sources/buades/catalogo-oficial.pdf",
+    "documentSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "page": 37,
+    "pageImagePath": "pages/page-0037.png",
+    "pageImageSha256": "3333333333333333333333333333333333333333333333333333333333333333",
+    "coordinateSpace": "pdf_points_top_left",
+    "pageWidth": 595,
+    "pageHeight": 842,
+    "boxes": [
+      {"role": "reference", "text": "DEMO-001", "x0": 84.2, "y0": 310.5, "x1": 142.8, "y1": 322.7},
+      {"role": "value", "text": "88,47 € + IVA", "x0": 430.1, "y0": 310.2, "x1": 508.4, "y1": 323.1},
+      {"role": "header", "text": "PVP sin IVA", "x0": 425, "y0": 270.4, "x1": 510, "y1": 282.3}
+    ]
+  },
+  "extraction": {"method": "geometry", "component": "buades-layout-adapter", "componentVersion": "1.0.0", "ruleKey": "buades-geometry-rules", "ruleVersion": "1.0.0"},
+  "confidence": {"score": 0.94, "level": "high", "reasons": ["Referencia y precio comparten fila geométrica.", "La base fiscal está identificada por el encabezado local."]},
+  "decision": {"state": "candidate", "actorType": "none", "actorRef": null, "decidedAt": null, "note": "Candidato pendiente de QA humano.", "isExternalMutationAuthority": false},
+  "lineage": {
+    "derivedFromEvidenceKeys": [],
+    "supersedesEvidenceKey": null,
+    "legacyRows": [{"dataset": "legacy/buades/pdf_catalog_master.csv", "rowNumber": 18, "rowSha256": "4444444444444444444444444444444444444444444444444444444444444444", "legacyLocatorSha256": "5555555555555555555555555555555555555555555555555555555555555555"}]
+  },
+  "authority": {"isObservation": true, "isCurrentCommercialTruth": false, "isExternalMutationAuthority": false}
+}

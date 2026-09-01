@@ -1,0 +1,31 @@
+{
+  "schema": "enki-catalog-regression-fixture/v1",
+  "fixtureKey": "enki-espejos-grid",
+  "brand": {"slug": "enki-espejos", "name": "Enki Espejos"},
+  "features": ["grid"],
+  "provenance": {"kind": "sanitized_fixture", "sourceSnapshotDate": "2026-05-31", "sourcePage": 11, "layoutOnly": true, "sourceValuesRetained": false, "sourceMediaRetained": false, "sanitizationNote": "The product-card table position was retained while references, dimensions, copy and prices were replaced."},
+  "source": {"sourceKey": "enki-espejos-grid-layout-fixture", "snapshotAt": "2026-05-31T00:00:00+02:00", "documentPath": "sanitized-sources/enki-espejos-grid-layout.pdf", "documentSha256": "1a97a37afe9b469e90f25ed7831bf832e3ad9ac4f167eb6edd098a113c3df056", "pageImagePath": "sanitized-sources/enki-espejos-grid-page.raster", "pageImageSha256": "23cab4176ceb80c0cd97e3f18284274fb7d7d67f37ad4fbfe73e99200ae34778", "page": 11, "pageWidth": 600, "pageHeight": 840, "coordinateSpace": "pdf_points_top_left"},
+  "pairing": {"strategy": "row_left_to_right", "subjectKind": "reference", "valueKind": "price", "headerKind": null, "evidenceHeaderElementKey": "enki-grid-header", "rowTolerance": 8, "columnTolerance": 80, "rightSideTolerance": 4, "outputField": {"group": "commercial", "name": "official_price_ex_vat", "critical": true, "unit": "EUR"}},
+  "elements": [
+    {"elementKey": "enki-grid-header", "kind": "header", "text": "REFERENCIA / MEDIDA / PVP DE PRUEBA", "rawValue": null, "normalizedValue": null, "unit": null, "headerKey": null, "box": {"x0": 210, "y0": 650, "x1": 460, "y1": 670}, "entity": null},
+    {"elementKey": "enki-grid-a", "kind": "reference", "text": "ENK-FX-G-A", "rawValue": "ENK-FX-G-A", "normalizedValue": "ENK-FX-G-A", "unit": null, "headerKey": null, "box": {"x0": 220, "y0": 685, "x1": 315, "y1": 703}, "entity": {"entityKey": "enk-fx-g-a", "kind": "variation", "manufacturerRef": "ENK-FX-G-A", "canonicalSku": "ENK-FX-G-A", "qaState": "auto_clear", "confidenceScore": 0.93, "confidenceReasons": ["The product-card row has one price to the right."]}},
+    {"elementKey": "enki-grid-price-a", "kind": "price", "text": "60.00 EUR", "rawValue": "60.00 EUR", "normalizedValue": 60, "unit": "EUR", "headerKey": null, "box": {"x0": 390, "y0": 685, "x1": 460, "y1": 703}, "entity": null},
+    {"elementKey": "enki-grid-b", "kind": "reference", "text": "ENK-FX-G-B", "rawValue": "ENK-FX-G-B", "normalizedValue": "ENK-FX-G-B", "unit": null, "headerKey": null, "box": {"x0": 220, "y0": 715, "x1": 315, "y1": 733}, "entity": {"entityKey": "enk-fx-g-b", "kind": "variation", "manufacturerRef": "ENK-FX-G-B", "canonicalSku": "ENK-FX-G-B", "qaState": "auto_clear", "confidenceScore": 0.93, "confidenceReasons": ["The product-card row has one price to the right."]}},
+    {"elementKey": "enki-grid-price-b", "kind": "price", "text": "72.00 EUR", "rawValue": "72.00 EUR", "normalizedValue": 72, "unit": "EUR", "headerKey": null, "box": {"x0": 390, "y0": 715, "x1": 460, "y1": 733}, "entity": null},
+    {"elementKey": "enki-grid-c", "kind": "reference", "text": "ENK-FX-G-C", "rawValue": "ENK-FX-G-C", "normalizedValue": "ENK-FX-G-C", "unit": null, "headerKey": null, "box": {"x0": 220, "y0": 745, "x1": 315, "y1": 763}, "entity": {"entityKey": "enk-fx-g-c", "kind": "variation", "manufacturerRef": "ENK-FX-G-C", "canonicalSku": "ENK-FX-G-C", "qaState": "auto_clear", "confidenceScore": 0.93, "confidenceReasons": ["The product-card row has one price to the right."]}},
+    {"elementKey": "enki-grid-price-c", "kind": "price", "text": "84.00 EUR", "rawValue": "84.00 EUR", "normalizedValue": 84, "unit": "EUR", "headerKey": null, "box": {"x0": 390, "y0": 745, "x1": 460, "y1": 763}, "entity": null}
+  ],
+  "expected": {
+    "elementCounts": [{"key": "header", "count": 1}, {"key": "price", "count": 3}, {"key": "reference", "count": 3}],
+    "pairs": [
+      {"pairKey": "enki-grid-a:enki-grid-price-a", "subjectElementKey": "enki-grid-a", "valueElementKey": "enki-grid-price-a", "headerElementKey": "enki-grid-header", "qaState": "auto_clear"},
+      {"pairKey": "enki-grid-b:enki-grid-price-b", "subjectElementKey": "enki-grid-b", "valueElementKey": "enki-grid-price-b", "headerElementKey": "enki-grid-header", "qaState": "auto_clear"},
+      {"pairKey": "enki-grid-c:enki-grid-price-c", "subjectElementKey": "enki-grid-c", "valueElementKey": "enki-grid-price-c", "headerElementKey": "enki-grid-header", "qaState": "auto_clear"}
+    ],
+    "evidenceCount": 3,
+    "evidenceEntityKindCounts": [{"key": "variation", "count": 3}],
+    "declaredEntityKindCounts": [{"key": "variation", "count": 3}],
+    "qaStateCounts": [{"key": "auto_clear", "count": 3}]
+  },
+  "authority": {"isLiveCommercialTruth": false, "isExternalMutationAuthority": false, "outputMode": "test_evidence_only"}
+}

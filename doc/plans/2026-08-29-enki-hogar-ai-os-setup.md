@@ -4,13 +4,13 @@ Fecha: 2026-08-29
 Rama: `feat/enki-hogar-approach`
 Paquete: `companies/enki-hogar-ai-os/`
 Versión inicial: `0.1.0`
-Versión actual: `0.7.0`
+Versión actual: `0.12.0`
 
 > Este documento conserva la implementación y sus evidencias históricas. El estado actual, las prioridades y el siguiente trabajo se mantienen en el [backlog vivo de Enki Hogar AI OS](2026-08-31-enki-hogar-ai-os-backlog.md).
 
 ## Objetivo
 
-Entregar una definición reproducible `agentcompanies/v1` para operar Enki Hogar desde Paperclip con seis agentes, fuentes gobernadas y autonomía por defecto limitada a lectura, análisis y borradores. v0.7.0 conserva únicamente tres publicaciones ask-first, exige planificación editorial trazable antes de redactar y añade aprendizaje gobernado después de publicar: feedback ligado a la revisión exacta, hipótesis congelada, retrospectivas a 7/28/90 días y promoción de reglas exclusivamente por Board. Las importaciones se hacen con agentes, heartbeats y rutinas pausados.
+Entregar una definición reproducible `agentcompanies/v1` para operar Enki Hogar desde Paperclip con seis agentes, fuentes gobernadas y autonomía por defecto limitada a lectura, análisis y borradores. v0.12.0 conserva el workflow editorial, el aprendizaje gobernado, el runtime PDF aislado, los contratos trazables, el oracle y los adaptadores multimarca, y añade reconciliación Woo posicional, change sets locales idempotentes y auditoría completa del export posterior. Las importaciones se hacen con agentes, heartbeats y rutinas pausados.
 
 No se cambia la UI, el contrato de API, el esquema de base de datos ni las migraciones. Como excepciones de seguridad al alcance inicial, se endurece internamente el importador para asignar un `CODEX_HOME` gestionado y único por agente importado, se conserva la carga de proveedores Codex en ese home y el adaptador entrega los MCP gestionados con cabeceras HTTP válidas y delegación explícita de aprobación al gateway de Paperclip. El paquete portable no puede calcular esos paths porque los UUID se generan al importar.
 
@@ -30,12 +30,22 @@ No se cambia la UI, el contrato de API, el esquema de base de datos ni las migra
 - [x] Desired state y detector GET-only de drift para conexiones, catálogos, perfiles, políticas, gateways por agente, runtimes, homes, presupuestos y rutinas.
 - [x] Aislamiento por workspace y home gestionado; filesystem read-only con Landlock, proceso Codex no interactivo y sin secretos de conectores en agentes. Codex autoriza el despacho MCP, pero Paperclip conserva la decisión allow/deny/approval.
 - [x] Lock de compatibilidad con commit base de Paperclip y digests OCI de las imágenes base de conectores.
+- [x] Runtime de preparación PDF `0.1.0`: Python 3.12, dependencias permisivas fijadas, raster a 300 dpi, inventario geométrico portable, input read-only, output externo, red deshabilitada y cero overwrite.
+- [x] Contratos estrictos `enki-catalog-run/v1`, `enki-catalog-field-evidence/v1` y `enki-catalog-change-set/v1`, validador cruzado portable, bundle saneado, casos negativos y migración conservadora desde los CSV históricos.
+- [x] Regresión `enki-catalog-regression-suite/v1` con seis fixtures saneados de cuatro marcas, siete riesgos de layout, oracle geométrico, cabeceras Woo duplicadas por posición y proyección a evidencia de campo v1.
+- [x] Registro `enki-catalog-adapter-registry/v1` y cuatro adaptadores `enki-catalog-adapter/v1`: hashes exactos, alcance por marca/snapshot/página, core multimarca, estrategia Chicandbath local y métricas 21/21, cobertura 1 y error 0.
+- [x] Reconciliación Woo `v1`: CSV por posición exacta, cabeceras duplicadas estables, identidad padre/variación, ownership de página, fiscalidad explícita, diferencias locales idempotentes y auditoría post-import sin generador de imports.
 - [x] Separación de licencia MIT para código/configuración y `LicenseRef-Enki-Hogar-Internal` para conocimiento de Enki.
 - [x] Artefacto ZIP determinista, allowlist de importación y workflow CI limitado a los paths de Enki y del hardening del importador.
 - [x] Gate automatizado de v0.5.0: paquete 44/44, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 16/16, plugin Telegram 13/13, diez skills válidas, ZIP reproducible y Compose combinado.
 - [x] Gate automatizado de v0.5.1: paquete 48/48, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 19/19, plugin Telegram 13/13, 126 pruebas del servicio de herramientas, typecheck TypeScript directo del servidor, ZIP reproducible y Compose combinado.
 - [x] Gate automatizado de v0.6.0: paquete 58/58, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 19/19, plugin Telegram 13/13, nueva skill validada oficialmente, ZIP reproducible y Compose combinado.
 - [x] Gate automatizado de v0.7.0: paquete 73/73, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 19/19, plugin Telegram 13/13, contratos Ajv estrictos, nueva skill validada oficialmente, ZIP reproducible y Compose combinado.
+- [x] Gate automatizado de v0.8.0: runtime de catálogo 8/8 más paquete 73/73, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 19/19 y plugin Telegram 13/13; smoke Docker repetible sin paths del host, secretos, ZIP reproducible y Compose combinado.
+- [x] Gate automatizado de v0.9.0: paquete 99/99 —incluidas 26 comprobaciones de contratos de catálogo—, runtime de catálogo 8/8, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 19/19 y plugin Telegram 13/13; schemas Ajv estrictos, secretos, ZIP reproducible y Compose combinado.
+- [x] Gate automatizado de v0.10.0: paquete 116/116 —incluidas 26 comprobaciones de contratos y 17 de regresión multimarca—, runtime de catálogo 8/8, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 19/19 y plugin Telegram 13/13; secrets scan, ZIP reproducible y Compose combinado.
+- [x] Gate automatizado de v0.11.0: paquete 121/121 —incluidas 5 comprobaciones estructurales de adaptadores—, runtime de catálogo 25/25, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 19/19 y plugin Telegram 13/13; adapter replay 21/21, secrets scan, ZIP reproducible y Compose combinado.
+- [x] Gate automatizado de v0.12.0: paquete 127/127 —incluidas 6 comprobaciones de reconciliación—, runtime de catálogo 38/38, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 19/19 y plugin Telegram 13/13; replay histórico sanitizado, secrets scan, ZIP reproducible y Compose combinado.
 - [x] Backup de la compañía local existente completado antes de las pruebas de activación.
 - [ ] Preflight del gateway en una compañía desechable con una sesión Board real.
 - [x] Importación local de v0.2.0 completada y topología verificada: 6 agentes, 8 skills, 4 proyectos, 9 tareas y 2 rutinas.
@@ -53,7 +63,7 @@ No se cambia la UI, el contrato de API, el esquema de base de datos ni las migra
 - [x] Smoke test con cuentas reales y activación individual: los cinco especialistas y el Director han superado el perímetro read-only/zero-PII; los informes del Director son operativamente `PARTIAL` porque declaran fuentes y decisiones todavía ausentes.
 - [x] Ejecución manual de Daily Brief y Weekly Review con un único run cada una, disposición terminal y restauración posterior del Director a `paused`.
 - [ ] Instalación/configuración del plugin Telegram en la instancia local y smoke con bot/IDs reales; el código y el mount están listos, pero la instancia todavía no tiene plugins instalados.
-- [ ] Activación de horarios — requiere decisión explícita de Board; el desired state de v0.7.0 mantiene ambas rutinas pausadas y sus triggers deshabilitados.
+- [ ] Activación de horarios — requiere decisión explícita de Board; el desired state de v0.12.0 mantiene ambas rutinas pausadas y sus triggers deshabilitados.
 
 El preview anterior de cinco agentes y siete skills queda superado por el hardening de v0.1.0 y no cuenta como evidencia de la versión actual.
 
@@ -167,6 +177,52 @@ Las incompatibilidades del core detectadas durante los smokes quedan corregidas.
 - Los contratos canónicos, mirrors, ejemplos, fixtures positivos/negativos y validador determinista pasan Ajv estricto y el validador oficial de skills.
 - Pasan 73 pruebas del paquete, 63 pruebas de conectores y 13 del plugin Telegram, además de secretos, ZIP reproducible y Compose. No se importó v0.7.0 ni se modificaron agentes, rutinas, WordPress o conectores live.
 
+### Versión 0.8.0 — runtime aislado de catálogos (2026-09-01)
+
+- `enki-catalog-pipeline` `0.1.0` prepara un snapshot PDF oficial como raster por página, manifiesto con SHA-256 e inventario de palabras con geometría; no extrae todavía productos canónicos, no compara Woo y no genera imports.
+- Python 3.12 y las dependencias permisivas quedan fijados por `pyproject.toml` y `uv.lock`: pdfplumber `0.11.10`, pypdfium2 `5.13.0` y Pillow `12.3.0`. La base uv/Python está fijada por digest y el digest final se reserva al release.
+- El wrapper Docker recibe únicamente un input externo read-only y un output externo separado; ejecuta sin red, capabilities, credenciales ni filesystem raíz escribible, y rechaza worktrees Git, symlinks, traversal, nombres de credenciales y runs existentes.
+- Ocho unit tests y un smoke Docker real verifican 300 dpi, coordenadas, hashes, rutas relativas, determinismo byte a byte y limpieza ante errores. El gate completo conserva 73 pruebas del paquete, 63 de conectores y 13 del plugin Telegram, además de secretos, ZIP reproducible y Compose.
+- No se importó v0.8.0 porque este runtime es tooling local del operador y no modifica agentes ni estado Paperclip. En ese corte todavía faltaban los contratos de evidencia; quedaron definidos posteriormente en v0.9.0 bajo `EAI-018`.
+
+### Versión 0.9.0 — contratos trazables de catálogo (2026-09-01)
+
+- `enki-catalog-run/v1` fija identidad, revisión, fuentes inmutables, checksums, runtime, reglas, artefactos, etapas, calidad, lineage y decisión local de cada ejecución.
+- `enki-catalog-field-evidence/v1` conserva un hecho por entidad/campo con valor crudo y normalizado, transformación, confianza y localización exacta: cajas PDF, celda CSV por posición, recurso web o fila de revisión. Una página histórica sin geometría no puede aprobar un campo crítico.
+- `enki-catalog-change-set/v1` une estado Woo actual y candidato mediante evidence keys exactas, alcance explícito, base fiscal, riesgo, decisión Board y resumen recalculable. Incluso aprobado, solo permite un borrador local y mantiene `externalWritesBlocked: true`.
+- El validador autocontenido comprueba coherencia de run, marca, fuentes, hashes, paths, geometría, reglas, identidades, campos, valores, lineage, contadores y elegibilidad. Los tres schemas se compilan con Ajv 2020-12 estricto.
+- Un bundle Buades inventado y saneado prueba geometría PDF y cabeceras Woo duplicadas por índice; diecinueve mutaciones negativas cubren paths absolutos, snapshots Woo parciales, tipos fuente/localización incompatibles, cajas inválidas, drift de hash, referencias ausentes, pérdida de valor, columnas/estados/confianza incoherentes, aprobaciones falsas, escritura externa, contadores y precisión insuficiente.
+- El runbook de migración mapea `pdf_pages`, bloques geométricos, masters, comparativas, issues, colas QA, reglas manuales y exports Woo históricos sin promover `validated`, `resolved` o `auto_clear` a aprobación Board ni conservar rutas del host.
+- Pasan 99 pruebas del paquete, 8 del runtime PDF, 63 de conectores y 13 del plugin Telegram, además de secretos, ZIP reproducible y Compose. No se importó v0.9.0, no se procesaron catálogos reales y no hubo mutaciones en Paperclip o WooCommerce.
+
+### Versión 0.10.0 — regresión multimarca de catálogo (2026-09-01)
+
+- `enki-catalog-regression-suite/v1` fija un oracle mínimo y saneado para Buades, Enki Espejos, Mundilite y Chicandbath sin copiar PDFs, imágenes, SKU, precios, textos comerciales ni rutas del host.
+- Seis fixtures cubren tabla, grid, detalle, columnas independientes, varios SKU por precio, matriz de acabados y configurador. En conjunto producen 21 parejas geométricas y 21 observaciones `enki-catalog-field-evidence/v1`.
+- El validador autocontenido verifica hashes del manifiesto, áreas y límites de cajas, pairing izquierda-a-derecha, cabeceras de matriz, conteos, roles de entidad, estados QA y cabeceras Woo duplicadas por posición.
+- Las pruebas negativas demuestran detección de drift de conteo/geometría/QA/hash/cabeceras, rutas absolutas, PII y credenciales. Los SHA de `source` identifican fuentes lógicas sintéticas, no los catálogos originales.
+- Catalogue Manager exige esta regresión exacta antes de aceptar adaptadores, replays históricos o auditorías reales. Cambiar el oracle para acomodar una heurística queda prohibido.
+- Pasan 116 pruebas del paquete, 8 del runtime PDF, 63 de conectores y 13 del plugin Telegram, además de secretos, ZIP reproducible y Compose. No se importó v0.10.0, no se procesó ningún catálogo real y no hubo mutaciones en Paperclip, WooCommerce o conectores live.
+
+### Versión 0.11.0 — core y adaptadores de catálogo (2026-09-01)
+
+- `enki-catalog-pipeline` `0.2.0` separa primitivas geométricas comunes de reglas y código por marca. El core no contiene condiciones de marca ni la matriz Chicandbath.
+- Cuatro definiciones `enki-catalog-adapter/v1`, fijadas por SHA-256, declaran versión, implementación, snapshot, páginas, features, fixtures, reglas y quality gate para Buades, Enki Espejos, Mundilite y Chicandbath.
+- `row_left_to_right` asciende al core únicamente porque cinco fixtures de tres marcas lo demuestran. `matrix_by_headers` permanece en el adaptador Chicandbath hasta obtener evidencia independiente de otra marca.
+- El ejecutor ignora `expected` y `pairing` del fixture, produce las relaciones y solo después el harness las compara con el oracle EAI-019. El gate cierra con cuatro adaptadores, seis fixtures, 21/21 pares, cobertura 1, error 0 y pass rate 1.
+- Snapshot/página/features desconocidos, hashes alterados, geometría inválida, entidades sin QA y matrices incompletas fallan cerrado o producen métricas conservadoras; ninguna salida tiene autoridad comercial, Woo o externa.
+- Pasan 121 pruebas del paquete, 25 del runtime de catálogo, 63 de conectores y 13 del plugin Telegram, además de secretos, ZIP reproducible y Compose. No se importó v0.11.0, no se procesó un catálogo real y no hubo mutaciones en Paperclip, WooCommerce o conectores live.
+
+### Versión 0.12.0 — reconciliación Woo y auditoría post-import (2026-09-01)
+
+- `enki-catalog-pipeline` `0.3.0` lee cada export Woo como matriz posicional estricta: rechaza filas con ancho distinto, conserva cabeceras repetidas mediante índice cero-based, nombre original y nombre deduplicado estable, y fija cada binding en el perfil revisado.
+- El perfil separa simples, padres y variaciones, resuelve qué entidad posee la página y limita cada campo a una superficie exacta. Precios solo se comparan con moneda y base fiscal EUR explícitas y evidencia independiente de la transformación.
+- La reconciliación produce evidencia por campo, reporte y únicamente las diferencias en un change set local `needs_review`; no sobrescribe runs, no contiene credenciales/red, no genera CSV de importación y mantiene toda autoridad externa en `false`.
+- La auditoría compara exports completos antes/después y exige las celdas exactas aprobadas, cero cambios adicionales, las mismas filas, SKU y relaciones padre. El drift fuera de alcance se registra solo mediante hashes, sin conservar sus valores.
+- Cinco archivos saneados cubren tres grupos de cabeceras duplicadas, padre/variación, precio bruto, título, SEO, media, acabado, datos fuera de alcance, estado esperado, drift e idempotencia. Casos negativos rechazan hashes/columnas alterados, SKU duplicado, huérfanos, campos de página en variaciones, fiscalidad incompleta y un audit operacional sin aprobación Board.
+- El replay acotado inspeccionó en memoria un export histórico Buades de 1.196 filas y 376 columnas: cero filas mal formadas, IDs/SKUs duplicados, roles desconocidos o variaciones huérfanas. Solo se versionaron checksum y agregados; tres filas inventadas reprodujeron la posición real y resolvieron cuatro candidatos como dos matches y dos diferencias. No se retuvo ningún valor comercial ni artefacto temporal.
+- Pasan 127 pruebas del paquete, 38 del runtime de catálogo, 63 de conectores y 13 del plugin Telegram, además de secretos, ZIP reproducible y Compose. No se importó v0.12.0, no se generó un import y no hubo mutaciones en Paperclip, WooCommerce o conectores live.
+
 ## Organización
 
 El flujo es hub-and-spoke, sin Chief of Staff:
@@ -183,7 +239,7 @@ Board / usuario
 
 El Director es la única raíz compatible con el rol interno CEO de Paperclip, pero no obtiene autoridad de Board. El usuario puede asignar issues directamente a cualquier especialista. Ecommerce es owner del catálogo, stock, producto y evidencia de Merchant; Growth es owner de SEO, adquisición y oportunidades; Finance valida rentabilidad; Technology opera diagnósticos; CX produce únicamente borradores con contexto anonimizado.
 
-## Fronteras de autonomía v0.7.0
+## Fronteras de autonomía v0.12.0
 
 - Verde: lecturas autorizadas, análisis, comparativas, evidencias, delegación interna y borradores locales.
 - Amarillo: propuestas para incorporar una nueva fuente, herramienta, conexión, perfil, agente o rutina; requieren revisión Board antes de configurar nada.
@@ -230,15 +286,15 @@ El gate del paquete es:
 companies/enki-hogar-ai-os/scripts/check.sh
 ```
 
-Incluye validación estructural, licencia/procedencia, allowlist, hashes, rutas, secretos, configuración de runtime, skills autocontenidas y sus mirrors byte a byte del conocimiento canónico, brief con datos completos/parciales/obsoletos/caídos, contratos de evidencia y métricas, feedback con revisión exacta, retrospectiva 7/28/90, promoción Board-only, políticas, drift, gateway MCP seguro, WordPress render/dry-run, MCP WooCommerce, content publisher, plugin Telegram, PII, idempotencia, deduplicación, paginación, errores, rate limits y Compose. CI construye las imágenes de conectores desde bases fijadas por digest.
+Incluye validación estructural, licencia/procedencia, allowlist, hashes, rutas, secretos, configuración de runtime, skills autocontenidas y sus mirrors byte a byte del conocimiento canónico, brief con datos completos/parciales/obsoletos/caídos, contratos de evidencia y métricas, feedback con revisión exacta, retrospectiva 7/28/90, promoción Board-only, políticas, drift, gateway MCP seguro, WordPress render/dry-run, MCP WooCommerce, content publisher, plugin Telegram, PII, idempotencia, deduplicación, paginación, errores, rate limits y Compose. También ejecuta las ocho regresiones originales del runtime PDF, las 17 pruebas del core/adaptadores y 13 de reconciliación Woo/replay: hashes, ownership, alcance cerrado, independencia del oracle, posiciones duplicadas, identidad padre/variación, fiscalidad, idempotencia, auditoría integral y fallos conservadores. CI construye las imágenes de conectores desde bases fijadas por digest.
 
 Las pruebas de portabilidad cubren creación y actualización con homes Codex gestionados por UUID, rechazo de overrides inseguros y export sin paths locales. Las pruebas del adaptador cubren que un home gestionado siga recibiendo la configuración de proveedores Codex. La autenticación de named gateways queda cubierta por 21 pruebas dirigidas del middleware y 51 pruebas del gateway, además del smoke real descrito arriba.
 
 Los gates globales del monorepo no están verdes en este host por causas ajenas al diff: `pnpm -r typecheck` y `pnpm build` llegan al runner Rust y paran porque `cargo` no está instalado; `pnpm test:run` alcanza `workspace-runtime.test.ts`, donde la configuración global `commit.gpgsign=true` rompe los repos Git efímeros sin TTY. Deshabilitando esa firma solo para el proceso pasan 150/154; los cuatro casos restantes reproducen diferencias locales de macOS (`/var` frente a `/private/var`), un timeout y su conflicto de puerto derivado. No existe diff de esta rama en `workspace-runtime.ts` ni en su test. Los typechecks TypeScript directos de server/adapter y todos los tests que cubren este cambio sí pasan.
 
-El preview/import inicial, la autenticación Codex, el named-gateway smoke, los cinco pilotos de especialistas, los dos pilotos manuales del Director, la memoria editorial y el primer pack técnico real ya están completados. v0.5.0 quedó importada selectivamente y desplegada sobre Quickstart: Woo, Google, Product Support y Content Publisher están sanos; ENK-23 prueba el flujo live de variación más soporte técnico; y el publicador presenta catálogo/políticas/perfiles con drift cero y `write_mode=disabled`. v0.7.0 conserva esa topología, incorpora el hardening 0.5.1, el workflow editorial v2 y el ciclo de aprendizaje gobernado; todavía no se ha importado como paquete. El prototipo v0.3.0 permanece superseded: no se carga un master comercial completo en PostgreSQL. Quedan la reconciliación de medición, los canaries separados de Facebook e Instagram y la instalación/configuración del plugin Telegram con bot e identidades reales. La activación de horarios sigue siendo una decisión Board separada; hasta entonces el desired state y el estado observado mantienen agentes, rutinas y triggers pausados.
+El preview/import inicial, la autenticación Codex, el named-gateway smoke, los cinco pilotos de especialistas, los dos pilotos manuales del Director, la memoria editorial y el primer pack técnico real ya están completados. v0.5.0 quedó importada selectivamente y desplegada sobre Quickstart: Woo, Google, Product Support y Content Publisher están sanos; ENK-23 prueba el flujo live de variación más soporte técnico; y el publicador presenta catálogo/políticas/perfiles con drift cero y `write_mode=disabled`. v0.12.0 conserva esa topología, incorpora el hardening 0.5.1, el workflow editorial v2, el ciclo de aprendizaje gobernado, los contratos de catálogo v1, la regresión y adaptadores multimarca y la reconciliación Woo posicional con auditoría post-import; todavía no se ha importado como paquete y el tooling local no lo requiere. El prototipo v0.3.0 permanece superseded: no se carga un master comercial completo en PostgreSQL. Quedan la reconciliación de medición, el conector read-only de evidencia de runs, los canaries separados de Facebook e Instagram y la instalación/configuración del plugin Telegram con bot e identidades reales. La activación de horarios sigue siendo una decisión Board separada; hasta entonces el desired state y el estado observado mantienen agentes, rutinas y triggers pausados.
 
-## GO/NO-GO v0.7.0
+## GO/NO-GO v0.12.0
 
 La arquitectura pasa a la siguiente fase solo si, de forma repetible:
 
@@ -253,12 +309,14 @@ La arquitectura pasa a la siguiente fase solo si, de forma repetible:
 9. En modo `disabled`, las tres escrituras fallan antes del proveedor; el canary `wordpress-drafts` no duplica al repetir la misma idempotency key y Facebook/Instagram permanecen bloqueados hasta canaries separados.
 10. Todo contenido pasa por un `editorial-brief` versionado: Ecommerce valida el fingerprint exacto, los scores se recalculan y la decisión Board se aplica en una revisión posterior antes de abrir `content-draft`.
 11. Todo contenido live conserva hipótesis y plan prepublicación, retrospectiva 7/28/90 y feedback ligado a revisiones exactas; ninguna observación o métrica cambia skills, contratos o runbooks sin decisión Board, evidencia y regresión.
+12. La preparación de catálogos corre sin red ni credenciales, conserva SHA-256 y geometría, y no filtra rutas locales ni sobrescribe runs. Cada adaptador debe coincidir exactamente en marca/snapshot/página/hash, ejecutar sin leer el oracle esperado y cerrar con cobertura 1/error 0; cada delta pasa además los tres contratos v1, el validador cruzado y QA humana. Ninguna salida se trata como producto aprobado.
+13. Toda reconciliación Woo fija el export completo, sus cabeceras por posición, entidades y campos exactos; produce solo diferencias locales pendientes y una segunda ejecución sobre el estado esperado da cero cambios. Tras una aplicación humana separada, el audit exige cero drift de filas, identidad o celdas fuera del change set aprobado.
 
 Hasta superar este hito no se añaden Merchant Center live, formatos sociales adicionales, media upload, pricing ni mayor autonomía.
 
 ## Promoción futura
 
-Producción importará el mismo tag Git y el mismo ZIP validado sobre una compañía nueva y pausada. Antes de promover se deben completar los campos pendientes de `runtime/compatibility.lock.yaml`: tag y commit del paquete, imagen final de Paperclip y digest, imágenes finales de WooCommerce, Google, product support y content publisher con sus digests, y SHA-256 del ZIP.
+Producción importará el mismo tag Git y el mismo ZIP validado sobre una compañía nueva y pausada. Antes de promover se deben completar los campos pendientes de `runtime/compatibility.lock.yaml`: tag y commit del paquete, imagen final de Paperclip y digest, imágenes finales de WooCommerce, Google, product support, content publisher y catalog pipeline con sus digests, y SHA-256 del ZIP.
 
 La infraestructura elegida deberá aportar PostgreSQL gestionado, almacenamiento persistente, TLS, autenticación, gestor de secretos, red privada o HTTPS gobernado para MCP, backups restaurables, smoke test y rollback. Cualquier upgrade de Paperclip se prueba primero en rama y exige de nuevo validación, preflight MCP, tests de políticas, roundtrip, aislamiento Codex y aprobación manual.
 

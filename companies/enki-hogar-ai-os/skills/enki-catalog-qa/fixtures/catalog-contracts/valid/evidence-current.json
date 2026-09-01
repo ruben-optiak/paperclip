@@ -1,0 +1,56 @@
+{
+  "schema": "enki-catalog-field-evidence/v1",
+  "evidenceKey": "ev-buades-demo-price-current",
+  "runKey": "catalog-run-buades-sanitized-2026-08-31",
+  "revision": {"revisionId": "ev-buades-demo-price-current.r1", "revisionNumber": 1, "supersedesRevisionId": null},
+  "observedAt": "2026-08-31T09:35:00+02:00",
+  "timezone": "Europe/Madrid",
+  "provenance": "sanitized_fixture",
+  "entity": {
+    "entityKey": "buades-ref-demo-001",
+    "kind": "simple",
+    "manufacturerRef": "DEMO-001",
+    "canonicalSku": "BUA-DEMO-001",
+    "brandSlug": "buades",
+    "wooIdentity": {"productId": 90001, "variationId": null, "sku": "BUA-DEMO-001", "parentSku": null, "ean": null, "slug": "grifo-demo-001"}
+  },
+  "field": {
+    "group": "commercial",
+    "name": "regular_price_eur_gross",
+    "critical": true,
+    "rawValue": "106,00",
+    "normalizedValue": 106,
+    "unit": "EUR",
+    "transformations": [{"name": "decimal-comma", "version": "1.0.0", "note": "Coma decimal convertida sin redondeo adicional."}]
+  },
+  "source": {
+    "sourceKey": "woo-full-export-sanitized",
+    "kind": "woo_export_csv",
+    "authority": "current_commercial_snapshot",
+    "snapshotAt": "2026-08-31T09:30:00+02:00",
+    "coverage": "complete",
+    "freshness": "current_for_run",
+    "path": "sources/woocommerce/products-full.csv",
+    "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+  },
+  "location": {
+    "kind": "csv_cell",
+    "filePath": "sources/woocommerce/products-full.csv",
+    "fileSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "rowNumber": 42,
+    "rowSha256": "1111111111111111111111111111111111111111111111111111111111111111",
+    "columnIndex": 26,
+    "columnIndexBase": 0,
+    "originalHeader": "Precio normal",
+    "deduplicatedHeader": "Precio normal__26"
+  },
+  "extraction": {"method": "csv_position", "component": "woo-positional-reader", "componentVersion": "1.0.0", "ruleKey": null, "ruleVersion": null},
+  "confidence": {"score": 1, "level": "high", "reasons": ["Celda exacta de un export completo con checksum y columna posicional."]},
+  "decision": {"state": "observed", "actorType": "none", "actorRef": null, "decidedAt": null, "note": "Estado comercial observado; no es una decisión.", "isExternalMutationAuthority": false},
+  "lineage": {
+    "derivedFromEvidenceKeys": [],
+    "supersedesEvidenceKey": null,
+    "legacyRows": [{"dataset": "legacy/buades/comparativa_catalogo_vs_web.csv", "rowNumber": 2, "rowSha256": "2222222222222222222222222222222222222222222222222222222222222222", "legacyLocatorSha256": null}]
+  },
+  "authority": {"isObservation": true, "isCurrentCommercialTruth": true, "isExternalMutationAuthority": false}
+}

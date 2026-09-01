@@ -1,0 +1,95 @@
+{
+  "schema": "enki-catalog-adapter/v1",
+  "adapterKey": "enki-espejos-2026-05-31-v1",
+  "brandSlug": "enki-espejos",
+  "version": "1.0.0",
+  "implementation": "enki_espejos_v1",
+  "scope": {
+    "inputStage": "classified_page_geometry",
+    "sourceSnapshotDates": ["2026-05-31"],
+    "sourcePages": [11, 22],
+    "fixtureKeys": ["enki-espejos-grid", "enki-espejos-columns"],
+    "features": ["grid", "table", "columns"],
+    "unknownSnapshots": "deny",
+    "unknownPages": "deny"
+  },
+  "fixtureBindings": [
+    {
+      "fixtureKey": "enki-espejos-grid",
+      "sha256": "f02f66facfcbe06ec57ce79f259792f0bf3bce296c5baad42f8e41e655cdab0b",
+      "sourceSnapshotDate": "2026-05-31",
+      "sourcePage": 11,
+      "features": ["grid"],
+      "ruleKey": "enki-espejos-grid-v1",
+      "expectedPairCount": 3
+    },
+    {
+      "fixtureKey": "enki-espejos-columns",
+      "sha256": "c185dd9f5256b9f298f09c9cbaa9fd1359e3f8ca6d1b8c793be2e7ae7d663109",
+      "sourceSnapshotDate": "2026-05-31",
+      "sourcePage": 22,
+      "features": ["table", "columns"],
+      "ruleKey": "enki-espejos-independent-columns-v1",
+      "expectedPairCount": 4
+    }
+  ],
+  "rules": [
+    {
+      "ruleKey": "enki-espejos-grid-v1",
+      "version": "1.0.0",
+      "strategy": "row_left_to_right",
+      "strategyOwner": "core",
+      "subjectKind": "reference",
+      "valueKind": "price",
+      "headerKind": null,
+      "evidenceHeaderElementKey": "enki-grid-header",
+      "rowTolerance": 8,
+      "columnTolerance": 80,
+      "rightSideTolerance": 4,
+      "outputField": {
+        "group": "commercial",
+        "name": "official_price_ex_vat",
+        "critical": true,
+        "unit": "EUR"
+      }
+    },
+    {
+      "ruleKey": "enki-espejos-independent-columns-v1",
+      "version": "1.0.0",
+      "strategy": "row_left_to_right",
+      "strategyOwner": "core",
+      "subjectKind": "reference",
+      "valueKind": "price",
+      "headerKind": null,
+      "evidenceHeaderElementKey": "enki-columns-header",
+      "rowTolerance": 8,
+      "columnTolerance": 100,
+      "rightSideTolerance": 4,
+      "outputField": {
+        "group": "commercial",
+        "name": "official_price_ex_vat",
+        "critical": true,
+        "unit": "EUR"
+      }
+    }
+  ],
+  "qualityGate": {
+    "expectedFixtureCount": 2,
+    "expectedPairCount": 7,
+    "minimumFixturePassRate": 1,
+    "minimumSubjectCoverage": 1,
+    "maximumPairErrorRate": 0
+  },
+  "historicalBasis": {
+    "sourceRepository": "enki-hogar",
+    "reviewedImplementationPaths": ["productos/scripts/enki_hogar_espejos_extract.py"],
+    "oracleSuite": "enki-catalog-regression-suite/v1",
+    "note": "Grid and page-22 column boundaries remain snapshot rules; model metadata and upload scope do not belong in the common core."
+  },
+  "authority": {
+    "isLiveCommercialTruth": false,
+    "isExternalMutationAuthority": false,
+    "canGenerateWooImport": false,
+    "outputMode": "local_observation_only"
+  }
+}

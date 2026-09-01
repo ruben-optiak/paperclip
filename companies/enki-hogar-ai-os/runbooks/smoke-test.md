@@ -18,6 +18,7 @@ Run with all schedules paused and record evidence without secrets or PII.
 14. Routines: desired-state drift proves exactly the daily and weekly routines are paused, both schedules are disabled, and no unexpected routine exists; manually invoke both and inspect outputs before enabling schedules one at a time.
 15. Telegram: the plugin reports healthy for the Enki company; an allowlisted message creates one Director issue, a reply creates one human-attributed comment, a replay creates no duplicate, an unauthorized sender produces no issue/reply, `/approve` is denied, and approval notices contain only a UI link. A synthetic email/order/token is rejected inbound without creating work and withheld from any Director response sent outbound.
 16. Portability: export the company again and inspect that no secrets, database IDs, connector host paths, managed-home paths, Telegram IDs, bot token or publication-journal content appear; preview a reimport in a disposable target. Plugin installation/configuration remains separate instance state.
+17. Catalogue contracts: validate the sanitized run, both field-evidence documents and change set against strict JSON Schema and `validate_catalog_contracts.mjs`; then require all negative fixtures to fail at their expected gate. Confirm raw values, source/row checksums, PDF geometry, positional Woo headers and `externalWritesBlocked: true` survive intact. Do not use the fixture as live evidence or generate an import.
 
 For read-only audit smokes, the issue disposition follows the deliverable rather than individual fields: `PASS`, `PARTIAL`, and `FAIL` are all valid `done` conclusions once the requested report and evidence are complete. Use task-level `blocked` only when the report itself cannot be produced. Create connector/data remediation as a separate assigned follow-up and block the smoke issue on it only if completion genuinely depends on that repair.
 
@@ -25,7 +26,7 @@ For terminal smoke evidence, write the Board verification before the agent moves
 
 ## Customer Experience zero-PII smoke
 
-The v0.7.0 Customer Experience gate is **deny**, not ask-first. Use a completely
+The v0.12.0 Customer Experience gate is **deny**, not ask-first. Use a completely
 synthetic case to verify classification and a clearly labelled unsent draft.
 Then verify from Board that:
 

@@ -1,7 +1,7 @@
 {
   "schema": "enki-runtime-desired-state/v1",
   "companySlug": "enki-hogar-ai-os",
-  "packageVersion": "0.7.0",
+  "packageVersion": "0.12.0",
   "mode": "governed-publishing",
   "rejectUnexpectedActiveConnections": true,
   "rejectUnexpectedAgents": true,

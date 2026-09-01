@@ -1,0 +1,279 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:enki:catalog-regression:v1",
+  "title": "Enki catalogue regression suite and fixture v1",
+  "description": "Strict manifests and sanitized geometric fixtures used to detect cross-brand catalogue extraction regressions without retaining real catalogue data.",
+  "oneOf": [
+    {"$ref": "#/$defs/suite"},
+    {"$ref": "#/$defs/fixture"}
+  ],
+  "$defs": {
+    "key": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+    "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "semver": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "relativePath": {"type": "string", "pattern": "^[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"},
+    "feature": {
+      "enum": ["table", "grid", "detail", "columns", "multi_sku_price", "finish_matrix", "configurator"]
+    },
+    "entityKind": {
+      "enum": ["simple", "parent", "variation", "configurator_option", "component", "assisted_sale", "unknown"]
+    },
+    "qaState": {
+      "enum": ["auto_clear", "needs_review", "needs_manual_review", "blocked"]
+    },
+    "countEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "count"],
+      "properties": {
+        "key": {"type": "string", "minLength": 1},
+        "count": {"type": "integer", "minimum": 0}
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["isLiveCommercialTruth", "isExternalMutationAuthority", "outputMode"],
+      "properties": {
+        "isLiveCommercialTruth": {"const": false},
+        "isExternalMutationAuthority": {"const": false},
+        "outputMode": {"const": "test_evidence_only"}
+      }
+    },
+    "suite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "version", "createdAt", "timezone", "provenance", "contracts", "requiredBrands", "requiredFeatures", "fixtures", "wooHeaderFixture", "authority"],
+      "properties": {
+        "schema": {"const": "enki-catalog-regression-suite/v1"},
+        "version": {"$ref": "#/$defs/semver"},
+        "createdAt": {"type": "string", "format": "date-time"},
+        "timezone": {"const": "Europe/Madrid"},
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "retainedData", "purpose"],
+          "properties": {
+            "kind": {"const": "sanitized_fixture"},
+            "retainedData": {"const": "layout_geometry_and_invented_values_only"},
+            "purpose": {"const": "deterministic_cross_brand_regression"}
+          }
+        },
+        "contracts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["catalogRun", "catalogFieldEvidence", "catalogChangeSet", "regression"],
+          "properties": {
+            "catalogRun": {"const": "enki-catalog-run/v1"},
+            "catalogFieldEvidence": {"const": "enki-catalog-field-evidence/v1"},
+            "catalogChangeSet": {"const": "enki-catalog-change-set/v1"},
+            "regression": {"const": "enki-catalog-regression-fixture/v1"}
+          }
+        },
+        "requiredBrands": {
+          "type": "array",
+          "minItems": 4,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/slug"}
+        },
+        "requiredFeatures": {
+          "type": "array",
+          "minItems": 7,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/feature"}
+        },
+        "fixtures": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["fixtureKey", "brandSlug", "path", "sha256"],
+            "properties": {
+              "fixtureKey": {"$ref": "#/$defs/key"},
+              "brandSlug": {"$ref": "#/$defs/slug"},
+              "path": {"$ref": "#/$defs/relativePath"},
+              "sha256": {"$ref": "#/$defs/sha256"}
+            }
+          }
+        },
+        "wooHeaderFixture": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "sha256", "rowCount", "originalHeaders", "deduplicatedHeaders"],
+          "properties": {
+            "path": {"$ref": "#/$defs/relativePath"},
+            "sha256": {"$ref": "#/$defs/sha256"},
+            "rowCount": {"type": "integer", "minimum": 1},
+            "originalHeaders": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+            "deduplicatedHeaders": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+          }
+        },
+        "authority": {"$ref": "#/$defs/authority"}
+      }
+    },
+    "box": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x0", "y0", "x1", "y1"],
+      "properties": {
+        "x0": {"type": "number", "minimum": 0},
+        "y0": {"type": "number", "minimum": 0},
+        "x1": {"type": "number", "exclusiveMinimum": 0},
+        "y1": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "entity": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["entityKey", "kind", "manufacturerRef", "canonicalSku", "qaState", "confidenceScore", "confidenceReasons"],
+          "properties": {
+            "entityKey": {"$ref": "#/$defs/key"},
+            "kind": {"$ref": "#/$defs/entityKind"},
+            "manufacturerRef": {"type": ["string", "null"]},
+            "canonicalSku": {"type": ["string", "null"]},
+            "qaState": {"$ref": "#/$defs/qaState"},
+            "confidenceScore": {"type": "number", "minimum": 0, "maximum": 1},
+            "confidenceReasons": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+          }
+        }
+      ]
+    },
+    "value": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "string"},
+        {"type": "number"},
+        {"type": "boolean"}
+      ]
+    },
+    "element": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["elementKey", "kind", "text", "rawValue", "normalizedValue", "unit", "headerKey", "box", "entity"],
+      "properties": {
+        "elementKey": {"$ref": "#/$defs/key"},
+        "kind": {"enum": ["reference", "finish", "configuration", "price", "width_header", "header", "context", "component_reference"]},
+        "text": {"type": "string", "minLength": 1},
+        "rawValue": {"$ref": "#/$defs/value"},
+        "normalizedValue": {"$ref": "#/$defs/value"},
+        "unit": {"type": ["string", "null"]},
+        "headerKey": {"type": ["string", "null"]},
+        "box": {"$ref": "#/$defs/box"},
+        "entity": {"$ref": "#/$defs/entity"}
+      }
+    },
+    "pair": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["pairKey", "subjectElementKey", "valueElementKey", "headerElementKey", "qaState"],
+      "properties": {
+        "pairKey": {"$ref": "#/$defs/key"},
+        "subjectElementKey": {"$ref": "#/$defs/key"},
+        "valueElementKey": {"$ref": "#/$defs/key"},
+        "headerElementKey": {"type": ["string", "null"]},
+        "qaState": {"$ref": "#/$defs/qaState"}
+      }
+    },
+    "fixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "fixtureKey", "brand", "features", "provenance", "source", "pairing", "elements", "expected", "authority"],
+      "properties": {
+        "schema": {"const": "enki-catalog-regression-fixture/v1"},
+        "fixtureKey": {"$ref": "#/$defs/key"},
+        "brand": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["slug", "name"],
+          "properties": {
+            "slug": {"$ref": "#/$defs/slug"},
+            "name": {"type": "string", "minLength": 1}
+          }
+        },
+        "features": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/feature"}
+        },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "sourceSnapshotDate", "sourcePage", "layoutOnly", "sourceValuesRetained", "sourceMediaRetained", "sanitizationNote"],
+          "properties": {
+            "kind": {"const": "sanitized_fixture"},
+            "sourceSnapshotDate": {"type": "string", "format": "date"},
+            "sourcePage": {"type": "integer", "minimum": 1},
+            "layoutOnly": {"const": true},
+            "sourceValuesRetained": {"const": false},
+            "sourceMediaRetained": {"const": false},
+            "sanitizationNote": {"type": "string", "minLength": 1}
+          }
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sourceKey", "snapshotAt", "documentPath", "documentSha256", "pageImagePath", "pageImageSha256", "page", "pageWidth", "pageHeight", "coordinateSpace"],
+          "properties": {
+            "sourceKey": {"$ref": "#/$defs/key"},
+            "snapshotAt": {"type": "string", "format": "date-time"},
+            "documentPath": {"$ref": "#/$defs/relativePath"},
+            "documentSha256": {"$ref": "#/$defs/sha256"},
+            "pageImagePath": {"$ref": "#/$defs/relativePath"},
+            "pageImageSha256": {"$ref": "#/$defs/sha256"},
+            "page": {"type": "integer", "minimum": 1},
+            "pageWidth": {"type": "number", "exclusiveMinimum": 0},
+            "pageHeight": {"type": "number", "exclusiveMinimum": 0},
+            "coordinateSpace": {"const": "pdf_points_top_left"}
+          }
+        },
+        "pairing": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["strategy", "subjectKind", "valueKind", "headerKind", "evidenceHeaderElementKey", "rowTolerance", "columnTolerance", "rightSideTolerance", "outputField"],
+          "properties": {
+            "strategy": {"enum": ["row_left_to_right", "matrix_by_headers"]},
+            "subjectKind": {"enum": ["reference", "finish", "configuration"]},
+            "valueKind": {"const": "price"},
+            "headerKind": {"type": ["string", "null"], "enum": ["width_header", null]},
+            "evidenceHeaderElementKey": {"type": ["string", "null"]},
+            "rowTolerance": {"type": "number", "exclusiveMinimum": 0},
+            "columnTolerance": {"type": "number", "exclusiveMinimum": 0},
+            "rightSideTolerance": {"type": "number", "minimum": 0},
+            "outputField": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["group", "name", "critical", "unit"],
+              "properties": {
+                "group": {"enum": ["commercial", "configuration"]},
+                "name": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+                "critical": {"type": "boolean"},
+                "unit": {"type": ["string", "null"]}
+              }
+            }
+          }
+        },
+        "elements": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/element"}},
+        "expected": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["elementCounts", "pairs", "evidenceCount", "evidenceEntityKindCounts", "declaredEntityKindCounts", "qaStateCounts"],
+          "properties": {
+            "elementCounts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/countEntry"}},
+            "pairs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/pair"}},
+            "evidenceCount": {"type": "integer", "minimum": 1},
+            "evidenceEntityKindCounts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/countEntry"}},
+            "declaredEntityKindCounts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/countEntry"}},
+            "qaStateCounts": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/countEntry"}}
+          }
+        },
+        "authority": {"$ref": "#/$defs/authority"}
+      }
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "schema": "enki-catalog-adapter-registry/v1",
+  "version": "1.0.0",
+  "coreVersion": "0.2.0",
+  "inputContract": "classified_page_geometry/v1",
+  "outputContract": "enki-catalog-adapter-result/v1",
+  "corePromotions": [
+    {
+      "strategy": "row_left_to_right",
+      "version": "1.0.0",
+      "evidenceBrands": ["buades", "enki-espejos", "mundilite"],
+      "evidenceFixtureKeys": [
+        "buades-table-multi-price",
+        "buades-detail-card",
+        "enki-espejos-grid",
+        "enki-espejos-columns",
+        "mundilite-finish-matrix"
+      ]
+    }
+  ],
+  "adapters": [
+    {
+      "adapterKey": "buades-2026-04-11-v1",
+      "brandSlug": "buades",
+      "version": "1.0.0",
+      "implementation": "buades_v1",
+      "path": "buades-2026-04-11.v1.json",
+      "sha256": "56b7f15673113b10917c03d391a9467aa729dbacfae739b99a9b20b5f9943bb0"
+    },
+    {
+      "adapterKey": "enki-espejos-2026-05-31-v1",
+      "brandSlug": "enki-espejos",
+      "version": "1.0.0",
+      "implementation": "enki_espejos_v1",
+      "path": "enki-espejos-2026-05-31.v1.json",
+      "sha256": "4eec594e8ade67fd05282baeb085ccfb94d27c2019d5e34a9a6949f3fff12029"
+    },
+    {
+      "adapterKey": "mundilite-2026-04-27-v1",
+      "brandSlug": "mundilite",
+      "version": "1.0.0",
+      "implementation": "mundilite_v1",
+      "path": "mundilite-2026-04-27.v1.json",
+      "sha256": "780d1bb2df84611a2c3977f6c32ece322cfff9b9d972b2ff25d6dc74e8f39ff0"
+    },
+    {
+      "adapterKey": "chicandbath-2026-07-11-v1",
+      "brandSlug": "chicandbath",
+      "version": "1.0.0",
+      "implementation": "chicandbath_v1",
+      "path": "chicandbath-2026-07-11.v1.json",
+      "sha256": "f0d680032601fd889c367a829e0a9dc5b442645835cc98997c6f3ef54e0b7d8c"
+    }
+  ],
+  "authority": {
+    "isLiveCommercialTruth": false,
+    "isExternalMutationAuthority": false,
+    "canGenerateWooImport": false,
+    "outputMode": "local_observation_only"
+  }
+}

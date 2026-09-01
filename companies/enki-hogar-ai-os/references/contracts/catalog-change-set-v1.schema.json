@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:enki:catalog-change-set:v1",
+  "title": "Enki catalogue change set v1",
+  "description": "Reviewable catalogue delta whose maximum authority is a local export draft. Cross-document and count invariants are checked by the semantic validator.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "changeSetKey", "runKey", "revision", "brand", "createdAt", "timezone", "provenance", "scope", "execution", "changes", "summary", "lineage", "decision"],
+  "properties": {
+    "schema": {"const": "enki-catalog-change-set/v1"},
+    "changeSetKey": {"$ref": "#/$defs/key"},
+    "runKey": {"$ref": "#/$defs/key"},
+    "revision": {"$ref": "#/$defs/revision"},
+    "brand": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug", "name"],
+      "properties": {
+        "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+        "name": {"type": "string", "minLength": 1}
+      }
+    },
+    "createdAt": {"type": "string", "format": "date-time"},
+    "timezone": {"const": "Europe/Madrid"},
+    "provenance": {"enum": ["operational", "sanitized_fixture"]},
+    "scope": {"$ref": "#/$defs/scope"},
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "externalWritesBlocked", "publicationAuthority", "requiresFreshPostImportExport"],
+      "properties": {
+        "mode": {"const": "local_draft"},
+        "externalWritesBlocked": {"const": true},
+        "publicationAuthority": {"const": "none"},
+        "requiresFreshPostImportExport": {"const": true}
+      }
+    },
+    "changes": {"type": "array", "items": {"$ref": "#/$defs/change"}},
+    "summary": {"$ref": "#/$defs/summary"},
+    "lineage": {"$ref": "#/$defs/lineage"},
+    "decision": {"$ref": "#/$defs/decision"}
+  },
+  "$defs": {
+    "key": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "relativePath": {"type": "string", "pattern": "^[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"},
+    "value": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "string"},
+        {"type": "number"},
+        {"type": "boolean"},
+        {"type": "array", "items": {"oneOf": [{"type": "string"}, {"type": "number"}, {"type": "boolean"}, {"type": "null"}]}}
+      ]
+    },
+    "revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revisionId", "revisionNumber", "supersedesRevisionId"],
+      "properties": {
+        "revisionId": {"$ref": "#/$defs/key"},
+        "revisionNumber": {"type": "integer", "minimum": 1},
+        "supersedesRevisionId": {"type": ["string", "null"]}
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entityKinds", "fieldGroups", "includeEntityKeys", "excludeEntityKeys", "wooSnapshotSourceKey"],
+      "properties": {
+        "entityKinds": {"type": "array", "minItems": 1, "items": {"enum": ["simple", "parent", "variation", "configurator_option", "component", "assisted_sale", "unknown"]}},
+        "fieldGroups": {"type": "array", "minItems": 1, "items": {"enum": ["identity", "classification", "commercial", "dimensions", "technical", "compatibility", "finish", "configuration", "content", "lifecycle", "other"]}},
+        "includeEntityKeys": {"type": "array", "items": {"$ref": "#/$defs/key"}},
+        "excludeEntityKeys": {"type": "array", "items": {"$ref": "#/$defs/key"}},
+        "wooSnapshotSourceKey": {"$ref": "#/$defs/key"}
+      }
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entityKey", "entityKind", "surface", "fieldGroup", "fieldName", "wooColumn"],
+      "properties": {
+        "entityKey": {"$ref": "#/$defs/key"},
+        "entityKind": {"enum": ["simple", "parent", "variation", "configurator_option", "component", "assisted_sale", "unknown"]},
+        "surface": {"enum": ["sku", "product_page"]},
+        "fieldGroup": {"enum": ["identity", "classification", "commercial", "dimensions", "technical", "compatibility", "finish", "configuration", "content", "lifecycle", "other"]},
+        "fieldName": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "wooColumn": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["columnIndex", "columnIndexBase", "originalHeader", "deduplicatedHeader"],
+              "properties": {
+                "columnIndex": {"type": "integer", "minimum": 0},
+                "columnIndexBase": {"const": 0},
+                "originalHeader": {"type": "string"},
+                "deduplicatedHeader": {"type": "string", "minLength": 1}
+              }
+            }
+          ]
+        }
+      }
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["present", "rawValue", "normalizedValue", "evidenceKeys"],
+      "properties": {
+        "present": {"type": "boolean"},
+        "rawValue": {"$ref": "#/$defs/value"},
+        "normalizedValue": {"$ref": "#/$defs/value"},
+        "evidenceKeys": {"type": "array", "items": {"$ref": "#/$defs/key"}}
+      }
+    },
+    "comparison": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason", "fiscalBasis"],
+      "properties": {
+        "status": {"enum": ["match", "mismatch", "missing_in_woo", "missing_in_source", "ambiguous_identity", "not_comparable", "source_conflict"]},
+        "reason": {"type": "string", "minLength": 1},
+        "fiscalBasis": {"enum": ["not_applicable", "gross_including_vat", "net_excluding_vat", "unknown"]}
+      }
+    },
+    "confidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["score", "level", "reasons"],
+      "properties": {
+        "score": {"type": "number", "minimum": 0, "maximum": 1},
+        "level": {"enum": ["low", "medium", "high"]},
+        "reasons": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["level", "criticalField", "reasons"],
+      "properties": {
+        "level": {"enum": ["green", "yellow", "orange", "red"]},
+        "criticalField": {"type": "boolean"},
+        "reasons": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "changeDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "actorType", "actorRef", "decidedAt", "note", "isExternalMutationAuthority"],
+      "properties": {
+        "state": {"enum": ["proposed", "needs_review", "approved_for_local_export", "rejected", "blocked_source_conflict", "superseded"]},
+        "actorType": {"enum": ["none", "board"]},
+        "actorRef": {"type": ["string", "null"]},
+        "decidedAt": {"type": ["string", "null"], "format": "date-time"},
+        "note": {"type": ["string", "null"]},
+        "isExternalMutationAuthority": {"const": false}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"state": {"enum": ["approved_for_local_export", "rejected", "superseded"]}}, "required": ["state"]},
+          "then": {
+            "properties": {
+              "actorType": {"const": "board"},
+              "actorRef": {"type": "string", "minLength": 1},
+              "decidedAt": {"type": "string", "format": "date-time"}
+            }
+          },
+          "else": {
+            "properties": {
+              "actorType": {"const": "none"},
+              "actorRef": {"type": "null"},
+              "decidedAt": {"type": "null"}
+            }
+          }
+        }
+      ]
+    },
+    "exportEligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eligible", "blockers"],
+      "properties": {
+        "eligible": {"type": "boolean"},
+        "blockers": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "legacyRow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dataset", "rowNumber", "rowSha256"],
+      "properties": {
+        "dataset": {"$ref": "#/$defs/relativePath"},
+        "rowNumber": {"type": "integer", "minimum": 2},
+        "rowSha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "changeLineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["supersedesChangeKey", "legacyRows"],
+      "properties": {
+        "supersedesChangeKey": {"type": ["string", "null"]},
+        "legacyRows": {"type": "array", "items": {"$ref": "#/$defs/legacyRow"}}
+      }
+    },
+    "change": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["changeKey", "operation", "target", "current", "candidate", "comparison", "confidence", "risk", "decision", "exportEligibility", "lineage"],
+      "properties": {
+        "changeKey": {"$ref": "#/$defs/key"},
+        "operation": {"enum": ["create_entity", "set_field", "clear_field", "retire_entity_candidate", "no_change"]},
+        "target": {"$ref": "#/$defs/target"},
+        "current": {"$ref": "#/$defs/state"},
+        "candidate": {"$ref": "#/$defs/state"},
+        "comparison": {"$ref": "#/$defs/comparison"},
+        "confidence": {"$ref": "#/$defs/confidence"},
+        "risk": {"$ref": "#/$defs/risk"},
+        "decision": {"$ref": "#/$defs/changeDecision"},
+        "exportEligibility": {"$ref": "#/$defs/exportEligibility"},
+        "lineage": {"$ref": "#/$defs/changeLineage"}
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "proposed", "needsReview", "approvedForLocalExport", "rejected", "blockedSourceConflict", "superseded", "eligibleForLocalExport", "criticalBlocked"],
+      "properties": {
+        "total": {"type": "integer", "minimum": 0},
+        "proposed": {"type": "integer", "minimum": 0},
+        "needsReview": {"type": "integer", "minimum": 0},
+        "approvedForLocalExport": {"type": "integer", "minimum": 0},
+        "rejected": {"type": "integer", "minimum": 0},
+        "blockedSourceConflict": {"type": "integer", "minimum": 0},
+        "superseded": {"type": "integer", "minimum": 0},
+        "eligibleForLocalExport": {"type": "integer", "minimum": 0},
+        "criticalBlocked": {"type": "integer", "minimum": 0}
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceEvidenceKeys", "supersedesChangeSetKey", "migrationRefs"],
+      "properties": {
+        "sourceEvidenceKeys": {"type": "array", "items": {"$ref": "#/$defs/key"}},
+        "supersedesChangeSetKey": {"type": ["string", "null"]},
+        "migrationRefs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["dataset", "sha256", "rows"],
+            "properties": {
+              "dataset": {"$ref": "#/$defs/relativePath"},
+              "sha256": {"$ref": "#/$defs/sha256"},
+              "rows": {"type": "integer", "minimum": 0}
+            }
+          }
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "actorType", "actorRef", "decidedAt", "note", "isExternalMutationAuthority"],
+      "properties": {
+        "state": {"enum": ["pending", "partially_approved_for_local_export", "approved_for_local_export", "rejected", "superseded"]},
+        "actorType": {"enum": ["none", "board"]},
+        "actorRef": {"type": ["string", "null"]},
+        "decidedAt": {"type": ["string", "null"], "format": "date-time"},
+        "note": {"type": ["string", "null"]},
+        "isExternalMutationAuthority": {"const": false}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"state": {"enum": ["partially_approved_for_local_export", "approved_for_local_export", "rejected", "superseded"]}}, "required": ["state"]},
+          "then": {
+            "properties": {
+              "actorType": {"const": "board"},
+              "actorRef": {"type": "string", "minLength": 1},
+              "decidedAt": {"type": "string", "format": "date-time"}
+            }
+          },
+          "else": {
+            "properties": {
+              "actorType": {"const": "none"},
+              "actorRef": {"type": "null"},
+              "decidedAt": {"type": "null"}
+            }
+          }
+        }
+      ]
+    }
+  }
+}

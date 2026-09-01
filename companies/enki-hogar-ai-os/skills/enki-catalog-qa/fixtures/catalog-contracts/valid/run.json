@@ -1,0 +1,132 @@
+{
+  "schema": "enki-catalog-run/v1",
+  "runKey": "catalog-run-buades-sanitized-2026-08-31",
+  "revision": {
+    "revisionId": "catalog-run-buades-sanitized-2026-08-31.r1",
+    "revisionNumber": 1,
+    "supersedesRevisionId": null
+  },
+  "status": "qa_pending",
+  "brand": {"slug": "buades", "name": "Buades"},
+  "domain": {"slug": "bathroom-taps", "name": "Grifería de baño"},
+  "createdAt": "2026-08-31T10:00:00+02:00",
+  "timezone": "Europe/Madrid",
+  "provenance": {
+    "kind": "sanitized_fixture",
+    "authority": "catalogue_processing_record_not_live_commercial_truth",
+    "sourceIssue": "EAI-018-fixture"
+  },
+  "sources": [
+    {
+      "sourceKey": "buades-official-pdf-sanitized",
+      "title": "Catálogo oficial Buades (fixture saneado)",
+      "role": "official_source",
+      "kind": "official_pdf",
+      "authority": "official_technical",
+      "snapshotAt": "2026-08-31T09:00:00+02:00",
+      "coverage": "complete",
+      "freshness": "current_for_run",
+      "path": "sources/buades/catalogo-oficial.pdf",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "immutable": true,
+      "pageCount": 120,
+      "csvLayout": null
+    },
+    {
+      "sourceKey": "woo-full-export-sanitized",
+      "title": "Export completo WooCommerce (fixture saneado)",
+      "role": "commercial_snapshot",
+      "kind": "woo_export_csv",
+      "authority": "current_commercial_snapshot",
+      "snapshotAt": "2026-08-31T09:30:00+02:00",
+      "coverage": "complete",
+      "freshness": "current_for_run",
+      "path": "sources/woocommerce/products-full.csv",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "immutable": true,
+      "rowCount": 100,
+      "csvLayout": {
+        "headerRow": 1,
+        "columnIdentity": "zero_based_position_plus_original_and_deduplicated_header",
+        "duplicateHeadersPreserved": true
+      }
+    }
+  ],
+  "runtime": {
+    "name": "enki-catalog-pipeline",
+    "version": "0.1.0",
+    "python": "3.12",
+    "renderer": "pdfium",
+    "extractor": "pdfplumber",
+    "imageDigest": null,
+    "networkMode": "none"
+  },
+  "rulesets": [
+    {
+      "rulesetKey": "buades-geometry-rules",
+      "name": "Reglas de emparejado geométrico Buades",
+      "version": "1.0.0",
+      "path": "rules/buades-geometry-v1.json",
+      "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "authority": "versioned_operator_rule_not_source_truth"
+    }
+  ],
+  "artifacts": [
+    {
+      "artifactKey": "field-evidence-jsonl",
+      "kind": "field_evidence",
+      "path": "artifacts/catalog-field-evidence.jsonl",
+      "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "rows": 2,
+      "bytes": 4096
+    },
+    {
+      "artifactKey": "change-set-json",
+      "kind": "change_set",
+      "path": "artifacts/catalog-change-set.json",
+      "sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      "rows": 1,
+      "bytes": 2048
+    }
+  ],
+  "stages": {
+    "sources": {"status": "complete", "completedAt": "2026-08-31T09:35:00+02:00", "artifactKeys": []},
+    "normalization": {"status": "complete", "completedAt": "2026-08-31T09:45:00+02:00", "artifactKeys": ["field-evidence-jsonl"]},
+    "comparison": {"status": "complete", "completedAt": "2026-08-31T09:50:00+02:00", "artifactKeys": ["change-set-json"]},
+    "qa": {"status": "partial", "completedAt": "2026-08-31T10:00:00+02:00", "artifactKeys": ["change-set-json"]},
+    "approval": {"status": "pending", "completedAt": null, "artifactKeys": []},
+    "export": {"status": "pending", "completedAt": null, "artifactKeys": []}
+  },
+  "quality": {
+    "entitiesObserved": 1,
+    "fieldsObserved": 2,
+    "fieldsCompared": 1,
+    "criticalFieldsBlocked": 1,
+    "warnings": ["Fixture saneado: no representa precios ni catálogo actuales."],
+    "unknowns": []
+  },
+  "execution": {
+    "externalWritesBlocked": true,
+    "outputMode": "local_drafts_only",
+    "wooCommerceAuthority": "fresh_complete_export_is_current_commercial_snapshot"
+  },
+  "lineage": {
+    "parentRunKey": null,
+    "supersedesRunKey": null,
+    "migrationRefs": [
+      {
+        "dataset": "legacy/buades/comparativa_catalogo_vs_web.csv",
+        "sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "rows": 1
+      }
+    ]
+  },
+  "decision": {
+    "state": "pending",
+    "actorType": "none",
+    "actorRef": null,
+    "decidedAt": null,
+    "note": "Fixture pendiente de revisión; nunca usar como verdad comercial.",
+    "isExternalMutationAuthority": false
+  }
+}

@@ -1,0 +1,361 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:enki:catalog-reconciliation:v1",
+  "title": "Enki Woo catalogue reconciliation v1",
+  "description": "Strict profile, local reconciliation report and post-import observation for positional Woo exports. None of the documents grants import or external-mutation authority.",
+  "oneOf": [
+    {"$ref": "#/$defs/profile"},
+    {"$ref": "#/$defs/report"},
+    {"$ref": "#/$defs/audit"}
+  ],
+  "$defs": {
+    "key": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+    "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "relativePath": {"type": "string", "pattern": "^[A-Za-z0-9._-]+(?:/[A-Za-z0-9._-]+)*$"},
+    "namedSlug": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug", "name"],
+      "properties": {
+        "slug": {"$ref": "#/$defs/slug"},
+        "name": {"type": "string", "minLength": 1}
+      }
+    },
+    "column": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["columnIndex", "columnIndexBase", "originalHeader", "deduplicatedHeader"],
+      "properties": {
+        "columnIndex": {"type": "integer", "minimum": 0},
+        "columnIndexBase": {"const": 0},
+        "originalHeader": {"type": "string"},
+        "deduplicatedHeader": {"type": "string", "minLength": 1}
+      }
+    },
+    "csvLayout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["headerRow", "columnIdentity", "duplicateHeadersPreserved"],
+      "properties": {
+        "headerRow": {"const": 1},
+        "columnIdentity": {"const": "zero_based_position_plus_original_and_deduplicated_header"},
+        "duplicateHeadersPreserved": {"const": true}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceKey", "title", "role", "kind", "authority", "snapshotAt", "coverage", "freshness", "path", "sha256", "immutable", "csvLayout"],
+      "properties": {
+        "sourceKey": {"$ref": "#/$defs/key"},
+        "title": {"type": "string", "minLength": 1},
+        "role": {"enum": ["official_source", "commercial_snapshot", "manufacturer_media", "manual_rules", "secondary"]},
+        "kind": {"enum": ["official_pdf", "woo_export_csv", "manufacturer_web", "manufacturer_file", "manual_rules_csv", "normalized_csv", "comparison_csv", "review_csv", "other"]},
+        "authority": {"enum": ["official_technical", "current_commercial_snapshot", "supporting_media", "operator_rule", "derived", "secondary_unverified"]},
+        "snapshotAt": {"type": "string", "format": "date-time"},
+        "coverage": {"enum": ["complete", "partial", "unknown"]},
+        "freshness": {"enum": ["current_for_run", "historical", "unknown"]},
+        "path": {"$ref": "#/$defs/relativePath"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "immutable": {"const": true},
+        "pageCount": {"type": "integer", "minimum": 1},
+        "rowCount": {"type": "integer", "minimum": 0},
+        "csvLayout": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/csvLayout"}]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"kind": {"enum": ["woo_export_csv", "manual_rules_csv", "normalized_csv", "comparison_csv", "review_csv"]}}, "required": ["kind"]},
+          "then": {"required": ["rowCount"], "properties": {"rowCount": {"type": "integer", "minimum": 0}, "csvLayout": {"$ref": "#/$defs/csvLayout"}}},
+          "else": {"properties": {"csvLayout": {"type": "null"}}}
+        },
+        {
+          "if": {"properties": {"kind": {"const": "official_pdf"}}, "required": ["kind"]},
+          "then": {"required": ["pageCount"], "properties": {"pageCount": {"type": "integer", "minimum": 1}}}
+        }
+      ]
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["productId", "productType", "parentProductId", "sku", "roleRules", "pageOwnerRule"],
+      "properties": {
+        "productId": {"$ref": "#/$defs/column"},
+        "productType": {"$ref": "#/$defs/column"},
+        "parentProductId": {"$ref": "#/$defs/column"},
+        "sku": {"$ref": "#/$defs/column"},
+        "roleRules": {"const": "simple_no_parent_variable_parent_no_parent_variation_with_parent"},
+        "pageOwnerRule": {"const": "simple_self_parent_self_variation_parent"}
+      }
+    },
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["entityKey", "sku", "manufacturerRef", "expectedKind"],
+      "properties": {
+        "entityKey": {"$ref": "#/$defs/key"},
+        "sku": {"type": "string", "minLength": 1},
+        "manufacturerRef": {"type": ["string", "null"]},
+        "expectedKind": {"enum": ["simple", "parent", "variation"]}
+      }
+    },
+    "normalization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "unit", "fiscalBasis"],
+      "properties": {
+        "kind": {"enum": ["text", "money", "csv_first"]},
+        "unit": {"type": ["string", "null"]},
+        "fiscalBasis": {"enum": ["not_applicable", "gross_including_vat", "net_excluding_vat"]}
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"kind": {"const": "money"}}, "required": ["kind"]},
+          "then": {
+            "properties": {
+              "unit": {"const": "EUR"},
+              "fiscalBasis": {"enum": ["gross_including_vat", "net_excluding_vat"]}
+            }
+          },
+          "else": {"properties": {"fiscalBasis": {"const": "not_applicable"}}}
+        }
+      ]
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["targetKey", "entityKey", "surface", "fieldGroup", "fieldName", "wooColumn", "normalization", "critical", "riskLevel"],
+      "properties": {
+        "targetKey": {"$ref": "#/$defs/key"},
+        "entityKey": {"$ref": "#/$defs/key"},
+        "surface": {"enum": ["sku", "product_page"]},
+        "fieldGroup": {"enum": ["identity", "classification", "commercial", "dimensions", "technical", "compatibility", "finish", "configuration", "content", "lifecycle", "other"]},
+        "fieldName": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "wooColumn": {"$ref": "#/$defs/column"},
+        "normalization": {"$ref": "#/$defs/normalization"},
+        "critical": {"type": "boolean"},
+        "riskLevel": {"enum": ["green", "yellow", "orange", "red"]}
+      }
+    },
+    "profileAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["isLiveCommercialTruth", "isExternalMutationAuthority", "canGenerateWooImport", "outputMode"],
+      "properties": {
+        "isLiveCommercialTruth": {"const": false},
+        "isExternalMutationAuthority": {"const": false},
+        "canGenerateWooImport": {"const": false},
+        "outputMode": {"const": "local_change_set_only"}
+      }
+    },
+    "profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "version", "profileKey", "runKey", "createdAt", "timezone", "provenance", "brand", "domain", "sources", "wooSnapshotSourceKey", "identity", "scope", "audit", "authority"],
+      "properties": {
+        "schema": {"const": "enki-catalog-reconciliation-profile/v1"},
+        "version": {"const": "1.0.0"},
+        "profileKey": {"$ref": "#/$defs/key"},
+        "runKey": {"$ref": "#/$defs/key"},
+        "createdAt": {"type": "string", "format": "date-time"},
+        "timezone": {"const": "Europe/Madrid"},
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "sourceIssue"],
+          "properties": {
+            "kind": {"enum": ["operational", "sanitized_fixture"]},
+            "sourceIssue": {"type": ["string", "null"]}
+          }
+        },
+        "brand": {"$ref": "#/$defs/namedSlug"},
+        "domain": {"$ref": "#/$defs/namedSlug"},
+        "sources": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/source"}},
+        "wooSnapshotSourceKey": {"$ref": "#/$defs/key"},
+        "identity": {"$ref": "#/$defs/identity"},
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["entities", "targets"],
+          "properties": {
+            "entities": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/entity"}},
+            "targets": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/target"}}
+          }
+        },
+        "audit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["ignoredColumns", "unexpectedChanges"],
+          "properties": {
+            "ignoredColumns": {"type": "array", "maxItems": 0, "items": {"$ref": "#/$defs/column"}},
+            "unexpectedChanges": {"const": "fail"}
+          }
+        },
+        "authority": {"$ref": "#/$defs/profileAuthority"}
+      }
+    },
+    "duplicateHeader": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["originalHeader", "columnIndexes", "deduplicatedHeaders"],
+      "properties": {
+        "originalHeader": {"type": "string"},
+        "columnIndexes": {"type": "array", "minItems": 2, "items": {"type": "integer", "minimum": 0}},
+        "deduplicatedHeaders": {"type": "array", "minItems": 2, "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "reportKey", "profileKey", "runKey", "createdAt", "timezone", "provenance", "inputs", "positionalLayout", "identity", "results", "outputs", "authority"],
+      "properties": {
+        "schema": {"const": "enki-catalog-reconciliation-report/v1"},
+        "reportKey": {"$ref": "#/$defs/key"},
+        "profileKey": {"$ref": "#/$defs/key"},
+        "runKey": {"$ref": "#/$defs/key"},
+        "createdAt": {"type": "string", "format": "date-time"},
+        "timezone": {"const": "Europe/Madrid"},
+        "provenance": {"enum": ["operational", "sanitized_fixture"]},
+        "inputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["profileSha256", "candidateEvidenceSha256", "wooSnapshotSha256", "wooRows", "wooColumns"],
+          "properties": {
+            "profileSha256": {"$ref": "#/$defs/sha256"},
+            "candidateEvidenceSha256": {"$ref": "#/$defs/sha256"},
+            "wooSnapshotSha256": {"$ref": "#/$defs/sha256"},
+            "wooRows": {"type": "integer", "minimum": 0},
+            "wooColumns": {"type": "integer", "minimum": 1}
+          }
+        },
+        "positionalLayout": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["duplicateHeaders"],
+          "properties": {"duplicateHeaders": {"type": "array", "items": {"$ref": "#/$defs/duplicateHeader"}}}
+        },
+        "identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["inScopeEntities", "outsideScopeRows", "rowKinds", "pageOwnerRule"],
+          "properties": {
+            "inScopeEntities": {"type": "integer", "minimum": 1},
+            "outsideScopeRows": {"type": "integer", "minimum": 0},
+            "rowKinds": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["simple", "parent", "variation", "unknown"],
+              "properties": {
+                "simple": {"type": "integer", "minimum": 0},
+                "parent": {"type": "integer", "minimum": 0},
+                "variation": {"type": "integer", "minimum": 0},
+                "unknown": {"type": "integer", "minimum": 0}
+              }
+            },
+            "pageOwnerRule": {"const": "simple_self_parent_self_variation_parent"}
+          }
+        },
+        "results": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["candidateFields", "matches", "changes", "criticalChanges"],
+          "properties": {
+            "candidateFields": {"type": "integer", "minimum": 1},
+            "matches": {"type": "integer", "minimum": 0},
+            "changes": {"type": "integer", "minimum": 0},
+            "criticalChanges": {"type": "integer", "minimum": 0}
+          }
+        },
+        "outputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["fieldEvidence", "changeSet", "catalogRun"],
+          "properties": {
+            "fieldEvidence": {"$ref": "#/$defs/relativePath"},
+            "changeSet": {"$ref": "#/$defs/relativePath"},
+            "catalogRun": {"$ref": "#/$defs/relativePath"}
+          }
+        },
+        "authority": {"$ref": "#/$defs/profileAuthority"}
+      }
+    },
+    "unexpectedChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rowIdentitySha256", "entityKey", "column", "beforeValueSha256", "afterValueSha256"],
+      "properties": {
+        "rowIdentitySha256": {"$ref": "#/$defs/sha256"},
+        "entityKey": {"type": ["string", "null"]},
+        "column": {"$ref": "#/$defs/column"},
+        "beforeValueSha256": {"$ref": "#/$defs/sha256"},
+        "afterValueSha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "identityDrift": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "rowIdentitySha256", "entityKey"],
+      "properties": {
+        "kind": {"enum": ["row_added", "row_removed", "parent_relation_changed", "sku_changed"]},
+        "rowIdentitySha256": {"$ref": "#/$defs/sha256"},
+        "entityKey": {"type": ["string", "null"]}
+      }
+    },
+    "missingChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["changeKey", "targetKey", "rowIdentitySha256", "afterValueSha256"],
+      "properties": {
+        "changeKey": {"$ref": "#/$defs/key"},
+        "targetKey": {"$ref": "#/$defs/key"},
+        "rowIdentitySha256": {"$ref": "#/$defs/sha256"},
+        "afterValueSha256": {"oneOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]}
+      }
+    },
+    "auditAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["isObservation", "isExternalMutationAuthority", "canGenerateWooImport", "containsRawOutOfScopeValues"],
+      "properties": {
+        "isObservation": {"const": true},
+        "isExternalMutationAuthority": {"const": false},
+        "canGenerateWooImport": {"const": false},
+        "containsRawOutOfScopeValues": {"const": false}
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "auditKey", "profileKey", "runKey", "createdAt", "timezone", "provenance", "mode", "inputs", "expectedChanges", "verifiedChanges", "missingExpectedChanges", "unexpectedChanges", "identityDrift", "blockers", "passed", "authority"],
+      "properties": {
+        "schema": {"const": "enki-catalog-post-import-audit/v1"},
+        "auditKey": {"$ref": "#/$defs/key"},
+        "profileKey": {"$ref": "#/$defs/key"},
+        "runKey": {"$ref": "#/$defs/key"},
+        "createdAt": {"type": "string", "format": "date-time"},
+        "timezone": {"const": "Europe/Madrid"},
+        "provenance": {"enum": ["operational", "sanitized_fixture"]},
+        "mode": {"enum": ["sanitized_simulation", "operational_post_import_observation"]},
+        "inputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["profileSha256", "changeSetSha256", "beforeWooSha256", "afterWooSha256"],
+          "properties": {
+            "profileSha256": {"$ref": "#/$defs/sha256"},
+            "changeSetSha256": {"$ref": "#/$defs/sha256"},
+            "beforeWooSha256": {"$ref": "#/$defs/sha256"},
+            "afterWooSha256": {"$ref": "#/$defs/sha256"}
+          }
+        },
+        "expectedChanges": {"type": "integer", "minimum": 0},
+        "verifiedChanges": {"type": "integer", "minimum": 0},
+        "missingExpectedChanges": {"type": "array", "items": {"$ref": "#/$defs/missingChange"}},
+        "unexpectedChanges": {"type": "array", "items": {"$ref": "#/$defs/unexpectedChange"}},
+        "identityDrift": {"type": "array", "items": {"$ref": "#/$defs/identityDrift"}},
+        "blockers": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "passed": {"type": "boolean"},
+        "authority": {"$ref": "#/$defs/auditAuthority"}
+      }
+    }
+  }
+}

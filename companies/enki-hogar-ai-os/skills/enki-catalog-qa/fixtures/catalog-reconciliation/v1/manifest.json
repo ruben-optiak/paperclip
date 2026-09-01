@@ -1,0 +1,32 @@
+{
+  "schema": "enki-catalog-reconciliation-fixture-manifest/v1",
+  "version": "1.0.0",
+  "fixtureKey": "buades-positional-parent-variation",
+  "files": [
+    {"path": "profile.json", "sha256": "81fb264221a595dd1b5200f17a7042a9fb105c0a59a4f7b95359edbf4b964c36"},
+    {"path": "candidates.jsonl", "sha256": "ce75e6a1113ac083fa228289e18a0e5c83b2de6812093b0a48ec62f87245eaf8"},
+    {"path": "woo-before.csv", "sha256": "78ec452389aa1aeb157391f00ab5e5efc8607e403e9784057ef9053f47456adb"},
+    {"path": "woo-after-expected.csv", "sha256": "f1e8324b900d3cb344043f40ef6122c59e07f917826c78d1d84af5a87f4b39de"},
+    {"path": "woo-after-drift.csv", "sha256": "fb5317473e5e170f65fba542df7ece5efa0b76f964bae76901010131a2bfba0a"}
+  ],
+  "expected": {
+    "rows": 3,
+    "columns": 14,
+    "duplicateHeaderGroups": 3,
+    "inScopeEntities": 2,
+    "outsideScopeRows": 1,
+    "candidateFields": 5,
+    "matches": 2,
+    "changes": 3,
+    "criticalChanges": 1,
+    "postImportVerifiedChanges": 3,
+    "postImportUnexpectedChanges": 0,
+    "idempotentChanges": 0
+  },
+  "authority": {
+    "sanitized": true,
+    "containsLiveCatalogueData": false,
+    "isExternalMutationAuthority": false,
+    "canGenerateWooImport": false
+  }
+}

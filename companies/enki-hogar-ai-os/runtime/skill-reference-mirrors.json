@@ -38,6 +38,24 @@
       "skills/enki-editorial-planning/references/content-ledger-v1.schema.json",
       "skills/enki-seo-sem/references/content-ledger-v1.schema.json"
     ],
+    "references/contracts/catalog-run-v1.schema.json": [
+      "skills/enki-catalog-qa/references/catalog-run-v1.schema.json"
+    ],
+    "references/contracts/catalog-field-evidence-v1.schema.json": [
+      "skills/enki-catalog-qa/references/catalog-field-evidence-v1.schema.json"
+    ],
+    "references/contracts/catalog-change-set-v1.schema.json": [
+      "skills/enki-catalog-qa/references/catalog-change-set-v1.schema.json"
+    ],
+    "references/contracts/catalog-regression-v1.schema.json": [
+      "skills/enki-catalog-qa/references/catalog-regression-v1.schema.json"
+    ],
+    "references/contracts/catalog-adapter-v1.schema.json": [
+      "skills/enki-catalog-qa/references/catalog-adapter-v1.schema.json"
+    ],
+    "references/contracts/catalog-reconciliation-v1.schema.json": [
+      "skills/enki-catalog-qa/references/catalog-reconciliation-v1.schema.json"
+    ],
     "references/contracts/editorial-brief-v2.schema.json": [
       "skills/enki-editorial-planning/references/editorial-brief-v2.schema.json"
     ],
