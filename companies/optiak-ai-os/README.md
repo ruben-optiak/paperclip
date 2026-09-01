@@ -94,6 +94,15 @@ Build a deterministic import archive outside the package:
 6. Configure only the first approved source, run its manual smoke test, and review evidence.
 7. Activate one agent at a time. Enable schedules only after their manual runs pass.
 
+Start or inspect the isolated local instance with the versioned helper:
+
+```sh
+./companies/optiak-ai-os/scripts/local-instance.sh up --build
+./companies/optiak-ai-os/scripts/local-instance.sh health
+```
+
+The defaults are Compose project `paperclip-optiak`, host port `3200`, and data directory `data/docker-paperclip-optiak`. They do not reuse Enki's container, port, data, session secret, or integrations.
+
 The current CLI preview command is:
 
 ```sh

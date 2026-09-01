@@ -73,3 +73,15 @@ test("runtime defaults to paused, sandboxed, managed MCP", () => {
   assert.equal((paperclip.match(/managedMcpOnly: true/g) || []).length, 10);
   assert.equal((paperclip.match(/enabled: false/g) || []).length, 14);
 });
+
+test("local instance remains isolated behind host port 3200", () => {
+  const override = readFileSync(join(packageDir, "runtime", "docker-compose.paperclip.yml"), "utf8");
+  const helper = readFileSync(join(packageDir, "scripts", "local-instance.sh"), "utf8");
+
+  assert.match(override, /PAPERCLIP_AUTH_BASE_URL_MODE:\s*"auto"/);
+  assert.match(override, /BETTER_AUTH_TRUSTED_ORIGINS/);
+  assert.match(helper, /paperclip-optiak/);
+  assert.match(helper, /docker-paperclip-optiak/);
+  assert.match(helper, /OPTIAK_PAPERCLIP_PORT:-3200/);
+  assert.doesNotMatch(helper, /enki-hogar|enki-connectors/);
+});

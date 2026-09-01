@@ -21,6 +21,24 @@ Do not store the instance environment file in this repository. When the operator
 
 Review the current `docker/docker-compose.quickstart.yml` before executing commands because upstream configuration may change.
 
+The versioned helper applies those values without creating a repository `.env`:
+
+```sh
+./companies/optiak-ai-os/scripts/local-instance.sh up --build
+./companies/optiak-ai-os/scripts/local-instance.sh health
+./companies/optiak-ai-os/scripts/local-instance.sh ps
+```
+
+It creates `data/docker-paperclip-optiak/.better-auth-secret` on first use with mode `0600`. Both the data directory and secret are ignored by Git. The secret value is never printed. The helper composes the root quickstart with `runtime/docker-compose.paperclip.yml`, which keeps authentication request-derived and explicitly trusts only the configured local public URL when host port `3200` maps to container port `3100`; this prevents local login redirects from being rewritten to the Enki instance on `3100`.
+
+To stop Optiak without touching Enki:
+
+```sh
+./companies/optiak-ai-os/scripts/local-instance.sh stop
+```
+
+`down` removes only the Optiak container and private network. It does not pass `--volumes`, and the persistent bind-mounted data remains in `data/docker-paperclip-optiak`.
+
 ## Import
 
 1. Import preview the exact ZIP.

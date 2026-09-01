@@ -1,0 +1,8 @@
+services:
+  paperclip:
+    environment:
+      # The container listens on 3100 while the host publishes 3200. Auto mode
+      # keeps Better Auth request-derived on localhost instead of rewriting the
+      # advertised loopback URL to the container's internal port.
+      PAPERCLIP_AUTH_BASE_URL_MODE: "auto"
+      BETTER_AUTH_TRUSTED_ORIGINS: "${PAPERCLIP_PUBLIC_URL:-http://localhost:3200}"

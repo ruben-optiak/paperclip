@@ -97,9 +97,11 @@ const requiredFiles = [
   "runbooks/connections.md",
   "runbooks/security.md",
   "runbooks/smoke-test.md",
+  "runtime/docker-compose.paperclip.yml",
   "scripts/scan-secrets.sh",
   "scripts/build-import-zip.sh",
   "scripts/import-allowlist.txt",
+  "scripts/local-instance.sh",
 ];
 for (const path of requiredFiles) if (!statSafe(join(packageDir, path))) fail(`Missing required file: ${path}`);
 

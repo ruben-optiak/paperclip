@@ -9,9 +9,11 @@ policies/
 projects/
 references/
 runbooks/
+runtime/
 scripts/build-import-zip.sh
 scripts/check.sh
 scripts/import-allowlist.txt
+scripts/local-instance.sh
 scripts/scan-secrets.sh
 scripts/validate-package.mjs
 skills/
