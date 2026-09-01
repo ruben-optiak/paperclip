@@ -15,4 +15,4 @@ Use this loop:
 6. Identify root cause, contributing conditions, detection gap, and blast radius.
 7. Propose the smallest fix, regression test, rollout, rollback, and telemetry improvement.
 
-Redact secrets and sensitive payloads. Never claim a fix without testing the original failure mode. See [example](examples/debug.md) and `fixtures/bug.json`.
+Redact secrets and sensitive payloads. Never claim a fix without testing the original failure mode. See [example](examples/debug.md) and `references/fixtures/bug.md`.

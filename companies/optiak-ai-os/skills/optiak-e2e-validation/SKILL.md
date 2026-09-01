@@ -19,4 +19,4 @@ For each journey cover as applicable:
 
 Return one result per case: `pass`, `fail`, `blocked`, or `not_tested`. Evidence includes timestamp, exact steps, expected/observed, redacted artifacts, severity, reproducibility, cleanup result, and next owner.
 
-Never mutate production. See [example](examples/journey.md) and `fixtures/journey.json`.
+Never mutate production. See [example](examples/journey.md) and `references/fixtures/journey.md`.

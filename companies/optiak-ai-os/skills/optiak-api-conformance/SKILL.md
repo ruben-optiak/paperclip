@@ -18,4 +18,4 @@ Build a versioned matrix covering:
 - usage, cost, request history, trace/correlation, and audit evidence;
 - compatibility differences that are intentional and documented.
 
-Record endpoint, client version, sanitized request fingerprint, status, schema result, latency, expected/observed, and evidence. Do not claim full OpenAI compatibility from a small happy-path sample. See [example](examples/case.md) and `fixtures/cases.json`.
+Record endpoint, client version, sanitized request fingerprint, status, schema result, latency, expected/observed, and evidence. Do not claim full OpenAI compatibility from a small happy-path sample. See [example](examples/case.md) and `references/fixtures/cases.md`.

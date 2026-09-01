@@ -15,4 +15,4 @@ Review the exact PRD revision and report:
 - measurable acceptance criteria and explicit exclusions;
 - unresolved decisions, dependencies, rollout, rollback, and evidence plan.
 
-Verdicts are `ready_for_architecture`, `changes_required`, or `blocked_on_evidence`. Do not convert ambiguous product intent into engineering assumptions. See [example](examples/review.md) and `fixtures/prd.json`.
+Verdicts are `ready_for_architecture`, `changes_required`, or `blocked_on_evidence`. Do not convert ambiguous product intent into engineering assumptions. See [example](examples/review.md) and `references/fixtures/prd.md`.

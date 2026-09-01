@@ -1,3 +1,8 @@
+# Offline debugging fixture
+
+Use only as synthetic evidence. The fenced object is machine-readable test data.
+
+```json
 {
   "schema": "optiak-debug-fixture/v1",
   "environment": "fixture",
@@ -7,3 +12,4 @@
   "secretsRedacted": true,
   "expectedOutcome": "ranked_hypotheses_not_root_cause"
 }
+```

@@ -159,8 +159,29 @@ for (const path of skillFiles) {
   const folder = relative(join(packageDir, "skills"), skillDir).split(sep)[0];
   if (doc.name !== folder || !slugPattern.test(doc.name || "")) fail(`Skill name/folder mismatch: ${folder}`);
   if (!statSafe(join(skillDir, "examples", readdirSync(join(skillDir, "examples"))[0] || ""))) fail(`Skill has no example: ${folder}`);
-  if (!statSafe(join(skillDir, "fixtures", readdirSync(join(skillDir, "fixtures"))[0] || ""))) fail(`Skill has no fixture: ${folder}`);
   const text = readFileSync(path, "utf8");
+  const fixtureDir = join(skillDir, "references", "fixtures");
+  let fixtureFiles = [];
+  try {
+    fixtureFiles = readdirSync(fixtureDir).filter((fixture) => fixture.endsWith(".md"));
+  } catch {
+    fail(`Skill has no portable references/fixtures directory: ${folder}`);
+  }
+  if (fixtureFiles.length === 0) fail(`Skill has no portable Markdown fixture: ${folder}`);
+  for (const fixture of fixtureFiles) {
+    const fixtureText = readFileSync(join(fixtureDir, fixture), "utf8");
+    const fencedJson = fixtureText.match(/```json\r?\n([\s\S]*?)\r?\n```/);
+    if (!fencedJson) {
+      fail(`Skill fixture has no fenced JSON object: ${folder}/${fixture}`);
+      continue;
+    }
+    try {
+      JSON.parse(fencedJson[1]);
+    } catch (error) {
+      fail(`Invalid fenced JSON in ${folder}/${fixture}: ${error.message}`);
+    }
+    if (!text.includes(`references/fixtures/${fixture}`)) fail(`Skill does not reference fixture: ${folder}/${fixture}`);
+  }
   if (/(?:^|[\s('"`])\.\.\//m.test(text)) fail(`Skill escapes its portable subtree: ${folder}`);
 }
 

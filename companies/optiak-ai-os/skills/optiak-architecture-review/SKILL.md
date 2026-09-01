@@ -15,4 +15,4 @@ Require an immutable proposal revision, problem statement, constraints, and affe
 - migration, backwards compatibility, rollout, rollback, and data repair;
 - alternatives, decision drivers, irreversible choices, and exit strategy.
 
-Produce `approve`, `approve_with_conditions`, `changes_required`, or `blocked_on_evidence`. A rewrite requires incremental proof and rollback. See [example](examples/review.md) and `fixtures/proposal.json`.
+Produce `approve`, `approve_with_conditions`, `changes_required`, or `blocked_on_evidence`. A rewrite requires incremental proof and rollback. See [example](examples/review.md) and `references/fixtures/proposal.md`.

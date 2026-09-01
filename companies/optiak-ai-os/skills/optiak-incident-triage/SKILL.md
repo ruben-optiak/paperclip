@@ -19,4 +19,4 @@ Severity guide:
 - `SEV2`: degraded or scoped capability with meaningful impact;
 - `SEV3`: minor, contained, or no-current-impact defect.
 
-Maintain a timestamped timeline. Separate mitigation from root cause. Propose but do not execute production changes. Closure requires recovery evidence, regression ownership, and postmortem disposition. See [example](examples/triage.md) and `fixtures/alert.json`.
+Maintain a timestamped timeline. Separate mitigation from root cause. Propose but do not execute production changes. Closure requires recovery evidence, regression ownership, and postmortem disposition. See [example](examples/triage.md) and `references/fixtures/alert.md`.

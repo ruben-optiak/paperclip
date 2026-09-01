@@ -1,3 +1,8 @@
+# Offline pull-request fixture
+
+Use only as synthetic evidence. The fenced object is machine-readable test data.
+
+```json
 {
   "schema": "optiak-pr-review-fixture/v1",
   "headRevision": "fixture-sha-001",
@@ -7,3 +12,4 @@
   "tests": ["happy path routing"],
   "expectedVerdict": "request_changes"
 }
+```

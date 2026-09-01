@@ -18,4 +18,4 @@ Evaluate an immutable release candidate. Required gates are proportional to chan
 - observability, alerts, dashboards, support/runbook impact;
 - staged rollout, abort signals, rollback, data repair, and owner coverage.
 
-Return `ready`, `ready_with_board_accepted_risk`, `not_ready`, or `blocked_on_evidence`. Missing evidence is never converted into a pass. This skill does not deploy or approve release actions. See [example](examples/verdict.md) and `fixtures/release.json`.
+Return `ready`, `ready_with_board_accepted_risk`, `not_ready`, or `blocked_on_evidence`. Missing evidence is never converted into a pass. This skill does not deploy or approve release actions. See [example](examples/verdict.md) and `references/fixtures/release.md`.

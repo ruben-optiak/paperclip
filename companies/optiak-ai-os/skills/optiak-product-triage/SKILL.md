@@ -15,4 +15,4 @@ For every input:
 6. Choose one disposition: reject, needs discovery, candidate, scheduled, urgent defect, or Board decision.
 7. Produce acceptance criteria and the next owner when the item advances.
 
-Do not fabricate demand, metrics, duplicates, or roadmap state when sources are disconnected. Numerical scoring is a comparison aid, never invented precision. See [example](examples/triage.md) and `fixtures/items.json`.
+Do not fabricate demand, metrics, duplicates, or roadmap state when sources are disconnected. Numerical scoring is a comparison aid, never invented precision. See [example](examples/triage.md) and `references/fixtures/items.md`.

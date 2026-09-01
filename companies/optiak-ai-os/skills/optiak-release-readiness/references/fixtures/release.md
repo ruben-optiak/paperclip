@@ -1,3 +1,8 @@
+# Offline release-readiness fixture
+
+Use only as synthetic evidence. The fenced object is machine-readable test data.
+
+```json
 {
   "schema": "optiak-release-evidence-fixture/v1",
   "candidate": "fixture-release-1",
@@ -10,3 +15,4 @@
   },
   "expectedVerdict": "not_ready"
 }
+```

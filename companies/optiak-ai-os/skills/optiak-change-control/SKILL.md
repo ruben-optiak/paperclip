@@ -16,4 +16,4 @@ Classify every external action before execution.
 
 Before action, record actor, exact tool, environment, inputs, expected effect, blast radius, reversibility, approval requirement, evidence plan, and abort condition. Unknown tools or ambiguous semantics are quarantined.
 
-Never lower risk because an operation is easy or because a test account resembles production. See [example](examples/decision.md) and `fixtures/actions.json`.
+Never lower risk because an operation is easy or because a test account resembles production. See [example](examples/decision.md) and `references/fixtures/actions.md`.

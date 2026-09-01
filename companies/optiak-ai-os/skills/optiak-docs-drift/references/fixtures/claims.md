@@ -1,3 +1,8 @@
+# Offline documentation claims fixture
+
+Use only as synthetic evidence. The fenced object is machine-readable test data.
+
+```json
 {
   "schema": "optiak-docs-claims-fixture/v1",
   "claims": [
@@ -9,3 +14,4 @@
     }
   ]
 }
+```

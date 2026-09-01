@@ -16,4 +16,4 @@ Inspect:
 - responsive behavior, overflow, truncation, density, and content extremes;
 - consistency across organization, application, credentials, models, guardrails, data, tools, costs, and observability surfaces.
 
-Every finding names rule or heuristic, route, viewport, evidence, expected/observed, impact, severity, and proposed component-level correction. Without an approved brand source, label observations as internal inconsistency or heuristic. See [example](examples/finding.md) and `fixtures/screen.json`.
+Every finding names rule or heuristic, route, viewport, evidence, expected/observed, impact, severity, and proposed component-level correction. Without an approved brand source, label observations as internal inconsistency or heuristic. See [example](examples/finding.md) and `references/fixtures/screen.md`.

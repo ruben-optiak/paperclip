@@ -20,4 +20,4 @@ Review correctness, authorization, tenant isolation, secret handling, API compat
 - `medium`: material maintainability, test, operational, or UX defect;
 - `low`: bounded improvement that does not block unless policy says otherwise.
 
-Verdict is `approve`, `request_changes`, or `blocked_on_evidence`. Never merge or review your own work. See [example](examples/review.md) and `fixtures/pr.json`.
+Verdict is `approve`, `request_changes`, or `blocked_on_evidence`. Never merge or review your own work. See [example](examples/review.md) and `references/fixtures/pr.md`.

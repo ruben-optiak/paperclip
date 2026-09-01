@@ -33,7 +33,10 @@ It creates `data/docker-paperclip-optiak/.better-auth-secret` on first use with 
 
 - sets the instance id to `optiak`, giving its files and auth cookies a namespace separate from Enki;
 - keeps authentication request-derived and explicitly trusts only the configured local public URL when host port `3200` maps to container port `3100`;
+- advertises `http://localhost:3100` to agents and the managed MCP running inside the container, while the browser and host CLI continue to use `http://localhost:3200`;
 - prevents local login redirects from being rewritten to the Enki instance on `3100`.
+
+Do not point in-container `PAPERCLIP_API_URL` at host port `3200`: that port exists on the Docker host, not on the container loopback interface.
 
 To stop Optiak without touching Enki:
 
@@ -51,3 +54,5 @@ To stop Optiak without touching Enki:
 4. Apply with agents and routines paused.
 5. Configure no connection during the import itself.
 6. Run the fixture-only smoke test before activating the Director.
+
+For a later update that must replace already-installed package skills, use the Board import preview/apply flow and verify the exact replacement set. The existing-company CLI route is intentionally safe and rejects `collisionStrategy: replace`; do not use `rename`, because it would create duplicate skills.

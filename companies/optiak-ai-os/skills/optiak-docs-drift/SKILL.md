@@ -17,4 +17,4 @@ Compare against the strongest available authority:
 
 Check terminology, navigation, prerequisites, authentication, endpoint/schema examples, error behavior, permissions, lifecycle, feature availability, deprecations, positioning, and links. Classify as confirmed drift, likely drift, internally inconsistent, stale-risk, or blocked on authority.
 
-Do not duplicate the whole docs site or publish changes. See [example](examples/drift.md) and `fixtures/claims.json`.
+Do not duplicate the whole docs site or publish changes. See [example](examples/drift.md) and `references/fixtures/claims.md`.
