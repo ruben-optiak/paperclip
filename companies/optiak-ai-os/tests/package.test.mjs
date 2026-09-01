@@ -80,6 +80,8 @@ test("local instance remains isolated behind host port 3200", () => {
 
   assert.match(override, /PAPERCLIP_AUTH_BASE_URL_MODE:\s*"auto"/);
   assert.match(override, /BETTER_AUTH_TRUSTED_ORIGINS/);
+  assert.match(override, /PAPERCLIP_INSTANCE_ID/);
+  assert.match(override, /optiak/);
   assert.match(helper, /paperclip-optiak/);
   assert.match(helper, /docker-paperclip-optiak/);
   assert.match(helper, /OPTIAK_PAPERCLIP_PORT:-3200/);

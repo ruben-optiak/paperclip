@@ -101,7 +101,7 @@ Start or inspect the isolated local instance with the versioned helper:
 ./companies/optiak-ai-os/scripts/local-instance.sh health
 ```
 
-The defaults are Compose project `paperclip-optiak`, host port `3200`, and data directory `data/docker-paperclip-optiak`. They do not reuse Enki's container, port, data, session secret, or integrations.
+The defaults are Compose project `paperclip-optiak`, Paperclip instance id `optiak`, host port `3200`, and data directory `data/docker-paperclip-optiak`. They do not reuse Enki's container, port, data, auth-cookie namespace, session secret, or integrations.
 
 The current CLI preview command is:
 
