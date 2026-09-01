@@ -2,6 +2,8 @@
 
 `companies/` contains private or organization-specific `agentcompanies/v1` packages. They are portable configuration and operating knowledge, not Paperclip product code.
 
+Follow the repository and multi-company branch workflow in `companies/README.md`. Keep company work on short-lived `feat/<company>/*` branches created from `integration/companies`; synchronize upstream through a dated `sync/upstream-*` branch rather than directly inside a company branch.
+
 For every package:
 
 - Keep agents, projects, tasks, routines, skills, policies, fixtures, and runbooks inside the package directory.
