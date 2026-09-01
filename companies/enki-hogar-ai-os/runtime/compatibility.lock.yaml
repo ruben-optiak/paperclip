@@ -1,7 +1,7 @@
 {
   "schema": "enki-runtime-compatibility/v1",
-  "packageVersion": "0.5.1",
-  "recordedAt": "2026-08-31",
+  "packageVersion": "0.6.0",
+  "recordedAt": "2026-09-01",
   "agentCompaniesSchema": "agentcompanies/v1",
   "paperclipBundleSchemaVersion": 7,
   "paperclip": {

@@ -9,7 +9,7 @@ const metrics = readFileSync(join(packageDir, "references", "metrics", "metric-c
 const envelopeSchema = JSON.parse(readFileSync(join(packageDir, "references", "contracts", "evidence-envelope-v1.schema.json"), "utf8"));
 const contentLedgerSchema = JSON.parse(readFileSync(join(packageDir, "references", "contracts", "content-ledger-v1.schema.json"), "utf8"));
 const contentLedgerFixture = JSON.parse(readFileSync(join(packageDir, "skills", "enki-seo-sem", "fixtures", "content-ledger.json"), "utf8"));
-const editorialWorkflow = JSON.parse(readFileSync(join(packageDir, "references", "contracts", "editorial-workflow-v1.json"), "utf8"));
+const editorialWorkflow = JSON.parse(readFileSync(join(packageDir, "references", "contracts", "editorial-workflow-v2.json"), "utf8"));
 const productSupportSchema = JSON.parse(readFileSync(join(packageDir, "references", "contracts", "product-support-result-v1.schema.json"), "utf8"));
 const productSupportPackSchema = JSON.parse(readFileSync(join(packageDir, "references", "contracts", "product-support-pack-v1.schema.json"), "utf8"));
 
@@ -47,21 +47,24 @@ test("content memory records coverage, freshness and deduplication keys without 
   assert.equal(JSON.stringify(contentLedgerFixture).match(/email|customer|recipient|credential/gi), null);
 });
 
-test("editorial handoffs are phase-gated and absence cannot pass brand review", () => {
-  assert.equal(editorialWorkflow.schema, "enki-editorial-workflow/v1");
+test("editorial planning and publication handoffs are phase-gated", () => {
+  assert.equal(editorialWorkflow.schema, "enki-editorial-workflow/v2");
   const stages = new Map(editorialWorkflow.stages.map((stage) => [stage.key, stage]));
-  assert.deepEqual(stages.get("draft"), {
-    key: "draft",
-    owner: "growth-manager",
-    documentKey: "content-draft",
-    requiresRevisionId: true,
-    dependsOn: null,
-  });
-  assert.equal(stages.get("brand_catalogue_review")?.owner, "ecommerce-catalogue-manager");
-  assert.equal(stages.get("brand_catalogue_review")?.dependsOn, "draft");
-  assert.equal(stages.get("brand_catalogue_review")?.missingInputDisposition, "blocked_not_reviewed");
-  assert.equal(stages.get("brand_catalogue_review")?.zeroClaimsMayPass, false);
-  assert.equal(stages.get("publish")?.dependsOn, "brand_catalogue_review");
+  assert.equal(stages.get("research")?.owner, "growth-manager");
+  assert.equal(stages.get("shortlist")?.dependsOn, "research");
+  assert.equal(stages.get("candidate_validation")?.owner, "ecommerce-catalogue-manager");
+  assert.equal(stages.get("candidate_validation")?.dependsOn, "shortlist");
+  assert.equal(stages.get("candidate_validation")?.allowsCandidateAdditionsOrOmissions, false);
+  assert.equal(stages.get("candidate_validation")?.missingInputDisposition, "blocked_not_validated");
+  assert.equal(stages.get("board_decision")?.owner, "board");
+  assert.equal(stages.get("board_decision")?.dependsOn, "candidate_validation");
+  assert.equal(stages.get("board_decision")?.approvalIsMutationAuthority, false);
+  assert.equal(stages.get("draft")?.dependsOn, "board_decision");
+  assert.equal(stages.get("draft")?.requiresPostDecisionBriefRevision, true);
+  assert.equal(stages.get("review")?.dependsOn, "draft");
+  assert.equal(stages.get("review")?.missingInputDisposition, "blocked_not_reviewed");
+  assert.equal(stages.get("review")?.zeroClaimsMayPass, false);
+  assert.equal(stages.get("publish")?.dependsOn, "review");
   assert.equal(stages.get("publish")?.mode, "paperclip_ask_first");
   assert.equal(stages.get("publish")?.connector, "content_publisher");
   assert.equal(stages.get("publish")?.approvalOwner, "board");

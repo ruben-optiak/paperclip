@@ -25,7 +25,7 @@ For terminal smoke evidence, write the Board verification before the agent moves
 
 ## Customer Experience zero-PII smoke
 
-The v0.5.1 Customer Experience gate is **deny**, not ask-first. Use a completely
+The v0.6.0 Customer Experience gate is **deny**, not ask-first. Use a completely
 synthetic case to verify classification and a clearly labelled unsent draft.
 Then verify from Board that:
 

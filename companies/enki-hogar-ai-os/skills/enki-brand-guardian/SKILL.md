@@ -6,7 +6,7 @@ license: MIT AND LicenseRef-Enki-Hogar-Internal
 
 # Enki brand guardian
 
-Úsala antes de entregar copy de producto, categoría, SEO, anuncios, email, FAQ o respuesta a clientes. Lee primero la [referencia curada de marca y claims](references/brand-claims.md), el [contexto de compañía](references/company-context.md) y, para handoffs editoriales, el [contrato de workflow](references/editorial-workflow-v1.json). Estas copias viven dentro de la skill para seguir disponibles después del import.
+Úsala antes de entregar copy de producto, categoría, SEO, anuncios, email, FAQ o respuesta a clientes. Lee primero la [referencia curada de marca y claims](references/brand-claims.md), el [contexto de compañía](references/company-context.md) y, para handoffs editoriales, el [contrato de workflow v2](references/editorial-workflow-v2.json). Estas copias viven dentro de la skill para seguir disponibles después del import.
 
 ## Revisión
 

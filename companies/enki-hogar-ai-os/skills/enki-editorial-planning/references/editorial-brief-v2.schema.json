@@ -1,0 +1,263 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:enki:editorial-brief:v2",
+  "title": "Enki editorial brief v2",
+  "description": "Versioned planning artifact for research, shortlist validation and an exact Board decision. Cross-field gates are enforced by enki-editorial-planning/scripts/validate_editorial_brief.mjs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "timezone", "generated_at", "provenance", "stage", "revision", "objective", "evidence", "shortlist", "candidateValidation", "boardDecision", "postDecisionUpdate", "gates"],
+  "properties": {
+    "schema": {"const": "enki-editorial-brief/v2"},
+    "timezone": {"const": "Europe/Madrid"},
+    "generated_at": {"type": "string", "format": "date-time"},
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "sourceIssue", "authority"],
+      "properties": {
+        "kind": {"enum": ["operational", "sanitized_fixture"]},
+        "sourceIssue": {"type": ["string", "null"]},
+        "authority": {"const": "derived_evidence_not_live_source"}
+      }
+    },
+    "stage": {"enum": ["research", "shortlist", "candidate_validation", "board_decision", "draft", "review", "publish"]},
+    "revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revisionId", "revisionNumber", "supersedesRevisionId"],
+      "properties": {
+        "revisionId": {"type": "string", "minLength": 1},
+        "revisionNumber": {"type": "integer", "minimum": 1},
+        "supersedesRevisionId": {"type": ["string", "null"]}
+      }
+    },
+    "objective": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["question", "audience", "successMetric", "constraints"],
+      "properties": {
+        "question": {"type": "string", "minLength": 1},
+        "audience": {"type": "string", "minLength": 1},
+        "successMetric": {"type": "string", "minLength": 1},
+        "constraints": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["currentInstant", "periods", "sources", "historySearch", "limitations"],
+      "properties": {
+        "currentInstant": {"type": "string", "format": "date-time"},
+        "periods": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["key", "start", "end", "timezone"],
+            "properties": {
+              "key": {"type": "string", "minLength": 1},
+              "start": {"type": "string", "format": "date-time"},
+              "end": {"type": "string", "format": "date-time"},
+              "timezone": {"const": "Europe/Madrid"}
+            }
+          }
+        },
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source", "status", "fetchedAt", "periodKeys", "queryScope", "freshness", "coverageNote"],
+            "properties": {
+              "source": {"enum": ["paperclip", "content_ledger", "wordpress", "facebook", "instagram", "woocommerce", "ga4", "gsc", "google_ads", "product_support", "approved_market_source"]},
+              "status": {"enum": ["ok", "partial", "unavailable", "unknown"]},
+              "fetchedAt": {"type": ["string", "null"], "format": "date-time"},
+              "periodKeys": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+              "queryScope": {"type": "string", "minLength": 1},
+              "freshness": {"enum": ["live", "fresh", "stale", "unknown"]},
+              "coverageNote": {"type": "string", "minLength": 1}
+            }
+          }
+        },
+        "historySearch": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["queries", "documentKeys", "coverage"],
+          "properties": {
+            "queries": {"type": "array", "minItems": 1, "items": {"type": "string"}, "uniqueItems": true},
+            "documentKeys": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+            "coverage": {"enum": ["complete", "partial", "unavailable"]}
+          }
+        },
+        "limitations": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    },
+    "shortlist": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["revisionId", "revisionNumber", "candidateFingerprint", "scoringModel", "candidates"],
+      "properties": {
+        "revisionId": {"type": "string", "minLength": 1},
+        "revisionNumber": {"type": "integer", "minimum": 1},
+        "candidateFingerprint": {"type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$"},
+        "scoringModel": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["scaleMin", "scaleMax", "weights"],
+          "properties": {
+            "scaleMin": {"const": 0},
+            "scaleMax": {"const": 5},
+            "weights": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["demand", "businessFit", "differentiation", "evidenceQuality", "executionReadiness"],
+              "properties": {
+                "demand": {"type": "number", "minimum": 0, "maximum": 1},
+                "businessFit": {"type": "number", "minimum": 0, "maximum": 1},
+                "differentiation": {"type": "number", "minimum": 0, "maximum": 1},
+                "evidenceQuality": {"type": "number", "minimum": 0, "maximum": 1},
+                "executionReadiness": {"type": "number", "minimum": 0, "maximum": 1}
+              }
+            }
+          }
+        },
+        "candidates": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/candidate"}
+        }
+      }
+    },
+    "candidateValidation": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sourceBriefRevisionId", "sourceCandidateFingerprint", "validationRevisionId", "validationRevisionNumber", "validator", "validatedAt", "validatedCandidates", "additions", "omissions", "overallStatus", "limitations"],
+          "properties": {
+            "sourceBriefRevisionId": {"type": "string", "minLength": 1},
+            "sourceCandidateFingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+            "validationRevisionId": {"type": "string", "minLength": 1},
+            "validationRevisionNumber": {"type": "integer", "minimum": 1},
+            "validator": {"const": "ecommerce-catalogue-manager"},
+            "validatedAt": {"type": "string", "format": "date-time"},
+            "validatedCandidates": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["candidateKey", "surfaceType", "canonicalUrl", "identityStatus", "commercialEvidenceStatus", "technicalEvidenceStatus", "notes"],
+                "properties": {
+                  "candidateKey": {"type": "string", "minLength": 1},
+                  "surfaceType": {"enum": ["category", "brand_landing", "article", "product", "campaign", "other"]},
+                  "canonicalUrl": {"type": "string", "format": "uri"},
+                  "identityStatus": {"enum": ["pass", "partial", "fail"]},
+                  "commercialEvidenceStatus": {"enum": ["pass", "partial", "not_applicable", "fail"]},
+                  "technicalEvidenceStatus": {"enum": ["pass", "partial", "not_applicable", "fail"]},
+                  "notes": {"type": "array", "items": {"type": "string"}}
+                }
+              }
+            },
+            "additions": {"type": "array", "maxItems": 0},
+            "omissions": {"type": "array", "maxItems": 0},
+            "overallStatus": {"enum": ["pass", "partial", "fail"]},
+            "limitations": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      ]
+    },
+    "boardDecision": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "decidedBy", "decidedAt", "sourceBriefRevisionId", "sourceCandidateFingerprint", "sourceValidationRevisionId", "selectedCandidateKeys", "authorizedNextStage", "conditions", "rationale"],
+          "properties": {
+            "status": {"enum": ["pending", "accepted", "accepted_with_conditions", "rejected"]},
+            "decidedBy": {"enum": ["board", null]},
+            "decidedAt": {"type": ["string", "null"], "format": "date-time"},
+            "sourceBriefRevisionId": {"type": "string", "minLength": 1},
+            "sourceCandidateFingerprint": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+            "sourceValidationRevisionId": {"type": "string", "minLength": 1},
+            "selectedCandidateKeys": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+            "authorizedNextStage": {"enum": ["none", "research", "draft"]},
+            "conditions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+            "rationale": {"type": "string"}
+          }
+        }
+      ]
+    },
+    "postDecisionUpdate": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["previousBriefRevisionId", "currentBriefRevisionId", "currentRevisionNumber", "updatedAt", "appliedDecisionStatus", "changedSections", "nextAction"],
+          "properties": {
+            "previousBriefRevisionId": {"type": "string", "minLength": 1},
+            "currentBriefRevisionId": {"type": "string", "minLength": 1},
+            "currentRevisionNumber": {"type": "integer", "minimum": 2},
+            "updatedAt": {"type": "string", "format": "date-time"},
+            "appliedDecisionStatus": {"enum": ["accepted", "accepted_with_conditions", "rejected"]},
+            "changedSections": {"type": "array", "minItems": 1, "items": {"type": "string"}, "uniqueItems": true},
+            "nextAction": {"type": "string", "minLength": 1}
+          }
+        }
+      ]
+    },
+    "gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["externalWritesBlocked", "planningOnly", "allowedNextStage"],
+      "properties": {
+        "externalWritesBlocked": {"const": true},
+        "planningOnly": {"const": true},
+        "allowedNextStage": {"enum": ["none", "research", "draft", "review", "publish"]}
+      }
+    }
+  },
+  "$defs": {
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["candidateKey", "surfaceType", "canonicalUrl", "title", "identity", "evidenceSummary", "scores", "risks", "unknowns", "recommendation"],
+      "properties": {
+        "candidateKey": {"type": "string", "minLength": 1},
+        "surfaceType": {"enum": ["category", "brand_landing", "article", "product", "campaign", "other"]},
+        "canonicalUrl": {"type": "string", "format": "uri"},
+        "title": {"type": "string", "minLength": 1},
+        "identity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["wordpressPostId", "wooProductId", "sku"],
+          "properties": {
+            "wordpressPostId": {"type": ["string", "null"]},
+            "wooProductId": {"type": ["string", "null"]},
+            "sku": {"type": ["string", "null"]}
+          }
+        },
+        "evidenceSummary": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "scores": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["demand", "businessFit", "differentiation", "evidenceQuality", "executionReadiness", "total"],
+          "properties": {
+            "demand": {"type": "number", "minimum": 0, "maximum": 5},
+            "businessFit": {"type": "number", "minimum": 0, "maximum": 5},
+            "differentiation": {"type": "number", "minimum": 0, "maximum": 5},
+            "evidenceQuality": {"type": "number", "minimum": 0, "maximum": 5},
+            "executionReadiness": {"type": "number", "minimum": 0, "maximum": 5},
+            "total": {"type": "number", "minimum": 0, "maximum": 5}
+          }
+        },
+        "risks": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "unknowns": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "recommendation": {"enum": ["research", "hold", "draft", "reject"]}
+      }
+    }
+  }
+}

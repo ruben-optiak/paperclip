@@ -1,0 +1,40 @@
+{
+  "schema": "enki-editorial-planning-validation-cases/v1",
+  "baseFixture": "enk-24-corrected.json",
+  "cases": [
+    {
+      "name": "reject WordPress article identity as Woo product identity",
+      "operation": "set",
+      "path": ["shortlist", "candidates", 2, "identity", "wooProductId"],
+      "value": "wp-article-fixture",
+      "expectedCode": "identity.editorial_surface_has_woo_identity"
+    },
+    {
+      "name": "reject candidate drift between Growth and Ecommerce",
+      "operation": "remove_last",
+      "path": ["candidateValidation", "validatedCandidates"],
+      "expectedCode": "candidate_validation.candidate_set_mismatch"
+    },
+    {
+      "name": "reject stale brief after Board decision",
+      "operation": "set",
+      "path": ["postDecisionUpdate", "currentBriefRevisionId"],
+      "value": "brief-shortlist-r1",
+      "expectedCode": "post_decision.revision_not_newer"
+    },
+    {
+      "name": "reject a Board decision against a different Ecommerce validation",
+      "operation": "set",
+      "path": ["boardDecision", "sourceValidationRevisionId"],
+      "value": "candidate-validation-stale",
+      "expectedCode": "board_decision.validation_revision_mismatch"
+    },
+    {
+      "name": "reject hand-entered score math",
+      "operation": "set",
+      "path": ["shortlist", "candidates", 1, "scores", "total"],
+      "value": 3.5,
+      "expectedCode": "score.total_mismatch"
+    }
+  ]
+}

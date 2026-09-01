@@ -1,0 +1,158 @@
+{
+  "schema": "enki-editorial-brief/v2",
+  "timezone": "Europe/Madrid",
+  "generated_at": "2026-09-01T12:00:00+02:00",
+  "provenance": {
+    "kind": "sanitized_fixture",
+    "sourceIssue": "ENK-24",
+    "authority": "derived_evidence_not_live_source"
+  },
+  "stage": "board_decision",
+  "revision": {
+    "revisionId": "brief-post-decision-r2",
+    "revisionNumber": 2,
+    "supersedesRevisionId": "brief-shortlist-r1"
+  },
+  "objective": {
+    "question": "Qué oportunidad editorial merece más investigación sin solapar contenido existente",
+    "audience": "Personas que comparan soluciones de baño antes de comprar",
+    "successMetric": "Decisión reproducible con cobertura y riesgo explícitos",
+    "constraints": [
+      "No consolidar, redirigir, desindexar, reescribir ni publicar",
+      "No presentar el fixture como dato actual"
+    ]
+  },
+  "evidence": {
+    "currentInstant": "2026-09-01T10:00:00+02:00",
+    "periods": [
+      {"key": "current", "start": "2026-07-30T00:00:00+02:00", "end": "2026-08-28T23:59:59+02:00", "timezone": "Europe/Madrid"},
+      {"key": "previous", "start": "2026-06-30T00:00:00+02:00", "end": "2026-07-29T23:59:59+02:00", "timezone": "Europe/Madrid"}
+    ],
+    "sources": [
+      {"source": "paperclip", "status": "ok", "fetchedAt": "2026-09-01T09:10:00+02:00", "periodKeys": [], "queryScope": "company history for the three candidate topics", "freshness": "fresh", "coverageNote": "Sanitized fixture derived from the durable ENK-24 review chain"},
+      {"source": "content_ledger", "status": "partial", "fetchedAt": "2026-09-01T09:15:00+02:00", "periodKeys": [], "queryScope": "blog entries and related topic clusters", "freshness": "fresh", "coverageNote": "Ledger coverage was declared partial and cross-checked with WordPress"},
+      {"source": "wordpress", "status": "ok", "fetchedAt": "2026-09-01T09:20:00+02:00", "periodKeys": [], "queryScope": "eleven relevant published articles read in full", "freshness": "live", "coverageNote": "Eleven of eleven identified articles were inspected"},
+      {"source": "gsc", "status": "ok", "fetchedAt": "2026-09-01T09:35:00+02:00", "periodKeys": ["current", "previous"], "queryScope": "page plus query for thirteen canonical URLs", "freshness": "fresh", "coverageNote": "Thirteen of thirteen canonicals queried; zero rows are distinguished from unavailable data"},
+      {"source": "ga4", "status": "partial", "fetchedAt": "2026-09-01T09:50:00+02:00", "periodKeys": ["current", "previous"], "queryScope": "exact page paths for thirteen canonical URLs", "freshness": "fresh", "coverageNote": "Session and engagement data available; key events and revenue were zero in the observed fixture"},
+      {"source": "woocommerce", "status": "partial", "fetchedAt": "2026-09-01T10:00:00+02:00", "periodKeys": [], "queryScope": "commercial identity only when exact Woo product ID or SKU exists", "freshness": "live", "coverageNote": "Editorial post identifiers were rejected as Woo product identifiers"},
+      {"source": "approved_market_source", "status": "unavailable", "fetchedAt": null, "periodKeys": [], "queryScope": "current external trend", "freshness": "unknown", "coverageNote": "No recent market trend is asserted"}
+    ],
+    "historySearch": {
+      "queries": ["muebles baño sin lavabo", "Buades", "guía muebles de baño"],
+      "documentKeys": ["content-ledger", "editorial-brief", "content-draft", "content-review"],
+      "coverage": "partial"
+    },
+    "limitations": [
+      "GA4 and GSC measure different surfaces and cannot be compared as equivalent totals",
+      "Zero GSC rows for an article does not demonstrate absence of editorial overlap",
+      "No SERP cannibalization was demonstrated"
+    ]
+  },
+  "shortlist": {
+    "revisionId": "brief-shortlist-r1",
+    "revisionNumber": 1,
+    "candidateFingerprint": "sha256:0faab9dfc6dea7ea9ca5fac48c8d9eb7b98af1d5e0411fcdaab4834414a2391f",
+    "scoringModel": {
+      "scaleMin": 0,
+      "scaleMax": 5,
+      "weights": {
+        "demand": 0.3,
+        "businessFit": 0.25,
+        "differentiation": 0.2,
+        "evidenceQuality": 0.15,
+        "executionReadiness": 0.1
+      }
+    },
+    "candidates": [
+      {
+        "candidateKey": "C1",
+        "surfaceType": "category",
+        "canonicalUrl": "https://fixture.invalid/muebles-bano-sin-lavabo/",
+        "title": "Categoría muebles de baño sin lavabo",
+        "identity": {"wordpressPostId": null, "wooProductId": null, "sku": null},
+        "evidenceSummary": [
+          "GSC current: 49 rows, 8 clicks and 7286 impressions; previous: 54 rows, 13 clicks and 7941 impressions",
+          "GA4 current: 32 sessions and 11 engaged sessions; previous: 39 sessions and 13 engaged sessions",
+          "Priority is further research, not consolidation authorization"
+        ],
+        "scores": {"demand": 4, "businessFit": 4, "differentiation": 3.5, "evidenceQuality": 3.5, "executionReadiness": 3.25, "total": 3.75},
+        "risks": ["Editorial overlap exists but SERP cannibalization is not demonstrated"],
+        "unknowns": ["Incremental value of a new article versus improving the category"],
+        "recommendation": "research"
+      },
+      {
+        "candidateKey": "C2",
+        "surfaceType": "brand_landing",
+        "canonicalUrl": "https://fixture.invalid/product-brands/buades/",
+        "title": "Landing de marca Buades",
+        "identity": {"wordpressPostId": null, "wooProductId": null, "sku": null},
+        "evidenceSummary": [
+          "GSC current: 40 rows, 30 clicks and 2727 impressions; previous: 39 rows, 36 clicks and 2989 impressions",
+          "GA4 current: 82 sessions and 58 engaged sessions; previous: 95 sessions and 64 engaged sessions"
+        ],
+        "scores": {"demand": 3.5, "businessFit": 4, "differentiation": 3, "evidenceQuality": 4, "executionReadiness": 3.5, "total": 3.6},
+        "risks": ["Brand demand and editorial opportunity are not the same decision"],
+        "unknowns": ["Current commercial depth by exact Woo product and SKU"],
+        "recommendation": "hold"
+      },
+      {
+        "candidateKey": "C3",
+        "surfaceType": "article",
+        "canonicalUrl": "https://fixture.invalid/blog/guia-muebles-bano-sin-lavabo/",
+        "title": "Artículo existente sobre muebles de baño",
+        "identity": {"wordpressPostId": "wp-article-fixture", "wooProductId": null, "sku": null},
+        "evidenceSummary": [
+          "The relevant article returned zero GSC rows for the selected period",
+          "Full-text review found editorial overlap; zero rows do not authorize consolidation"
+        ],
+        "scores": {"demand": 2, "businessFit": 3, "differentiation": 3, "evidenceQuality": 3, "executionReadiness": 2, "total": 2.6},
+        "risks": ["Using the WordPress post identifier as a WooCommerce product identifier would be invalid"],
+        "unknowns": ["Search intent overlap at query level"],
+        "recommendation": "hold"
+      }
+    ]
+  },
+  "candidateValidation": {
+    "sourceBriefRevisionId": "brief-shortlist-r1",
+    "sourceCandidateFingerprint": "sha256:0faab9dfc6dea7ea9ca5fac48c8d9eb7b98af1d5e0411fcdaab4834414a2391f",
+    "validationRevisionId": "candidate-validation-r1",
+    "validationRevisionNumber": 1,
+    "validator": "ecommerce-catalogue-manager",
+    "validatedAt": "2026-09-01T10:30:00+02:00",
+    "validatedCandidates": [
+      {"candidateKey": "C1", "surfaceType": "category", "canonicalUrl": "https://fixture.invalid/muebles-bano-sin-lavabo/", "identityStatus": "pass", "commercialEvidenceStatus": "not_applicable", "technicalEvidenceStatus": "not_applicable", "notes": ["Category evidence remains editorial and analytical"]},
+      {"candidateKey": "C2", "surfaceType": "brand_landing", "canonicalUrl": "https://fixture.invalid/product-brands/buades/", "identityStatus": "pass", "commercialEvidenceStatus": "partial", "technicalEvidenceStatus": "not_applicable", "notes": ["Exact Woo product or SKU evidence was not part of this candidate"]},
+      {"candidateKey": "C3", "surfaceType": "article", "canonicalUrl": "https://fixture.invalid/blog/guia-muebles-bano-sin-lavabo/", "identityStatus": "pass", "commercialEvidenceStatus": "not_applicable", "technicalEvidenceStatus": "not_applicable", "notes": ["WordPress identity was not queried as a Woo product"]}
+    ],
+    "additions": [],
+    "omissions": [],
+    "overallStatus": "partial",
+    "limitations": ["Commercial validation is partial because no exact Woo product candidate was proposed"]
+  },
+  "boardDecision": {
+    "status": "accepted_with_conditions",
+    "decidedBy": "board",
+    "decidedAt": "2026-09-01T11:00:00+02:00",
+    "sourceBriefRevisionId": "brief-shortlist-r1",
+    "sourceCandidateFingerprint": "sha256:0faab9dfc6dea7ea9ca5fac48c8d9eb7b98af1d5e0411fcdaab4834414a2391f",
+    "sourceValidationRevisionId": "candidate-validation-r1",
+    "selectedCandidateKeys": ["C1"],
+    "authorizedNextStage": "research",
+    "conditions": ["Keep existing articles separate", "Do not draft until the incremental intent is demonstrated"],
+    "rationale": "C1 leads the reproducible score but requires more evidence before any content action"
+  },
+  "postDecisionUpdate": {
+    "previousBriefRevisionId": "brief-shortlist-r1",
+    "currentBriefRevisionId": "brief-post-decision-r2",
+    "currentRevisionNumber": 2,
+    "updatedAt": "2026-09-01T11:15:00+02:00",
+    "appliedDecisionStatus": "accepted_with_conditions",
+    "changedSections": ["boardDecision", "nextAction", "constraints"],
+    "nextAction": "Research the incremental intent for C1; do not create content-draft yet"
+  },
+  "gates": {
+    "externalWritesBlocked": true,
+    "planningOnly": true,
+    "allowedNextStage": "research"
+  }
+}

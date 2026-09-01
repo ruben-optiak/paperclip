@@ -20,7 +20,7 @@ The product-support projection is not conversational memory and not a commercial
 
 ## Content ledger
 
-Use the `content-memory-ledger` issue in the Organic Growth project as the discoverable anchor. Its issue document key is `content-ledger` and its body follows `enki-content-ledger/v1` from `references/contracts/content-ledger-v1.schema.json`. The dependent handoff follows `references/contracts/editorial-workflow-v1.json`. Once initialized, an update to a completed anchor issue must use Paperclip's explicit resume semantics.
+Use the `content-memory-ledger` issue in the Organic Growth project as the discoverable anchor. Its issue document key is `content-ledger` and its body follows `enki-content-ledger/v1` from `references/contracts/content-ledger-v1.schema.json`. Planning lives in the source issue document `editorial-brief`, follows `references/contracts/editorial-brief-v2.schema.json`, and moves through `references/contracts/editorial-workflow-v2.json`. Once initialized, an update to a completed anchor issue must use Paperclip's explicit resume semantics.
 
 The ledger stores only non-sensitive summaries: channel, external ID, canonical URL, status, publication time, topic cluster, product/SKU references, categories, campaign and verification time. It never stores credentials, customer data, message recipients or raw analytics payloads. WordPress and Meta remain authoritative; the ledger records coverage and can be `partial` or `unavailable`.
 
@@ -35,10 +35,14 @@ Before proposing content, Growth must:
 
 ## Phase-gated editorial workflow
 
-1. Growth creates or updates the source issue document `content-draft` and records its exact revision ID, period, sources and ledger coverage.
-2. The Director inspects that revision after Growth finishes. Dependent review is not launched in parallel.
-3. The Director creates the Ecommerce review with the exact source issue, document key and revision. The review description must be self-contained or contain an accessible exact pointer.
-4. Ecommerce applies Brand Guardian. Missing or inaccessible draft input is `BLOCKED / NOT REVIEWED`, never a zero-claim PASS.
-5. Growth may request publication only through the reviewed `content_publisher` tools with a stable issue/document/revision idempotency key. Paperclip binds approval to the exact arguments; only Board approves. After connector success, Growth reconciles the ledger from the live platform response. An uncertain journal entry blocks retry until operator reconciliation.
+1. **Research.** Growth creates or updates `editorial-brief` with current instant, timezone, objective, explicit periods, freshness, source coverage, history searches and limitations. A current market trend requires an approved dated market source; otherwise it is `UNKNOWN`.
+2. **Shortlist.** Growth types each candidate surface, keeps WordPress and Woo identities separate, records the declared score weights and recalculable dimensions, and saves the exact brief revision plus SHA-256 candidate fingerprint.
+3. **Candidate validation.** Only after Growth finishes, the Director sends that exact revision and fingerprint to Ecommerce. Ecommerce validates the same `candidateKey + surfaceType + canonicalUrl` set without additions or omissions. Missing input is `BLOCKED / NOT VALIDATED`; commercial evidence that does not apply to an editorial surface is `not_applicable`, not PASS.
+4. **Board decision.** The Director presents the validated revision, computed totals, risks, unknowns and requested next step. Only Board records `accepted`, `accepted_with_conditions` or `rejected` against that exact revision. The decision itself grants no external-write authority.
+5. **Apply the decision.** Director or Growth creates a strictly newer `editorial-brief` revision that records the decision, conditions and next action. Until it exists, the decision gate is incomplete. `draft` remains forbidden unless Board explicitly selected it as the next stage.
+6. **Draft and review.** Growth creates `content-draft` only from the authorized post-decision brief. The Director then creates the Ecommerce review with the exact source issue, document key and revision. Ecommerce applies Brand Guardian; missing or inaccessible input is `BLOCKED / NOT REVIEWED`, never a zero-claim PASS.
+7. **Publish.** Growth may request publication only through the reviewed `content_publisher` tools with a stable issue/document/revision idempotency key. Paperclip binds a separate approval to the exact arguments; only Board approves. After connector success, Growth reconciles the ledger from the live response. An uncertain journal entry blocks retry until operator reconciliation.
+
+Before each handoff, run the validator vendored with `enki-editorial-planning`. Its fixtures preserve the corrected `ENK-24` lessons without carrying live database identifiers: category/article identity separation, exact candidate alignment, deterministic score totals and a mandatory post-decision revision.
 
 Company search is retrieval, not automatic memory. Every content brief must name what was searched, the period covered, missing channels and the freshness of each source.
