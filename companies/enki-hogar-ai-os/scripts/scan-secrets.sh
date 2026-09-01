@@ -14,7 +14,7 @@ fi
 scan() {
   label=$1
   pattern=$2
-  if rg --hidden --glob '!scripts/scan-secrets.sh' --glob '!scripts/sync-knowledge.sh' --glob '!scripts/validate-package.mjs' --glob '!node_modules/**' --glob '!package-lock.json' --pcre2 -n -- "$pattern" "$package_dir"; then
+  if rg --hidden --glob '!scripts/scan-secrets.sh' --glob '!scripts/sync-knowledge.sh' --glob '!scripts/validate-package.mjs' --glob '!node_modules/**' --glob '!**/dist/**' --glob '!**/.paperclip-sdk/**' --glob '!package-lock.json' --pcre2 -n -- "$pattern" "$package_dir"; then
     echo "Detected $label" >&2
     failed=1
   fi

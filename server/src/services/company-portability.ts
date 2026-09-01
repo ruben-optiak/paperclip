@@ -1414,7 +1414,7 @@ function parseFiniteNumberLike(value: unknown): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function disableImportedTimerHeartbeat(runtimeConfig: unknown) {
+function sanitizeImportedAgentRuntimeConfig(runtimeConfig: unknown) {
   const next = clonePortableRecord(runtimeConfig) ?? {};
   const heartbeat = isPlainRecord(next.heartbeat) ? { ...next.heartbeat } : {};
   heartbeat.enabled = false;
@@ -1422,6 +1422,16 @@ function disableImportedTimerHeartbeat(runtimeConfig: unknown) {
     heartbeat.maxConcurrentRuns = AGENT_DEFAULT_MAX_CONCURRENT_RUNS;
   }
   next.heartbeat = heartbeat;
+  if (isPlainRecord(next.debug)) {
+    const debug = { ...next.debug };
+    // Company imports are available below the instance-admin trust boundary.
+    // Never let a portable bundle enable persistent capture of raw provider
+    // traffic; an administrator can opt in afterward through the guarded
+    // agent configuration route.
+    delete debug.providerTrace;
+    if (Object.keys(debug).length === 0) delete next.debug;
+    else next.debug = debug;
+  }
   return next;
 }
 
@@ -3676,6 +3686,16 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
     adapterType: string,
     adapterConfig: Record<string, unknown>,
   ) {
+    if (adapterType === "paperclip_runner") {
+      const provider = adapterConfig.provider ?? "codex";
+      if (provider !== "codex") {
+        throw unprocessable(
+          "Imported Paperclip Runner agents currently support only the Codex provider.",
+          { code: "paperclip_runner_provider_unavailable" },
+        );
+      }
+      return;
+    }
     if (adapterType !== "opencode_local") return;
     try {
       requireOpenCodeModelId(adapterConfig.model);
@@ -5772,7 +5792,7 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
             reportsTo: null,
             adapterType: normalizedAdapter.adapterType,
             adapterConfig: normalizedAdapter.adapterConfig,
-            runtimeConfig: disableImportedTimerHeartbeat(manifestAgent.runtimeConfig),
+            runtimeConfig: sanitizeImportedAgentRuntimeConfig(manifestAgent.runtimeConfig),
             ...(planAgent.action === "create" || manifestAgent.budgetMonthlyCents > 0
               ? { budgetMonthlyCents: manifestAgent.budgetMonthlyCents }
               : {}),

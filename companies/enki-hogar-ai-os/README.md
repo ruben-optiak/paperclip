@@ -56,7 +56,7 @@ a full replace preview can legitimately plan those tasks as new and would
 duplicate operational history. The reviewed patch path is:
 
 ```sh
-pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.12.0.zip \
+npx paperclipai company import /tmp/enki-hogar-ai-os-v0.12.0.zip \
   --include agents,skills \
   --target existing \
   --company-id <company-id> \

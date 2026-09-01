@@ -118,7 +118,7 @@ selective agent/skill patch and require `companyAction: none`, empty project and
 issue plans, six known agent updates, and exactly twelve skills:
 
 ```sh
-pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.12.0.zip \
+npx paperclipai company import /tmp/enki-hogar-ai-os-v0.12.0.zip \
   --include agents,skills \
   --target existing \
   --company-id <company-id> \
@@ -139,7 +139,7 @@ API. This works for Quickstart Docker, pauses every non-archived routine and
 also disables every enabled trigger without exposing the stored Board token:
 
 ```sh
-pnpm paperclipai routines disable-all \
+npx paperclipai routines disable-all \
   --company-id <company-id> \
   --api-base http://localhost:3100 \
   --json

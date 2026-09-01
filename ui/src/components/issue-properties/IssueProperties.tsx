@@ -154,11 +154,13 @@ interface IssuePropertiesProps {
   onCheckMonitorNow?: () => void;
   checkingMonitorNow?: boolean;
   documentDeepLink?: IssuePropertiesDocumentDeepLink | null;
+  /** Render only the Properties body when a parent owns the side-panel tabs. */
+  sidePanelContentOnly?: boolean;
 }
 
 export interface IssuePropertiesDocumentDeepLink {
   requestId: number;
-  tab: "plans" | "artifacts";
+  tab: "plans" | "artifacts" | "document";
   documentKey: string;
 }
 
@@ -179,6 +181,7 @@ export function IssueProperties({
   onCheckMonitorNow,
   checkingMonitorNow = false,
   documentDeepLink,
+  sidePanelContentOnly = false,
 }: IssuePropertiesProps) {
   const { selectedCompanyId } = useCompany();
   const { isMobile } = useSidebar();
@@ -188,7 +191,6 @@ export function IssueProperties({
     queryKey: queryKeys.instance.experimentalSettings,
     queryFn: () => instanceSettingsApi.getExperimental(),
   });
-  const taskWatchdogsEnabled = experimentalSettings?.enableTaskWatchdogs === true;
   // Managed-sandbox-only policy: the workspace folder is a host filesystem
   // path, so the Folder row disappears. The Branch row above it stays. The gate
   // fails closed whenever the policy is unknown — in flight and also on a failed
@@ -214,9 +216,7 @@ export function IssueProperties({
     }
     setPaneHeaderSlot(document.getElementById(PROPERTIES_PANE_HEADER_SLOT_ID));
   }, [taskChatShellEnabled, inline]);
-  // Plan earns a tab as soon as an issue is in planning mode, even before the
-  // plan document arrives. This keeps an expected plan surface visible and
-  // lets its diagnostic empty state explain what is missing.
+  // A Plan tab represents materialized plan content, not merely planning mode.
   // Same query keys as the tab bodies, so these share their cached fetches.
   const { data: paneTabPlanDocument } = useIssuePlanDocument(
     taskChatShellEnabled ? issue.id : null,
@@ -245,8 +245,7 @@ export function IssueProperties({
   const hasPlanTab =
     Boolean(paneTabPlanDocument)
     || (paneTabAcceptedPlans?.length ?? 0) > 0
-    || paneTabStandaloneDocuments.length > 0
-    || issue.workMode === "planning";
+    || paneTabStandaloneDocuments.length > 0;
   // Artifacts covers the same three sources the tab body composes: work
   // products, documents (redundant with the Plan tab, intentionally), and
   // agent-created attachments. User comment uploads stay thread-only and
@@ -272,6 +271,7 @@ export function IssueProperties({
   }, [hasPlanTab]);
   useEffect(() => {
     if (!documentDeepLink) return;
+    if (documentDeepLink.tab === "document") return;
     paneTabUserChosenRef.current = true;
     setPaneTab(documentDeepLink.tab);
   }, [documentDeepLink]);
@@ -2418,32 +2418,30 @@ export function IssueProperties({
           {monitorContent}
         </PropertyPicker>
 
-        {taskWatchdogsEnabled ? (
-          <PropertyPicker
-            inline={inline}
-            label="Watchdog"
-            open={watchdogOpen}
-            onOpenChange={setWatchdogOpen}
-            triggerContent={watchdogTrigger}
-            triggerClassName="min-w-0 max-w-full"
-            popoverClassName={cn("max-w-full", inline ? "w-full" : "w-80 sm:w-96")}
-            extra={
-              watchdogIssueRef ? (
-                <Link
-                  to={`/issues/${watchdogIssueRef.id}`}
-                  className="inline-flex items-center justify-center h-5 w-5 rounded hover:bg-accent/50 transition-colors text-muted-foreground hover:text-foreground"
-                  title="Open watchdog task"
-                  aria-label="Open watchdog task"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <ArrowUpRight className="h-3 w-3" />
-                </Link>
-              ) : undefined
-            }
-          >
-            {watchdogContent}
-          </PropertyPicker>
-        ) : null}
+        <PropertyPicker
+          inline={inline}
+          label="Watchdog"
+          open={watchdogOpen}
+          onOpenChange={setWatchdogOpen}
+          triggerContent={watchdogTrigger}
+          triggerClassName="min-w-0 max-w-full"
+          popoverClassName={cn("max-w-full", inline ? "w-full" : "w-80 sm:w-96")}
+          extra={
+            watchdogIssueRef ? (
+              <Link
+                to={`/issues/${watchdogIssueRef.id}`}
+                className="inline-flex items-center justify-center h-5 w-5 rounded hover:bg-accent/50 transition-colors text-muted-foreground hover:text-foreground"
+                title="Open watchdog task"
+                aria-label="Open watchdog task"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ArrowUpRight className="h-3 w-3" />
+              </Link>
+            ) : undefined
+          }
+        >
+          {watchdogContent}
+        </PropertyPicker>
       </PropertySection>
 
       {hasWorkspaceRuntimeControls || issue.currentExecutionWorkspace?.branchName || issue.currentExecutionWorkspace?.cwd || issue.executionWorkspaceId ? (
@@ -2608,7 +2606,7 @@ export function IssueProperties({
   );
 
   // Classic Task Interface ON: the legacy stacked pane, byte-for-byte.
-  if (!taskChatShellEnabled) return propertiesBody;
+  if (!taskChatShellEnabled || sidePanelContentOnly) return propertiesBody;
 
   // Chat-style with nothing to switch between: no tab strip — the header bar
   // shows a plain title and the pane body is just the properties stack.

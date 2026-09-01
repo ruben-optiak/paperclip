@@ -181,7 +181,7 @@
     },
     {
       "target": "contracts/catalog-adapter-v1.schema.json",
-      "targetSha256": "d404dd57ac2007b490dc2d550b904c3922575e48190e757daf263af28ea9cf3b",
+      "targetSha256": "17901a294e4a971c37ccae6646da711cc158ee0c6e2eb26ea09b57da07e10daa",
       "origin": "package-authored",
       "license": "LicenseRef-Enki-Hogar-Internal",
       "purpose": "Strict registry and snapshot-scoped brand adapter definitions with exact coverage and error gates",

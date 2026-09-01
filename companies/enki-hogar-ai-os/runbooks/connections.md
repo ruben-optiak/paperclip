@@ -239,7 +239,7 @@ Record the `userId` and private `chatId` in your password manager or deployment 
 Find the current Paperclip human user ID (`principalId`) without copying session credentials into a command:
 
 ```sh
-pnpm paperclipai member list --company-id <enki-company-id> --json
+npx paperclipai member list --company-id <enki-company-id> --json
 ```
 
 Select the active non-viewer human member that represents you. Do not use the membership row `id`; configure its `principalId` as `paperclipUserId`. The plugin revalidates that this principal remains active and writable before every inbound command and outbound event; the Paperclip host independently verifies human-attributed comments.
@@ -253,9 +253,9 @@ In the plugin form, select that existing secret with the picker. Do not use **Or
 Ensure the combined Compose stack is running and `dist/` was built as described in [local setup](local-setup.md). The host folder is mounted read-only inside Paperclip at `/plugins/enki-telegram-gateway`. With the already authenticated CLI:
 
 ```sh
-pnpm paperclipai plugin target
-pnpm paperclipai plugin install /plugins/enki-telegram-gateway --local
-pnpm paperclipai plugin inspect enki-hogar.telegram-gateway
+npx paperclipai plugin target
+npx paperclipai plugin install /plugins/enki-telegram-gateway --local
+npx paperclipai plugin inspect enki-hogar.telegram-gateway
 ```
 
 Read the target diagnostic before confirming the install. The path passed to the CLI is intentionally the path visible to the Paperclip server inside Docker, not a host absolute path. Plugin installation is instance-wide; its configuration and runtime state are company-scoped.

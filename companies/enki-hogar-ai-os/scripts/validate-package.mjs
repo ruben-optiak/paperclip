@@ -14,7 +14,15 @@ const symlinkPaths = [];
 function filesBelow(root) {
   const found = [];
   for (const entry of readdirSync(root)) {
-    if (entry === "node_modules" || entry === ".venv" || entry === "__pycache__" || entry === "source-snapshots" || entry === ".runtime-secrets") continue;
+    if (
+      entry === "node_modules"
+      || entry === "dist"
+      || entry === ".paperclip-sdk"
+      || entry === ".venv"
+      || entry === "__pycache__"
+      || entry === "source-snapshots"
+      || entry === ".runtime-secrets"
+    ) continue;
     const path = join(root, entry);
     const stats = lstatSync(path);
     if (stats.isSymbolicLink()) symlinkPaths.push(path);

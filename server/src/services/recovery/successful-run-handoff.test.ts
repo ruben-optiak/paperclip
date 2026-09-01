@@ -112,7 +112,22 @@ describe("successful run handoff decision", () => {
     expect(decision.instruction).toContain("may describe a field or finding rather than the task disposition");
     expect(decision.instruction).toContain("verified PARTIAL/FAIL/unknown conclusion");
     expect(decision.instruction).toContain("an agent may not name another agent, the board, or a user");
-    expect(decision.instruction).toContain("you are on your normal model and allowed to work in this wake");
+    expect(decision.instruction).toContain("This is a disposition-only recovery for the persisted source run");
+    expect(decision.instruction).toContain("Do not redo implementation");
+  });
+
+  it("does not launch generic recovery when native semantic finalization owns disposition", () => {
+    expect(decide({
+      run: {
+        ...run,
+        runtimeMode: "native",
+        nativePhase: "arbitrating",
+        completionContractId: "contract-1",
+      } as any,
+    })).toEqual({
+      kind: "skip",
+      reason: "native semantic finalization owns the issue disposition",
+    });
   });
 
   it.each([

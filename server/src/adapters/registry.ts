@@ -8,6 +8,8 @@ import { stampClaudeAgentIdHeader } from "./claude-agent-id-header.js";
 import {
   buildSandboxNpmInstallCommand,
   getAdapterSessionManagement,
+  PAPERCLIP_RUNNER_PERMISSION_CAPABILITIES,
+  resolvePaperclipRunnerPermissionMode,
 } from "@paperclipai/adapter-utils";
 import type { AdapterLoginCapability } from "@paperclipai/adapter-utils";
 import {
@@ -256,6 +258,7 @@ const grokLoginCapability: AdapterLoginCapability = {
 
 const claudeLocalAdapter: ServerAdapterModule = {
   type: "claude_local",
+  runtimeToolDelivery: "native_mcp",
   execute: stampClaudeAgentIdHeader(claudeExecute),
   testEnvironment: claudeTestEnvironment,
   acp: {
@@ -288,6 +291,7 @@ const claudeLocalAdapter: ServerAdapterModule = {
 
 const acpxLocalAdapter: ServerAdapterModule = {
   type: "acpx_local",
+  runtimeToolDelivery: "environment",
   async execute(ctx) {
     await ctx.onLog("stderr", `${retiredAcpxMessage}\n`);
     await ctx.onMeta?.({
@@ -330,6 +334,7 @@ const acpxLocalAdapter: ServerAdapterModule = {
 
 const codexLocalAdapter: ServerAdapterModule = {
   type: "codex_local",
+  runtimeToolDelivery: "native_mcp",
   execute: codexExecute,
   testEnvironment: codexTestEnvironment,
   acp: {
@@ -361,6 +366,7 @@ const codexLocalAdapter: ServerAdapterModule = {
 
 const paperclipRunnerAdapter: ServerAdapterModule = {
   type: "paperclip_runner",
+  runtimeToolDelivery: "environment",
   async execute(ctx) {
     const message = "paperclip_runner requires the native runner coordinator";
     await ctx.onLog("stderr", `${message}\n`);
@@ -375,6 +381,48 @@ const paperclipRunnerAdapter: ServerAdapterModule = {
     };
   },
   async testEnvironment(context) {
+    const configuredProvider = context.config.provider ?? "codex";
+    if (configuredProvider !== "codex") {
+      return {
+        adapterType: "paperclip_runner",
+        status: "fail" as const,
+        testedAt: new Date().toISOString(),
+        checks: [{
+          code: "paperclip_runner_provider_unsupported",
+          level: "error" as const,
+          message: "Paperclip Runner currently supports only the Codex provider.",
+        }],
+      };
+    }
+    if (context.executionTarget?.kind === "remote") {
+      return {
+        adapterType: "paperclip_runner",
+        status: "fail" as const,
+        testedAt: new Date().toISOString(),
+        checks: [{
+          code: "paperclip_runner_environment_unsupported",
+          level: "error" as const,
+          message: "Paperclip Runner currently requires a local execution environment.",
+        }],
+      };
+    }
+    const configuredPermission = context.config.codexPermissionMode;
+    if (
+      configuredPermission !== undefined
+      && resolvePaperclipRunnerPermissionMode("codex", configuredPermission)
+        !== configuredPermission
+    ) {
+      return {
+        adapterType: "paperclip_runner",
+        status: "fail" as const,
+        testedAt: new Date().toISOString(),
+        checks: [{
+          code: "runner_permission_mode_invalid",
+          level: "error" as const,
+          message: "codexPermissionMode is not supported by Codex.",
+        }],
+      };
+    }
     const result = await codexTestEnvironment(context);
     return { ...result, adapterType: "paperclip_runner" };
   },
@@ -382,6 +430,7 @@ const paperclipRunnerAdapter: ServerAdapterModule = {
   syncSkills: syncCodexSkills,
   sessionCodec: codexSessionCodec,
   models: codexModels,
+  modelProfiles: codexModelProfiles,
   listModels: listCodexModels,
   refreshModels: refreshCodexModels,
   supportsLocalAgentJwt: false,
@@ -393,12 +442,32 @@ const paperclipRunnerAdapter: ServerAdapterModule = {
   getConfigSchema: () => ({
     fields: [
       {
-        key: "provider",
-        label: "Provider",
-        type: "select",
-        default: "codex",
-        options: [{ value: "codex", label: "Codex" }],
-        hint: "Paperclip Runner currently supports only Codex app-server.",
+        key: "codexPermissionMode",
+        label: "Codex permission mode",
+        type: "select" as const,
+        default: PAPERCLIP_RUNNER_PERMISSION_CAPABILITIES.codex.defaultMode,
+        options: PAPERCLIP_RUNNER_PERMISSION_CAPABILITIES.codex.options.map(
+          ({ value, label }) => ({ value, label }),
+        ),
+        hint: PAPERCLIP_RUNNER_PERMISSION_CAPABILITIES.codex.description,
+      },
+      {
+        key: "lifecycleMode",
+        label: "Runner lifecycle",
+        type: "select" as const,
+        default: "per_turn",
+        options: [
+          { value: "per_turn", label: "Turn by turn" },
+          { value: "warm", label: "Warm session" },
+        ],
+        hint: "Warm sessions retain runnerd and Codex between governed runs.",
+      },
+      {
+        key: "idleTimeoutMs",
+        label: "Warm idle timeout (ms)",
+        type: "number" as const,
+        default: 300_000,
+        hint: "Warm sessions suspend after this much inactivity.",
       },
     ],
   }),
@@ -407,6 +476,7 @@ const paperclipRunnerAdapter: ServerAdapterModule = {
 
 const cursorLocalAdapter: ServerAdapterModule = {
   type: "cursor",
+  runtimeToolDelivery: "environment",
   execute: cursorExecute,
   testEnvironment: cursorTestEnvironment,
   listSkills: listCursorSkills,
@@ -426,6 +496,7 @@ const cursorLocalAdapter: ServerAdapterModule = {
 
 const cursorCloudAdapter: ServerAdapterModule = {
   type: "cursor_cloud",
+  runtimeToolDelivery: "invocation_context",
   execute: cursorCloudExecute,
   testEnvironment: cursorCloudTestEnvironment,
   sessionCodec: cursorCloudSessionCodec,
@@ -441,6 +512,7 @@ const cursorCloudAdapter: ServerAdapterModule = {
 
 const geminiLocalAdapter: ServerAdapterModule = {
   type: "gemini_local",
+  runtimeToolDelivery: "environment",
   execute: geminiExecute,
   testEnvironment: geminiTestEnvironment,
   acp: {
@@ -469,6 +541,7 @@ const geminiLocalAdapter: ServerAdapterModule = {
 
 const grokLocalAdapter: ServerAdapterModule = {
   type: "grok_local",
+  runtimeToolDelivery: "environment",
   execute: grokExecute,
   testEnvironment: grokTestEnvironment,
   listSkills: listGrokSkills,
@@ -491,6 +564,7 @@ const grokLocalAdapter: ServerAdapterModule = {
 
 const kimiLocalAdapter: ServerAdapterModule = {
   type: "kimi_local",
+  runtimeToolDelivery: "environment",
   execute: kimiExecute,
   testEnvironment: kimiTestEnvironment,
   acp: {
@@ -515,12 +589,19 @@ const kimiLocalAdapter: ServerAdapterModule = {
   agentConfigurationDoc: kimiAgentConfigurationDoc,
 };
 
-const hermesGatewayAdapter = createHermesGatewayServerAdapter();
+const hermesGatewayAdapter: ServerAdapterModule = {
+  ...createHermesGatewayServerAdapter(),
+  runtimeToolDelivery: "invocation_context",
+};
 
-const hermesLocalAdapter = createHermesLocalServerAdapter();
+const hermesLocalAdapter: ServerAdapterModule = {
+  ...createHermesLocalServerAdapter(),
+  runtimeToolDelivery: "environment",
+};
 
 const openclawGatewayAdapter: ServerAdapterModule = {
   type: "openclaw_gateway",
+  runtimeToolDelivery: "invocation_context",
   execute: openclawGatewayExecute,
   testEnvironment: openclawGatewayTestEnvironment,
   models: openclawGatewayModels,
@@ -532,6 +613,7 @@ const openclawGatewayAdapter: ServerAdapterModule = {
 
 const openCodeLocalAdapter: ServerAdapterModule = {
   type: "opencode_local",
+  runtimeToolDelivery: "environment",
   execute: openCodeExecute,
   testEnvironment: openCodeTestEnvironment,
   listSkills: listOpenCodeSkills,
@@ -551,6 +633,7 @@ const openCodeLocalAdapter: ServerAdapterModule = {
 
 const piLocalAdapter: ServerAdapterModule = {
   type: "pi_local",
+  runtimeToolDelivery: "environment",
   execute: piExecute,
   testEnvironment: piTestEnvironment,
   listSkills: listPiSkills,

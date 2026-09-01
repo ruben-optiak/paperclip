@@ -29,11 +29,6 @@ import { boardAuthService } from "../services/board-auth.js";
 const CLOUD_TENANT_WRITE_DEBOUNCE_MS = 5_000;
 const CLOUD_TENANT_WRITE_DEBOUNCE_MAX = 1_000;
 const cloudTenantWriteDebounces = new WeakMap<Db, Map<string, { fingerprint: string; syncedAt: number }>>();
-const MCP_GATEWAY_PROTOCOL_METHODS = new Set(["GET", "POST"]);
-const MCP_GATEWAY_PROTOCOL_PATHS = [
-  /^\/mcp\/gateways\/[^/]+\/?$/,
-  /^\/api\/tool-gateway\/gateways\/[^/]+\/mcp\/?$/,
-];
 
 function cloudTenantWriteDebounceFor(db: Db) {
   let debounce = cloudTenantWriteDebounces.get(db);
@@ -83,11 +78,6 @@ function invalidAgentTokenMessage(token: string) {
     // Malformed and incorrectly signed tokens share the generic failure below.
   }
   return "Agent token did not verify; obtain fresh credentials and retry";
-}
-
-function isMcpGatewayProtocolRequest(req: Request) {
-  return MCP_GATEWAY_PROTOCOL_METHODS.has(req.method.toUpperCase())
-    && MCP_GATEWAY_PROTOCOL_PATHS.some((pattern) => pattern.test(req.path));
 }
 
 async function resolveLegacyRunResponsibleUserId(
@@ -221,6 +211,8 @@ interface ActorMiddlewareOptions {
   resolveSession?: (req: Request) => Promise<BetterAuthSessionResult | null>;
 }
 
+const publicMcpGatewayProtocolPath = /^\/mcp\/gateways\/gw_[a-f0-9]{32}\/?$/i;
+
 export function actorMiddleware(db: Db, opts: ActorMiddlewareOptions): RequestHandler {
   const boardAuth = boardAuthService(db);
   return async (req, _res, next) => {
@@ -236,21 +228,23 @@ export function actorMiddleware(db: Db, opts: ActorMiddlewareOptions): RequestHa
           }
         : { type: "none", source: "none" };
 
-    // Named MCP gateways own their bearer-token namespace and perform their own
-    // token lookup, scope checks, expiry/revocation checks, rate limiting, and
-    // audit. Treating that bearer as a Board/agent credential here rejects every
-    // valid gateway client before its route can authenticate it. Keep the bypass
-    // exact and actor-less so it cannot grant implicit Board authority.
-    if (isMcpGatewayProtocolRequest(req)) {
-      req.actor = { type: "none", source: "none" };
-      next();
-      return;
-    }
-
     const runIdHeader = req.header("x-paperclip-run-id");
 
     const authHeader = req.header("authorization");
     const hasBearerCredentials = /^bearer(?:\s|$)/i.test(authHeader ?? "");
+
+    // Public MCP gateway protocol requests carry a pcgw_* bearer that is
+    // validated by the gateway service itself. Do not interpret that bearer as
+    // a board key or agent JWT here: doing so rejects the MCP handshake before
+    // the protocol route can verify its run-scoped credential. Keep this bypass
+    // restricted to the unguessable public gateway path; all /api routes retain
+    // the normal actor authentication path below.
+    if (hasBearerCredentials && publicMcpGatewayProtocolPath.test(req.path)) {
+      if (runIdHeader) req.actor.runId = runIdHeader;
+      next();
+      return;
+    }
+
     if (!hasBearerCredentials) {
       if (opts.deploymentMode === "authenticated" && opts.resolveSession) {
         const cloudTenantActor = await resolveCloudTenantActor(db, req);

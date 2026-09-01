@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import type { ToolConnectionCredentialSource } from "@paperclipai/shared";
 import { Navigate, Outlet, Route, Routes, useActiveCompanyPrefix, useLocation, useParams } from "@/lib/router";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/i18n";
@@ -12,6 +13,10 @@ import { AppsExperimentalGate } from "./components/AppsExperimentalGate";
 import { CloudManagedPageGate } from "./components/CloudManagedPageGate";
 import { HiddenSettingsPageGate } from "./components/HiddenSettingsPageGate";
 import { IsolatedWorkspacesRouteGate } from "./components/IsolatedWorkspacesRouteGate";
+import {
+  ExecutionWorkspaceCompanyGate,
+  UnprefixedExecutionWorkspaceRedirect,
+} from "./components/UnprefixedExecutionWorkspaceRedirect";
 import { useHiddenSettings } from "./hooks/useHiddenSettings";
 import { Cases } from "./pages/Cases";
 import { CaseDetail } from "./pages/CaseDetail";
@@ -156,6 +161,11 @@ function boardRoutes() {
         <Route path="apps" element={<Browse />} />
         <Route path="apps/browse" element={<Navigate to="/apps" replace />} />
         <Route path="apps/connections" element={<Connections />} />
+        <Route path="apps/byo" element={<AppsConnect byoOnly />} />
+        <Route
+          path="apps/vercel-connect"
+          element={<AppsConnectEntryRoute credentialSource="vercel_connect" />}
+        />
         <Route path="apps/connect" element={<AppsConnectEntryRoute />} />
         <Route path="apps/connect/:appKey" element={<Navigate to="/apps" replace />} />
         <Route path="apps/connect/:appKey/:stage" element={<Navigate to="/apps" replace />} />
@@ -166,6 +176,7 @@ function boardRoutes() {
         <Route path="apps/gateways/:gatewayId" element={<Navigate to="overview" replace />} />
         <Route path="apps/gateways/:gatewayId/:tab" element={<GatewayDetail />} />
         <Route path="apps/advanced" element={<AdvancedToolsRoute />} />
+        <Route path="apps/advanced/gateways" element={<GatewaysList />} />
         <Route path="apps/advanced/profiles/new" element={<ProfileWizardRoute mode="new" />} />
         <Route path="apps/advanced/profiles/:profileId/edit" element={<ProfileWizardRoute mode="edit" />} />
         <Route path="apps/advanced/profiles/:profileId" element={<ProfileDetailRoute />} />
@@ -232,6 +243,7 @@ function boardRoutes() {
         <Route path="workspaces" element={<Workspaces />} />
       </Route>
       <Route path="issues" element={<Issues />} />
+      <Route path="tasks" element={<Navigate to="/issues" replace />} />
       <Route path="search" element={<Search />} />
       <Route path="issues/all" element={<Navigate to="/issues" replace />} />
       <Route path="issues/active" element={<Navigate to="/issues" replace />} />
@@ -297,12 +309,14 @@ function boardRoutes() {
       <Route path="routines/:routineId" element={<RoutineDetail />} />
       <Route path="routines/:routineId/:section" element={<RoutineDetail />} />
       <Route element={<IsolatedWorkspacesRouteGate />}>
-        <Route path="execution-workspaces/:workspaceId" element={<ExecutionWorkspaceDetail />} />
-        <Route path="execution-workspaces/:workspaceId/services" element={<ExecutionWorkspaceDetail />} />
-        <Route path="execution-workspaces/:workspaceId/configuration" element={<ExecutionWorkspaceDetail />} />
-        <Route path="execution-workspaces/:workspaceId/runtime-logs" element={<ExecutionWorkspaceDetail />} />
-        <Route path="execution-workspaces/:workspaceId/issues" element={<ExecutionWorkspaceDetail />} />
-        <Route path="execution-workspaces/:workspaceId/routines" element={<ExecutionWorkspaceDetail />} />
+        <Route element={<ExecutionWorkspaceCompanyGate />}>
+          <Route path="execution-workspaces/:workspaceId" element={<ExecutionWorkspaceDetail />} />
+          <Route path="execution-workspaces/:workspaceId/services" element={<ExecutionWorkspaceDetail />} />
+          <Route path="execution-workspaces/:workspaceId/configuration" element={<ExecutionWorkspaceDetail />} />
+          <Route path="execution-workspaces/:workspaceId/runtime-logs" element={<ExecutionWorkspaceDetail />} />
+          <Route path="execution-workspaces/:workspaceId/issues" element={<ExecutionWorkspaceDetail />} />
+          <Route path="execution-workspaces/:workspaceId/routines" element={<ExecutionWorkspaceDetail />} />
+        </Route>
       </Route>
       <Route path="goals" element={<Goals />} />
       <Route path="goals/:goalId" element={<GoalDetail />} />
@@ -348,10 +362,16 @@ function boardRoutes() {
   );
 }
 
-function AppsConnectEntryRoute() {
+function AppsConnectEntryRoute({
+  credentialSource = "paperclip_vault",
+}: {
+  credentialSource?: ToolConnectionCredentialSource;
+} = {}) {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  return canEnterAppsConnect(searchParams) ? <AppsConnect /> : <Navigate to="/apps" replace />;
+  return canEnterAppsConnect(searchParams)
+    ? <AppsConnect credentialSource={credentialSource} />
+    : <Navigate to="/apps" replace />;
 }
 
 function InboxRootRedirect() {
@@ -445,6 +465,8 @@ function LegacyToolsRedirect() {
 function legacyToolsRedirectTarget(tab?: string) {
   if (!tab) return "/apps/advanced/profiles";
   if (tab === "applications" || tab === "connections" || tab === "overview" || tab === "examples") return "/apps/connections";
+  if (tab === "runtime") return "/apps/connections";
+  if (tab === "policies") return "/apps/advanced/profiles";
   return `/apps/advanced/${tab}`;
 }
 
@@ -649,6 +671,7 @@ export function App() {
           <Route path="instance/settings/*" element={<LegacySettingsRedirect />} />
           <Route path="companies" element={<UnprefixedBoardRedirect />} />
           <Route path="issues" element={<UnprefixedBoardRedirect />} />
+          <Route path="tasks" element={<UnprefixedBoardRedirect />} />
           <Route path="issues/:issueId" element={<UnprefixedBoardRedirect />} />
           <Route path="routines" element={<UnprefixedBoardRedirect />} />
           <Route path="routines/:routineId" element={<UnprefixedBoardRedirect />} />
@@ -694,12 +717,12 @@ export function App() {
           <Route path="projects/:projectId/workspaces/:workspaceId" element={<UnprefixedBoardRedirect />} />
           <Route path="projects/:projectId/configuration" element={<UnprefixedBoardRedirect />} />
           <Route path="workspaces" element={<UnprefixedBoardRedirect />} />
-          <Route path="execution-workspaces/:workspaceId" element={<UnprefixedBoardRedirect />} />
-          <Route path="execution-workspaces/:workspaceId/services" element={<UnprefixedBoardRedirect />} />
-          <Route path="execution-workspaces/:workspaceId/configuration" element={<UnprefixedBoardRedirect />} />
-          <Route path="execution-workspaces/:workspaceId/runtime-logs" element={<UnprefixedBoardRedirect />} />
-          <Route path="execution-workspaces/:workspaceId/issues" element={<UnprefixedBoardRedirect />} />
-          <Route path="execution-workspaces/:workspaceId/routines" element={<UnprefixedBoardRedirect />} />
+          <Route path="execution-workspaces/:workspaceId" element={<UnprefixedExecutionWorkspaceRedirect />} />
+          <Route path="execution-workspaces/:workspaceId/services" element={<UnprefixedExecutionWorkspaceRedirect />} />
+          <Route path="execution-workspaces/:workspaceId/configuration" element={<UnprefixedExecutionWorkspaceRedirect />} />
+          <Route path="execution-workspaces/:workspaceId/runtime-logs" element={<UnprefixedExecutionWorkspaceRedirect />} />
+          <Route path="execution-workspaces/:workspaceId/issues" element={<UnprefixedExecutionWorkspaceRedirect />} />
+          <Route path="execution-workspaces/:workspaceId/routines" element={<UnprefixedExecutionWorkspaceRedirect />} />
           <Route path=":companyPrefix" element={<Layout />}>
             {boardRoutes()}
           </Route>
