@@ -1,0 +1,36 @@
+schema: optiak-desired-state/v1
+version: 0.1.0
+instance:
+  isolation: separate_from_enki
+  database: separate
+  persistentStorage: separate
+  secretStore: separate
+agents:
+  expected: 10
+  importedPaused: true
+  heartbeatSchedulesEnabled: false
+routines:
+  expected: 4
+  importedPaused: true
+connections:
+  publicDocs:
+    state: public_read_only
+  roadmapBacklog:
+    state: disconnected
+  gitProvider:
+    state: disconnected
+  repositories:
+    state: disconnected
+  stagingBrowserApi:
+    state: disconnected
+  observabilityAlerts:
+    state: disconnected
+  production:
+    state: disconnected
+autonomy:
+  localFixturesAndDrafts: allow
+  externalReads: source_scoped
+  sandboxWrites: require_approval
+  mergesDeploysRollbacks: deny
+  productionMutation: deny
+  secretAdministration: deny

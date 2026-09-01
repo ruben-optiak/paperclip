@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://optiak.dev/schemas/incident-brief-v1.json",
+  "title": "Optiak Incident Brief v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "environment", "severity", "detectedAt", "signalSource", "impact", "timeline", "owner", "nextCheckpoint", "nextAction"],
+  "properties": {
+    "schema": {"const": "optiak-incident-brief/v1"},
+    "environment": {"enum": ["fixture", "local", "staging", "production"]},
+    "severity": {"enum": ["SEV0", "SEV1", "SEV2", "SEV3"]},
+    "detectedAt": {"type": "string", "format": "date-time"},
+    "signalSource": {"type": "string", "minLength": 1},
+    "impact": {"type": "string", "minLength": 1},
+    "timeline": {"type": "array", "items": {"type": "object"}, "minItems": 1},
+    "owner": {"type": "string", "minLength": 1},
+    "nextCheckpoint": {"type": "string", "format": "date-time"},
+    "nextAction": {"type": "string", "minLength": 1},
+    "hypotheses": {"type": "array", "items": {"type": "string"}}
+  }
+}

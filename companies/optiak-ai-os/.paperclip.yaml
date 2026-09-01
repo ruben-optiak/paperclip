@@ -1,0 +1,323 @@
+schema: paperclip/v1
+schemaVersion: 7
+agents:
+  director-optiak:
+    role: ceo
+    adapter:
+      type: codex_local
+      config:
+        engine: cli
+        model: gpt-5.6-sol
+        dangerouslyBypassApprovalsAndSandbox: false
+        extraArgs:
+          - --skip-git-repo-check
+          - -c
+          - approval_policy="never"
+          - -c
+          - default_permissions="optiak-review-network"
+          - -c
+          - "permissions.optiak-review-network.extends=\":read-only\""
+          - -c
+          - permissions.optiak-review-network.network.enabled=true
+          - -c
+          - features.use_legacy_landlock=true
+    runtime:
+      managedMcpOnly: true
+      heartbeat:
+        enabled: false
+        maxConcurrentRuns: 1
+    permissions:
+      canCreateAgents: false
+  engineering-assurance-lead:
+    role: general
+    adapter:
+      type: codex_local
+      config:
+        engine: cli
+        model: gpt-5.6-sol
+        dangerouslyBypassApprovalsAndSandbox: false
+        extraArgs:
+          - --skip-git-repo-check
+          - -c
+          - approval_policy="never"
+          - -c
+          - default_permissions="optiak-review-network"
+          - -c
+          - "permissions.optiak-review-network.extends=\":read-only\""
+          - -c
+          - permissions.optiak-review-network.network.enabled=true
+          - -c
+          - features.use_legacy_landlock=true
+    runtime:
+      managedMcpOnly: true
+      heartbeat:
+        enabled: false
+        maxConcurrentRuns: 1
+    permissions:
+      canCreateAgents: false
+  product-prd-lead:
+    role: general
+    adapter:
+      type: codex_local
+      config:
+        engine: cli
+        model: gpt-5.6-sol
+        dangerouslyBypassApprovalsAndSandbox: false
+        extraArgs:
+          - --skip-git-repo-check
+          - -c
+          - approval_policy="never"
+          - -c
+          - default_permissions="optiak-review-network"
+          - -c
+          - "permissions.optiak-review-network.extends=\":read-only\""
+          - -c
+          - permissions.optiak-review-network.network.enabled=true
+          - -c
+          - features.use_legacy_landlock=true
+    runtime:
+      managedMcpOnly: true
+      heartbeat:
+        enabled: false
+        maxConcurrentRuns: 1
+    permissions:
+      canCreateAgents: false
+  principal-platform-architect:
+    role: general
+    adapter:
+      type: codex_local
+      config:
+        engine: cli
+        model: gpt-5.6-sol
+        dangerouslyBypassApprovalsAndSandbox: false
+        extraArgs:
+          - --skip-git-repo-check
+          - -c
+          - approval_policy="never"
+          - -c
+          - default_permissions="optiak-review-network"
+          - -c
+          - "permissions.optiak-review-network.extends=\":read-only\""
+          - -c
+          - permissions.optiak-review-network.network.enabled=true
+          - -c
+          - features.use_legacy_landlock=true
+    runtime:
+      managedMcpOnly: true
+      heartbeat:
+        enabled: false
+        maxConcurrentRuns: 1
+    permissions:
+      canCreateAgents: false
+  senior-platform-engineer:
+    role: general
+    adapter:
+      type: codex_local
+      config:
+        engine: cli
+        model: gpt-5.6-sol
+        dangerouslyBypassApprovalsAndSandbox: false
+        extraArgs:
+          - --skip-git-repo-check
+          - -c
+          - approval_policy="never"
+          - -c
+          - default_permissions="optiak-review-network"
+          - -c
+          - "permissions.optiak-review-network.extends=\":read-only\""
+          - -c
+          - permissions.optiak-review-network.network.enabled=true
+          - -c
+          - features.use_legacy_landlock=true
+    runtime:
+      managedMcpOnly: true
+      heartbeat:
+        enabled: false
+        maxConcurrentRuns: 1
+    permissions:
+      canCreateAgents: false
+  independent-code-reviewer:
+    role: general
+    adapter:
+      type: codex_local
+      config:
+        engine: cli
+        model: gpt-5.6-sol
+        dangerouslyBypassApprovalsAndSandbox: false
+        extraArgs:
+          - --skip-git-repo-check
+          - -c
+          - approval_policy="never"
+          - -c
+          - default_permissions="optiak-review-network"
+          - -c
+          - "permissions.optiak-review-network.extends=\":read-only\""
+          - -c
+          - permissions.optiak-review-network.network.enabled=true
+          - -c
+          - features.use_legacy_landlock=true
+    runtime:
+      managedMcpOnly: true
+      heartbeat:
+        enabled: false
+        maxConcurrentRuns: 1
+    permissions:
+      canCreateAgents: false
+  reliability-incident-engineer:
+    role: general
+    adapter:
+      type: codex_local
+      config:
+        engine: cli
+        model: gpt-5.6-sol
+        dangerouslyBypassApprovalsAndSandbox: false
+        extraArgs:
+          - --skip-git-repo-check
+          - -c
+          - approval_policy="never"
+          - -c
+          - default_permissions="optiak-review-network"
+          - -c
+          - "permissions.optiak-review-network.extends=\":read-only\""
+          - -c
+          - permissions.optiak-review-network.network.enabled=true
+          - -c
+          - features.use_legacy_landlock=true
+    runtime:
+      managedMcpOnly: true
+      heartbeat:
+        enabled: false
+        maxConcurrentRuns: 1
+    permissions:
+      canCreateAgents: false
+  qa-e2e-validation-engineer:
+    role: general
+    adapter:
+      type: codex_local
+      config:
+        engine: cli
+        model: gpt-5.6-sol
+        dangerouslyBypassApprovalsAndSandbox: false
+        extraArgs:
+          - --skip-git-repo-check
+          - -c
+          - approval_policy="never"
+          - -c
+          - default_permissions="optiak-review-network"
+          - -c
+          - "permissions.optiak-review-network.extends=\":read-only\""
+          - -c
+          - permissions.optiak-review-network.network.enabled=true
+          - -c
+          - features.use_legacy_landlock=true
+    runtime:
+      managedMcpOnly: true
+      heartbeat:
+        enabled: false
+        maxConcurrentRuns: 1
+    permissions:
+      canCreateAgents: false
+  brand-ui-quality-reviewer:
+    role: general
+    adapter:
+      type: codex_local
+      config:
+        engine: cli
+        model: gpt-5.6-sol
+        dangerouslyBypassApprovalsAndSandbox: false
+        extraArgs:
+          - --skip-git-repo-check
+          - -c
+          - approval_policy="never"
+          - -c
+          - default_permissions="optiak-review-network"
+          - -c
+          - "permissions.optiak-review-network.extends=\":read-only\""
+          - -c
+          - permissions.optiak-review-network.network.enabled=true
+          - -c
+          - features.use_legacy_landlock=true
+    runtime:
+      managedMcpOnly: true
+      heartbeat:
+        enabled: false
+        maxConcurrentRuns: 1
+    permissions:
+      canCreateAgents: false
+  documentation-dx-steward:
+    role: general
+    adapter:
+      type: codex_local
+      config:
+        engine: cli
+        model: gpt-5.6-sol
+        dangerouslyBypassApprovalsAndSandbox: false
+        extraArgs:
+          - --skip-git-repo-check
+          - -c
+          - approval_policy="never"
+          - -c
+          - default_permissions="optiak-review-network"
+          - -c
+          - "permissions.optiak-review-network.extends=\":read-only\""
+          - -c
+          - permissions.optiak-review-network.network.enabled=true
+          - -c
+          - features.use_legacy_landlock=true
+    runtime:
+      managedMcpOnly: true
+      heartbeat:
+        enabled: false
+        maxConcurrentRuns: 1
+    permissions:
+      canCreateAgents: false
+tasks:
+  public-docs-drift-review:
+    status: backlog
+    priority: high
+  staging-golden-journey-smoke:
+    status: backlog
+    priority: high
+  weekly-engineering-assurance-review:
+    status: backlog
+    priority: high
+  weekly-architecture-health-review:
+    status: backlog
+    priority: medium
+routines:
+  public-docs-drift-review:
+    concurrencyPolicy: coalesce_if_active
+    catchUpPolicy: skip_missed
+    triggers:
+      - kind: schedule
+        label: Weekdays at 08:30 Europe/Madrid
+        enabled: false
+        cronExpression: "30 8 * * 1-5"
+        timezone: Europe/Madrid
+  staging-golden-journey-smoke:
+    concurrencyPolicy: coalesce_if_active
+    catchUpPolicy: skip_missed
+    triggers:
+      - kind: schedule
+        label: Weekdays at 09:00 Europe/Madrid
+        enabled: false
+        cronExpression: "0 9 * * 1-5"
+        timezone: Europe/Madrid
+  weekly-engineering-assurance-review:
+    concurrencyPolicy: coalesce_if_active
+    catchUpPolicy: skip_missed
+    triggers:
+      - kind: schedule
+        label: Mondays at 10:00 Europe/Madrid
+        enabled: false
+        cronExpression: "0 10 * * 1"
+        timezone: Europe/Madrid
+  weekly-architecture-health-review:
+    concurrencyPolicy: coalesce_if_active
+    catchUpPolicy: skip_missed
+    triggers:
+      - kind: schedule
+        label: Wednesdays at 11:00 Europe/Madrid
+        enabled: false
+        cronExpression: "0 11 * * 3"
+        timezone: Europe/Madrid

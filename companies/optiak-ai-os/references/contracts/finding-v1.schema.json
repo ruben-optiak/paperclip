@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://optiak.dev/schemas/engineering-assurance-finding-v1.json",
+  "title": "Optiak Engineering Assurance Finding v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "id", "target", "environment", "observedAt", "expected", "observed", "severity", "confidence", "reproducibility", "evidence", "nextOwner", "nextAction"],
+  "properties": {
+    "schema": {"const": "optiak-finding/v1"},
+    "id": {"type": "string", "minLength": 1},
+    "target": {"type": "string", "minLength": 1},
+    "revision": {"type": ["string", "null"]},
+    "environment": {"enum": ["fixture", "local", "staging", "production", "public"]},
+    "observedAt": {"type": "string", "format": "date-time"},
+    "expected": {"type": "string", "minLength": 1},
+    "observed": {"type": "string", "minLength": 1},
+    "severity": {"enum": ["critical", "high", "medium", "low"]},
+    "confidence": {"enum": ["high", "medium", "low"]},
+    "reproducibility": {"enum": ["always", "intermittent", "once", "not_attempted"]},
+    "evidence": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "unknowns": {"type": "array", "items": {"type": "string"}},
+    "nextOwner": {"type": "string", "minLength": 1},
+    "nextAction": {"type": "string", "minLength": 1}
+  }
+}

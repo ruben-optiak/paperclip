@@ -1,0 +1,78 @@
+schema: optiak-source-map/v1
+reviewedAt: "2026-09-01"
+policy:
+  liveDocsRemainCanonical: true
+  wholeSiteSnapshotsAllowed: false
+  historicalEvidenceMustBeLabelled: true
+sources:
+  - id: public-overview
+    url: https://docs.optiak.dev/getting-started/overview
+    purpose: Product positioning and core concepts
+    authority: public_claim
+  - id: platform-navigation
+    url: https://docs.optiak.dev/getting-started/platform-navigation
+    purpose: Public navigation and workflow location
+    authority: public_claim
+  - id: quickstart
+    url: https://docs.optiak.dev/getting-started/quickstart
+    purpose: Public first-use journey
+    authority: public_claim
+  - id: company-setup
+    url: https://docs.optiak.dev/features/company-setup
+    purpose: Organization-level setup claims
+    authority: public_claim
+  - id: applications
+    url: https://docs.optiak.dev/features/applications
+    purpose: Application configuration and credential claims
+    authority: public_claim
+  - id: observability
+    url: https://docs.optiak.dev/features/observability
+    purpose: Request, health, activity, cost, and impact claims
+    authority: public_claim
+  - id: guardrails
+    url: https://docs.optiak.dev/features/guardrails
+    purpose: Safety and policy claims
+    authority: public_claim
+  - id: data-integrations
+    url: https://docs.optiak.dev/features/data-integrations
+    purpose: Retrieval and data-source claims
+    authority: public_claim
+  - id: models-routing
+    url: https://docs.optiak.dev/features/models-and-routing
+    purpose: Model access and routing claims
+    authority: public_claim
+  - id: governance
+    url: https://docs.optiak.dev/features/governance
+    purpose: Governance and access claims
+    authority: public_claim
+  - id: tools
+    url: https://docs.optiak.dev/features/tools
+    purpose: Tool configuration and invocation claims
+    authority: public_claim
+  - id: api-usage
+    url: https://docs.optiak.dev/integrations/api-usage
+    purpose: Gateway API usage claims
+    authority: public_claim
+  - id: api-keys
+    url: https://docs.optiak.dev/integrations/api-keys
+    purpose: Credential lifecycle claims
+    authority: public_claim
+  - id: providers
+    url: https://docs.optiak.dev/integrations/providers
+    purpose: Provider integration claims
+    authority: public_claim
+futureAuthorities:
+  - id: roadmap-backlog
+    status: disconnected
+  - id: versioned-api-contract
+    status: disconnected
+  - id: source-repositories
+    status: disconnected
+  - id: git-pull-requests
+    status: disconnected
+  - id: staging-ui-api
+    status: disconnected
+  - id: production-observability
+    status: disconnected
+  - id: brand-design-system
+    status: disconnected

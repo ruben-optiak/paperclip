@@ -1,0 +1,34 @@
+schema: optiak-tool-allowlist/v1
+defaultDecision: quarantine
+policy:
+  productionMutation: deny
+  merge: deny
+  deploy: deny
+  rollback: deny
+  secretAdministration: deny
+  infrastructureMutation: deny
+  customerData: deny
+reviewedCapabilities:
+  - capability: public_docs_read
+    decision: allow
+    conditions:
+      - record_url_and_retrieval_time
+      - no_whole_site_snapshot
+  - capability: local_fixture_read_write
+    decision: allow
+    conditions:
+      - package_scoped
+      - no_secrets
+      - no_external_effect
+  - capability: immutable_pr_read
+    decision: pending_connection
+  - capability: repository_branch_write
+    decision: pending_connection_and_approval
+  - capability: staging_browser_read
+    decision: pending_connection
+  - capability: staging_synthetic_write
+    decision: pending_connection_and_approval
+  - capability: observability_read
+    decision: pending_connection
+  - capability: production_read
+    decision: pending_connection

@@ -1,0 +1,19 @@
+# Portable package import allowlist
+.gitignore
+.paperclip.yaml
+COMPANY.md
+LICENSE
+README.md
+agents/
+policies/
+projects/
+references/
+runbooks/
+scripts/build-import-zip.sh
+scripts/check.sh
+scripts/import-allowlist.txt
+scripts/scan-secrets.sh
+scripts/validate-package.mjs
+skills/
+teams/
+tests/

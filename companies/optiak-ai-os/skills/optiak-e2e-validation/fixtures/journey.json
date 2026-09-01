@@ -1,0 +1,9 @@
+{
+  "schema": "optiak-e2e-journey-fixture/v1",
+  "id": "application-credential-onboarding",
+  "environment": "fixture",
+  "persona": "organization_admin",
+  "steps": ["create synthetic application", "create application API key", "record one-time visibility", "revoke key"],
+  "mutationLevel": "yellow",
+  "expectedResultWithoutConnection": "blocked"
+}
