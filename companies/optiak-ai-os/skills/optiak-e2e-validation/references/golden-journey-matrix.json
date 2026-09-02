@@ -1,7 +1,7 @@
 {
   "schema": "optiak-golden-journey-matrix/v1",
-  "matrixVersion": "1.0.0",
-  "reviewedAt": "2026-09-02",
+  "matrixVersion": "1.1.0",
+  "reviewedAt": "2026-09-03",
   "authority": {
     "publicClaims": [
       "https://docs.optiak.dev/getting-started/quickstart",
@@ -94,7 +94,7 @@
         "success state",
         "single created object after refresh"
       ],
-      "cleanup": "revoke child credentials, then delete only the exact synthetic application",
+      "cleanup": "revoke child credentials and restore the approved synthetic baseline; delete the exact application only when the Board has not approved it as a reusable fixture",
       "currentState": "blocked_tenant_and_write_approval_missing"
     },
     {
@@ -113,7 +113,7 @@
         "organization eligibility",
         "application setting before and after"
       ],
-      "cleanup": "application deletion removes the setting; do not change organization provider configuration",
+      "cleanup": "restore the approved reusable-application baseline or delete the exact run-scoped application; do not change organization provider configuration",
       "currentState": "blocked_gateway_and_preprovisioned_model_missing"
     },
     {
@@ -133,7 +133,7 @@
         "connector binding confirmation",
         "absence of the secret from screenshots and issue text"
       ],
-      "cleanup": "revoke the exact credential before deleting the synthetic application",
+      "cleanup": "revoke the exact credential at run end; expiration is only a backstop and the Board-approved reusable application may remain",
       "currentState": "blocked_tenant_browser_and_secret_binding_missing"
     },
     {
@@ -261,7 +261,7 @@
       "surface": "control_plane_and_gateway",
       "persona": "synthetic_organization_admin",
       "risk": "yellow",
-      "positivePath": "Revoke the synthetic application credential, verify a bounded request is denied, then remove the exact synthetic application and reconcile inventories.",
+      "positivePath": "Revoke the synthetic application credential, verify a bounded request is denied, restore the approved baseline, and reconcile inventories. Retain the exact application only when the Board has approved it as a reusable fixture.",
       "negativePaths": [
         "ambiguous revocation result",
         "credential still accepted",
@@ -271,7 +271,8 @@
       "requiredEvidence": [
         "redacted revoked credential prefix",
         "post-revocation denial",
-        "pre-run and post-run inventory comparison",
+        "pre-run and post-run inventory comparison including any approved retained fixture",
+        "zero active application credentials",
         "zero unowned residue or an explicit blocker"
       ],
       "cleanup": "this is the mandatory terminal cleanup journey",

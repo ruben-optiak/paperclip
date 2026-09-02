@@ -1,7 +1,7 @@
 {
   "schema": "optiak-test-environment-contract/v1",
-  "contractVersion": "1.0.0",
-  "recordedAt": "2026-09-02T21:27:03Z",
+  "contractVersion": "1.1.0",
+  "recordedAt": "2026-09-02T22:24:55Z",
   "humanConflictOwner": "board",
   "defaultDecision": "deny",
   "evidenceSemantics": {
@@ -172,15 +172,29 @@
   "syntheticData": {
     "requiredPrefixTemplate": "e2e-<issue>-<run-sequence>-",
     "requiredMarker": "synthetic-test-only",
-    "maximumLifetimeHours": 24,
+    "configuredCredentialLifetimeHours": 168,
+    "credentialLifetimeReason": "Seven days is the minimum expiration offered by the current Optiak UI; expiration is a backstop and does not replace terminal revocation.",
+    "revokeEveryCredentialAtRunEnd": true,
     "inventoryBeforeAndAfter": true,
     "cleanupOwner": "qa-e2e-validation-engineer",
     "manualFallbackOwner": "board",
+    "applicationRetention": {
+      "default": "delete_exact_run_scoped_application",
+      "boardApprovedReusableFixture": "retain_allowed",
+      "retainedFixtureRequirements": [
+        "the Board explicitly approved retaining the exact application",
+        "the application remains dedicated to synthetic local testing",
+        "no active application credential remains after a run",
+        "run-scoped settings and unowned residue are removed",
+        "the expected retained fixture is named in the inventory reconciliation"
+      ]
+    },
     "cleanupOrder": [
       "revoke every generated application credential",
-      "pause the synthetic application if deletion is not immediately safe",
-      "delete only objects carrying the exact run prefix and synthetic marker",
-      "compare the post-run inventory with the pre-run inventory",
+      "verify one bounded post-revocation denial",
+      "remove run-scoped settings and unowned residue from the synthetic application",
+      "delete only exact run-scoped objects unless the Board approved the application as a reusable fixture",
+      "compare the post-run inventory with the expected baseline including any explicitly retained fixture",
       "record any residue as a blocker with exact owner"
     ],
     "completionRequiresCleanup": true

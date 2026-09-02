@@ -93,6 +93,11 @@ operator for a manual smoke; it never enters an agent environment, prompt,
 issue, screenshot, shell transcript, or repository. Provider credentials stay
 inside the Optiak runtime and are never exposed to Paperclip.
 
+The current Optiak UI offers seven days as its shortest application-key
+expiration. Select that shortest option. Seven days is a backstop, not the
+planned active lifetime: revoke the key during terminal cleanup immediately
+after the smoke, even when the application itself is retained.
+
 ## 5. Approve and enforce the initial budget
 
 The proposed first-smoke ceiling is:
@@ -119,8 +124,9 @@ Before any Yellow action:
 4. Review the effective browser/API tool catalog. Unknown tools stay
    quarantined.
 5. Confirm no object with the planned prefix already exists.
-6. Confirm cleanup can revoke the credential and remove only the exact new
-   application.
+6. Confirm cleanup can revoke the credential and either restore the exact
+   application to its approved reusable baseline or delete it when no retention
+   approval exists.
 
 Provider-key administration, tenant/member lifecycle, role changes,
 organization governance, integrations, and billing remain Orange and outside
@@ -143,10 +149,14 @@ remain explicit. Do not retry an ambiguous mutation or inference automatically.
 
 ## 8. Cleanup and close
 
-Revoke every generated credential first. Verify one bounded post-revocation
-denial, remove only the exactly prefixed synthetic application, and compare the
-final inventory with the preflight inventory. Any residue, ambiguous write, or
-unverifiable revocation leaves the smoke blocked with a named owner.
+Revoke every generated credential first; do not wait for its seven-day expiry.
+Verify one bounded post-revocation denial and remove run-scoped settings or
+unowned residue. An exactly named application may remain only when the Board has
+approved it as a reusable synthetic fixture. In that case, the final inventory
+must explicitly account for it and show zero active application credentials.
+Otherwise, delete only the exactly prefixed application. Any unexplained
+residue, ambiguous write, or unverifiable revocation leaves the smoke blocked
+with a named owner.
 
 Keep QA, Brand/UI, and all routines paused after the manual smoke. Activation
 is a separate Board decision.

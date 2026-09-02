@@ -62,7 +62,7 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 
 “Always on” means event-driven alerts and bounded routines. Agents must not burn budget by polling unmanaged processes or claim on-call coverage when no signal source is connected.
 
-## Safety state in v0.1.7
+## Safety state in v0.1.8
 
 - All agents and routine schedules import paused.
 - Public documentation may be read; its freshness must be recorded.
@@ -78,6 +78,10 @@ The Board may assign work directly to any specialist. Reporting lines define acc
   application and key lifecycle, both OpenAI-compatible API styles, streaming,
   observability correlation, tenant isolation, and mandatory cleanup. Its
   presence is test scope, not evidence of a pass.
+- Application keys use the UI's shortest seven-day expiration and are revoked
+  at the end of every smoke. A dedicated synthetic application may remain only
+  as a Board-approved reusable fixture with zero active keys and a reconciled
+  baseline.
 - No source checkout, GitHub credential or installation, approved staging tenant, browser session, backlog snapshot, logs, metrics, or production credentials are bundled.
 - Production is read-only even after connection.
 - Sandbox mutations require a dedicated test tenant, synthetic data, bounded cleanup, and an approved tool policy.
@@ -97,7 +101,7 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 Build a deterministic import archive outside the package:
 
 ```sh
-./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.7.zip
+./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.8.zip
 ```
 
 ## Getting started

@@ -17,7 +17,7 @@ This is versioned desired state, not proof of live Paperclip bindings. Apply pro
 
 No role has merge, deploy, production mutation, infrastructure mutation, secret administration, user impersonation, billing mutation, or policy-bypass authority in v0.1.
 
-The local target observed in v0.1.7 is limited to credential-free reachability.
+The portable local target in v0.1.8 defaults to credential-free reachability.
 No role receives an authenticated browser session, application credential, or
 synthetic write until every environment-contract gate passes. Production test
 access is denied; future production observability reads are a separate policy.

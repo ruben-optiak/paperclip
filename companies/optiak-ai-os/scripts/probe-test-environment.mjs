@@ -78,8 +78,14 @@ export function validateTestEnvironmentContract(contract) {
   if (contract.syntheticData?.completionRequiresCleanup !== true) {
     errors.push("cleanup must gate completion");
   }
-  if (!(contract.syntheticData?.maximumLifetimeHours > 0 && contract.syntheticData.maximumLifetimeHours <= 24)) {
-    errors.push("synthetic data lifetime must be at most 24 hours");
+  if (contract.syntheticData?.configuredCredentialLifetimeHours !== 168) {
+    errors.push("the initial application credential must use the UI minimum of seven days");
+  }
+  if (contract.syntheticData?.revokeEveryCredentialAtRunEnd !== true) {
+    errors.push("credential expiration must not replace terminal revocation");
+  }
+  if (contract.syntheticData?.applicationRetention?.boardApprovedReusableFixture !== "retain_allowed") {
+    errors.push("reusable application retention must require explicit Board approval");
   }
 
   return errors;

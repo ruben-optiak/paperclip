@@ -89,6 +89,12 @@ test("test environment fails closed while local reachability is incomplete", () 
   assert.equal(contract.providerBudget.maximumProviderSpendPerSmoke, 1);
   assert.equal(contract.providerBudget.maximumInferenceRequests, 12);
   assert.equal(contract.providerBudget.automaticRetries, 0);
+  assert.equal(contract.syntheticData.configuredCredentialLifetimeHours, 168);
+  assert.equal(contract.syntheticData.revokeEveryCredentialAtRunEnd, true);
+  assert.equal(
+    contract.syntheticData.applicationRetention.boardApprovedReusableFixture,
+    "retain_allowed",
+  );
 
   const observations = contract.targets.localDevelopment.endpoints.map((endpoint) => ({
     id: endpoint.id,

@@ -134,7 +134,7 @@ for (const path of allFiles.filter((candidate) => candidate.endsWith(".json"))) 
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md must declare agentcompanies/v1");
 if (company.slug !== "optiak-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.7") fail("Unexpected company version");
+if (company.version !== "0.1.8") fail("Unexpected company version");
 if (company.license !== "LicenseRef-Optiak-Internal") fail("Unexpected company license");
 
 const agentFiles = allFiles.filter((path) => path.endsWith(`${sep}AGENTS.md`) && path.includes(`${sep}agents${sep}`));
@@ -402,6 +402,15 @@ if (productionTarget.authorizationState !== "deny" || productionTarget.networkRe
   fail("Production testing must be denied");
 }
 if (testEnvironment.syntheticData?.completionRequiresCleanup !== true) fail("Synthetic cleanup must gate completion");
+if (testEnvironment.syntheticData?.configuredCredentialLifetimeHours !== 168) {
+  fail("The initial application credential must use the seven-day UI minimum");
+}
+if (testEnvironment.syntheticData?.revokeEveryCredentialAtRunEnd !== true) {
+  fail("Credential expiration must not replace terminal revocation");
+}
+if (testEnvironment.syntheticData?.applicationRetention?.boardApprovedReusableFixture !== "retain_allowed") {
+  fail("Reusable application retention must require explicit Board approval");
+}
 if (testEnvironment.providerBudget?.authorizationState !== "proposed_pending_board_approval") {
   fail("Provider spend must remain pending Board approval");
 }

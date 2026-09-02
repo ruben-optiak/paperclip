@@ -1,5 +1,5 @@
 schema: optiak-desired-state/v1
-version: 0.1.7
+version: 0.1.8
 instance:
   isolation: separate_from_enki
   database: separate
@@ -57,6 +57,12 @@ connections:
     browser: disconnected
     tenant: unclassified
     writes: deny
+    applicationCredential:
+      configuredExpirationHours: 168
+      revokeAtRunEnd: true
+    reusableSyntheticApplication:
+      retention: require_explicit_board_approval
+      activeCredentialsAfterRun: 0
   stagingBrowserApi:
     state: disconnected
   observabilityAlerts:
