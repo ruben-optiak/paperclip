@@ -36,6 +36,7 @@ Snapshot comprobado el 2026-09-02:
 - El paquete `0.1.3` separa disposición del issue, estado y propósito del reporte, veredicto del objeto, readiness operacional y autoridad de la evidencia; conserva como máximo un resultado canónico por run y por revisión exacta.
 - El paquete fuente `0.1.4` registra la incompatibilidad de Bubblewrap con el seccomp del Quickstart actual, conserva el fallback Landlock verificado y bloquea tanto su retirada prematura como la ampliación de privilegios del contenedor de control. Su ZIP determinista tiene SHA-256 `bdbce9c33f45862484ff347906e2b780e4377b898c29a754bf411178e1944aa5`; no requiere import porque la definición de agentes permanece idéntica a `0.1.3`.
 - El bloqueo operativo de `OAI-011` está registrado en [OPT-29](/OPT/issues/OPT-29), asignado a Architecture y sin ejecución autorizada hasta disponer del boundary dedicado.
+- `OAI-012` está representado por [OPT-14](/OPT/issues/OPT-14), bloqueado con una interacción humana pendiente que pide herramienta/URL autoritativa, owner y vía de acceso read-only. `continuationPolicy: none` impide que responderla despierte al agente automáticamente.
 - Todos los agentes tienen un timeout fixture-phase de 300 segundos, máximo diario de 4–8 runs y máximo diario de coste de 75–200 céntimos según función. Los límites de runs y tiempo están activos; los límites monetarios no reciben señal real mientras Codex reporte `subscription_included/unpriced`.
 - El navegador y la CLI del host usan el puerto `3200`; agentes y MCP administrado usan el listener interno `3100`.
 - Product & PRD Lead superó el smoke [OPT-18](/OPT/issues/OPT-18) con veredicto `changes_required` y escritura durable confirmada.
@@ -59,7 +60,7 @@ Snapshot comprobado el 2026-09-02:
 
 ## Orden inmediato
 
-1. Elegir la fuente autoritativa del backlog de producto mediante `OAI-012`.
+1. Responder en [OPT-14](/OPT/issues/OPT-14) la interacción del Board para elegir herramienta/URL, owner y vía de acceso de `OAI-012`.
 2. Comenzar las conexiones reales de una en una, empezando por producto o repositorios según la decisión del Board.
 3. Retomar `OAI-011` cuando exista un boundary de ejecución dedicado donde Bubblewrap pueda habilitarse sin ampliar privilegios del contenedor de Paperclip.
 
@@ -78,7 +79,7 @@ Snapshot comprobado el 2026-09-02:
 | `OAI-009` | P1 | DONE | Smoke de debugging e implementación | Conservar [OPT-23](/OPT/issues/OPT-23) como baseline de regresión | Produjo hipótesis priorizadas, distinguió observación de causa raíz y no afirmó un fix sin reproducirlo |
 | `OAI-010` | P1 | DONE | Cobertura de skills transversales | Conservar [OPT-12](/OPT/issues/OPT-12), [OPT-9](/OPT/issues/OPT-9) y [OPT-24](/OPT/issues/OPT-24) como baselines | Product triage, API conformance y change control produjeron resultados acotados, evidencia durable y cero afirmaciones live |
 | `OAI-011` | P1 | BLOCKED | Retirar configuración Codex obsoleta | Mantener [OPT-29](/OPT/issues/OPT-29) bloqueado; ejecutar agentes en un boundary dedicado, pasar `scripts/check-sandbox-compat.mjs --live --require-ready` y solo entonces retirar `features.use_legacy_landlock=true` | Desaparece el warning en los diez agentes y una regresión demuestra que sandbox, red y aprobaciones permanecen fail-closed |
-| `OAI-012` | P1 | BLOCKED | Fuente autoritativa de producto y backlog | Elegir herramienta, ownership, alcance y credencial read-only; ejecutar la tarea semilla de source-of-truth | El mapa resuelve conflictos entre visión, PRD, roadmap, customer evidence y release sin copiar el backlog completo |
+| `OAI-012` | P1 | BLOCKED | Fuente autoritativa de producto y backlog | Responder la interacción humana de [OPT-14](/OPT/issues/OPT-14); revisar y configurar después una única conexión read-only antes de ejecutar Product | El mapa resuelve conflictos entre visión, PRD, roadmap, customer evidence y release sin copiar el backlog completo |
 | `OAI-013` | P1 | BLOCKED | Lectura de repositorios, PRs y checks | Seleccionar repos exactos y configurar Git provider read-only por revisión inmutable | Lectura positiva, denegación de merge/write, revisión por SHA, redacción, revocación y auditoría comprobadas |
 | `OAI-014` | P1 | BLOCKED | Staging seguro para UI y API | Proveer tenant, personas sintéticas, budget, credenciales, cleanup y production-host denial | Golden journey manual demuestra positivos, negativos, streaming, auth, cleanup y cero alcance de producción |
 | `OAI-015` | P2 | BLOCKED | Observabilidad y on-call | Conectar métricas, logs, trazas, deploy metadata y alertas en lectura tras definir redacción y scopes | Señales fechadas y deduplicadas, alert routing auditable y tabletop real sin afirmar cobertura inexistente |
