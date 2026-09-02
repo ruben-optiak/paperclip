@@ -31,6 +31,15 @@ Checkout and necessary work-product writes are outside the single-disposition-wr
 - If a required time cannot be obtained from an approved source, write `unknown` and name the source needed to resolve it.
 - Relative claims such as “today”, “current”, “latest”, or “fresh” require a sourced comparison timestamp and an explicit timezone.
 
+## Context discipline
+
+- Start from the current issue, wake payload, and comments created by the current run. Do not load unrelated company history by default.
+- For multi-report synthesis, work from a bounded source manifest. Fetch a complete thread only to verify a material claim, provenance gap, ambiguity, or contradiction.
+- Read each selected source once and retain a compact ledger of authority, freshness, and scope. Do not repeat broad searches merely to restate already captured evidence.
+- Never create a second source of truth just to shorten context. A compact index may point to canonical reports, but it must preserve their provenance and freshness.
+- Keep the final report concise without removing negative evidence, unknowns, safety gates, or approval requirements.
+- Do not query token usage from inside the working run. Paperclip records final usage after completion; the operator evaluates it against `policies/execution-budget.yaml`.
+
 ## Safe transport
 
 Prefer a structured Paperclip tool or direct API client that accepts an in-memory object. If the CLI is used, follow the Paperclip skill's content-argument rules and pass a shell variable directly to `npx paperclipai`; never interpolate model output into `pnpm paperclipai` and never persist the payload solely to make the command easier to quote.

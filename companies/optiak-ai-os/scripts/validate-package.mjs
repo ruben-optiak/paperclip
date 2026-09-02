@@ -88,13 +88,16 @@ const requiredFiles = [
   ".paperclip.yaml",
   "policies/access-matrix.md",
   "policies/desired-state.yaml",
+  "policies/execution-budget.yaml",
   "policies/secrets-matrix.md",
   "policies/tool-allowlist.yaml",
   "references/product-boundary.md",
   "references/source-map.yaml",
   "references/quality-model.md",
+  "references/run-efficiency-baseline.json",
   "runbooks/local-setup.md",
   "runbooks/connections.md",
+  "runbooks/execution-budgets.md",
   "runbooks/security.md",
   "runbooks/smoke-test.md",
   "runtime/docker-compose.paperclip.yml",
@@ -102,6 +105,7 @@ const requiredFiles = [
   "scripts/build-import-zip.sh",
   "scripts/import-allowlist.txt",
   "scripts/local-instance.sh",
+  "scripts/summarize-run-usage.mjs",
 ];
 for (const path of requiredFiles) if (!statSafe(join(packageDir, path))) fail(`Missing required file: ${path}`);
 
@@ -118,7 +122,7 @@ for (const path of allFiles.filter((candidate) => candidate.endsWith(".json"))) 
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md must declare agentcompanies/v1");
 if (company.slug !== "optiak-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.1") fail("Unexpected company version");
+if (company.version !== "0.1.2") fail("Unexpected company version");
 if (company.license !== "LicenseRef-Optiak-Internal") fail("Unexpected company license");
 
 const agentFiles = allFiles.filter((path) => path.endsWith(`${sep}AGENTS.md`) && path.includes(`${sep}agents${sep}`));
@@ -231,9 +235,44 @@ if ((paperclip.match(/type: codex_local/g) || []).length !== 10) fail("Every age
 if ((paperclip.match(/dangerouslyBypassApprovalsAndSandbox: false/g) || []).length !== 10) fail("Every agent must keep sandbox bypass disabled");
 if ((paperclip.match(/managedMcpOnly: true/g) || []).length !== 10) fail("Every agent must use managed MCP only");
 if ((paperclip.match(/enabled: false/g) || []).length !== 14) fail("All agent heartbeats and four routine triggers must be disabled");
+const agentBudgets = [...paperclip.matchAll(/^    budgetMonthlyCents: (\d+)$/gm)].map((match) => Number(match[1]));
+if (agentBudgets.length !== 10 || agentBudgets.reduce((total, value) => total + value, 0) !== 10000) {
+  fail("Agent monthly budgets must contain ten values totaling 10000 cents");
+}
+if ((paperclip.match(/timeoutSec: 300/g) || []).length !== 10) fail("Every agent must use the fixture-phase 300 second timeout");
+if ((paperclip.match(/maxDailyRuns: /g) || []).length !== 10) fail("Every agent must have a daily run cap");
+if ((paperclip.match(/maxDailyCostCents: /g) || []).length !== 10) fail("Every agent must have a daily cost cap");
+
+const executionBudget = readFileSync(join(packageDir, "policies", "execution-budget.yaml"), "utf8");
+for (const marker of [
+  "monthlyBilledCents: 15000",
+  "currency: USD",
+  "warnPercent: 80",
+  "hardStopPercent: 100",
+  "timeoutSeconds: 300",
+  "basis: uncached_input_tokens",
+  "nativeEnforcement: false",
+  "rawInputTokensAre: cumulative_usage_not_prompt_size",
+]) {
+  if (!executionBudget.includes(marker)) fail(`Execution-budget marker missing: ${marker}`);
+}
+
+const runBaseline = JSON.parse(readFileSync(join(packageDir, "references", "run-efficiency-baseline.json"), "utf8"));
+if (runBaseline.summary?.runCount !== 17) fail("Unexpected run-efficiency baseline count");
+const baselineTotals = runBaseline.summary?.totals ?? {};
+if (baselineTotals.rawInputTokens - baselineTotals.cachedInputTokens !== baselineTotals.uncachedInputTokens) {
+  fail("Run-efficiency baseline token arithmetic drift");
+}
+const directorBaseline = runBaseline.directorSynthesis ?? {};
+if (directorBaseline.rawInputTokens - directorBaseline.cachedInputTokens !== directorBaseline.uncachedInputTokens) {
+  fail("Director synthesis token arithmetic drift");
+}
+if (runBaseline.summary?.billingModes?.[0]?.costStatus !== "unpriced") {
+  fail("Baseline must preserve unpriced subscription cost semantics");
+}
 
 const desired = readFileSync(join(packageDir, "policies", "desired-state.yaml"), "utf8");
-for (const marker of ["expected: 10", "expected: 4", "importedPaused: true", "productionMutation: deny"]) {
+for (const marker of ["expected: 10", "expected: 4", "importedPaused: true", "companyMonthlyBilledCents: 15000", "warnPercent: 80", "hardStopPercent: 100", "productionMutation: deny"]) {
   if (!desired.includes(marker)) fail(`Desired-state marker missing: ${marker}`);
 }
 const allowlist = readFileSync(join(packageDir, "policies", "tool-allowlist.yaml"), "utf8");

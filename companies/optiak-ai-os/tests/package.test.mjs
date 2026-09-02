@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import {spawnSync} from "node:child_process";
 import {readFileSync, readdirSync} from "node:fs";
 import {dirname, join, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
@@ -102,6 +103,88 @@ test("runtime defaults to paused, sandboxed, managed MCP", () => {
   assert.equal((paperclip.match(/dangerouslyBypassApprovalsAndSandbox: false/g) || []).length, 10);
   assert.equal((paperclip.match(/managedMcpOnly: true/g) || []).length, 10);
   assert.equal((paperclip.match(/enabled: false/g) || []).length, 14);
+  assert.equal((paperclip.match(/timeoutSec: 300/g) || []).length, 10);
+  assert.equal((paperclip.match(/maxDailyRuns: /g) || []).length, 10);
+  assert.equal((paperclip.match(/maxDailyCostCents: /g) || []).length, 10);
+  const budgets = [...paperclip.matchAll(/^    budgetMonthlyCents: (\d+)$/gm)]
+    .map((match) => Number(match[1]));
+  assert.equal(budgets.length, 10);
+  assert.equal(budgets.reduce((total, value) => total + value, 0), 10000);
+});
+
+test("execution budget distinguishes enforced money and time gates from token review gates", () => {
+  const policy = readFileSync(join(packageDir, "policies", "execution-budget.yaml"), "utf8");
+  assert.match(policy, /currency: USD/);
+  assert.match(policy, /monthlyBilledCents: 15000/);
+  assert.match(policy, /warnPercent: 80/);
+  assert.match(policy, /hardStopPercent: 100/);
+  assert.match(policy, /timeoutSeconds: 300/);
+  assert.match(policy, /basis: uncached_input_tokens/);
+  assert.match(policy, /nativeEnforcement: false/);
+  assert.match(policy, /unpricedBehavior: no_false_cost_signal/);
+});
+
+test("run baseline keeps cumulative, cached, and uncached usage mathematically separate", () => {
+  const baseline = JSON.parse(readFileSync(join(packageDir, "references", "run-efficiency-baseline.json"), "utf8"));
+  assert.equal(baseline.summary.runCount, 17);
+  assert.equal(
+    baseline.summary.totals.rawInputTokens - baseline.summary.totals.cachedInputTokens,
+    baseline.summary.totals.uncachedInputTokens,
+  );
+  assert.equal(
+    baseline.directorSynthesis.rawInputTokens - baseline.directorSynthesis.cachedInputTokens,
+    baseline.directorSynthesis.uncachedInputTokens,
+  );
+  assert.equal(baseline.summary.billingModes[0].costStatus, "unpriced");
+  assert.equal(baseline.selection.containsDatabaseIds, false);
+});
+
+test("run usage summarizer excludes cancelled and zero-usage attempts", () => {
+  const input = [
+    {
+      status: "succeeded",
+      startedAt: "2026-09-02T10:00:00.000Z",
+      finishedAt: "2026-09-02T10:01:00.000Z",
+      usageJson: {
+        rawInputTokens: 100,
+        rawCachedInputTokens: 70,
+        rawOutputTokens: 10,
+        billingType: "subscription_included",
+        costStatus: "unpriced",
+      },
+    },
+    {
+      status: "succeeded",
+      startedAt: "2026-09-02T10:02:00.000Z",
+      finishedAt: "2026-09-02T10:02:30.000Z",
+      usageJson: {
+        inputTokens: 50,
+        cachedInputTokens: 20,
+        outputTokens: 5,
+        billingType: "metered_api",
+        costStatus: "priced",
+      },
+    },
+    {status: "cancelled", usageJson: {inputTokens: 999, cachedInputTokens: 0, outputTokens: 999}},
+    {status: "succeeded", usageJson: {inputTokens: 0, cachedInputTokens: 0, outputTokens: 0}},
+  ];
+  const result = spawnSync(
+    process.execPath,
+    [join(packageDir, "scripts", "summarize-run-usage.mjs")],
+    {input: JSON.stringify(input), encoding: "utf8"},
+  );
+  assert.equal(result.status, 0, result.stderr);
+  const summary = JSON.parse(result.stdout);
+  assert.equal(summary.runCount, 2);
+  assert.deepEqual(summary.totals, {
+    rawInputTokens: 150,
+    cachedInputTokens: 90,
+    uncachedInputTokens: 60,
+    outputTokens: 15,
+    durationSeconds: 90,
+  });
+  assert.equal(summary.shares.cachedInputPercent, 60);
+  assert.equal(summary.billingModes.length, 2);
 });
 
 test("local instance remains isolated behind host port 3200", () => {

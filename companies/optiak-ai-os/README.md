@@ -62,7 +62,7 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 
 “Always on” means event-driven alerts and bounded routines. Agents must not burn budget by polling unmanaged processes or claim on-call coverage when no signal source is connected.
 
-## Safety state in v0.1.1
+## Safety state in v0.1.2
 
 - All agents and routine schedules import paused.
 - Public documentation may be read; its freshness must be recorded.
@@ -72,6 +72,8 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 - Sandbox mutations require a dedicated test tenant, synthetic data, bounded cleanup, and an approved tool policy.
 - Agents cannot merge, deploy, roll back, rotate secrets, change infrastructure, or approve their own work.
 - Every agent closes work through one run-linked in-memory report and verifies ambiguous writes before any retry.
+- Company and agent budget warnings are set to 80 percent and hard stops to 100 percent; daily run caps and five-minute fixture timeouts remain effective even while subscription cost is unpriced.
+- Context efficiency is reviewed on uncached input rather than cumulative raw input; the committed baseline contains aggregates only and no prompts, comments, logs, database IDs, or credentials.
 
 ## Validation
 
@@ -82,7 +84,7 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 Build a deterministic import archive outside the package:
 
 ```sh
-./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.1.zip
+./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.2.zip
 ```
 
 ## Getting started
@@ -112,7 +114,7 @@ npx paperclipai company import companies/optiak-ai-os --target new --dry-run
 
 The UI import preview remains the recommended first application path because it makes collisions and paused state visible.
 
-See `runbooks/local-setup.md`, `runbooks/connections.md`, `runbooks/security.md`, and `runbooks/smoke-test.md` before import.
+See `runbooks/local-setup.md`, `runbooks/execution-budgets.md`, `runbooks/connections.md`, `runbooks/security.md`, and `runbooks/smoke-test.md` before import.
 
 ## References
 

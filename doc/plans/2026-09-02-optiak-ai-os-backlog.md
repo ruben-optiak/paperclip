@@ -2,7 +2,7 @@
 
 Última actualización: 2026-09-02
 Rama de trabajo: `feat/optiak/bootstrap`
-Paquete actual: `companies/optiak-ai-os/` (`0.1.1`)
+Paquete actual: `companies/optiak-ai-os/` (`0.1.2`)
 
 ## Propósito
 
@@ -32,6 +32,8 @@ Snapshot comprobado el 2026-09-02:
 - La instancia Optiak está aislada de Enki mediante Compose, almacenamiento, namespace de instancia, secreto de sesión y puerto propios.
 - Diez agentes están pausados, hay cero runs activos y las cuatro rutinas conservan todos sus triggers deshabilitados.
 - Las trece skills incluyen fixtures Markdown portables; `optiak-durable-completion` está asignada y configurada en los diez agentes.
+- El paquete `0.1.2` fija presupuestos provisionales en USD: 15000 céntimos mensuales para la compañía y 10000 repartidos entre agentes; existen once policies activas con aviso al 80 % y hard stop al 100 %.
+- Todos los agentes tienen un timeout fixture-phase de 300 segundos, máximo diario de 4–8 runs y máximo diario de coste de 75–200 céntimos según función. Los límites de runs y tiempo están activos; los límites monetarios no reciben señal real mientras Codex reporte `subscription_included/unpriced`.
 - El navegador y la CLI del host usan el puerto `3200`; agentes y MCP administrado usan el listener interno `3100`.
 - Product & PRD Lead superó el smoke [OPT-18](/OPT/issues/OPT-18) con veredicto `changes_required` y escritura durable confirmada.
 - Principal Platform Architect superó el smoke [OPT-19](/OPT/issues/OPT-19) con veredicto `changes_required` y escritura durable confirmada.
@@ -47,14 +49,14 @@ Snapshot comprobado el 2026-09-02:
 - Change control superó [OPT-24](/OPT/issues/OPT-24) clasificando `green`, `yellow`, `orange` y `red` sin ejecutar ni autorizar ninguna acción.
 - El cierre durable superó [OPT-25](/OPT/issues/OPT-25): una única petición final en memoria produjo un solo comentario de agente, una transición a `done`, `createdByRunId` correcto y tiempo de ejecución delegado al metadata persistido de Paperclip.
 - El Director superó [OPT-26](/OPT/issues/OPT-26) con una síntesis estrictamente fixture-only: citó las trece fuentes, conservó contradicciones y separó evidencia, inferencia, desconocidos, owners y decisiones Board.
+- Documentation superó la regresión acotada [OPT-27](/OPT/issues/OPT-27) con una sola fixture y cero fuentes externas: 117950 tokens brutos, 106880 cacheados, 11070 nuevos, 1729 de salida y 69 segundos; dejó un único informe y una única transición final.
 - Backlog de producto, Git/PRs, repositorios, staging, observabilidad y producción continúan desconectados. Ningún resultado fixture se considera evidencia live.
 
 ## Orden inmediato
 
-1. Ejecutar `OAI-018`: explicar y reducir el contexto de las runs, empezando por los 382446 tokens de entrada de la síntesis del Director.
-2. Resolver `OAI-022`: reconciliar la contradicción histórica de [OPT-18](/OPT/issues/OPT-18) y fijar una taxonomía inequívoca de estado de reporte frente a estado del objeto evaluado.
-3. Retirar el sandbox legacy mediante `OAI-011` solo tras su regresión.
-4. Elegir después la fuente autoritativa del backlog de producto y comenzar las conexiones reales de una en una.
+1. Resolver `OAI-022`: reconciliar la contradicción histórica de [OPT-18](/OPT/issues/OPT-18) y fijar una taxonomía inequívoca de estado de reporte frente a estado del objeto evaluado.
+2. Retirar el sandbox legacy mediante `OAI-011` solo tras su regresión.
+3. Elegir después la fuente autoritativa del backlog de producto y comenzar las conexiones reales de una en una.
 
 ## Backlog priorizado
 
@@ -77,16 +79,18 @@ Snapshot comprobado el 2026-09-02:
 | `OAI-015` | P2 | BLOCKED | Observabilidad y on-call | Conectar métricas, logs, trazas, deploy metadata y alertas en lectura tras definir redacción y scopes | Señales fechadas y deduplicadas, alert routing auditable y tabletop real sin afirmar cobertura inexistente |
 | `OAI-016` | P1 | DONE | Smoke de síntesis del Director | Conservar [OPT-26](/OPT/issues/OPT-26) como baseline de síntesis y fuente de action items | El Director citó trece fuentes, separó fixture de live, no creó autoridad nueva, conservó contradicciones y devolvió cinco acciones con owner, fuente y decisión acotada |
 | `OAI-017` | P2 | BLOCKED | Activación progresiva de rutinas | Requiere fuentes autorizadas y ejecución manual satisfactoria de cada rutina | Board habilita cada trigger por separado; primer run programado es correcto y no duplica trabajo |
-| `OAI-018` | P2 | NOW | Presupuestos y eficiencia de contexto | Auditar composición del contexto y coste por tipo de run; reducir primero la síntesis del Director sin perder citas ni límites de evidencia | Baseline reproducible, alertas al 80 %, hard stop al 100 % y ausencia de contexto innecesario demostrada |
+| `OAI-018` | P2 | DONE | Presupuestos y eficiencia de contexto | Conservar [OPT-27](/OPT/issues/OPT-27) como regresión; revisar valores al llegar a diez runs con precio o treinta días | Paquete `0.1.2`, baseline reproducible sin IDs, once budget policies 80/100, caps diarios, timeout y run acotada con 11070 tokens nuevos y una sola fuente |
 | `OAI-019` | P3 | LATER | Promoción a producción | Elegir infraestructura, fijar tag, imagen/digest, backup, restore, smoke y rollback | Misma revisión validada se importa pausada; restore y rollback están probados antes de activar agentes |
 | `OAI-020` | P3 | LATER | Sincronización periódica con upstream Paperclip | Integrar `upstream/master` únicamente mediante ramas `sync/*` y `integration/companies` | Merge aislado supera gates de core, Enki y Optiak antes de entrar en una rama operativa |
 | `OAI-021` | P1 | DONE | Cierre durable idempotente y evidencia temporal fiable | Conservar [OPT-25](/OPT/issues/OPT-25) como regresión y exigir la skill común en los diez agentes | Paquete `0.1.1`; una run escribió exactamente un informe mediante un único payload en memoria, marcó el issue una vez, no usó archivos temporales, conservó `createdByRunId` y remitió el tiempo de ejecución al metadata comprobable de Paperclip |
-| `OAI-022` | P1 | READY | Integridad del baseline y taxonomía de resultados | Identificar el comentario/run canónico de [OPT-18](/OPT/issues/OPT-18) sin borrar historial y versionar etiquetas separadas para cierre del reporte, veredicto del objeto y readiness operacional | La contradicción queda explicada por evidencia; una regresión impide agregar `done`, `PASS`, `blocked`, `ready` o `complete` entre capas distintas y conserva un único resultado canónico por run |
+| `OAI-022` | P1 | NOW | Integridad del baseline y taxonomía de resultados | Identificar el comentario/run canónico de [OPT-18](/OPT/issues/OPT-18) sin borrar historial y versionar etiquetas separadas para cierre del reporte, veredicto del objeto y readiness operacional | La contradicción queda explicada por evidencia; una regresión impide agregar `done`, `PASS`, `blocked`, `ready` o `complete` entre capas distintas y conserva un único resultado canónico por run |
+| `OAI-023` | P2 | BLOCKED | Regresión monetaria con coste valorado | Ejecutar en una instancia de prueba con facturación `metered_api` o eventos de coste reales controlados; no contaminar el ledger de la compañía operativa | Un evento al 80 % abre aviso sin pausar; al 100 % pausa el scope, cancela trabajo y exige aprobación; el rollback restaura el estado |
 
 ## Dependencias principales
 
 - Cierre fiable: `OAI-021` y su primer consumidor, `OAI-016`, están cerrados.
 - Síntesis fiable: `OAI-016` está cerrado; sus gaps alimentan `OAI-018` y `OAI-022`.
+- Límites iniciales: `OAI-018` está cerrado; `OAI-023` valida el circuito monetario dinámico cuando exista una señal de coste valorada.
 - Primer trabajo real de Product: `OAI-012` y una política de frescura/autoridad aprobada.
 - Revisión real de código: `OAI-013`; implementación aislada requiere además workspace y política de ramas.
 - QA conectado: `OAI-014`; on-call creíble requiere `OAI-015`.
@@ -104,6 +108,7 @@ Snapshot comprobado el 2026-09-02:
 
 ## Registro de cerrados
 
+- 2026-09-02 — `OAI-018`: publicado e importado el paquete `0.1.2`; el ZIP final exacto `optiak-ai-os-v0.1.2-final.zip` tiene SHA-256 `4c7f66d39814993ca867d1a61464a15128628900e0b6ef39621d025f87f51e85`. El preview tuvo cero errores, actualizó exactamente diez agentes y trece skills, y no tocó compañía, proyectos ni issues. Se versionaron `policies/execution-budget.yaml`, el baseline agregado, el resumidor reproducible y el runbook de aplicación. La instancia tiene una policy de compañía por 15000 céntimos USD y diez de agente por 10000 en total, todas con aviso 80 %, hard stop, notificación y cero incidentes. Los diez agentes recibieron caps de 4–8 runs/día, 75–200 céntimos USD/día y timeout de 300 segundos. El baseline anterior contiene diecisiete runs: 2814609 tokens brutos, 2395008 cacheados y 419601 nuevos; por tanto el bruto acumulado no se interpreta como tamaño de prompt. Documentation ejecutó [OPT-27](/OPT/issues/OPT-27) en la run `67294744-899b-4732-94e8-9a3183bbe172`: una fixture, cero fuentes externas, 117950 brutos, 106880 cacheados, 11070 nuevos, 1729 de salida y 69 segundos. Creó un único comentario `1cc6162b-9c39-43dc-98c5-7d3f53e8eded`, vinculado a la run, y una única transición `in_progress → done` mediante el mismo update. La entrada nueva bajó 75,35 % frente a la síntesis del Director y 58,69 % frente al smoke durable equivalente. La facturación sigue `subscription_included/unpriced`: coste monetario desconocido, no cero; su regresión dinámica queda en `OAI-023`. Estado final: diez agentes pausados, cero runs activas y cero triggers habilitados.
 - 2026-09-02 — `OAI-016`: Director of Optiak sintetizó trece resultados persistidos en [OPT-26](/OPT/issues/OPT-26). La run `7383eb0b-e3e3-456f-9f60-008a4ed680e7` terminó `succeeded` y creó un único comentario `cf0db201-efff-4443-b9f2-13cefee36745` mediante el mismo update que cambió `in_progress` a `done`; `createdByRunId` y las trece referencias fueron confirmados en el audit log. El brief limitó todo a fixtures, separó establecidos, inferencias y desconocidos, devolvió cinco acciones con owner/fuente/decisión, mantuvo bloqueadas las afirmaciones y mutaciones live, y preservó la contradicción interna de [OPT-18](/OPT/issues/OPT-18). Consumo: 382446 tokens de entrada, 337536 cacheados y 5345 de salida. El Director volvió a `paused`; estado final: diez agentes pausados, cero runs activas y cero triggers habilitados.
 - 2026-09-02 — `OAI-021`: creado `optiak-durable-completion`, asignado a los diez agentes y publicado como paquete `0.1.1`. El ZIP determinista `optiak-ai-os-v0.1.1.zip` tiene SHA-256 `591b50a50711685d0d3299a51d97de62b3ad1f0e1791042389055d91863edcf5`; el preview board-full no encontró errores y la importación actualizó diez agentes, reemplazó doce skills y creó una sin tocar compañía, proyectos, tareas o rutinas. Documentation & DX ejecutó [OPT-25](/OPT/issues/OPT-25) en la run `0ab476ba-1b36-4312-8533-23bc3b733b35`: validó 15 campos, hizo preflight por run id y confirmó HTTP 200, `done`, un único comentario `7fd4fca4-3609-4f1c-b6ca-f2d578fe5bb0` con `createdByRunId` correcto y una sola transición final. No usó archivo temporal ni timestamp de ejecución inventado; consumió 204207 tokens de entrada, 177408 cacheados y 3339 de salida. El intento inicial creado mientras el agente seguía pausado quedó bloqueado por recuperación, se restauró sin comentario, y una invocación manual redundante fue cancelada antes de empezar. Estado final: diez agentes pausados, cero runs activas y cero triggers habilitados.
 - 2026-09-02 — `OAI-010`: Product & PRD Lead ejecutó [OPT-12](/OPT/issues/OPT-12) en la run `58bfe785-fb01-4392-8167-68bec8896c8d`; QA ejecutó [OPT-9](/OPT/issues/OPT-9) en `c881ab40-660e-4ff7-b500-dd7f2673b5c3`; Engineering Assurance ejecutó [OPT-24](/OPT/issues/OPT-24) en `729f4a3e-9a6b-4204-a195-d3b6a13e0c91`. Las tres runs terminaron `succeeded`, usaron solo fixtures, ejecutaron cero acciones externas, escribieron un único comentario cada una mediante cierre en memoria y devolvieron sus agentes a `paused`. Consumo agregado: 310866 tokens de entrada, 246272 cacheados y 7965 de salida. [OPT-9](/OPT/issues/OPT-9) declaró `10:36:00Z` pese a persistirse a `10:35:02Z`; la integridad temporal queda incluida en `OAI-021`.

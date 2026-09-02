@@ -1,5 +1,5 @@
 schema: optiak-desired-state/v1
-version: 0.1.1
+version: 0.1.2
 instance:
   isolation: separate_from_enki
   database: separate
@@ -12,6 +12,14 @@ agents:
 routines:
   expected: 4
   importedPaused: true
+budgets:
+  companyMonthlyBilledCents: 15000
+  agentMonthlyBilledCentsTotal: 10000
+  warnPercent: 80
+  hardStopPercent: 100
+  monetaryEnforcementRequiresPricedEvents: true
+  dailyRunCapsPortable: true
+  timeoutSeconds: 300
 connections:
   publicDocs:
     state: public_read_only

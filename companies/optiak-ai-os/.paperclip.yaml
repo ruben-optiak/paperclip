@@ -3,11 +3,13 @@ schemaVersion: 7
 agents:
   director-optiak:
     role: ceo
+    budgetMonthlyCents: 1500
     adapter:
       type: codex_local
       config:
         engine: cli
         model: gpt-5.6-sol
+        timeoutSec: 300
         dangerouslyBypassApprovalsAndSandbox: false
         extraArgs:
           - --skip-git-repo-check
@@ -26,15 +28,19 @@ agents:
       heartbeat:
         enabled: false
         maxConcurrentRuns: 1
+        maxDailyRuns: 4
+        maxDailyCostCents: 200
     permissions:
       canCreateAgents: false
   engineering-assurance-lead:
     role: general
+    budgetMonthlyCents: 1300
     adapter:
       type: codex_local
       config:
         engine: cli
         model: gpt-5.6-sol
+        timeoutSec: 300
         dangerouslyBypassApprovalsAndSandbox: false
         extraArgs:
           - --skip-git-repo-check
@@ -53,15 +59,19 @@ agents:
       heartbeat:
         enabled: false
         maxConcurrentRuns: 1
+        maxDailyRuns: 6
+        maxDailyCostCents: 150
     permissions:
       canCreateAgents: false
   product-prd-lead:
     role: general
+    budgetMonthlyCents: 1200
     adapter:
       type: codex_local
       config:
         engine: cli
         model: gpt-5.6-sol
+        timeoutSec: 300
         dangerouslyBypassApprovalsAndSandbox: false
         extraArgs:
           - --skip-git-repo-check
@@ -80,15 +90,19 @@ agents:
       heartbeat:
         enabled: false
         maxConcurrentRuns: 1
+        maxDailyRuns: 6
+        maxDailyCostCents: 150
     permissions:
       canCreateAgents: false
   principal-platform-architect:
     role: general
+    budgetMonthlyCents: 1000
     adapter:
       type: codex_local
       config:
         engine: cli
         model: gpt-5.6-sol
+        timeoutSec: 300
         dangerouslyBypassApprovalsAndSandbox: false
         extraArgs:
           - --skip-git-repo-check
@@ -107,15 +121,19 @@ agents:
       heartbeat:
         enabled: false
         maxConcurrentRuns: 1
+        maxDailyRuns: 6
+        maxDailyCostCents: 100
     permissions:
       canCreateAgents: false
   senior-platform-engineer:
     role: general
+    budgetMonthlyCents: 1100
     adapter:
       type: codex_local
       config:
         engine: cli
         model: gpt-5.6-sol
+        timeoutSec: 300
         dangerouslyBypassApprovalsAndSandbox: false
         extraArgs:
           - --skip-git-repo-check
@@ -134,15 +152,19 @@ agents:
       heartbeat:
         enabled: false
         maxConcurrentRuns: 1
+        maxDailyRuns: 6
+        maxDailyCostCents: 100
     permissions:
       canCreateAgents: false
   independent-code-reviewer:
     role: general
+    budgetMonthlyCents: 900
     adapter:
       type: codex_local
       config:
         engine: cli
         model: gpt-5.6-sol
+        timeoutSec: 300
         dangerouslyBypassApprovalsAndSandbox: false
         extraArgs:
           - --skip-git-repo-check
@@ -161,15 +183,19 @@ agents:
       heartbeat:
         enabled: false
         maxConcurrentRuns: 1
+        maxDailyRuns: 6
+        maxDailyCostCents: 100
     permissions:
       canCreateAgents: false
   reliability-incident-engineer:
     role: general
+    budgetMonthlyCents: 1100
     adapter:
       type: codex_local
       config:
         engine: cli
         model: gpt-5.6-sol
+        timeoutSec: 300
         dangerouslyBypassApprovalsAndSandbox: false
         extraArgs:
           - --skip-git-repo-check
@@ -188,15 +214,19 @@ agents:
       heartbeat:
         enabled: false
         maxConcurrentRuns: 1
+        maxDailyRuns: 8
+        maxDailyCostCents: 150
     permissions:
       canCreateAgents: false
   qa-e2e-validation-engineer:
     role: general
+    budgetMonthlyCents: 900
     adapter:
       type: codex_local
       config:
         engine: cli
         model: gpt-5.6-sol
+        timeoutSec: 300
         dangerouslyBypassApprovalsAndSandbox: false
         extraArgs:
           - --skip-git-repo-check
@@ -215,15 +245,19 @@ agents:
       heartbeat:
         enabled: false
         maxConcurrentRuns: 1
+        maxDailyRuns: 8
+        maxDailyCostCents: 100
     permissions:
       canCreateAgents: false
   brand-ui-quality-reviewer:
     role: general
+    budgetMonthlyCents: 500
     adapter:
       type: codex_local
       config:
         engine: cli
         model: gpt-5.6-sol
+        timeoutSec: 300
         dangerouslyBypassApprovalsAndSandbox: false
         extraArgs:
           - --skip-git-repo-check
@@ -242,15 +276,19 @@ agents:
       heartbeat:
         enabled: false
         maxConcurrentRuns: 1
+        maxDailyRuns: 6
+        maxDailyCostCents: 75
     permissions:
       canCreateAgents: false
   documentation-dx-steward:
     role: general
+    budgetMonthlyCents: 500
     adapter:
       type: codex_local
       config:
         engine: cli
         model: gpt-5.6-sol
+        timeoutSec: 300
         dangerouslyBypassApprovalsAndSandbox: false
         extraArgs:
           - --skip-git-repo-check
@@ -269,6 +307,8 @@ agents:
       heartbeat:
         enabled: false
         maxConcurrentRuns: 1
+        maxDailyRuns: 6
+        maxDailyCostCents: 75
     permissions:
       canCreateAgents: false
 tasks:

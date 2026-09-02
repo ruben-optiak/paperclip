@@ -1,0 +1,74 @@
+{
+  "schema": "optiak-run-efficiency-baseline/v1",
+  "capturedThrough": "2026-09-02T11:09:36.756Z",
+  "selection": {
+    "company": "Optiak local isolated instance",
+    "status": "succeeded",
+    "positiveInputUsageOnly": true,
+    "containsDatabaseIds": false
+  },
+  "summary": {
+    "runCount": 17,
+    "totals": {
+      "rawInputTokens": 2814609,
+      "cachedInputTokens": 2395008,
+      "uncachedInputTokens": 419601,
+      "outputTokens": 52753,
+      "durationSeconds": 1739
+    },
+    "averages": {
+      "rawInputTokens": 165565.24,
+      "uncachedInputTokens": 24682.41,
+      "outputTokens": 3103.12
+    },
+    "shares": {
+      "cachedInputPercent": 85.09,
+      "uncachedInputPercent": 14.91
+    },
+    "ranges": {
+      "rawInputTokens": {
+        "min": 92446,
+        "max": 382446
+      },
+      "cachedInputTokens": {
+        "min": 74752,
+        "max": 337536
+      },
+      "uncachedInputTokens": {
+        "min": 14143,
+        "max": 45783
+      },
+      "outputTokens": {
+        "min": 1092,
+        "max": 7604
+      },
+      "durationSeconds": {
+        "min": 45,
+        "max": 231
+      }
+    },
+    "billingModes": [
+      {
+        "billingType": "subscription_included",
+        "costStatus": "unpriced",
+        "runCount": 17
+      }
+    ]
+  },
+  "directorSynthesis": {
+    "rawInputTokens": 382446,
+    "cachedInputTokens": 337536,
+    "uncachedInputTokens": 44910,
+    "outputTokens": 5345,
+    "durationSeconds": 178,
+    "sourceReportCount": 13,
+    "cachedInputPercent": 88.26,
+    "uncachedInputPercent": 11.74
+  },
+  "interpretation": {
+    "rawInputTokens": "Cumulative input consumed across model calls in a run; it is not the size of one prompt or one context window.",
+    "cachedInputTokens": "The subset of cumulative input served from provider cache.",
+    "uncachedInputTokens": "rawInputTokens minus cachedInputTokens; this is the primary context-efficiency review metric.",
+    "cost": "All selected runs were subscription_included and unpriced, so the observed monetary cost is unknown rather than zero."
+  }
+}

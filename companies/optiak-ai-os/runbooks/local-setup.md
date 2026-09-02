@@ -53,6 +53,7 @@ To stop Optiak without touching Enki:
 3. Confirm one root (`director-optiak`) and the expected reporting tree.
 4. Apply with agents and routines paused.
 5. Configure no connection during the import itself.
-6. Run the fixture-only smoke test before activating the Director.
+6. Reconcile and verify the company and agent budget policies using `execution-budgets.md`.
+7. Run the fixture-only smoke test before activating the Director.
 
 For a later update that must replace already-installed package skills, use the Board import preview/apply flow and verify the exact replacement set. The existing-company CLI route is intentionally safe and rejects `collisionStrategy: replace`; do not use `rename`, because it would create duplicate skills.
