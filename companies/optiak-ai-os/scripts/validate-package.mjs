@@ -112,6 +112,7 @@ const requiredFiles = [
   "scripts/validate-result-envelopes.mjs",
   "skills/optiak-durable-completion/references/contracts/result-envelope-v1.schema.json",
   "skills/optiak-durable-completion/references/result-taxonomy.md",
+  "skills/optiak-product-triage/references/product-authority.yaml",
 ];
 for (const path of requiredFiles) if (!statSafe(join(packageDir, path))) fail(`Missing required file: ${path}`);
 
@@ -128,7 +129,7 @@ for (const path of allFiles.filter((candidate) => candidate.endsWith(".json"))) 
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md must declare agentcompanies/v1");
 if (company.slug !== "optiak-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.4") fail("Unexpected company version");
+if (company.version !== "0.1.5") fail("Unexpected company version");
 if (company.license !== "LicenseRef-Optiak-Internal") fail("Unexpected company license");
 
 const agentFiles = allFiles.filter((path) => path.endsWith(`${sep}AGENTS.md`) && path.includes(`${sep}agents${sep}`));
@@ -316,7 +317,26 @@ for (const marker of ["defaultDecision: quarantine", "productionMutation: deny",
 }
 const sourceMap = readFileSync(join(packageDir, "references", "source-map.yaml"), "utf8");
 if (!sourceMap.includes("wholeSiteSnapshotsAllowed: false")) fail("Source map must deny whole-site snapshots");
-if ((sourceMap.match(/status: disconnected/g) || []).length !== 7) fail("Future source disconnection state drift");
+if ((sourceMap.match(/status: disconnected/g) || []).length !== 6) fail("Future source disconnection state drift");
+for (const marker of ["status: authorized_pending_connection", "provider: Linear", "team: OPT", "https://mcp.linear.app/mcp/readonly"]) {
+  if (!sourceMap.includes(marker)) fail(`Product source-map marker missing: ${marker}`);
+}
+const productAuthority = readFileSync(
+  join(packageDir, "skills", "optiak-product-triage", "references", "product-authority.yaml"),
+  "utf8",
+);
+for (const marker of [
+  "schema: optiak-product-authority/v1",
+  "humanConflictOwner: board",
+  "url: https://linear.app/optiak/team/OPT/",
+  "endpoint: https://mcp.linear.app/mcp/readonly",
+  "writeToolsAllowed: false",
+  "copyWholeBacklog: false",
+  "maximumAgeMinutesForCurrentClaim: 15",
+  "winner: release_and_deployment_evidence",
+]) {
+  if (!productAuthority.includes(marker)) fail(`Product-authority marker missing: ${marker}`);
+}
 
 if (errors.length > 0) {
   for (const error of errors) console.error(`- ${error}`);

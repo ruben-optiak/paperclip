@@ -1,0 +1,120 @@
+schema: optiak-product-authority/v1
+approvedAt: "2026-09-02"
+approvedBy: board
+humanConflictOwner: board
+
+operationalBacklog:
+  provider: Linear
+  workspaceSlug: optiak
+  teamKey: OPT
+  url: https://linear.app/optiak/team/OPT/
+  authorityFor:
+    - issue_identity
+    - execution_status
+    - priority
+    - assignee
+    - project_and_cycle_membership
+    - target_dates
+  notAuthorityFor:
+    - product_strategy
+    - accepted_prd_content
+    - customer_demand
+    - api_behavior
+    - deployed_release_state
+    - public_documentation_claims
+  connection:
+    state: authorized_pending_operator_oauth
+    transport: mcp_remote
+    providerHosted: true
+    endpoint: https://mcp.linear.app/mcp/readonly
+    authentication: oauth_2_1_dynamic_client_registration
+    credentialGrant: organization
+    installedFor:
+      - product-prd-lead
+    writeToolsAllowed: false
+    newlyDiscoveredTools: quarantine
+
+authorities:
+  productVision:
+    authority: explicit_board_decision
+    owner: board
+    status: available_when_decision_is_recorded
+    linearRole: reference_and_execution_tracking_only
+  acceptedPrd:
+    authority: exact_board_accepted_prd_revision
+    owner: product-prd-lead
+    status: canonical_storage_location_not_yet_selected
+    unavailableBehavior: blocked_on_authority
+  roadmapAndBacklog:
+    authority: linear_team_OPT_live_query
+    owner: board
+    status: authorized_pending_connection
+    unavailableBehavior: state_unavailable
+  customerEvidence:
+    authority: future_approved_research_or_customer_system
+    owner: board
+    status: disconnected
+    unavailableBehavior: do_not_infer_demand_from_linear
+  apiContract:
+    authority: future_versioned_api_contract_at_exact_revision
+    owner: engineering-assurance-lead
+    status: disconnected
+    unavailableBehavior: do_not_infer_behavior_from_linear_or_public_docs
+  deployedRelease:
+    authority: future_release_and_deployment_evidence
+    owner: engineering-assurance-lead
+    status: disconnected
+    unavailableBehavior: do_not_treat_linear_done_as_released
+  publicClaims:
+    authority: docs.optiak.dev_live_page
+    owner: documentation-dx-steward
+    status: public_read_only
+    unavailableBehavior: public_claim_unavailable
+
+conflictRules:
+  - topic: strategy_and_product_boundary
+    winner: explicit_board_decision
+    rule: Linear priority or status cannot expand product scope.
+  - topic: feature_scope_and_acceptance
+    winner: exact_board_accepted_prd_revision
+    rule: If the accepted revision cannot be identified, stop as blocked_on_authority.
+  - topic: execution_priority_ownership_and_schedule
+    winner: linear_team_OPT_live_query
+    rule: Use Linear only after a fresh, healthy, team-scoped read.
+  - topic: api_behavior
+    winner: exact_versioned_api_contract
+    rule: Public docs and Linear descriptions are claims, not implementation proof.
+  - topic: deployed_or_released_state
+    winner: release_and_deployment_evidence
+    rule: A done Linear issue or merged change is not proof of deployment.
+  - topic: customer_demand
+    winner: approved_customer_evidence_source
+    rule: Linear counts and comments cannot manufacture demand evidence.
+  - topic: public_claim
+    winner: docs.optiak.dev_live_page
+    rule: Public docs govern what users are told, not actual runtime behavior.
+
+freshness:
+  liveQueryRequired: true
+  maximumAgeMinutesForCurrentClaim: 15
+  requiredEvidence:
+    - source_url
+    - source_identifier
+    - source_updated_at_when_available
+    - retrieved_at
+    - connection_health
+  staleBehavior: label_stale_and_do_not_present_as_current
+  unavailableBehavior: state_source_unavailable_and_name_unblock_owner
+
+retention:
+  copyWholeBacklog: false
+  bulkExport: false
+  persistOnly:
+    - identifiers
+    - canonical_urls
+    - source_updated_at
+    - retrieved_at
+    - bounded_decision_summary
+  persistBodiesOnlyWhen:
+    - exact_item_is_required_for_current_task
+    - output_is_a_local_draft_or_audited_issue_result

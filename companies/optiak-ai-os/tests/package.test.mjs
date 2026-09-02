@@ -137,10 +137,35 @@ test("every agent is assigned the durable completion contract", () => {
   }
 });
 
-test("source map keeps future authorities disconnected", () => {
+test("source map selects Linear without pretending the connection is live", () => {
   const sourceMap = readFileSync(join(packageDir, "references", "source-map.yaml"), "utf8");
-  assert.equal((sourceMap.match(/status: disconnected/g) || []).length, 7);
+  assert.equal((sourceMap.match(/status: disconnected/g) || []).length, 6);
   assert.match(sourceMap, /wholeSiteSnapshotsAllowed: false/);
+  assert.match(sourceMap, /status: authorized_pending_connection/);
+  assert.match(sourceMap, /https:\/\/mcp\.linear\.app\/mcp\/readonly/);
+});
+
+test("product authority is field-specific, fresh, bounded, and read-only", () => {
+  const authority = readFileSync(
+    join(packageDir, "skills", "optiak-product-triage", "references", "product-authority.yaml"),
+    "utf8",
+  );
+  assert.match(authority, /humanConflictOwner: board/);
+  assert.match(authority, /teamKey: OPT/);
+  assert.match(authority, /writeToolsAllowed: false/);
+  assert.match(authority, /maximumAgeMinutesForCurrentClaim: 15/);
+  assert.match(authority, /copyWholeBacklog: false/);
+
+  const conflicts = fixture("optiak-product-triage", "authority-conflicts");
+  assert.deepEqual(
+    conflicts.cases.map((item) => item.expectedAuthority),
+    [
+      "explicit_board_decision",
+      "release_and_deployment_evidence",
+      "exact_versioned_api_contract",
+      "approved_customer_evidence_source",
+    ],
+  );
 });
 
 test("runtime defaults to paused, sandboxed, managed MCP", () => {

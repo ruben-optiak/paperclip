@@ -14,6 +14,24 @@ reviewedCapabilities:
     conditions:
       - record_url_and_retrieval_time
       - no_whole_site_snapshot
+  - capability: product_backlog_read
+    decision: allow_after_connection_smoke
+    conditions:
+      - official_linear_readonly_endpoint
+      - workspace_optiak
+      - team_OPT
+      - product_prd_lead_only_initially
+      - live_query_with_retrieval_time
+      - bounded_item_reads_no_bulk_export
+  - capability: product_backlog_mutation
+    decision: deny
+    conditions:
+      - no_create
+      - no_update
+      - no_comment
+      - no_assignment
+      - no_archive_or_delete
+      - no_admin
   - capability: local_fixture_read_write
     decision: allow
     conditions:

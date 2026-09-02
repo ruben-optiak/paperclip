@@ -2,7 +2,7 @@
 
 Última actualización: 2026-09-02
 Rama de trabajo: `feat/optiak/bootstrap`
-Paquete actual: `companies/optiak-ai-os/` (`0.1.4`)
+Paquete actual: `companies/optiak-ai-os/` (`0.1.5`)
 
 ## Propósito
 
@@ -35,8 +35,9 @@ Snapshot comprobado el 2026-09-02:
 - El paquete `0.1.2` fija presupuestos provisionales en USD: 15000 céntimos mensuales para la compañía y 10000 repartidos entre agentes; existen once policies activas con aviso al 80 % y hard stop al 100 %.
 - El paquete `0.1.3` separa disposición del issue, estado y propósito del reporte, veredicto del objeto, readiness operacional y autoridad de la evidencia; conserva como máximo un resultado canónico por run y por revisión exacta.
 - El paquete fuente `0.1.4` registra la incompatibilidad de Bubblewrap con el seccomp del Quickstart actual, conserva el fallback Landlock verificado y bloquea tanto su retirada prematura como la ampliación de privilegios del contenedor de control. Su ZIP determinista tiene SHA-256 `bdbce9c33f45862484ff347906e2b780e4377b898c29a754bf411178e1944aa5`; no requiere import porque la definición de agentes permanece idéntica a `0.1.3`.
+- El paquete `0.1.5` registra Linear team `OPT` como autoridad del estado operativo del backlog, mantiene Board/PRD/API/release/customer evidence como autoridades separadas y obliga a consultas live de menos de 15 minutos sin copiar el backlog. Su ZIP determinista tiene SHA-256 `f3748aaa16df8ae4e9ba2830521d0231582b750364a7ff6550ac11ae1b77a363`; el preview tuvo cero errores y la importación reemplazó únicamente las trece skills, sin tocar agentes, proyectos, issues o rutinas.
 - El bloqueo operativo de `OAI-011` está registrado en [OPT-29](/OPT/issues/OPT-29), asignado a Architecture y sin ejecución autorizada hasta disponer del boundary dedicado.
-- `OAI-012` está representado por [OPT-14](/OPT/issues/OPT-14), bloqueado con una interacción humana pendiente que pide herramienta/URL autoritativa, owner y vía de acceso read-only. `continuationPolicy: none` impide que responderla despierte al agente automáticamente.
+- `OAI-012` está representado por [OPT-14](/OPT/issues/OPT-14). El Board eligió `https://linear.app/optiak/team/OPT/`, se declaró owner de conflictos y aprobó el conector oficial. Existe un único draft al endpoint oficial `https://mcp.linear.app/mcp/readonly`, registrado mediante DCR, instalado solo para Product y pendiente de OAuth humano. La tarjeta de confirmación usa `continuationPolicy: none`, por lo que completarla no despierta al agente.
 - Todos los agentes tienen un timeout fixture-phase de 300 segundos, máximo diario de 4–8 runs y máximo diario de coste de 75–200 céntimos según función. Los límites de runs y tiempo están activos; los límites monetarios no reciben señal real mientras Codex reporte `subscription_included/unpriced`.
 - El navegador y la CLI del host usan el puerto `3200`; agentes y MCP administrado usan el listener interno `3100`.
 - Product & PRD Lead superó el smoke [OPT-18](/OPT/issues/OPT-18) con veredicto `changes_required` y escritura durable confirmada.
@@ -56,13 +57,13 @@ Snapshot comprobado el 2026-09-02:
 - Documentation superó la regresión acotada [OPT-27](/OPT/issues/OPT-27) con una sola fixture y cero fuentes externas: 117950 tokens brutos, 106880 cacheados, 11070 nuevos, 1729 de salida y 69 segundos; dejó un único informe y una única transición final.
 - El Board reconcilió el historial de [OPT-18](/OPT/issues/OPT-18) sin borrar resultados: el comentario `f1c01184-c889-4b46-abef-40c55fd53b69` de la run `5ee4b1c2-fbde-4959-89a3-5c49b8108f2e` es el review canónico de `prd/sample-1`; los dos diagnósticos de prerrequisito quedan superseded y la coordinación de recuperación permanece interim y no canónica.
 - Product superó la regresión de integridad [OPT-28](/OPT/issues/OPT-28): validó cuatro envelopes fixture-only, identificó un único review canónico, conservó dos diagnósticos superseded y una recuperación interim, y persistió un único resultado cualificado mediante una única transición final.
-- Backlog de producto, Git/PRs, repositorios, staging, observabilidad y producción continúan desconectados. Ningún resultado fixture se considera evidencia live.
+- El backlog de producto está seleccionado pero todavía no autenticado ni validado; Git/PRs, repositorios, staging, observabilidad y producción continúan desconectados. Ningún resultado fixture ni el estado del draft se considera evidencia live.
 
 ## Orden inmediato
 
-1. Responder en [OPT-14](/OPT/issues/OPT-14) la interacción del Board para elegir herramienta/URL, owner y vía de acceso de `OAI-012`.
-2. Comenzar las conexiones reales de una en una, empezando por producto o repositorios según la decisión del Board.
-3. Retomar `OAI-011` cuando exista un boundary de ejecución dedicado donde Bubblewrap pueda habilitarse sin ampliar privilegios del contenedor de Paperclip.
+1. Completar desde [OPT-14](/OPT/issues/OPT-14) el OAuth humano del draft Linear read-only y aceptar su tarjeta sin despertar Product.
+2. Ejecutar health, catálogo, ausencia de writes y una lectura exacta de team `OPT`; solo después ejecutar manualmente Product y cerrar `OAI-012`.
+3. Continuar con `OAI-013` seleccionando repositorios exactos; retomar `OAI-011` únicamente cuando exista un boundary de ejecución dedicado.
 
 ## Backlog priorizado
 
@@ -79,7 +80,7 @@ Snapshot comprobado el 2026-09-02:
 | `OAI-009` | P1 | DONE | Smoke de debugging e implementación | Conservar [OPT-23](/OPT/issues/OPT-23) como baseline de regresión | Produjo hipótesis priorizadas, distinguió observación de causa raíz y no afirmó un fix sin reproducirlo |
 | `OAI-010` | P1 | DONE | Cobertura de skills transversales | Conservar [OPT-12](/OPT/issues/OPT-12), [OPT-9](/OPT/issues/OPT-9) y [OPT-24](/OPT/issues/OPT-24) como baselines | Product triage, API conformance y change control produjeron resultados acotados, evidencia durable y cero afirmaciones live |
 | `OAI-011` | P1 | BLOCKED | Retirar configuración Codex obsoleta | Mantener [OPT-29](/OPT/issues/OPT-29) bloqueado; ejecutar agentes en un boundary dedicado, pasar `scripts/check-sandbox-compat.mjs --live --require-ready` y solo entonces retirar `features.use_legacy_landlock=true` | Desaparece el warning en los diez agentes y una regresión demuestra que sandbox, red y aprobaciones permanecen fail-closed |
-| `OAI-012` | P1 | BLOCKED | Fuente autoritativa de producto y backlog | Responder la interacción humana de [OPT-14](/OPT/issues/OPT-14); revisar y configurar después una única conexión read-only antes de ejecutar Product | El mapa resuelve conflictos entre visión, PRD, roadmap, customer evidence y release sin copiar el backlog completo |
+| `OAI-012` | P1 | BLOCKED | Fuente autoritativa de producto y backlog | Completar el OAuth de la tarjeta de [OPT-14](/OPT/issues/OPT-14); después comprobar health, cero writes en catálogo, team `OPT` y una lectura exacta antes de ejecutar Product | El mapa resuelve conflictos entre visión, PRD, roadmap, customer evidence y release sin copiar el backlog completo |
 | `OAI-013` | P1 | BLOCKED | Lectura de repositorios, PRs y checks | Seleccionar repos exactos y configurar Git provider read-only por revisión inmutable | Lectura positiva, denegación de merge/write, revisión por SHA, redacción, revocación y auditoría comprobadas |
 | `OAI-014` | P1 | BLOCKED | Staging seguro para UI y API | Proveer tenant, personas sintéticas, budget, credenciales, cleanup y production-host denial | Golden journey manual demuestra positivos, negativos, streaming, auth, cleanup y cero alcance de producción |
 | `OAI-015` | P2 | BLOCKED | Observabilidad y on-call | Conectar métricas, logs, trazas, deploy metadata y alertas en lectura tras definir redacción y scopes | Señales fechadas y deduplicadas, alert routing auditable y tabletop real sin afirmar cobertura inexistente |
@@ -99,7 +100,7 @@ Snapshot comprobado el 2026-09-02:
 - Límites iniciales: `OAI-018` está cerrado; `OAI-023` valida el circuito monetario dinámico cuando exista una señal de coste valorada.
 - Integridad de resultados: `OAI-022` está cerrado; todo nuevo baseline debe distinguir workflow, historia del reporte, veredicto del objeto, readiness y evidencia antes de alimentar una síntesis.
 - Sandbox moderno: `OAI-011` está bloqueado por el seccomp del contenedor Quickstart compartido. `runtime/compatibility.lock.json`, el probe ejecutable y `runbooks/sandbox-migration.md` documentan el estado reproducido: Landlock permite lectura y deniega escritura; Bubblewrap no puede crear su user namespace. No se autoriza `privileged`, `CAP_SYS_ADMIN` ni perfiles unconfined sobre el control plane.
-- Primer trabajo real de Product: `OAI-012` y una política de frescura/autoridad aprobada.
+- Primer trabajo real de Product: la política de autoridad/frescura ya está aprobada en `OAI-012`; faltan OAuth, smoke read-only y una ejecución manual acotada.
 - Revisión real de código: `OAI-013`; implementación aislada requiere además workspace y política de ramas.
 - QA conectado: `OAI-014`; on-call creíble requiere `OAI-015`.
 - Rutinas: fuentes correspondientes conectadas + smoke manual → `OAI-017`.

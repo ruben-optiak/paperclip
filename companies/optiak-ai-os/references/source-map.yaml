@@ -1,9 +1,10 @@
 schema: optiak-source-map/v1
-reviewedAt: "2026-09-01"
+reviewedAt: "2026-09-02"
 policy:
   liveDocsRemainCanonical: true
   wholeSiteSnapshotsAllowed: false
   historicalEvidenceMustBeLabelled: true
+  productAuthorityRef: skills/optiak-product-triage/references/product-authority.yaml
 sources:
   - id: public-overview
     url: https://docs.optiak.dev/getting-started/overview
@@ -63,7 +64,14 @@ sources:
     authority: public_claim
 futureAuthorities:
   - id: roadmap-backlog
-    status: disconnected
+    status: authorized_pending_connection
+    provider: Linear
+    url: https://linear.app/optiak/team/OPT/
+    authority: execution_state
+    scope:
+      workspace: optiak
+      team: OPT
+    connectionEndpoint: https://mcp.linear.app/mcp/readonly
   - id: versioned-api-contract
     status: disconnected
   - id: source-repositories

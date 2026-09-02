@@ -1,5 +1,5 @@
 schema: optiak-desired-state/v1
-version: 0.1.4
+version: 0.1.5
 instance:
   isolation: separate_from_enki
   database: separate
@@ -24,7 +24,14 @@ connections:
   publicDocs:
     state: public_read_only
   roadmapBacklog:
-    state: disconnected
+    state: authorized_pending_oauth
+    provider: Linear
+    endpoint: https://mcp.linear.app/mcp/readonly
+    workspace: optiak
+    team: OPT
+    initialInstallTargets:
+      - product-prd-lead
+    writes: deny
   gitProvider:
     state: disconnected
   repositories:
