@@ -96,6 +96,7 @@ const requiredFiles = [
   "references/quality-model.md",
   "references/run-efficiency-baseline.json",
   "runbooks/local-setup.md",
+  "runbooks/test-environment.md",
   "runbooks/connections.md",
   "runbooks/execution-budgets.md",
   "runbooks/sandbox-migration.md",
@@ -108,12 +109,15 @@ const requiredFiles = [
   "scripts/check-sandbox-compat.mjs",
   "scripts/import-allowlist.txt",
   "scripts/local-instance.sh",
+  "scripts/probe-test-environment.mjs",
   "scripts/summarize-run-usage.mjs",
   "scripts/validate-result-envelopes.mjs",
   "skills/optiak-durable-completion/references/contracts/result-envelope-v1.schema.json",
   "skills/optiak-durable-completion/references/result-taxonomy.md",
   "skills/optiak-product-triage/references/product-authority.yaml",
   "skills/optiak-pr-review/references/repository-authority.yaml",
+  "skills/optiak-e2e-validation/references/test-environment-contract.json",
+  "skills/optiak-e2e-validation/references/golden-journey-matrix.json",
 ];
 for (const path of requiredFiles) if (!statSafe(join(packageDir, path))) fail(`Missing required file: ${path}`);
 
@@ -130,7 +134,7 @@ for (const path of allFiles.filter((candidate) => candidate.endsWith(".json"))) 
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md must declare agentcompanies/v1");
 if (company.slug !== "optiak-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.6") fail("Unexpected company version");
+if (company.version !== "0.1.7") fail("Unexpected company version");
 if (company.license !== "LicenseRef-Optiak-Internal") fail("Unexpected company license");
 
 const agentFiles = allFiles.filter((path) => path.endsWith(`${sep}AGENTS.md`) && path.includes(`${sep}agents${sep}`));
@@ -370,6 +374,70 @@ for (const marker of [
 }
 if ((repositoryAuthority.match(/^    - slug: optiak\//gm) || []).length !== 2) {
   fail("Repository authority must contain exactly two approved Optiak repositories");
+}
+
+const testEnvironment = JSON.parse(readFileSync(
+  join(packageDir, "skills", "optiak-e2e-validation", "references", "test-environment-contract.json"),
+  "utf8",
+));
+if (testEnvironment.schema !== "optiak-test-environment-contract/v1") {
+  fail("Unexpected test-environment contract schema");
+}
+if (testEnvironment.defaultDecision !== "deny") fail("Test environment must fail closed");
+if (testEnvironment.humanConflictOwner !== "board") fail("Board must own test-environment conflicts");
+const localTarget = testEnvironment.targets?.localDevelopment ?? {};
+if (localTarget.authorizationState !== "read_only_reachability_observed_writes_denied") {
+  fail("Local target must remain reachability-only");
+}
+if (localTarget.browser?.state !== "disconnected") fail("Browser must remain disconnected until live setup");
+if (localTarget.tenant?.state !== "unclassified") fail("Local tenant must remain unclassified until operator approval");
+if (localTarget.endpoints?.some((endpoint) => endpoint.method !== "GET" || !endpoint.url.startsWith("http://localhost:"))) {
+  fail("Local probes must be GET-only on exact localhost endpoints");
+}
+if (testEnvironment.targets?.staging?.authorizationState !== "disconnected") {
+  fail("Staging must remain disconnected until provisioned");
+}
+const productionTarget = testEnvironment.targets?.production ?? {};
+if (productionTarget.authorizationState !== "deny" || productionTarget.networkRequests !== "deny" || productionTarget.mutations !== "deny") {
+  fail("Production testing must be denied");
+}
+if (testEnvironment.syntheticData?.completionRequiresCleanup !== true) fail("Synthetic cleanup must gate completion");
+if (testEnvironment.providerBudget?.authorizationState !== "proposed_pending_board_approval") {
+  fail("Provider spend must remain pending Board approval");
+}
+if (testEnvironment.providerBudget?.maximumProviderSpendPerSmoke !== 1
+  || testEnvironment.providerBudget?.maximumInferenceRequests !== 12
+  || testEnvironment.providerBudget?.maximumOutputTokensPerRequest !== 128
+  || testEnvironment.providerBudget?.automaticRetries !== 0) {
+  fail("Unexpected initial smoke budget envelope");
+}
+
+const goldenJourneyMatrix = JSON.parse(readFileSync(
+  join(packageDir, "skills", "optiak-e2e-validation", "references", "golden-journey-matrix.json"),
+  "utf8",
+));
+if (goldenJourneyMatrix.schema !== "optiak-golden-journey-matrix/v1") {
+  fail("Unexpected golden-journey matrix schema");
+}
+if (goldenJourneyMatrix.journeys?.length !== 13) {
+  fail(`Expected 13 golden journeys, found ${goldenJourneyMatrix.journeys?.length ?? 0}`);
+}
+const journeyIds = new Set(goldenJourneyMatrix.journeys?.map((journey) => journey.id));
+if (journeyIds.size !== goldenJourneyMatrix.journeys?.length) fail("Duplicate golden-journey id");
+for (const requiredJourney of [
+  "public-entry-and-auth-boundary",
+  "application-key-lifecycle",
+  "chat-completions-streaming",
+  "responses-non-streaming-and-streaming",
+  "cross-tenant-isolation",
+  "credential-revocation-and-cleanup",
+]) {
+  if (!journeyIds.has(requiredJourney)) fail(`Missing golden journey: ${requiredJourney}`);
+}
+if (goldenJourneyMatrix.initialSmokeBudget?.plannedInferenceRequests !== 4
+  || goldenJourneyMatrix.initialSmokeBudget?.maximumInferenceRequests !== 12
+  || goldenJourneyMatrix.initialSmokeBudget?.automaticRetries !== 0) {
+  fail("Golden-journey budget drift");
 }
 
 if (errors.length > 0) {

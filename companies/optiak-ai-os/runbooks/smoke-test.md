@@ -21,6 +21,14 @@ All offline fixtures are Markdown references with fenced JSON. This keeps them r
 
 Run only after completing the relevant connection phase. Confirm effective profile and catalog before invocation. A source is ready only when a known positive read, known denial, redaction check, freshness check, and audit record all pass.
 
+For UI/API validation, run the static and live loopback probes in
+`runbooks/test-environment.md` first. Reachable UI, Admin, or MCP endpoints do
+not compensate for an unavailable Gateway, disconnected browser, unclassified
+tenant, missing personas, unapproved provider spend, or missing cleanup path.
+Use the versioned golden-journey matrix only after every readiness gate passes;
+otherwise return one explicit `blocked` or `not_tested` result per case without
+attempting the Yellow action.
+
 For the initial GitHub smoke, use only `optiak/optiak` and
 `optiak/optiak-frontend` through Independent Code and PR Reviewer. Capture the
 exact commit or PR head SHA, recheck it before verdict, and verify checks belong

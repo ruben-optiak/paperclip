@@ -1,0 +1,282 @@
+{
+  "schema": "optiak-golden-journey-matrix/v1",
+  "matrixVersion": "1.0.0",
+  "reviewedAt": "2026-09-02",
+  "authority": {
+    "publicClaims": [
+      "https://docs.optiak.dev/getting-started/quickstart",
+      "https://docs.optiak.dev/integrations/api-usage",
+      "https://docs.optiak.dev/integrations/api-keys"
+    ],
+    "implementationEvidence": "Must be supplied as exact source revisions or a deployed immutable version at execution time.",
+    "runtimeEvidence": "Must be collected fresh from the approved target; this matrix is not runtime evidence."
+  },
+  "initialSmokeBudget": {
+    "plannedInferenceRequests": 4,
+    "diagnosticRequestReserve": 8,
+    "maximumInferenceRequests": 12,
+    "maximumOutputTokensPerRequest": 128,
+    "automaticRetries": 0
+  },
+  "journeys": [
+    {
+      "id": "public-entry-and-auth-boundary",
+      "surface": "control_plane_ui",
+      "persona": "anonymous",
+      "risk": "green",
+      "positivePath": "Open the approved entry page and reach the sign-in action.",
+      "negativePaths": [
+        "protected application route without a session",
+        "malformed return target"
+      ],
+      "requiredEvidence": [
+        "target URL",
+        "viewport",
+        "redirect destination with query values redacted",
+        "screenshot without cookies or personal data"
+      ],
+      "cleanup": "none",
+      "currentState": "blocked_browser_disconnected"
+    },
+    {
+      "id": "synthetic-admin-session",
+      "surface": "control_plane_ui",
+      "persona": "synthetic_organization_admin",
+      "risk": "yellow",
+      "positivePath": "Sign in to the dedicated synthetic tenant and load the dashboard.",
+      "negativePaths": [
+        "expired session",
+        "session bound to an unexpected tenant"
+      ],
+      "requiredEvidence": [
+        "synthetic persona label",
+        "tenant label without database identifier",
+        "authenticated route",
+        "effective role"
+      ],
+      "cleanup": "sign out and discard the browser session",
+      "currentState": "blocked_persona_and_browser_missing"
+    },
+    {
+      "id": "member-permission-denial",
+      "surface": "control_plane_ui",
+      "persona": "synthetic_organization_member",
+      "risk": "yellow",
+      "positivePath": "Read surfaces allowed to an organization member.",
+      "negativePaths": [
+        "provider credential administration",
+        "organization member administration",
+        "application management without the required permission"
+      ],
+      "requiredEvidence": [
+        "effective role",
+        "control absent or disabled",
+        "server-side denial when a bounded direct request is safe"
+      ],
+      "cleanup": "sign out; do not change the role during the agent run",
+      "currentState": "blocked_persona_missing"
+    },
+    {
+      "id": "synthetic-application-create",
+      "surface": "control_plane_ui",
+      "persona": "synthetic_organization_admin",
+      "risk": "yellow",
+      "positivePath": "Create one application carrying the exact run prefix and synthetic marker.",
+      "negativePaths": [
+        "blank name",
+        "duplicate submission",
+        "back navigation during submission",
+        "server timeout with refresh-before-retry"
+      ],
+      "requiredEvidence": [
+        "pre-run application inventory",
+        "synthetic name",
+        "success state",
+        "single created object after refresh"
+      ],
+      "cleanup": "revoke child credentials, then delete only the exact synthetic application",
+      "currentState": "blocked_tenant_and_write_approval_missing"
+    },
+    {
+      "id": "application-model-selection",
+      "surface": "control_plane_ui",
+      "persona": "synthetic_organization_admin",
+      "risk": "yellow",
+      "positivePath": "Enable one pre-approved low-cost model for the synthetic application.",
+      "negativePaths": [
+        "model disabled at organization level",
+        "empty eligible-model set",
+        "save failure and retry"
+      ],
+      "requiredEvidence": [
+        "public model identifier",
+        "organization eligibility",
+        "application setting before and after"
+      ],
+      "cleanup": "application deletion removes the setting; do not change organization provider configuration",
+      "currentState": "blocked_gateway_and_preprovisioned_model_missing"
+    },
+    {
+      "id": "application-key-lifecycle",
+      "surface": "control_plane_ui",
+      "persona": "synthetic_organization_admin",
+      "risk": "yellow",
+      "positivePath": "Create one expiring application credential, verify one-time visibility, and bind it directly to the API connector.",
+      "negativePaths": [
+        "member cannot create a credential",
+        "full value is not displayed after leaving the creation state",
+        "duplicate submission does not create an untracked second key"
+      ],
+      "requiredEvidence": [
+        "credential label and expiry",
+        "redacted prefix only",
+        "connector binding confirmation",
+        "absence of the secret from screenshots and issue text"
+      ],
+      "cleanup": "revoke the exact credential before deleting the synthetic application",
+      "currentState": "blocked_tenant_browser_and_secret_binding_missing"
+    },
+    {
+      "id": "models-and-auth-denials",
+      "surface": "gateway_api",
+      "persona": "synthetic_application_client",
+      "risk": "yellow",
+      "positivePath": "GET /v1/models with the synthetic application credential and observe only eligible public model identifiers.",
+      "negativePaths": [
+        "missing bearer token",
+        "invalid credential",
+        "revoked credential after cleanup",
+        "model unavailable to this application"
+      ],
+      "requiredEvidence": [
+        "request method and path",
+        "status and redacted error shape",
+        "bounded model count",
+        "no authorization header"
+      ],
+      "cleanup": "covered by application-key-lifecycle",
+      "currentState": "blocked_gateway_and_application_credential_missing"
+    },
+    {
+      "id": "chat-completions-non-streaming",
+      "surface": "gateway_api",
+      "persona": "synthetic_application_client",
+      "risk": "yellow",
+      "positivePath": "Send one minimal POST /v1/chat/completions request with stream false.",
+      "negativePaths": [
+        "malformed messages",
+        "unknown model",
+        "smart routing unavailable"
+      ],
+      "requiredEvidence": [
+        "request shape with prompt content summarized",
+        "OpenAI-compatible response fields",
+        "request correlation reference",
+        "token and cost evidence when available"
+      ],
+      "cleanup": "none beyond credential revocation",
+      "currentState": "blocked_gateway_budget_and_credential_missing"
+    },
+    {
+      "id": "chat-completions-streaming",
+      "surface": "gateway_api",
+      "persona": "synthetic_application_client",
+      "risk": "yellow",
+      "positivePath": "Send one minimal streaming Chat Completions request and observe ordered SSE chunks followed by the terminal marker.",
+      "negativePaths": [
+        "client disconnect",
+        "provider failure before first chunk",
+        "provider failure after partial output"
+      ],
+      "requiredEvidence": [
+        "response content type",
+        "chunk ordering",
+        "single terminal marker",
+        "no duplicated retry"
+      ],
+      "cleanup": "none beyond credential revocation",
+      "currentState": "blocked_gateway_budget_and_credential_missing"
+    },
+    {
+      "id": "responses-non-streaming-and-streaming",
+      "surface": "gateway_api",
+      "persona": "synthetic_application_client",
+      "risk": "yellow",
+      "positivePath": "Send one non-streaming and one streaming POST /v1/responses request with minimal input.",
+      "negativePaths": [
+        "malformed input",
+        "unsupported model",
+        "partial stream failure"
+      ],
+      "requiredEvidence": [
+        "OpenAI-compatible non-streaming envelope",
+        "semantic event ordering",
+        "terminal event",
+        "request correlation references"
+      ],
+      "cleanup": "none beyond credential revocation",
+      "currentState": "blocked_gateway_budget_and_credential_missing"
+    },
+    {
+      "id": "request-observability-correlation",
+      "surface": "control_plane_ui",
+      "persona": "synthetic_organization_admin",
+      "risk": "yellow",
+      "positivePath": "Find the four bounded inference requests in the synthetic application's Requests surface and correlate them without exposing prompts or credentials.",
+      "negativePaths": [
+        "unknown request reference",
+        "stale time range",
+        "member sees data outside its scope"
+      ],
+      "requiredEvidence": [
+        "request count",
+        "approved correlation references",
+        "freshness window",
+        "redacted cost and lifecycle fields"
+      ],
+      "cleanup": "none beyond application cleanup",
+      "currentState": "blocked_browser_gateway_and_requests_missing"
+    },
+    {
+      "id": "cross-tenant-isolation",
+      "surface": "control_plane_and_gateway",
+      "persona": "synthetic_outsider",
+      "risk": "yellow",
+      "positivePath": "The outsider can access only its own explicitly provisioned empty scope.",
+      "negativePaths": [
+        "primary synthetic application identifier",
+        "primary tenant request reference",
+        "primary application credential"
+      ],
+      "requiredEvidence": [
+        "two synthetic tenant labels",
+        "effective outsider identity",
+        "server-side denial without copying protected data"
+      ],
+      "cleanup": "operator removes the secondary synthetic identity or tenant using its separately approved lifecycle",
+      "currentState": "not_tested_second_tenant_not_provisioned"
+    },
+    {
+      "id": "credential-revocation-and-cleanup",
+      "surface": "control_plane_and_gateway",
+      "persona": "synthetic_organization_admin",
+      "risk": "yellow",
+      "positivePath": "Revoke the synthetic application credential, verify a bounded request is denied, then remove the exact synthetic application and reconcile inventories.",
+      "negativePaths": [
+        "ambiguous revocation result",
+        "credential still accepted",
+        "unexpected dependent object",
+        "residual synthetic object"
+      ],
+      "requiredEvidence": [
+        "redacted revoked credential prefix",
+        "post-revocation denial",
+        "pre-run and post-run inventory comparison",
+        "zero unowned residue or an explicit blocker"
+      ],
+      "cleanup": "this is the mandatory terminal cleanup journey",
+      "currentState": "blocked_write_path_not_approved"
+    }
+  ],
+  "executionRule": "Run journeys in order, stop on every abort condition, and never convert blocked or not_tested cases into pass."
+}

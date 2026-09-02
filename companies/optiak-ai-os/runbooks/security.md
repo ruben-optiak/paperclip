@@ -9,6 +9,11 @@
 - Missing data is reported as missing, never inferred from fixtures or old snapshots.
 - Customer data, sensitive prompts, provider payloads, credentials, and raw tokens never enter findings.
 - Repository, backlog, browser, API, and observability connections use separate least-privilege identities.
+- Localhost is an environment location, not proof that its tenant or data are
+  disposable. Keep local writes denied until the exact tenant is classified as
+  dedicated and synthetic.
+- Never prove production denial by sending a request to production. Enforce and
+  inspect exact host policy before the test.
 - Do not add `privileged`, `CAP_SYS_ADMIN`, unconfined seccomp/AppArmor, or danger-full-access to the Paperclip control-plane container to make Bubblewrap start. Move agent execution to a dedicated boundary first and apply `runbooks/sandbox-migration.md`.
 
 ## Evidence hygiene

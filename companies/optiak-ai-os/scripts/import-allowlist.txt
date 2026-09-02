@@ -15,6 +15,7 @@ scripts/check-sandbox-compat.mjs
 scripts/check.sh
 scripts/import-allowlist.txt
 scripts/local-instance.sh
+scripts/probe-test-environment.mjs
 scripts/scan-secrets.sh
 scripts/summarize-run-usage.mjs
 scripts/validate-result-envelopes.mjs

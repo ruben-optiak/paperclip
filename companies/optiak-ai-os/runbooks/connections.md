@@ -8,13 +8,40 @@ Connections are instance state and secret bindings; they are not exported in thi
 - Record retrieval time and failure explicitly.
 - No publishing or whole-site mirroring.
 
-## Phase 1 — staging validation
+## Phase 1 — local and staging validation
 
-- Dedicated staging tenant and synthetic personas.
-- Browser read profile first.
-- Sandbox application API key with bounded provider spend.
-- Synthetic naming, cleanup owner, abort conditions, and production-host denial.
-- Enable writes only for exact reviewed staging test tools after manual approval.
+Follow `test-environment.md` and the canonical contract in
+`optiak-e2e-validation/references/test-environment-contract.json`.
+
+### Phase 1.1 — local reachability
+
+- Exact loopback endpoints only.
+- Credential-free `GET` health and public-entry checks only.
+- Local source revisions must be recorded and re-probed for every run.
+- HTTP reachability is not browser, authentication, inference, staging, or
+  release evidence.
+- Local writes remain denied while tenant data classification is unknown.
+
+### Phase 1.2 — connected synthetic validation
+
+- Approve either one dedicated local tenant or one dedicated staging tenant;
+  never relabel local as staging.
+- Provision synthetic admin, member, outsider, and application-client personas.
+- Connect the browser to the exact approved control-plane host.
+- Keep browser session, application credential, and provider credential in
+  separate least-privilege boundaries.
+- Approve and externally enforce the initial USD 1, twelve-request, 128-output-
+  token, zero-retry ceiling.
+- Use exact synthetic naming, inventory, cleanup owner, abort conditions, and
+  production-host denial.
+- Enable Yellow writes only for exact reviewed test tools after manual
+  approval. Orange and Red operations remain unavailable.
+
+### Phase 1.3 — staging evidence
+
+- Record an immutable deployed version, not only a branch name.
+- Repeat every target, persona, budget, catalog, cleanup, and denial gate.
+- Only a fully approved staging run can produce staging or release evidence.
 
 ## Phase 2 — product and Git read paths
 

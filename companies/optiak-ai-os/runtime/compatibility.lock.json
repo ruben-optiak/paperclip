@@ -1,6 +1,6 @@
 {
   "schema": "optiak-runtime-compatibility/v1",
-  "packageVersion": "0.1.6",
+  "packageVersion": "0.1.7",
   "recordedAt": "2026-09-02",
   "environment": "local_quickstart_docker_desktop",
   "paperclip": {

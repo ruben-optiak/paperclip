@@ -52,11 +52,35 @@ reviewedCapabilities:
     decision: deny
   - capability: repository_issue_or_pr_mutation
     decision: deny
+  - capability: local_test_health_read
+    decision: allow
+    conditions:
+      - exact_loopback_url_from_test_environment_contract
+      - credential_free_get_only
+      - probe_before_every_run
+      - no_browser_or_release_claim
+  - capability: local_browser_read
+    decision: pending_browser_and_target_approval
+    conditions:
+      - exact_approved_control_plane_host
+      - dedicated_synthetic_persona
+      - tenant_data_classification_confirmed
+      - no_visual_claim_from_http_reachability
+  - capability: local_synthetic_write
+    decision: deny_pending_all_readiness_gates_and_exact_approval
+    conditions:
+      - exact_run_prefix_and_synthetic_marker
+      - pre_and_post_inventory
+      - provider_spend_and_request_cap_enforced
+      - cleanup_owner_and_manual_fallback
+      - production_host_denial
   - capability: staging_browser_read
     decision: pending_connection
   - capability: staging_synthetic_write
     decision: pending_connection_and_approval
   - capability: observability_read
     decision: pending_connection
-  - capability: production_read
+  - capability: production_test_read
+    decision: deny
+  - capability: production_observability_read
     decision: pending_connection

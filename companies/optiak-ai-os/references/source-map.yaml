@@ -6,6 +6,7 @@ policy:
   historicalEvidenceMustBeLabelled: true
   productAuthorityRef: skills/optiak-product-triage/references/product-authority.yaml
   repositoryAuthorityRef: skills/optiak-pr-review/references/repository-authority.yaml
+  testEnvironmentAuthorityRef: skills/optiak-e2e-validation/references/test-environment-contract.json
 sources:
   - id: public-overview
     url: https://docs.optiak.dev/getting-started/overview
@@ -94,6 +95,15 @@ futureAuthorities:
     installedFor:
       - independent-code-reviewer
     connectionEndpoint: https://api.githubcopilot.com/mcp/readonly
+  - id: local-ui-api
+    status: observed_pending_approval
+    authority: ephemeral_local_evidence_only
+    contract: skills/optiak-e2e-validation/references/test-environment-contract.json
+    restrictions:
+      - exact_loopback_hosts
+      - re_probe_before_every_run
+      - no_staging_or_release_claim
+      - writes_denied
   - id: staging-ui-api
     status: disconnected
   - id: production-observability

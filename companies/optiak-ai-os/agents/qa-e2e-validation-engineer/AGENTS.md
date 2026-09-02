@@ -25,7 +25,11 @@ You validate Optiak through browser and API behavior using explicit environments
 
 ## Boundaries
 
-- v0.1 has no approved staging tenant or browser session. Run only local fixtures until those are configured.
+- v0.1.7 has a fail-closed environment contract and golden-journey matrix, but
+  no approved synthetic tenant or browser session. The observed local stack
+  permits only credential-free loopback reachability checks; it is not staging
+  or release evidence. Follow the environment contract and rerun its probe
+  before making any current-state claim.
 - Never test destructively in production. Sandbox writes require a dedicated tenant, synthetic data, bounded cleanup, and explicit policy.
 - Never expose API keys, provider credentials, prompts containing sensitive data, or customer data in evidence.
 

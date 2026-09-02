@@ -12,6 +12,11 @@ import {
   classifySandboxProbe,
   evaluateStaticCompatibility,
 } from "../scripts/check-sandbox-compat.mjs";
+import {
+  isExactLoopbackUrl,
+  summarizeLiveProbe,
+  validateTestEnvironmentContract,
+} from "../scripts/probe-test-environment.mjs";
 
 const packageDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -61,6 +66,74 @@ test("disconnected E2E fixture remains blocked", () => {
   assert.equal(data.environment, "fixture");
   assert.equal(data.expectedResultWithoutConnection, "blocked");
   assert.equal(data.mutationLevel, "yellow");
+});
+
+test("test environment fails closed while local reachability is incomplete", () => {
+  const contract = JSON.parse(readFileSync(
+    join(
+      packageDir,
+      "skills",
+      "optiak-e2e-validation",
+      "references",
+      "test-environment-contract.json",
+    ),
+    "utf8",
+  ));
+  assert.deepEqual(validateTestEnvironmentContract(contract), []);
+  assert.equal(contract.targets.localDevelopment.browser.state, "disconnected");
+  assert.equal(contract.targets.localDevelopment.tenant.state, "unclassified");
+  assert.equal(contract.targets.staging.authorizationState, "disconnected");
+  assert.equal(contract.targets.production.authorizationState, "deny");
+  assert.equal(contract.targets.production.networkRequests, "deny");
+  assert.equal(contract.providerBudget.authorizationState, "proposed_pending_board_approval");
+  assert.equal(contract.providerBudget.maximumProviderSpendPerSmoke, 1);
+  assert.equal(contract.providerBudget.maximumInferenceRequests, 12);
+  assert.equal(contract.providerBudget.automaticRetries, 0);
+
+  const observations = contract.targets.localDevelopment.endpoints.map((endpoint) => ({
+    id: endpoint.id,
+    httpStatus: endpoint.id === "gateway-health" ? null : endpoint.expectedHttpStatuses[0],
+    errorClass: endpoint.id === "gateway-health" ? "connection_failed" : null,
+  }));
+  const result = summarizeLiveProbe(contract, observations);
+  assert.equal(result.readiness.uiReachable, true);
+  assert.equal(result.readiness.adminReady, true);
+  assert.equal(result.readiness.gatewayReady, false);
+  assert.equal(result.readiness.authenticatedJourneysAllowed, false);
+  assert.equal(result.readiness.syntheticWritesAllowed, false);
+  assert.equal(result.readiness.productionAllowed, false);
+});
+
+test("test environment probe accepts only credential-free loopback targets", () => {
+  assert.equal(isExactLoopbackUrl("http://localhost:3000"), true);
+  assert.equal(isExactLoopbackUrl("http://127.0.0.1:8080/health"), true);
+  assert.equal(isExactLoopbackUrl("https://localhost:3000"), false);
+  assert.equal(isExactLoopbackUrl("http://unexpected-user@localhost:3000"), false);
+  assert.equal(isExactLoopbackUrl("http://localhost.example.com:3000"), false);
+  assert.equal(isExactLoopbackUrl("https://api.optiak.dev/v1"), false);
+});
+
+test("golden journey matrix is bounded and ends in verified cleanup", () => {
+  const matrix = JSON.parse(readFileSync(
+    join(
+      packageDir,
+      "skills",
+      "optiak-e2e-validation",
+      "references",
+      "golden-journey-matrix.json",
+    ),
+    "utf8",
+  ));
+  assert.equal(matrix.schema, "optiak-golden-journey-matrix/v1");
+  assert.equal(matrix.journeys.length, 13);
+  assert.equal(new Set(matrix.journeys.map((journey) => journey.id)).size, 13);
+  assert.equal(matrix.initialSmokeBudget.plannedInferenceRequests, 4);
+  assert.equal(matrix.initialSmokeBudget.maximumInferenceRequests, 12);
+  assert.equal(matrix.initialSmokeBudget.maximumOutputTokensPerRequest, 128);
+  assert.equal(matrix.initialSmokeBudget.automaticRetries, 0);
+  assert.equal(matrix.journeys.at(-1).id, "credential-revocation-and-cleanup");
+  assert.ok(matrix.journeys.every((journey) => /blocked|not_tested/.test(journey.currentState)));
+  assert.ok(matrix.journeys.every((journey) => journey.cleanup));
 });
 
 test("docs fixture does not invent live authority", () => {

@@ -1,5 +1,5 @@
 schema: optiak-desired-state/v1
-version: 0.1.6
+version: 0.1.7
 instance:
   isolation: separate_from_enki
   database: separate
@@ -46,6 +46,17 @@ connections:
     allow:
       - optiak/optiak
       - optiak/optiak-frontend
+  localTestUiApi:
+    state: observed_reachability_only
+    classification: non_production_candidate
+    contract: skills/optiak-e2e-validation/references/test-environment-contract.json
+    ui: reachable_http_only
+    admin: healthy
+    gateway: blocked_configuration_validation
+    mcp: healthy_with_restart_history
+    browser: disconnected
+    tenant: unclassified
+    writes: deny
   stagingBrowserApi:
     state: disconnected
   observabilityAlerts:
@@ -54,6 +65,8 @@ connections:
     state: disconnected
 autonomy:
   localFixturesAndDrafts: allow
+  localCredentialFreeHealthReads: exact_loopback_only
+  localAuthenticatedJourneys: deny_pending_contract_gates
   externalReads: source_scoped
   sandboxWrites: require_approval
   mergesDeploysRollbacks: deny
