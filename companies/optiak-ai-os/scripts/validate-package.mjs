@@ -95,6 +95,7 @@ const requiredFiles = [
   "references/source-map.yaml",
   "references/quality-model.md",
   "references/run-efficiency-baseline.json",
+  "runbooks/observability-and-oncall.md",
   "runbooks/local-setup.md",
   "runbooks/test-environment.md",
   "runbooks/connections.md",
@@ -118,6 +119,7 @@ const requiredFiles = [
   "skills/optiak-pr-review/references/repository-authority.yaml",
   "skills/optiak-e2e-validation/references/test-environment-contract.json",
   "skills/optiak-e2e-validation/references/golden-journey-matrix.json",
+  "skills/optiak-incident-triage/references/observability-source-contract.json",
 ];
 for (const path of requiredFiles) if (!statSafe(join(packageDir, path))) fail(`Missing required file: ${path}`);
 
@@ -134,7 +136,7 @@ for (const path of allFiles.filter((candidate) => candidate.endsWith(".json"))) 
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md must declare agentcompanies/v1");
 if (company.slug !== "optiak-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.8") fail("Unexpected company version");
+if (company.version !== "0.1.9") fail("Unexpected company version");
 if (company.license !== "LicenseRef-Optiak-Internal") fail("Unexpected company license");
 
 const agentFiles = allFiles.filter((path) => path.endsWith(`${sep}AGENTS.md`) && path.includes(`${sep}agents${sep}`));
@@ -313,11 +315,11 @@ for (const marker of [
 }
 
 const desired = readFileSync(join(packageDir, "policies", "desired-state.yaml"), "utf8");
-for (const marker of ["expected: 10", "expected: 4", "importedPaused: true", "companyMonthlyBilledCents: 15000", "warnPercent: 80", "hardStopPercent: 100", "productionMutation: deny", "migrationStatus: blocked", "controlPlanePrivilegeExpansion: deny"]) {
+for (const marker of ["expected: 10", "expected: 4", "importedPaused: true", "companyMonthlyBilledCents: 15000", "warnPercent: 80", "hardStopPercent: 100", "inference: deliberately_deferred_until_deployed_environment", "state: offline_contract_defined_connection_disconnected", "automaticOncallCoverage: false", "productionMutation: deny", "migrationStatus: blocked", "controlPlanePrivilegeExpansion: deny"]) {
   if (!desired.includes(marker)) fail(`Desired-state marker missing: ${marker}`);
 }
 const allowlist = readFileSync(join(packageDir, "policies", "tool-allowlist.yaml"), "utf8");
-for (const marker of ["defaultDecision: quarantine", "productionMutation: deny", "merge: deny", "deploy: deny", "secretAdministration: deny"]) {
+for (const marker of ["defaultDecision: quarantine", "productionMutation: deny", "merge: deny", "deploy: deny", "secretAdministration: deny", "follow_versioned_observability_source_contract", "capability: raw_events_read", "capability: application_logs_read", "capability: sentry_session_replay_read", "decision: pending_connection_and_tabletop"]) {
   if (!allowlist.includes(marker)) fail(`Tool policy marker missing: ${marker}`);
 }
 const sourceMap = readFileSync(join(packageDir, "references", "source-map.yaml"), "utf8");
@@ -334,6 +336,14 @@ for (const marker of [
   "https://api.githubcopilot.com/mcp/readonly",
 ]) {
   if (!sourceMap.includes(marker)) fail(`Repository source-map marker missing: ${marker}`);
+}
+for (const marker of [
+  "observabilityAuthorityRef: skills/optiak-incident-triage/references/observability-source-contract.json",
+  "authority: runtime_health_only_after_source_specific_smoke",
+  "raw_events_logs_and_session_replay_denied",
+  "no_automatic_oncall_until_signed_alert_tabletop",
+]) {
+  if (!sourceMap.includes(marker)) fail(`Observability source-map marker missing: ${marker}`);
 }
 const productAuthority = readFileSync(
   join(packageDir, "skills", "optiak-product-triage", "references", "product-authority.yaml"),
@@ -374,6 +384,80 @@ for (const marker of [
 }
 if ((repositoryAuthority.match(/^    - slug: optiak\//gm) || []).length !== 2) {
   fail("Repository authority must contain exactly two approved Optiak repositories");
+}
+
+const observabilityContract = JSON.parse(readFileSync(
+  join(
+    packageDir,
+    "skills",
+    "optiak-incident-triage",
+    "references",
+    "observability-source-contract.json",
+  ),
+  "utf8",
+));
+if (observabilityContract.schema !== "optiak-observability-source-contract/v1") {
+  fail("Unexpected observability source contract schema");
+}
+if (observabilityContract.status !== "offline_contract_defined_connections_disconnected") {
+  fail("Observability contract must not imply a live connection");
+}
+if (observabilityContract.globalPolicy?.defaultDecision !== "deny"
+  || observabilityContract.globalPolicy?.readOnly !== true
+  || observabilityContract.globalPolicy?.missingOrStaleSignal !== "unknown_not_healthy"
+  || observabilityContract.globalPolicy?.noConnectedAlertIngress !== "no_automatic_oncall_coverage") {
+  fail("Observability global fail-closed policy drift");
+}
+if (observabilityContract.initialTriageEnvelope?.initialQueryWindowMinutes !== 15
+  || observabilityContract.initialTriageEnvelope?.maximumApplicationsPerQuery !== 1
+  || observabilityContract.initialTriageEnvelope?.maximumExactTracesPerApproval !== 1) {
+  fail("Observability initial query bounds drift");
+}
+if (observabilityContract.correlation?.timestampOnlyCorrelation !== "deny") {
+  fail("Observability correlation must reject timestamp-only claims");
+}
+const observabilitySources = new Map(
+  (observabilityContract.sources ?? []).map((source) => [source.id, source]),
+);
+for (const sourceId of [
+  "optiak_admin_aggregate_analytics",
+  "prometheus_metrics",
+  "tempo_exact_trace",
+  "sentry_backend_issue_index",
+  "sentry_frontend_issue_index",
+  "github_and_runtime_deploy_metadata",
+  "service_health_endpoints",
+  "application_logs",
+  "raw_events_api",
+  "paperclip_incident_history",
+]) {
+  if (!observabilitySources.has(sourceId)) fail(`Missing observability source: ${sourceId}`);
+}
+if (observabilitySources.get("optiak_admin_aggregate_analytics")?.initialSource !== true) {
+  fail("Aggregate analytics must remain the initial observability source");
+}
+if (observabilitySources.get("tempo_exact_trace")?.maximumResults !== 1) {
+  fail("Exact trace access must remain limited to one result per approval");
+}
+for (const sourceId of ["application_logs", "raw_events_api"]) {
+  if (observabilitySources.get(sourceId)?.decision !== "deny") {
+    fail(`${sourceId} must remain denied initially`);
+  }
+}
+if (observabilityContract.alertRouting?.status !== "disconnected"
+  || observabilityContract.alertRouting?.automaticWakeAllowed !== false) {
+  fail("Alert routing must remain disconnected with automatic wake disabled");
+}
+for (const field of [
+  "authorization_headers",
+  "application_api_keys",
+  "prompt_or_request_bodies",
+  "model_response_bodies",
+  "session_replays",
+]) {
+  if (!observabilityContract.redaction?.neverReturn?.includes(field)) {
+    fail(`Observability redaction marker missing: ${field}`);
+  }
 }
 
 const testEnvironment = JSON.parse(readFileSync(

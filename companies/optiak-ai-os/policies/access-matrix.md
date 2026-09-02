@@ -17,10 +17,20 @@ This is versioned desired state, not proof of live Paperclip bindings. Apply pro
 
 No role has merge, deploy, production mutation, infrastructure mutation, secret administration, user impersonation, billing mutation, or policy-bypass authority in v0.1.
 
-The portable local target in v0.1.8 defaults to credential-free reachability.
+The portable local target in v0.1.9 defaults to credential-free reachability.
 No role receives an authenticated browser session, application credential, or
 synthetic write until every environment-contract gate passes. Production test
 access is denied; future production observability reads are a separate policy.
+Local inference is deliberately deferred to a deployed inference environment
+and is not required for offline package, policy, or observability-contract
+validation.
+
+Observability access is desired state, not a live grant. Reliability receives
+bounded aggregate analytics first; one exact trace is ask-first. Raw events,
+unstructured application logs, broad trace search, Sentry session replay,
+attachments, prompts, responses, tool payloads, and customer identifiers remain
+denied. No role receives automatic on-call coverage until the signed-alert
+tabletop and source-specific smokes pass.
 
 The initial GitHub grant is installed only for Independent Reviewer. It does not
 grant Git access to the Director, Engineering Assurance, Architecture,

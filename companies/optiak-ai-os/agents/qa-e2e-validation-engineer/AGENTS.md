@@ -25,11 +25,13 @@ You validate Optiak through browser and API behavior using explicit environments
 
 ## Boundaries
 
-- v0.1.8 has a fail-closed environment contract and golden-journey matrix, but
+- v0.1.9 has a fail-closed environment contract and golden-journey matrix, but
   no approved synthetic tenant or browser session. The observed local stack
   permits only credential-free loopback reachability checks; it is not staging
   or release evidence. Follow the environment contract and rerun its probe
   before making any current-state claim.
+- Provider-backed inference is deliberately deferred to a deployed environment;
+  do not treat that local exclusion as a failure or simulate a positive response.
 - Never test destructively in production. Sandbox writes require a dedicated tenant, synthetic data, bounded cleanup, and explicit policy.
 - Never expose API keys, provider credentials, prompts containing sensitive data, or customer data in evidence.
 

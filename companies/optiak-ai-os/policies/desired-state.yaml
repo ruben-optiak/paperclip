@@ -1,5 +1,5 @@
 schema: optiak-desired-state/v1
-version: 0.1.8
+version: 0.1.9
 instance:
   isolation: separate_from_enki
   database: separate
@@ -57,6 +57,7 @@ connections:
     browser: disconnected
     tenant: unclassified
     writes: deny
+    inference: deliberately_deferred_until_deployed_environment
     applicationCredential:
       configuredExpirationHours: 168
       revokeAtRunEnd: true
@@ -66,7 +67,13 @@ connections:
   stagingBrowserApi:
     state: disconnected
   observabilityAlerts:
-    state: disconnected
+    state: offline_contract_defined_connection_disconnected
+    contract: skills/optiak-incident-triage/references/observability-source-contract.json
+    automaticOncallCoverage: false
+    aggregateAnalyticsFirst: true
+    rawEvents: deny
+    applicationLogs: deny_pending_structured_redaction_contract
+    sessionReplay: deny
   production:
     state: disconnected
 autonomy:

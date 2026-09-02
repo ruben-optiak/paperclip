@@ -1,5 +1,5 @@
 schema: optiak-source-map/v1
-reviewedAt: "2026-09-02"
+reviewedAt: "2026-09-03"
 policy:
   liveDocsRemainCanonical: true
   wholeSiteSnapshotsAllowed: false
@@ -7,6 +7,7 @@ policy:
   productAuthorityRef: skills/optiak-product-triage/references/product-authority.yaml
   repositoryAuthorityRef: skills/optiak-pr-review/references/repository-authority.yaml
   testEnvironmentAuthorityRef: skills/optiak-e2e-validation/references/test-environment-contract.json
+  observabilityAuthorityRef: skills/optiak-incident-triage/references/observability-source-contract.json
 sources:
   - id: public-overview
     url: https://docs.optiak.dev/getting-started/overview
@@ -108,5 +109,19 @@ futureAuthorities:
     status: disconnected
   - id: production-observability
     status: disconnected
+    authority: runtime_health_only_after_source_specific_smoke
+    contract: skills/optiak-incident-triage/references/observability-source-contract.json
+    sourceReview:
+      - repository: optiak/optiak
+        revision: 8bc62279047286eba8a6488d751f680df3cec796
+      - repository: optiak/optiak-frontend
+        revision: b44db112e4fe08c836e23d8d4362109660b968d8
+    restrictions:
+      - read_only
+      - aggregate_first
+      - environment_and_service_scoped
+      - missing_or_stale_is_unknown
+      - raw_events_logs_and_session_replay_denied
+      - no_automatic_oncall_until_signed_alert_tabletop
   - id: brand-design-system
     status: disconnected

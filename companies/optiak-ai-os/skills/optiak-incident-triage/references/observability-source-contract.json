@@ -1,0 +1,356 @@
+{
+  "schema": "optiak-observability-source-contract/v1",
+  "version": "1.0.0",
+  "reviewedAt": "2026-09-03",
+  "status": "offline_contract_defined_connections_disconnected",
+  "humanConflictOwner": "board",
+  "sourceReview": {
+    "repositories": [
+      {
+        "slug": "optiak/optiak",
+        "revision": "8bc62279047286eba8a6488d751f680df3cec796"
+      },
+      {
+        "slug": "optiak/optiak-frontend",
+        "revision": "b44db112e4fe08c836e23d8d4362109660b968d8"
+      }
+    ],
+    "evidenceClass": "offline_exact_revision_source_review",
+    "limitations": [
+      "Source review proves implementation intent, not deployed state or signal availability.",
+      "No metrics, logs, traces, errors, deploy metadata, alerts, or production systems were queried.",
+      "Local inference is unavailable and its connected validation is deferred to a deployed inference environment."
+    ]
+  },
+  "globalPolicy": {
+    "defaultDecision": "deny",
+    "readOnly": true,
+    "productionMutation": "deny",
+    "unmanagedPolling": "deny",
+    "missingOrStaleSignal": "unknown_not_healthy",
+    "noConnectedAlertIngress": "no_automatic_oncall_coverage",
+    "sourceCodeOrMergedPullRequest": "not_deployment_proof",
+    "publicDocumentation": "product_claim_not_runtime_evidence"
+  },
+  "initialTriageEnvelope": {
+    "requiredDimensions": [
+      "environment",
+      "service",
+      "observed_at",
+      "retrieved_at",
+      "source_id",
+      "source_freshness",
+      "deployment_revision",
+      "query_window",
+      "redaction_applied"
+    ],
+    "initialQueryWindowMinutes": 15,
+    "maximumQueryWindowWithoutBoardApprovalHours": 24,
+    "maximumApplicationsPerQuery": 1,
+    "maximumExactTracesPerApproval": 1
+  },
+  "correlation": {
+    "requiredBaseKeys": [
+      "environment",
+      "service",
+      "immutable_deployment_revision"
+    ],
+    "requestPathKeys": [
+      "request_id",
+      "trace_id"
+    ],
+    "rule": "Use the base keys plus at least one request path key for request-level claims.",
+    "timestampOnlyCorrelation": "deny",
+    "deploymentProof": [
+      "GitHub workflow run for the exact commit SHA",
+      "running ECS task definition and immutable image digest for the same service and environment"
+    ]
+  },
+  "redaction": {
+    "default": "omit",
+    "neverReturn": [
+      "authorization_headers",
+      "cookies",
+      "application_api_keys",
+      "provider_credentials",
+      "secret_values",
+      "prompt_or_request_bodies",
+      "model_response_bodies",
+      "tool_arguments_or_outputs",
+      "customer_content",
+      "email_addresses",
+      "ip_addresses",
+      "session_replays",
+      "attachments",
+      "stack_frame_locals",
+      "url_query_strings"
+    ],
+    "transformBeforeAgentUse": [
+      "hash_or_omit_organization_application_user_and_credential_identifiers",
+      "truncate_exception_messages_to_a_reviewed_error_class",
+      "return_tool_names_without_definitions_arguments_or_outputs",
+      "return_aggregate_counts_instead_of_event_rows"
+    ],
+    "rawPayloadStorage": "deny"
+  },
+  "sources": [
+    {
+      "id": "optiak_admin_aggregate_analytics",
+      "kind": "application_aggregate",
+      "status": "disconnected",
+      "authority": "request_and_governance_aggregate",
+      "owner": "reliability-incident-engineer",
+      "initialSource": true,
+      "allowedEndpoints": [
+        "/v1/analytics/organizations/{org_id}/summary",
+        "/v1/analytics/organizations/{org_id}/applications/{application_id}/summary"
+      ],
+      "allowedFields": [
+        "request_counts",
+        "success_error_and_blocked_counts",
+        "latency_percentiles",
+        "token_counts",
+        "provider_cost_aggregates",
+        "provider_and_model_aggregates",
+        "guardrail_and_routing_aggregates"
+      ],
+      "freshnessMaximumMinutes": 5,
+      "scope": "one_environment_one_organization_and_at_most_one_application",
+      "denied": [
+        "raw_event_rows",
+        "prompt_or_response_content",
+        "bulk_export",
+        "cross_tenant_query"
+      ],
+      "limitations": [
+        "Warehouse feature flags can change the backing analytics implementation.",
+        "Aggregate data cannot prove the root cause or the deployed revision by itself."
+      ]
+    },
+    {
+      "id": "prometheus_metrics",
+      "kind": "metrics",
+      "status": "disconnected",
+      "authority": "service_and_telemetry_pipeline_health",
+      "owner": "reliability-incident-engineer",
+      "allowedQueryMode": "reviewed_parameterized_promql_templates_only",
+      "freshnessMaximumMinutes": 2,
+      "requiredLabels": [
+        "environment",
+        "service"
+      ],
+      "sourceIdentifiersObservedInCode": [
+        "api_unauthorized_request",
+        "provider.errors",
+        "router.request",
+        "llm_pool.circuit_open",
+        "smart_router_predictions",
+        "events.firehose.published",
+        "events.firehose.dropped",
+        "events.dual_write.mirrored",
+        "events.dual_write.failed"
+      ],
+      "limitations": [
+        "Exporter normalization can change the runtime metric name.",
+        "No product SLO or alert rules were found in the reviewed source revisions.",
+        "Metrics alone do not identify an affected tenant or deployed revision."
+      ]
+    },
+    {
+      "id": "tempo_exact_trace",
+      "kind": "trace",
+      "status": "disconnected",
+      "authority": "single_request_execution_path",
+      "owner": "reliability-incident-engineer",
+      "decision": "ask_first_after_connection",
+      "lookup": "exact_trace_or_request_id_only",
+      "freshnessMaximumMinutes": 5,
+      "maximumResults": 1,
+      "allowedFields": [
+        "service",
+        "operation",
+        "status",
+        "duration",
+        "provider",
+        "model",
+        "token_counts",
+        "guardrail_outcome",
+        "redacted_error_class"
+      ],
+      "denied": [
+        "broad_trace_search",
+        "tool_definitions",
+        "output_messages",
+        "request_context_config",
+        "feature_flag_payloads",
+        "credential_names_or_ids"
+      ]
+    },
+    {
+      "id": "sentry_backend_issue_index",
+      "kind": "error_tracking",
+      "status": "disconnected",
+      "authority": "backend_error_group_and_regression_signal",
+      "owner": "reliability-incident-engineer",
+      "allowed": [
+        "environment_scoped_issue_counts",
+        "first_and_last_seen",
+        "release",
+        "reviewed_error_class"
+      ],
+      "eventDetail": "ask_first_after_connection",
+      "freshnessMaximumMinutes": 5,
+      "denied": [
+        "attachments",
+        "raw_request_data",
+        "stack_frame_locals",
+        "user_identity"
+      ],
+      "limitations": [
+        "send_default_pii is disabled in source configuration, but connector-side redaction is still required."
+      ]
+    },
+    {
+      "id": "sentry_frontend_issue_index",
+      "kind": "error_tracking",
+      "status": "disconnected",
+      "authority": "frontend_error_group_and_regression_signal",
+      "owner": "reliability-incident-engineer",
+      "allowed": [
+        "environment_scoped_issue_counts",
+        "first_and_last_seen",
+        "release",
+        "reviewed_error_class"
+      ],
+      "eventDetail": "ask_first_after_connection",
+      "freshnessMaximumMinutes": 5,
+      "denied": [
+        "session_replay",
+        "attachments",
+        "raw_request_data",
+        "stack_frame_locals",
+        "user_identity"
+      ],
+      "limitations": [
+        "Frontend replay is enabled in source configuration and is never exposed to agents."
+      ]
+    },
+    {
+      "id": "github_and_runtime_deploy_metadata",
+      "kind": "deployment_metadata",
+      "status": "disconnected",
+      "authority": "deployed_revision_only_when_both_control_and_runtime_evidence_agree",
+      "owner": "reliability-incident-engineer",
+      "freshnessMaximumMinutes": 10,
+      "requiredEvidence": [
+        "workflow_run_environment_service_and_commit_sha",
+        "running_task_definition_and_immutable_image_digest"
+      ],
+      "denied": [
+        "workflow_dispatch",
+        "deployment",
+        "rollback",
+        "repository_write"
+      ],
+      "limitations": [
+        "A merge, tag, or successful workflow alone does not prove what is currently running."
+      ]
+    },
+    {
+      "id": "service_health_endpoints",
+      "kind": "liveness",
+      "status": "local_reachability_observed_only",
+      "authority": "process_http_liveness_supporting_signal",
+      "owner": "reliability-incident-engineer",
+      "freshnessMaximumMinutes": 1,
+      "allowed": [
+        "credential_free_get_to_an_exact_approved_host"
+      ],
+      "limitations": [
+        "Current health responses are shallow and do not prove database, provider, telemetry, or inference readiness.",
+        "Local liveness is not staging, release, or production health evidence."
+      ]
+    },
+    {
+      "id": "application_logs",
+      "kind": "logs",
+      "status": "denied_pending_structured_redaction_contract",
+      "authority": "none_until_gate_passes",
+      "owner": "reliability-incident-engineer",
+      "decision": "deny",
+      "limitations": [
+        "Reviewed services emit plain stdout messages and arbitrary exception text.",
+        "No logs pipeline or field-level redaction processor was found in the reviewed collector configuration."
+      ]
+    },
+    {
+      "id": "raw_events_api",
+      "kind": "raw_events",
+      "status": "denied_initially",
+      "authority": "none_for_agent_use",
+      "owner": "reliability-incident-engineer",
+      "decision": "deny",
+      "endpoint": "/v1/events/{org_id}",
+      "limitations": [
+        "Reviewed route has no default date filters.",
+        "Raw metadata can contain sensitive identifiers, failure strings, and execution details.",
+        "No bounded pagination contract was established for initial agent use."
+      ]
+    },
+    {
+      "id": "paperclip_incident_history",
+      "kind": "coordination_history",
+      "status": "available_after_human_or_trusted_alert_intake",
+      "authority": "timeline_ownership_decisions_and_followups",
+      "owner": "reliability-incident-engineer",
+      "limitations": [
+        "Paperclip issue state is not authority for Optiak runtime health or recovery."
+      ]
+    }
+  ],
+  "alertRouting": {
+    "status": "disconnected",
+    "automaticWakeAllowed": false,
+    "acceptedIngress": "signed_versioned_event_only",
+    "requiredFields": [
+      "alert_event_id",
+      "source_id",
+      "environment",
+      "service",
+      "condition",
+      "observed_at",
+      "source_freshness",
+      "severity_hint"
+    ],
+    "deduplication": {
+      "primaryKey": "alert_event_id",
+      "fallbackFingerprintFields": [
+        "source_id",
+        "environment",
+        "service",
+        "normalized_condition",
+        "immutable_deployment_revision"
+      ],
+      "fallbackWindowMinutes": 15
+    },
+    "acknowledgement": {
+      "required": true,
+      "records": [
+        "incident_owner",
+        "acknowledged_at",
+        "next_checkpoint"
+      ]
+    },
+    "recoveryRule": "An alert clearing is supporting evidence only; recovery also requires a fresh authoritative signal and an explicit incident-owner decision."
+  },
+  "activationGates": [
+    "Connect sources through separate read-only identities and verify effective catalogs.",
+    "Prove environment and service scoping plus query-window enforcement.",
+    "Verify redaction against synthetic canaries for every connected source.",
+    "Correlate one synthetic request across aggregate, trace, deployment, and error sources without exposing payloads.",
+    "Deliver a signed duplicate alert twice and prove exactly one auditable wake.",
+    "Run a tabletop for fresh, partial, stale, and unavailable evidence.",
+    "Keep every agent and routine paused until the Board reviews the evidence.",
+    "Enable automatic wake only after the Board explicitly accepts the on-call scope."
+  ]
+}

@@ -62,7 +62,7 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 
 “Always on” means event-driven alerts and bounded routines. Agents must not burn budget by polling unmanaged processes or claim on-call coverage when no signal source is connected.
 
-## Safety state in v0.1.8
+## Safety state in v0.1.9
 
 - All agents and routine schedules import paused.
 - Public documentation may be read; its freshness must be recorded.
@@ -82,6 +82,15 @@ The Board may assign work directly to any specialist. Reporting lines define acc
   at the end of every smoke. A dedicated synthetic application may remain only
   as a Board-approved reusable fixture with zero active keys and a reconciled
   baseline.
+- Local inference is intentionally deferred. Provider/model positives,
+  streaming, cost correlation, and key-revocation proof will run only in a
+  deployed inference environment under a new approval; local is not staging or
+  release evidence.
+- Observability has a versioned offline source contract. Aggregate analytics is
+  first, exact traces are ask-first, and raw events, unstructured logs, broad
+  trace search, session replay, attachments, and payload content are denied.
+  All connections and automatic on-call coverage remain unavailable until their
+  smokes and signed-alert tabletop pass.
 - No source checkout, GitHub credential or installation, approved staging tenant, browser session, backlog snapshot, logs, metrics, or production credentials are bundled.
 - Production is read-only even after connection.
 - Sandbox mutations require a dedicated test tenant, synthetic data, bounded cleanup, and an approved tool policy.
@@ -101,7 +110,7 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 Build a deterministic import archive outside the package:
 
 ```sh
-./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.8.zip
+./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.9.zip
 ```
 
 ## Getting started
@@ -133,8 +142,8 @@ The UI import preview remains the recommended first application path because it 
 
 See `runbooks/local-setup.md`, `runbooks/test-environment.md`,
 `runbooks/execution-budgets.md`, `runbooks/connections.md`,
-`runbooks/security.md`, `runbooks/sandbox-migration.md`, and
-`runbooks/smoke-test.md` before import.
+`runbooks/observability-and-oncall.md`, `runbooks/security.md`,
+`runbooks/sandbox-migration.md`, and `runbooks/smoke-test.md` before import.
 
 ## References
 

@@ -13,7 +13,11 @@ Future declarations are created only when their connection is approved:
 | Test provider credential | `OPTIAK_TEST_PROVIDER_CREDENTIAL` | Optiak runtime operator | backend runtime only; never Paperclip or an agent |
 | Git provider read token/app | `OPTIAK_GIT_REVIEW_CREDENTIAL` | repository connection | review connector only |
 | Backlog read credential | `OPTIAK_BACKLOG_READ_CREDENTIAL` | product connection | backlog connector only |
-| Observability read credential | `OPTIAK_OBSERVABILITY_READ_CREDENTIAL` | reliability connection | telemetry connector only |
+| Aggregate analytics read credential | `OPTIAK_ANALYTICS_READ_CREDENTIAL` | reliability connection | bounded Optiak analytics connector only |
+| Metrics read credential | `OPTIAK_METRICS_READ_CREDENTIAL` | reliability connection | reviewed Prometheus query connector only |
+| Exact trace read credential | `OPTIAK_TRACES_READ_CREDENTIAL` | reliability connection | ask-first exact-trace connector only |
+| Error index read credential | `OPTIAK_ERROR_TRACKING_READ_CREDENTIAL` | reliability connection | redacted Sentry issue-index connector only |
+| Runtime deployment read credential | `OPTIAK_RUNTIME_DEPLOY_READ_CREDENTIAL` | reliability connection | task-definition and image-digest reader only |
 | Alert webhook secret | `OPTIAK_ALERT_WEBHOOK_SECRET` | Paperclip/operator | webhook verifier only |
 
 Rules:
@@ -21,6 +25,9 @@ Rules:
 - Use dedicated identities and least privilege.
 - Keep staging and production identities separate.
 - Prefer short-lived OAuth/app credentials over personal tokens.
+- Do not reuse one observability credential across analytics, metrics, traces,
+  error tracking, runtime deployment metadata, or alert ingress. Each boundary
+  must be independently scoped and revocable.
 - The initial `OPTIAK_GIT_REVIEW_CREDENTIAL` is a GitHub fine-grained personal
   access token with a maximum lifetime of 30 days, selected-repository access
   only to `optiak/optiak` and `optiak/optiak-frontend`, and read-only Actions,

@@ -79,8 +79,40 @@ reviewedCapabilities:
   - capability: staging_synthetic_write
     decision: pending_connection_and_approval
   - capability: observability_read
-    decision: pending_connection
+    decision: allow_after_connection_smoke
+    conditions:
+      - follow_versioned_observability_source_contract
+      - reliability_incident_engineer_only_initially
+      - aggregate_analytics_first
+      - exact_environment_service_and_tenant_scope
+      - initial_query_window_15_minutes
+      - fresh_signal_with_observed_and_retrieved_times
+      - redaction_canary_passed
+      - immutable_deployment_revision_correlated
+      - bounded_reads_no_bulk_export
+      - newly_discovered_tools_quarantined
+  - capability: exact_trace_read
+    decision: ask_first_after_connection_smoke
+    conditions:
+      - exact_request_or_trace_id
+      - maximum_one_trace_per_approval
+      - metadata_allowlist_and_redaction
+      - no_prompt_response_tool_payload_or_customer_content
+  - capability: raw_events_read
+    decision: deny
+  - capability: application_logs_read
+    decision: deny_pending_structured_redaction_contract
+  - capability: sentry_session_replay_read
+    decision: deny
+  - capability: signed_alert_ingest
+    decision: pending_connection_and_tabletop
+    conditions:
+      - signature_and_replay_protection
+      - versioned_event_schema
+      - deduplicate_before_wake
+      - acknowledgement_owner_and_checkpoint
+      - invalid_and_stale_events_rejected
   - capability: production_test_read
     decision: deny
   - capability: production_observability_read
-    decision: pending_connection
+    decision: pending_connection_tabletop_and_board_approval

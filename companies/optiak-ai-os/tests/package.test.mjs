@@ -61,6 +61,57 @@ test("incident fixture cannot imply a production incident", () => {
   assert.equal(data.expectedSeverity, "SEV3");
 });
 
+test("observability contract is offline, bounded, redacted, and fail-closed", () => {
+  const contract = JSON.parse(readFileSync(
+    join(
+      packageDir,
+      "skills",
+      "optiak-incident-triage",
+      "references",
+      "observability-source-contract.json",
+    ),
+    "utf8",
+  ));
+  assert.equal(contract.schema, "optiak-observability-source-contract/v1");
+  assert.equal(contract.status, "offline_contract_defined_connections_disconnected");
+  assert.equal(contract.globalPolicy.defaultDecision, "deny");
+  assert.equal(contract.globalPolicy.missingOrStaleSignal, "unknown_not_healthy");
+  assert.equal(contract.globalPolicy.noConnectedAlertIngress, "no_automatic_oncall_coverage");
+  assert.equal(contract.initialTriageEnvelope.initialQueryWindowMinutes, 15);
+  assert.equal(contract.initialTriageEnvelope.maximumApplicationsPerQuery, 1);
+  assert.equal(contract.initialTriageEnvelope.maximumExactTracesPerApproval, 1);
+  assert.equal(contract.correlation.timestampOnlyCorrelation, "deny");
+  assert.equal(contract.redaction.default, "omit");
+  assert.ok(contract.redaction.neverReturn.includes("prompt_or_request_bodies"));
+  assert.ok(contract.redaction.neverReturn.includes("session_replays"));
+
+  const sources = new Map(contract.sources.map((source) => [source.id, source]));
+  assert.equal(sources.get("optiak_admin_aggregate_analytics").initialSource, true);
+  assert.equal(sources.get("tempo_exact_trace").maximumResults, 1);
+  assert.equal(sources.get("raw_events_api").decision, "deny");
+  assert.equal(sources.get("application_logs").decision, "deny");
+  assert.match(
+    sources.get("service_health_endpoints").limitations.join(" "),
+    /do not prove database, provider, telemetry, or inference readiness/,
+  );
+  assert.equal(contract.alertRouting.status, "disconnected");
+  assert.equal(contract.alertRouting.automaticWakeAllowed, false);
+  assert.ok(contract.activationGates.some((gate) => gate.includes("exactly one auditable wake")));
+});
+
+test("observability fixture separates fresh, partial, stale, and disconnected evidence", () => {
+  const data = fixture("optiak-incident-triage", "observability");
+  assert.deepEqual(
+    data.cases.map((item) => item.expectedDecision),
+    [
+      "triage_allowed_not_resolution",
+      "blocked_on_deployment_correlation",
+      "unknown_not_healthy",
+      "no_automatic_oncall_coverage",
+    ],
+  );
+});
+
 test("disconnected E2E fixture remains blocked", () => {
   const data = fixture("optiak-e2e-validation", "journey");
   assert.equal(data.environment, "fixture");

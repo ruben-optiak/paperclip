@@ -5,6 +5,13 @@ assignee: reliability-incident-engineer
 project: reliability-incident-readiness
 ---
 
-Inventory future alert, log, metric, trace, status, deploy, and support signals. For each, define owner, freshness, trust level, environment, severity mapping, wake path, deduplication, acknowledgement, and fallback.
+Maintain `skills/optiak-incident-triage/references/observability-source-contract.json`
+and `runbooks/observability-and-oncall.md`. Inventory alert, log, metric, trace,
+status, deploy, error-tracking, and coordination signals. For each, define owner,
+freshness, trust level, environment, query limits, redaction, wake path,
+deduplication, acknowledgement, and fallback.
 
-Done when a missing or stale signal cannot be mistaken for healthy production and no unmanaged polling is required.
+The offline definition is done when fixtures prove that missing or stale signals
+cannot be mistaken for healthy production and no unmanaged polling is required.
+Live on-call remains incomplete until every source smoke and the signed-alert
+tabletop pass in a deployed environment.

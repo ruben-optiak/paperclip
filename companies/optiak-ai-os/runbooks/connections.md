@@ -165,9 +165,18 @@ than extending this personal token indefinitely.
 
 ## Phase 4 — observability and alerting
 
-- Read-only metrics, logs, traces, deploy/status metadata, and alert ingestion.
-- Redaction, query limits, tenant/environment scoping, freshness, deduplication, and auditable wake paths.
-- Run an incident tabletop before claiming on-call coverage.
+- Apply `runbooks/observability-and-oncall.md` and the machine-readable contract
+  at `skills/optiak-incident-triage/references/observability-source-contract.json`.
+- Connect bounded aggregate analytics first, then deployment proof, reviewed
+  metrics, exact ask-first traces, redacted error indexes, and finally signed
+  alert ingestion. Use separate read-only identities.
+- Keep raw events, application stdout logs, broad trace search, attachments, and
+  Sentry session replay denied until a separately reviewed contract exists.
+- Verify redaction, query limits, tenant/environment scoping, freshness,
+  deduplication, acknowledgement, credential revocation, and auditable wake paths.
+- Run the fresh, partial, stale, and disconnected tabletop cases before claiming
+  on-call coverage. No inference or observability connection is required for the
+  offline contract checks; connected proof waits for a deployed environment.
 
 ## Phase 5 — targeted governed actions
 
