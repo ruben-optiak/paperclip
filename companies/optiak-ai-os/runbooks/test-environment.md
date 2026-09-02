@@ -21,14 +21,15 @@ revisions or processes change.
 | Control-plane UI | `http://localhost:3000` | HTTP 200; no connected browser, so no visual or authenticated claim |
 | Local documentation | `http://localhost:3001` | HTTP 307 redirect |
 | Admin health | `http://localhost:8081/health` | HTTP 200 |
-| Gateway health | `http://localhost:8080/health` | unavailable; container restarts on provider-config validation |
-| MCP health | `http://localhost:8082/health` | HTTP 200 with restart history; health must be rechecked |
+| Gateway health | `http://localhost:8080/health` | HTTP 200 after removing the unsupported local provider block |
+| MCP health | `http://localhost:8082/health` | HTTP 200 |
 
-The Gateway failure is caused by an ignored local `optiak.toml` whose first
-router provider uses `config_type = "codex"` without fields accepted by the
-current provider schema. Treat this as a local configuration mismatch, not a
-staging incident or product regression. Never paste the file or its secrets
-into Paperclip evidence.
+The earlier Gateway failure was caused by an ignored local `optiak.toml` whose
+first router provider used `config_type = "codex"` without fields accepted by
+the current provider schema. The operator removed that unsupported block and a
+fresh credential-free probe returned HTTP 200 on 2026-09-02. Treat this as a
+repaired local configuration mismatch, not a staging incident or product
+regression. Never paste the file or its secrets into Paperclip evidence.
 
 ## 1. Static safety gate
 
@@ -53,7 +54,8 @@ node companies/optiak-ai-os/scripts/probe-test-environment.mjs --live-local --re
 ```
 
 The probe sends no cookie, bearer token, API key, request body, or arbitrary
-URL. The second command must fail while the Gateway is unavailable.
+URL. The second command now passes for the recorded local revisions, but must
+fail closed again if Admin, Gateway, or MCP health regresses.
 
 To repair the prerequisite, update the ignored local Gateway configuration in
 the backend checkout to a provider type and required fields supported by the

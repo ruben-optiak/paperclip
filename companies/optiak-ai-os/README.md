@@ -72,7 +72,7 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 - The GitHub connection may remain deliberately deferred without broadening any other source.
 - Local UI, Admin, Gateway, documentation, and MCP endpoints are governed by a
   machine-readable environment contract. Only credential-free loopback
-  reachability is currently allowed; the Gateway is recorded unavailable, the
+  reachability is currently allowed; all five local surfaces are reachable, the
   browser is disconnected, and the local tenant data classification is unknown.
 - A thirteen-journey matrix covers authentication, permissions, synthetic
   application and key lifecycle, both OpenAI-compatible API styles, streaming,
