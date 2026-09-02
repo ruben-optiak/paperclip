@@ -62,13 +62,14 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 
 “Always on” means event-driven alerts and bounded routines. Agents must not burn budget by polling unmanaged processes or claim on-call coverage when no signal source is connected.
 
-## Safety state in v0.1.5
+## Safety state in v0.1.6
 
 - All agents and routine schedules import paused.
 - Public documentation may be read; its freshness must be recorded.
 - Local fixtures and draft work products are allowed.
-- Linear team `OPT` is selected as the operational backlog authority, but remains unavailable until its official read-only MCP connection passes OAuth and smoke validation.
-- No repositories, GitHub installation, staging tenant, browser session, backlog snapshot, logs, metrics, or production credentials are bundled.
+- Linear team `OPT` is selected as the operational backlog authority; its live connection and smoke evidence remain instance state rather than package content.
+- GitHub authority is limited to read-only evidence from `optiak/optiak` and `optiak/optiak-frontend`, initially for Independent Code and PR Reviewer only. Every other repository is denied by default.
+- No source checkout, GitHub credential or installation, staging tenant, browser session, backlog snapshot, logs, metrics, or production credentials are bundled.
 - Production is read-only even after connection.
 - Sandbox mutations require a dedicated test tenant, synthetic data, bounded cleanup, and an approved tool policy.
 - Agents cannot merge, deploy, roll back, rotate secrets, change infrastructure, or approve their own work.
@@ -87,7 +88,7 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 Build a deterministic import archive outside the package:
 
 ```sh
-./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.5.zip
+./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.6.zip
 ```
 
 ## Getting started

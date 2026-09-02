@@ -39,9 +39,19 @@ reviewedCapabilities:
       - no_secrets
       - no_external_effect
   - capability: immutable_pr_read
-    decision: pending_connection
+    decision: allow_after_connection_smoke
+    conditions:
+      - official_github_remote_mcp_readonly_endpoint
+      - repository_exactly_optiak_or_optiak_frontend
+      - independent_code_reviewer_only_initially
+      - exact_head_sha_resolved_and_rechecked
+      - checks_match_exact_head_sha
+      - bounded_reads_no_bulk_export
+      - newly_discovered_tools_quarantined
   - capability: repository_branch_write
-    decision: pending_connection_and_approval
+    decision: deny
+  - capability: repository_issue_or_pr_mutation
+    decision: deny
   - capability: staging_browser_read
     decision: pending_connection
   - capability: staging_synthetic_write

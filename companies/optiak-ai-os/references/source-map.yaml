@@ -5,6 +5,7 @@ policy:
   wholeSiteSnapshotsAllowed: false
   historicalEvidenceMustBeLabelled: true
   productAuthorityRef: skills/optiak-product-triage/references/product-authority.yaml
+  repositoryAuthorityRef: skills/optiak-pr-review/references/repository-authority.yaml
 sources:
   - id: public-overview
     url: https://docs.optiak.dev/getting-started/overview
@@ -75,9 +76,24 @@ futureAuthorities:
   - id: versioned-api-contract
     status: disconnected
   - id: source-repositories
-    status: disconnected
+    status: authorized_pending_connection
+    provider: GitHub
+    authority: exact_source_revision
+    repositories:
+      - optiak/optiak
+      - optiak/optiak-frontend
+    defaultDecision: deny
+    connectionEndpoint: https://api.githubcopilot.com/mcp/readonly
   - id: git-pull-requests
-    status: disconnected
+    status: authorized_pending_connection
+    provider: GitHub
+    authority: exact_pull_request_head_sha_and_checks
+    repositories:
+      - optiak/optiak
+      - optiak/optiak-frontend
+    installedFor:
+      - independent-code-reviewer
+    connectionEndpoint: https://api.githubcopilot.com/mcp/readonly
   - id: staging-ui-api
     status: disconnected
   - id: production-observability

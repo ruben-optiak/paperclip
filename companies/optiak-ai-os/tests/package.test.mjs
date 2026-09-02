@@ -137,12 +137,14 @@ test("every agent is assigned the durable completion contract", () => {
   }
 });
 
-test("source map selects Linear without pretending the connection is live", () => {
+test("source map selects approved authorities without pretending GitHub is live", () => {
   const sourceMap = readFileSync(join(packageDir, "references", "source-map.yaml"), "utf8");
-  assert.equal((sourceMap.match(/status: disconnected/g) || []).length, 6);
+  assert.equal((sourceMap.match(/status: disconnected/g) || []).length, 4);
   assert.match(sourceMap, /wholeSiteSnapshotsAllowed: false/);
   assert.match(sourceMap, /status: authorized_pending_connection/);
   assert.match(sourceMap, /https:\/\/mcp\.linear\.app\/mcp\/readonly/);
+  assert.match(sourceMap, /https:\/\/api\.githubcopilot\.com\/mcp\/readonly/);
+  assert.match(sourceMap, /optiak\/optiak-frontend/);
 });
 
 test("product authority is field-specific, fresh, bounded, and read-only", () => {
@@ -166,6 +168,25 @@ test("product authority is field-specific, fresh, bounded, and read-only", () =>
       "approved_customer_evidence_source",
     ],
   );
+});
+
+test("repository authority limits GitHub to two repositories and one read-only reviewer", () => {
+  const authority = readFileSync(
+    join(packageDir, "skills", "optiak-pr-review", "references", "repository-authority.yaml"),
+    "utf8",
+  );
+  assert.match(authority, /endpoint: https:\/\/api\.githubcopilot\.com\/mcp\/readonly/);
+  assert.match(authority, /authentication: fine_grained_personal_access_token/);
+  assert.match(authority, /maximumCredentialLifetimeDays: 30/);
+  assert.match(authority, /- independent-code-reviewer/);
+  assert.equal((authority.match(/^    - slug: optiak\//gm) || []).length, 2);
+  assert.match(authority, /- slug: optiak\/optiak$/m);
+  assert.match(authority, /- slug: optiak\/optiak-frontend$/m);
+  assert.match(authority, /- optiak\/optiak-tests$/m);
+  assert.match(authority, /defaultDecision: deny/);
+  assert.match(authority, /writeToolsAllowed: false/);
+  assert.match(authority, /recheckHeadBeforeVerdict: true/);
+  assert.match(authority, /cloneWholeOrganization: false/);
 });
 
 test("runtime defaults to paused, sandboxed, managed MCP", () => {

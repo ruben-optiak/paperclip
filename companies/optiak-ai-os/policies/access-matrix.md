@@ -9,10 +9,16 @@ This is versioned desired state, not proof of live Paperclip bindings. Apply pro
 | Product & PRD Lead | read | read/triage | linked intent | no | read | product aggregate | no |
 | Principal Architect | read | linked intent | immutable review | read | read | read | read |
 | Senior Platform Engineer | read | assigned task | branch proposal later | isolated workspace later | approved sandbox later | read | read-only diagnosis |
-| Independent Reviewer | read | acceptance criteria | immutable review/comment later | read | read | read | read |
+| Independent Reviewer | read | acceptance criteria | immutable read/review for `optiak` and `optiak-frontend` only | exact-revision read for approved repos only | read | read | read |
 | Reliability Engineer | runbooks | incident work | deploy/revision read | read | read | read/alert | read-only diagnosis |
 | QA Engineer | read | acceptance criteria | revision/check read | no source write | approved sandbox later | test/read | non-destructive read |
 | Brand/UI Reviewer | read | linked intent | preview/status | no source write | browser read later | no | no |
 | Documentation/DX | read | linked intent | docs diff review | docs read later | read | no | no |
 
 No role has merge, deploy, production mutation, infrastructure mutation, secret administration, user impersonation, billing mutation, or policy-bypass authority in v0.1.
+
+The initial GitHub grant is installed only for Independent Reviewer. It does not
+grant Git access to the Director, Engineering Assurance, Architecture,
+Engineering, QA, Product, Brand/UI, Reliability, or Documentation agents. The
+default for every repository except `optiak/optiak` and
+`optiak/optiak-frontend` is deny.

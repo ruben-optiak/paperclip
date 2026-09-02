@@ -1,5 +1,5 @@
 schema: optiak-desired-state/v1
-version: 0.1.5
+version: 0.1.6
 instance:
   isolation: separate_from_enki
   database: separate
@@ -33,9 +33,19 @@ connections:
       - product-prd-lead
     writes: deny
   gitProvider:
-    state: disconnected
+    state: authorized_pending_operator_credential
+    provider: GitHub
+    endpoint: https://api.githubcopilot.com/mcp/readonly
+    authentication: fine_grained_personal_access_token
+    initialInstallTargets:
+      - independent-code-reviewer
+    writes: deny
   repositories:
-    state: disconnected
+    state: authorized_allowlist_pending_connection
+    default: deny
+    allow:
+      - optiak/optiak
+      - optiak/optiak-frontend
   stagingBrowserApi:
     state: disconnected
   observabilityAlerts:

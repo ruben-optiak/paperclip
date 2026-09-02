@@ -113,6 +113,7 @@ const requiredFiles = [
   "skills/optiak-durable-completion/references/contracts/result-envelope-v1.schema.json",
   "skills/optiak-durable-completion/references/result-taxonomy.md",
   "skills/optiak-product-triage/references/product-authority.yaml",
+  "skills/optiak-pr-review/references/repository-authority.yaml",
 ];
 for (const path of requiredFiles) if (!statSafe(join(packageDir, path))) fail(`Missing required file: ${path}`);
 
@@ -129,7 +130,7 @@ for (const path of allFiles.filter((candidate) => candidate.endsWith(".json"))) 
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md must declare agentcompanies/v1");
 if (company.slug !== "optiak-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.5") fail("Unexpected company version");
+if (company.version !== "0.1.6") fail("Unexpected company version");
 if (company.license !== "LicenseRef-Optiak-Internal") fail("Unexpected company license");
 
 const agentFiles = allFiles.filter((path) => path.endsWith(`${sep}AGENTS.md`) && path.includes(`${sep}agents${sep}`));
@@ -317,9 +318,18 @@ for (const marker of ["defaultDecision: quarantine", "productionMutation: deny",
 }
 const sourceMap = readFileSync(join(packageDir, "references", "source-map.yaml"), "utf8");
 if (!sourceMap.includes("wholeSiteSnapshotsAllowed: false")) fail("Source map must deny whole-site snapshots");
-if ((sourceMap.match(/status: disconnected/g) || []).length !== 6) fail("Future source disconnection state drift");
+if ((sourceMap.match(/status: disconnected/g) || []).length !== 4) fail("Future source disconnection state drift");
 for (const marker of ["status: authorized_pending_connection", "provider: Linear", "team: OPT", "https://mcp.linear.app/mcp/readonly"]) {
   if (!sourceMap.includes(marker)) fail(`Product source-map marker missing: ${marker}`);
+}
+for (const marker of [
+  "repositoryAuthorityRef: skills/optiak-pr-review/references/repository-authority.yaml",
+  "provider: GitHub",
+  "optiak/optiak",
+  "optiak/optiak-frontend",
+  "https://api.githubcopilot.com/mcp/readonly",
+]) {
+  if (!sourceMap.includes(marker)) fail(`Repository source-map marker missing: ${marker}`);
 }
 const productAuthority = readFileSync(
   join(packageDir, "skills", "optiak-product-triage", "references", "product-authority.yaml"),
@@ -336,6 +346,30 @@ for (const marker of [
   "winner: release_and_deployment_evidence",
 ]) {
   if (!productAuthority.includes(marker)) fail(`Product-authority marker missing: ${marker}`);
+}
+const repositoryAuthority = readFileSync(
+  join(packageDir, "skills", "optiak-pr-review", "references", "repository-authority.yaml"),
+  "utf8",
+);
+for (const marker of [
+  "schema: optiak-repository-authority/v1",
+  "humanConflictOwner: board",
+  "endpoint: https://api.githubcopilot.com/mcp/readonly",
+  "authentication: fine_grained_personal_access_token",
+  "maximumCredentialLifetimeDays: 30",
+  "- independent-code-reviewer",
+  "- slug: optiak/optiak",
+  "- slug: optiak/optiak-frontend",
+  "- optiak/optiak-tests",
+  "defaultDecision: deny",
+  "writeToolsAllowed: false",
+  "recheckHeadBeforeVerdict: true",
+  "cloneWholeOrganization: false",
+]) {
+  if (!repositoryAuthority.includes(marker)) fail(`Repository-authority marker missing: ${marker}`);
+}
+if ((repositoryAuthority.match(/^    - slug: optiak\//gm) || []).length !== 2) {
+  fail("Repository authority must contain exactly two approved Optiak repositories");
 }
 
 if (errors.length > 0) {

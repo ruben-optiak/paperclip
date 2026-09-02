@@ -21,4 +21,12 @@ All offline fixtures are Markdown references with fenced JSON. This keeps them r
 
 Run only after completing the relevant connection phase. Confirm effective profile and catalog before invocation. A source is ready only when a known positive read, known denial, redaction check, freshness check, and audit record all pass.
 
+For the initial GitHub smoke, use only `optiak/optiak` and
+`optiak/optiak-frontend` through Independent Code and PR Reviewer. Capture the
+exact commit or PR head SHA, recheck it before verdict, and verify checks belong
+to the same revision. The catalog must expose reads only; policy must refuse
+`optiak/optiak-tests` and all unlisted repositories. Do not attempt a write to
+prove it is blocked. Follow `runbooks/connections.md` Phase 2.2 and
+`skills/optiak-pr-review/references/repository-authority.yaml`.
+
 Do not enable a schedule until its manual run passes and its absence-of-data behavior is correct.
