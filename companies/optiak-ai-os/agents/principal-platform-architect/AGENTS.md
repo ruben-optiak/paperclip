@@ -5,6 +5,7 @@ title: Principal Platform Architect
 role: general
 reportsTo: engineering-assurance-lead
 skills:
+  - optiak-durable-completion
   - optiak-architecture-review
   - optiak-api-conformance
   - optiak-prd-review

@@ -5,6 +5,7 @@ title: Independent Code and Pull Request Reviewer
 role: general
 reportsTo: engineering-assurance-lead
 skills:
+  - optiak-durable-completion
   - optiak-pr-review
   - optiak-api-conformance
   - optiak-release-readiness

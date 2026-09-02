@@ -5,6 +5,7 @@ title: Documentation and Developer Experience Steward
 role: general
 reportsTo: product-prd-lead
 skills:
+  - optiak-durable-completion
   - optiak-docs-drift
   - optiak-api-conformance
   - optiak-product-triage

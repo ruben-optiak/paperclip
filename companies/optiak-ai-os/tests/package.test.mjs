@@ -16,7 +16,7 @@ function fixture(skill, name) {
 
 test("every skill ships a CLI-portable offline fixture", () => {
   const skills = readdirSync(join(packageDir, "skills"));
-  assert.equal(skills.length, 12);
+  assert.equal(skills.length, 13);
   for (const skill of skills) {
     const fixtures = readdirSync(join(packageDir, "skills", skill, "references", "fixtures"))
       .filter((path) => path.endsWith(".md"));
@@ -64,6 +64,30 @@ test("release evidence with missing gates is not ready", () => {
   const data = fixture("optiak-release-readiness", "release");
   assert.equal(data.gates.stagingE2E, "missing");
   assert.equal(data.expectedVerdict, "not_ready");
+});
+
+test("durable completion closes once from memory with run-linked time provenance", () => {
+  const data = fixture("optiak-durable-completion", "completion");
+  assert.equal(data.issue.initialStatus, "in_progress");
+  assert.equal(data.issue.expectedStatus, "done");
+  assert.equal(data.expected.payloadStorage, "memory");
+  assert.equal(data.expected.dispositionRequests, 1);
+  assert.equal(data.expected.standaloneReportPosts, 0);
+  assert.equal(data.expected.reportsCreated, 1);
+  assert.equal(data.expected.statusTransitionsRequested, 1);
+  assert.equal(data.expected.createdByRunId, data.run.id);
+  assert.equal(data.expected.executionTimestampSource, "paperclip_comment_metadata");
+  assert.equal(data.expected.ambiguousWritePolicy, "refetch_before_retry");
+});
+
+test("every agent is assigned the durable completion contract", () => {
+  const agentRoot = join(packageDir, "agents");
+  const agents = readdirSync(agentRoot);
+  assert.equal(agents.length, 10);
+  for (const agent of agents) {
+    const markdown = readFileSync(join(agentRoot, agent, "AGENTS.md"), "utf8");
+    assert.match(markdown, /^  - optiak-durable-completion$/m, `${agent} is missing durable completion`);
+  }
 });
 
 test("source map keeps future authorities disconnected", () => {

@@ -62,7 +62,7 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 
 “Always on” means event-driven alerts and bounded routines. Agents must not burn budget by polling unmanaged processes or claim on-call coverage when no signal source is connected.
 
-## Safety state in v0.1
+## Safety state in v0.1.1
 
 - All agents and routine schedules import paused.
 - Public documentation may be read; its freshness must be recorded.
@@ -71,6 +71,7 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 - Production is read-only even after connection.
 - Sandbox mutations require a dedicated test tenant, synthetic data, bounded cleanup, and an approved tool policy.
 - Agents cannot merge, deploy, roll back, rotate secrets, change infrastructure, or approve their own work.
+- Every agent closes work through one run-linked in-memory report and verifies ambiguous writes before any retry.
 
 ## Validation
 
@@ -81,7 +82,7 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 Build a deterministic import archive outside the package:
 
 ```sh
-./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.0.zip
+./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.1.zip
 ```
 
 ## Getting started

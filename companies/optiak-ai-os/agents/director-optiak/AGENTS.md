@@ -5,6 +5,7 @@ title: Director of Optiak
 role: ceo
 reportsTo: null
 skills:
+  - optiak-durable-completion
   - optiak-product-triage
   - optiak-change-control
   - optiak-release-readiness

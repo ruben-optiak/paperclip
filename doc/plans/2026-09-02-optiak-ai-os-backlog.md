@@ -2,7 +2,7 @@
 
 Última actualización: 2026-09-02
 Rama de trabajo: `feat/optiak/bootstrap`
-Paquete actual: `companies/optiak-ai-os/` (`0.1.0`)
+Paquete actual: `companies/optiak-ai-os/` (`0.1.1`)
 
 ## Propósito
 
@@ -31,7 +31,7 @@ Snapshot comprobado el 2026-09-02:
 - El corte validado de bootstrap anterior a este backlog es `fdcd5f14d`.
 - La instancia Optiak está aislada de Enki mediante Compose, almacenamiento, namespace de instancia, secreto de sesión y puerto propios.
 - Diez agentes están pausados, hay cero runs activos y las cuatro rutinas conservan todos sus triggers deshabilitados.
-- Las doce skills incluyen fixtures Markdown portables y el preview CLI los transporta sin errores.
+- Las trece skills incluyen fixtures Markdown portables; `optiak-durable-completion` está asignada y configurada en los diez agentes.
 - El navegador y la CLI del host usan el puerto `3200`; agentes y MCP administrado usan el listener interno `3100`.
 - Product & PRD Lead superó el smoke [OPT-18](/OPT/issues/OPT-18) con veredicto `changes_required` y escritura durable confirmada.
 - Principal Platform Architect superó el smoke [OPT-19](/OPT/issues/OPT-19) con veredicto `changes_required` y escritura durable confirmada.
@@ -45,14 +45,14 @@ Snapshot comprobado el 2026-09-02:
 - Product triage superó [OPT-12](/OPT/issues/OPT-12): un hallazgo sintético quedó `candidate` y la propuesta de chatbot de capa aplicación quedó en `Board decision`.
 - API conformance superó [OPT-9](/OPT/issues/OPT-9) con 3/3 casos inventariados y 0/3 ejecutados; no afirmó compatibilidad live. El timestamp declarado no coincide con `createdAt` y se sigue en `OAI-021`.
 - Change control superó [OPT-24](/OPT/issues/OPT-24) clasificando `green`, `yellow`, `orange` y `red` sin ejecutar ni autorizar ninguna acción.
+- El cierre durable superó [OPT-25](/OPT/issues/OPT-25): una única petición final en memoria produjo un solo comentario de agente, una transición a `done`, `createdByRunId` correcto y tiempo de ejecución delegado al metadata persistido de Paperclip.
 - Backlog de producto, Git/PRs, repositorios, staging, observabilidad y producción continúan desconectados. Ningún resultado fixture se considera evidencia live.
 
 ## Orden inmediato
 
-1. Resolver `OAI-021`: versionar y probar un cierre durable único, en memoria y con timestamps de procedencia explícita.
-2. Ejecutar `OAI-016`, la síntesis fixture-only del Director, cuando `OAI-021` haya pasado.
-3. Medir y reducir contexto con `OAI-018`, y retirar el sandbox legacy mediante `OAI-011` solo tras su regresión.
-4. Elegir después la fuente autoritativa del backlog de producto y comenzar las conexiones reales de una en una.
+1. Ejecutar `OAI-016`: síntesis fixture-only del Director sobre los smokes ya cerrados, usando el nuevo cierre durable.
+2. Medir y reducir contexto con `OAI-018`, y retirar el sandbox legacy mediante `OAI-011` solo tras su regresión.
+3. Elegir después la fuente autoritativa del backlog de producto y comenzar las conexiones reales de una en una.
 
 ## Backlog priorizado
 
@@ -73,16 +73,16 @@ Snapshot comprobado el 2026-09-02:
 | `OAI-013` | P1 | BLOCKED | Lectura de repositorios, PRs y checks | Seleccionar repos exactos y configurar Git provider read-only por revisión inmutable | Lectura positiva, denegación de merge/write, revisión por SHA, redacción, revocación y auditoría comprobadas |
 | `OAI-014` | P1 | BLOCKED | Staging seguro para UI y API | Proveer tenant, personas sintéticas, budget, credenciales, cleanup y production-host denial | Golden journey manual demuestra positivos, negativos, streaming, auth, cleanup y cero alcance de producción |
 | `OAI-015` | P2 | BLOCKED | Observabilidad y on-call | Conectar métricas, logs, trazas, deploy metadata y alertas en lectura tras definir redacción y scopes | Señales fechadas y deduplicadas, alert routing auditable y tabletop real sin afirmar cobertura inexistente |
-| `OAI-016` | P1 | BLOCKED | Smoke de síntesis del Director | Esperar a `OAI-021`; solicitar una priorización basada solo en evidencias de los smokes | El Director cita fuentes, separa fixture de live, no crea autoridad nueva y devuelve owners y decisiones acotadas |
+| `OAI-016` | P1 | NOW | Smoke de síntesis del Director | Solicitar una priorización basada solo en las evidencias de los smokes cerrados y aplicar `optiak-durable-completion` | El Director cita fuentes, separa fixture de live, no crea autoridad nueva y devuelve owners y decisiones acotadas |
 | `OAI-017` | P2 | BLOCKED | Activación progresiva de rutinas | Requiere fuentes autorizadas y ejecución manual satisfactoria de cada rutina | Board habilita cada trigger por separado; primer run programado es correcto y no duplica trabajo |
 | `OAI-018` | P2 | READY | Presupuestos y eficiencia de contexto | Medir tokens, duración y coste por tipo de run; fijar límites coherentes antes de escalar uso | Baseline reproducible, alertas al 80 %, hard stop al 100 % y ausencia de contexto innecesario demostrada |
 | `OAI-019` | P3 | LATER | Promoción a producción | Elegir infraestructura, fijar tag, imagen/digest, backup, restore, smoke y rollback | Misma revisión validada se importa pausada; restore y rollback están probados antes de activar agentes |
 | `OAI-020` | P3 | LATER | Sincronización periódica con upstream Paperclip | Integrar `upstream/master` únicamente mediante ramas `sync/*` y `integration/companies` | Merge aislado supera gates de core, Enki y Optiak antes de entrar en una rama operativa |
-| `OAI-021` | P1 | NOW | Cierre durable idempotente y evidencia temporal fiable | Versionar una regla común a partir del doble comentario de [OPT-3](/OPT/issues/OPT-3), el bloqueo previo a API de [OPT-23](/OPT/issues/OPT-23) y el timestamp futuro de [OPT-9](/OPT/issues/OPT-9) | Una run escribe exactamente un informe mediante un único payload en memoria, marca el issue una vez, no usa archivos temporales, conserva `createdByRunId` y deriva timestamps de una fuente comprobable o los declara desconocidos |
+| `OAI-021` | P1 | DONE | Cierre durable idempotente y evidencia temporal fiable | Conservar [OPT-25](/OPT/issues/OPT-25) como regresión y exigir la skill común en los diez agentes | Paquete `0.1.1`; una run escribió exactamente un informe mediante un único payload en memoria, marcó el issue una vez, no usó archivos temporales, conservó `createdByRunId` y remitió el tiempo de ejecución al metadata comprobable de Paperclip |
 
 ## Dependencias principales
 
-- Cierre fiable: `OAI-021` → `OAI-016`.
+- Cierre fiable: `OAI-021` está cerrado y habilita `OAI-016`.
 - Primer trabajo real de Product: `OAI-012` y una política de frescura/autoridad aprobada.
 - Revisión real de código: `OAI-013`; implementación aislada requiere además workspace y política de ramas.
 - QA conectado: `OAI-014`; on-call creíble requiere `OAI-015`.
@@ -91,7 +91,7 @@ Snapshot comprobado el 2026-09-02:
 
 ## No iniciar todavía
 
-- No activar Director ni rutinas mientras falten los smokes transversales y el cierre durable idempotente.
+- No dejar el Director activo tras el smoke acotado de `OAI-016` ni activar rutinas mientras falten fuentes autorizadas y sus pruebas manuales.
 - No duplicar el backlog o roadmap reales dentro de Markdown o memoria de agentes.
 - No conectar todos los repositorios ni fuentes simultáneamente.
 - No habilitar merges, deployments, rollbacks, cambios de infraestructura o producción.
@@ -100,6 +100,7 @@ Snapshot comprobado el 2026-09-02:
 
 ## Registro de cerrados
 
+- 2026-09-02 — `OAI-021`: creado `optiak-durable-completion`, asignado a los diez agentes y publicado como paquete `0.1.1`. El ZIP determinista `optiak-ai-os-v0.1.1.zip` tiene SHA-256 `591b50a50711685d0d3299a51d97de62b3ad1f0e1791042389055d91863edcf5`; el preview board-full no encontró errores y la importación actualizó diez agentes, reemplazó doce skills y creó una sin tocar compañía, proyectos, tareas o rutinas. Documentation & DX ejecutó [OPT-25](/OPT/issues/OPT-25) en la run `0ab476ba-1b36-4312-8533-23bc3b733b35`: validó 15 campos, hizo preflight por run id y confirmó HTTP 200, `done`, un único comentario `7fd4fca4-3609-4f1c-b6ca-f2d578fe5bb0` con `createdByRunId` correcto y una sola transición final. No usó archivo temporal ni timestamp de ejecución inventado; consumió 204207 tokens de entrada, 177408 cacheados y 3339 de salida. El intento inicial creado mientras el agente seguía pausado quedó bloqueado por recuperación, se restauró sin comentario, y una invocación manual redundante fue cancelada antes de empezar. Estado final: diez agentes pausados, cero runs activas y cero triggers habilitados.
 - 2026-09-02 — `OAI-010`: Product & PRD Lead ejecutó [OPT-12](/OPT/issues/OPT-12) en la run `58bfe785-fb01-4392-8167-68bec8896c8d`; QA ejecutó [OPT-9](/OPT/issues/OPT-9) en `c881ab40-660e-4ff7-b500-dd7f2673b5c3`; Engineering Assurance ejecutó [OPT-24](/OPT/issues/OPT-24) en `729f4a3e-9a6b-4204-a195-d3b6a13e0c91`. Las tres runs terminaron `succeeded`, usaron solo fixtures, ejecutaron cero acciones externas, escribieron un único comentario cada una mediante cierre en memoria y devolvieron sus agentes a `paused`. Consumo agregado: 310866 tokens de entrada, 246272 cacheados y 7965 de salida. [OPT-9](/OPT/issues/OPT-9) declaró `10:36:00Z` pese a persistirse a `10:35:02Z`; la integridad temporal queda incluida en `OAI-021`.
 - 2026-09-02 — `OAI-009`: Senior Platform Engineer diagnosticó `fixture-r1` en [OPT-23](/OPT/issues/OPT-23). La run `9d744e37-6276-4f81-96ee-39bffadfbb66` terminó `succeeded` con cuatro hipótesis de confianza baja/media, una secuencia de pruebas no ejecutada y gates explícitos antes de causa raíz, código, fix, regresión o rollout. Un primer intento de persistencia fue rechazado antes de la API por usar cleanup temporal; el retry en memoria dejó un único informe y el agente volvió a `paused`.
 - 2026-09-02 — `OAI-008`: Engineering Assurance Lead evaluó `fixture-release-1` en [OPT-7](/OPT/issues/OPT-7). La run `3d82cc50-5118-4fc2-b277-cb34cdef28d0` terminó `succeeded` con `not_ready`, una matriz completa de gates y cero autorización o acción de release; el agente volvió a `paused`.

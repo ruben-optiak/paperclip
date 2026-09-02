@@ -118,7 +118,7 @@ for (const path of allFiles.filter((candidate) => candidate.endsWith(".json"))) 
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md must declare agentcompanies/v1");
 if (company.slug !== "optiak-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.0") fail("Unexpected company version");
+if (company.version !== "0.1.1") fail("Unexpected company version");
 if (company.license !== "LicenseRef-Optiak-Internal") fail("Unexpected company license");
 
 const agentFiles = allFiles.filter((path) => path.endsWith(`${sep}AGENTS.md`) && path.includes(`${sep}agents${sep}`));
@@ -149,10 +149,13 @@ for (const agent of agents.values()) {
   for (const skill of agent.skills || []) {
     if (!statSafe(join(packageDir, "skills", skill, "SKILL.md"))) fail(`Unknown skill ${skill} for ${agent.slug}`);
   }
+  if (!(agent.skills || []).includes("optiak-durable-completion")) {
+    fail(`Agent ${agent.slug} is missing optiak-durable-completion`);
+  }
 }
 
 const skillFiles = allFiles.filter((path) => path.endsWith(`${sep}SKILL.md`) && path.includes(`${sep}skills${sep}`));
-if (skillFiles.length !== 12) fail(`Expected 12 skills, found ${skillFiles.length}`);
+if (skillFiles.length !== 13) fail(`Expected 13 skills, found ${skillFiles.length}`);
 for (const path of skillFiles) {
   const doc = frontmatter(path);
   const skillDir = dirname(path);

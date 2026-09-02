@@ -5,6 +5,7 @@ title: Reliability and Incident Response Engineer
 role: general
 reportsTo: engineering-assurance-lead
 skills:
+  - optiak-durable-completion
   - optiak-incident-triage
   - optiak-debugging
   - optiak-release-readiness

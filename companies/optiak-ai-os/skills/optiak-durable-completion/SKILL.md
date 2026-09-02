@@ -1,0 +1,40 @@
+---
+name: optiak-durable-completion
+description: Close Optiak work exactly once with run-linked evidence, in-memory payloads, verified persistence, and trustworthy time provenance
+---
+
+# Optiak durable completion
+
+Use this skill for the final disposition of every Optiak issue. It complements the Paperclip coordination skill; it does not replace checkout, authorization, approval, or status rules.
+
+## Completion contract
+
+1. Finish the requested analysis or deliverable before preparing the final report.
+2. Re-read the issue state and this run's comments. If this run already left the intended final report and the issue already has the intended disposition, stop without writing again.
+3. Build one concise Markdown report entirely in process memory. Do not create a temporary payload, report, or cleanup file for a control-plane update.
+4. Send the report and disposition together in one `PATCH /api/issues/{issueId}` request with one JSON object such as `{ "status": "done", "comment": report }`. Include the current run header required by Paperclip. Do not call the standalone comment endpoint first and do not repeat the report in a later status update.
+5. Treat the response as confirmation only when it returns the expected issue status and a persisted comment. Verify that the comment is attributed to the current run through `createdByRunId` when that field is returned.
+6. After an empty response, timeout, lost connection, or other ambiguous result, do not blindly replay the write. Re-fetch the issue and its comments first, then reconcile by `createdByRunId` and the intended status:
+   - report present and status present: success; write nothing;
+   - report absent and status present: add the report once without repeating the status transition;
+   - report present and status absent: update only the status;
+   - neither present: retry the combined update at most once, following Paperclip's bounded-write rule.
+7. Leave `done` for a completed report even when the report's conclusion is partial, failed, unknown, or not verifiable. Use `in_review` or `blocked` only when the corresponding first-class waiting path exists.
+
+Checkout and necessary work-product writes are outside the single-disposition-write count. The invariant is one final report, one intended disposition transition, and no duplicate completion comment from the same run.
+
+## Time provenance
+
+- Paperclip's persisted `comment.createdAt`, issue status timestamps, and run timestamps are authoritative for when control-plane actions occurred.
+- Do not invent, round, predict, or manually restate an execution timestamp in the report. Normally say that execution time is recorded in Paperclip metadata, or omit it.
+- A timestamp from a fixture, document, log, HTTP response, or monitoring system describes that evidence only. Name the source and timezone beside it; never present it as the current time.
+- If a required time cannot be obtained from an approved source, write `unknown` and name the source needed to resolve it.
+- Relative claims such as “today”, “current”, “latest”, or “fresh” require a sourced comparison timestamp and an explicit timezone.
+
+## Safe transport
+
+Prefer a structured Paperclip tool or direct API client that accepts an in-memory object. If the CLI is used, follow the Paperclip skill's content-argument rules and pass a shell variable directly to `npx paperclipai`; never interpolate model output into `pnpm paperclipai` and never persist the payload solely to make the command easier to quote.
+
+Never paste bearer tokens, environment secrets, or bridge URLs into the report. Never infer success from an exit code with an empty body or from a piped/truncated response.
+
+Use [the completion example](examples/completion.md) and the portable fixture at `references/fixtures/completion.md`.

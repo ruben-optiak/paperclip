@@ -5,6 +5,7 @@ title: Product and PRD Lead
 role: general
 reportsTo: director-optiak
 skills:
+  - optiak-durable-completion
   - optiak-product-triage
   - optiak-prd-review
   - optiak-ui-audit

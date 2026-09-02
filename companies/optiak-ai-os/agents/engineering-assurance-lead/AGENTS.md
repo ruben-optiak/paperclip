@@ -5,6 +5,7 @@ title: Chief Technology Officer and Engineering Assurance Lead
 role: general
 reportsTo: director-optiak
 skills:
+  - optiak-durable-completion
   - optiak-architecture-review
   - optiak-pr-review
   - optiak-incident-triage

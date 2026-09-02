@@ -5,6 +5,7 @@ title: QA and End-to-End Validation Engineer
 role: general
 reportsTo: engineering-assurance-lead
 skills:
+  - optiak-durable-completion
   - optiak-e2e-validation
   - optiak-api-conformance
   - optiak-ui-audit

@@ -5,6 +5,7 @@ title: Brand and UI Quality Reviewer
 role: general
 reportsTo: product-prd-lead
 skills:
+  - optiak-durable-completion
   - optiak-ui-audit
   - optiak-product-triage
   - optiak-release-readiness

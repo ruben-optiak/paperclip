@@ -49,7 +49,7 @@ To stop Optiak without touching Enki:
 ## Import
 
 1. Import preview the exact ZIP.
-2. Verify ten agents, twelve skills, six projects, twenty-one tasks, and four disabled routines.
+2. Verify ten agents, thirteen skills, six projects, twenty-one tasks, and four disabled routines.
 3. Confirm one root (`director-optiak`) and the expected reporting tree.
 4. Apply with agents and routines paused.
 5. Configure no connection during the import itself.
