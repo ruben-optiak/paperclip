@@ -106,6 +106,9 @@ const requiredFiles = [
   "scripts/import-allowlist.txt",
   "scripts/local-instance.sh",
   "scripts/summarize-run-usage.mjs",
+  "scripts/validate-result-envelopes.mjs",
+  "skills/optiak-durable-completion/references/contracts/result-envelope-v1.schema.json",
+  "skills/optiak-durable-completion/references/result-taxonomy.md",
 ];
 for (const path of requiredFiles) if (!statSafe(join(packageDir, path))) fail(`Missing required file: ${path}`);
 
@@ -122,7 +125,7 @@ for (const path of allFiles.filter((candidate) => candidate.endsWith(".json"))) 
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md must declare agentcompanies/v1");
 if (company.slug !== "optiak-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.2") fail("Unexpected company version");
+if (company.version !== "0.1.3") fail("Unexpected company version");
 if (company.license !== "LicenseRef-Optiak-Internal") fail("Unexpected company license");
 
 const agentFiles = allFiles.filter((path) => path.endsWith(`${sep}AGENTS.md`) && path.includes(`${sep}agents${sep}`));
@@ -269,6 +272,22 @@ if (directorBaseline.rawInputTokens - directorBaseline.cachedInputTokens !== dir
 }
 if (runBaseline.summary?.billingModes?.[0]?.costStatus !== "unpriced") {
   fail("Baseline must preserve unpriced subscription cost semantics");
+}
+
+const resultContract = readFileSync(
+  join(packageDir, "skills", "optiak-durable-completion", "references", "result-taxonomy.md"),
+  "utf8",
+);
+for (const marker of [
+  "paperclip.issueDisposition",
+  "report.canonical",
+  "object.verdict",
+  "operations.readiness",
+  "evidence.scope",
+  "At most one report is canonical",
+  "Do not delete history",
+]) {
+  if (!resultContract.includes(marker)) fail(`Result-taxonomy marker missing: ${marker}`);
 }
 
 const desired = readFileSync(join(packageDir, "policies", "desired-state.yaml"), "utf8");

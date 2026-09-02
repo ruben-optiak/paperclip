@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://optiak.dev/schemas/result-envelope-v1.json",
+  "title": "Optiak Result Envelope v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "paperclip", "report", "object", "operations", "evidence"],
+  "properties": {
+    "schema": {
+      "const": "optiak-result-envelope/v1"
+    },
+    "paperclip": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issueDisposition"],
+      "properties": {
+        "issueDisposition": {
+          "enum": ["backlog", "todo", "in_progress", "in_review", "blocked", "done", "cancelled"]
+        }
+      }
+    },
+    "report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runRef", "reportRef", "purpose", "state", "canonical", "supersededBy"],
+      "properties": {
+        "runRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reportRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "purpose": {
+          "enum": ["object_review", "prerequisite_diagnosis", "recovery_coordination"]
+        },
+        "state": {
+          "enum": ["final", "interim", "superseded"]
+        },
+        "canonical": {
+          "type": "boolean"
+        },
+        "supersededBy": {
+          "type": ["string", "null"],
+          "minLength": 1
+        }
+      }
+    },
+    "object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "revision", "reviewKind", "verdictVocabulary", "verdict"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reviewKind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verdictVocabulary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "verdict": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "operations": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["readiness"],
+      "properties": {
+        "readiness": {
+          "enum": ["not_assessed", "ready", "not_ready", "ready_with_board_accepted_risk"]
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "prerequisiteState"],
+      "properties": {
+        "scope": {
+          "enum": ["missing", "fixture_only", "connected_non_production", "production"]
+        },
+        "prerequisiteState": {
+          "enum": ["missing", "partial", "available"]
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "report": {
+            "properties": {
+              "canonical": {
+                "const": true
+              }
+            },
+            "required": ["canonical"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "report": {
+            "properties": {
+              "purpose": {
+                "const": "object_review"
+              },
+              "state": {
+                "const": "final"
+              },
+              "supersededBy": {
+                "type": "null"
+              }
+            }
+          },
+          "evidence": {
+            "properties": {
+              "prerequisiteState": {
+                "const": "available"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "report": {
+            "properties": {
+              "state": {
+                "const": "superseded"
+              }
+            },
+            "required": ["state"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "report": {
+            "properties": {
+              "canonical": {
+                "const": false
+              },
+              "supersededBy": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -16,6 +16,7 @@ scripts/import-allowlist.txt
 scripts/local-instance.sh
 scripts/scan-secrets.sh
 scripts/summarize-run-usage.mjs
+scripts/validate-result-envelopes.mjs
 scripts/validate-package.mjs
 skills/
 teams/

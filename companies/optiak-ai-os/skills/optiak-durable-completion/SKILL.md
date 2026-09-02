@@ -23,6 +23,20 @@ Use this skill for the final disposition of every Optiak issue. It complements t
 
 Checkout and necessary work-product writes are outside the single-disposition-write count. The invariant is one final report, one intended disposition transition, and no duplicate completion comment from the same run.
 
+## Result integrity
+
+Never collapse workflow completion, report history, reviewed-object verdict, operational readiness, and evidence authority into one status. Every final report must preserve the fields defined in `references/result-taxonomy.md`:
+
+- `paperclip.issueDisposition` describes only the issue workflow;
+- `report.state`, `report.purpose`, and `report.canonical` describe this report's place in history;
+- `object.verdict` uses the vocabulary of the selected domain skill for the exact revision;
+- `operations.readiness` is separate and remains `not_assessed` unless its gate ran;
+- `evidence.scope` and `evidence.prerequisiteState` state what could actually be assessed.
+
+Do not use an unqualified `done`, `complete`, `PASS`, `blocked`, or `ready` as the overall result. A final issue comment may render the envelope as a compact labelled list instead of JSON, but the qualified field names and exact values must remain visible.
+
+At most one report from a run can be canonical, and at most one report can be canonical for `(object.type, object.revision, object.reviewKind)`. Preserve prerequisite diagnostics and recovery messages as history. When a valid retry supersedes them, point them to the new report; never delete or silently reinterpret them.
+
 ## Time provenance
 
 - Paperclip's persisted `comment.createdAt`, issue status timestamps, and run timestamps are authoritative for when control-plane actions occurred.
@@ -46,4 +60,4 @@ Prefer a structured Paperclip tool or direct API client that accepts an in-memor
 
 Never paste bearer tokens, environment secrets, or bridge URLs into the report. Never infer success from an exit code with an empty body or from a piped/truncated response.
 
-Use [the completion example](examples/completion.md) and the portable fixture at `references/fixtures/completion.md`.
+Use [the completion example](examples/completion.md), [the qualified result example](examples/result-envelope.md), and the portable fixtures at `references/fixtures/completion.md` and `references/fixtures/result-set.md`.

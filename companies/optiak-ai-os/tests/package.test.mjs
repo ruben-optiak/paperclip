@@ -4,6 +4,10 @@ import {readFileSync, readdirSync} from "node:fs";
 import {dirname, join, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
 import test from "node:test";
+import {
+  validateResultEnvelope,
+  validateResultEnvelopes,
+} from "../scripts/validate-result-envelopes.mjs";
 
 const packageDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -79,6 +83,44 @@ test("durable completion closes once from memory with run-linked time provenance
   assert.equal(data.expected.createdByRunId, data.run.id);
   assert.equal(data.expected.executionTimestampSource, "paperclip_comment_metadata");
   assert.equal(data.expected.ambiguousWritePolicy, "refetch_before_retry");
+});
+
+test("result taxonomy keeps one canonical object review and preserves superseded prerequisite history", () => {
+  const data = fixture("optiak-durable-completion", "result-set");
+  const results = validateResultEnvelopes(data.results);
+  const canonical = results.filter((entry) => entry.report.canonical);
+  assert.equal(canonical.length, data.expected.canonicalReportCount);
+  assert.equal(canonical[0].report.reportRef, data.expected.canonicalReportRef);
+  assert.equal(canonical[0].report.runRef, data.expected.canonicalRunRef);
+  assert.equal(canonical[0].paperclip.issueDisposition, data.expected.canonicalIssueDisposition);
+  assert.equal(canonical[0].object.verdict, data.expected.canonicalObjectVerdict);
+  assert.equal(canonical[0].operations.readiness, data.expected.canonicalOperationalReadiness);
+  assert.equal(results.filter((entry) => entry.report.state === "superseded").length, data.expected.supersededReportCount);
+  assert.ok(results.filter((entry) => entry.report.state === "superseded")
+    .every((entry) => entry.report.supersededBy === data.expected.canonicalReportRef));
+});
+
+test("ambiguous aggregate states and duplicate canonical results fail closed", () => {
+  const data = fixture("optiak-durable-completion", "result-set");
+  for (const invalid of data.invalidAggregates) {
+    assert.throws(() => validateResultEnvelope(invalid), /ambiguous or unsupported top-level result fields/);
+  }
+
+  const duplicateRun = structuredClone(data.results[0]);
+  duplicateRun.report.reportRef = "fixture-report-duplicate-run";
+  duplicateRun.object.revision = "sample-2";
+  assert.throws(
+    () => validateResultEnvelopes([...data.results, duplicateRun]),
+    /more than one canonical report for run/,
+  );
+
+  const duplicateTarget = structuredClone(data.results[0]);
+  duplicateTarget.report.runRef = "fixture-run-duplicate-target";
+  duplicateTarget.report.reportRef = "fixture-report-duplicate-target";
+  assert.throws(
+    () => validateResultEnvelopes([...data.results, duplicateTarget]),
+    /more than one canonical report for the same object revision and review kind/,
+  );
 });
 
 test("every agent is assigned the durable completion contract", () => {

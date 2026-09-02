@@ -13,7 +13,7 @@ Keep all agents and routines paused except the single agent under test.
 7. Ask Documentation/DX to review `optiak-docs-drift/references/fixtures/claims.md`. Expect `blocked_on_authority`.
 8. Ask Engineering Assurance Lead to assess `optiak-release-readiness/references/fixtures/release.md`. Expect `not_ready`.
 
-Each result must name fixture scope, evidence, unknowns, next owner, and next action.
+Each result must name fixture scope, evidence, unknowns, next owner, and next action. It must also preserve the qualified `optiak-result-envelope/v1` layers: issue disposition, report state/canonicality, object verdict, operational readiness, and evidence state. A bare overall `done`, `complete`, `PASS`, `blocked`, or `ready` fails the smoke.
 
 All offline fixtures are Markdown references with fenced JSON. This keeps them readable by agents and portable through both UI and CLI company imports.
 

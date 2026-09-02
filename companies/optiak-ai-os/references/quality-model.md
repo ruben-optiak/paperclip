@@ -35,3 +35,13 @@ From strongest to weakest:
 7. hypothesis or heuristic.
 
 Fixtures prove the workflow, not the current product.
+
+## Result layers and history
+
+A successful run, a completed issue, a final report, an object verdict, and operational readiness are different claims. Every final report follows the common contract in `skills/optiak-durable-completion/references/result-taxonomy.md` and its bundled `optiak-result-envelope/v1` schema.
+
+- Paperclip `done` means the requested report was persisted; it does not approve the reviewed object.
+- A skill-specific `pass`, `fail`, `blocked_on_evidence`, or `changes_required` applies only to the named object revision and review kind.
+- `operations.readiness` remains `not_assessed` unless the operational or release gate actually ran.
+- Prerequisite diagnoses and recovery messages are historical reports, not object verdicts.
+- Only one run-linked report is canonical for an exact object revision and review kind. A repaired retry supersedes earlier prerequisite diagnostics without deleting them.
