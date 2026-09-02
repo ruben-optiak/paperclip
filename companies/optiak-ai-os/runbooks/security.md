@@ -9,6 +9,7 @@
 - Missing data is reported as missing, never inferred from fixtures or old snapshots.
 - Customer data, sensitive prompts, provider payloads, credentials, and raw tokens never enter findings.
 - Repository, backlog, browser, API, and observability connections use separate least-privilege identities.
+- Do not add `privileged`, `CAP_SYS_ADMIN`, unconfined seccomp/AppArmor, or danger-full-access to the Paperclip control-plane container to make Bubblewrap start. Move agent execution to a dedicated boundary first and apply `runbooks/sandbox-migration.md`.
 
 ## Evidence hygiene
 

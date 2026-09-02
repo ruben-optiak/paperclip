@@ -6,7 +6,9 @@ build_dir=$(mktemp -d)
 trap 'rm -rf "$build_dir"' EXIT HUP INT TERM
 
 node --check "$package_dir/scripts/validate-package.mjs"
+node --check "$package_dir/scripts/check-sandbox-compat.mjs"
 node "$package_dir/scripts/validate-package.mjs"
+node "$package_dir/scripts/check-sandbox-compat.mjs"
 "$package_dir/scripts/scan-secrets.sh"
 node --test "$package_dir"/tests/*.test.mjs
 

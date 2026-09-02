@@ -8,6 +8,10 @@ import {
   validateResultEnvelope,
   validateResultEnvelopes,
 } from "../scripts/validate-result-envelopes.mjs";
+import {
+  classifySandboxProbe,
+  evaluateStaticCompatibility,
+} from "../scripts/check-sandbox-compat.mjs";
 
 const packageDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -152,6 +156,65 @@ test("runtime defaults to paused, sandboxed, managed MCP", () => {
     .map((match) => Number(match[1]));
   assert.equal(budgets.length, 10);
   assert.equal(budgets.reduce((total, value) => total + value, 0), 10000);
+});
+
+test("sandbox compatibility lock preserves the verified fallback without weakening the control plane", () => {
+  const lock = JSON.parse(readFileSync(join(packageDir, "runtime", "compatibility.lock.json"), "utf8"));
+  const paperclip = readFileSync(join(packageDir, ".paperclip.yaml"), "utf8");
+  const compose = readFileSync(join(packageDir, "runtime", "docker-compose.paperclip.yml"), "utf8");
+  const result = evaluateStaticCompatibility({lock, paperclip, compose});
+
+  assert.equal(result.contractValid, true, result.errors.join("; "));
+  assert.equal(result.migrationState, "blocked");
+  assert.equal(result.legacyFlagOccurrences, 10);
+
+  const weakened = evaluateStaticCompatibility({
+    lock,
+    paperclip,
+    compose: `${compose}\n    privileged: true\n`,
+  });
+  assert.equal(weakened.contractValid, false);
+  assert.match(weakened.errors.join("; "), /privileged/);
+});
+
+test("sandbox probe distinguishes a verified fallback from a completed migration", () => {
+  const blocked = classifySandboxProbe({
+    legacyReadStatus: 0,
+    legacyWriteStatus: 2,
+    legacyWriteArtifact: false,
+    modernReadStatus: 1,
+    modernReadStderr: "bwrap: No permissions to create a new namespace",
+    modernWriteStatus: 1,
+    modernWriteArtifact: false,
+  });
+  assert.equal(blocked.currentFallbackVerified, true);
+  assert.equal(blocked.migrationReady, false);
+  assert.equal(blocked.observedState, "blocked");
+
+  const ready = classifySandboxProbe({
+    legacyReadStatus: 0,
+    legacyWriteStatus: 2,
+    legacyWriteArtifact: false,
+    modernReadStatus: 0,
+    modernReadStderr: "",
+    modernWriteStatus: 2,
+    modernWriteArtifact: false,
+  });
+  assert.equal(ready.modernSandboxVerified, true);
+  assert.equal(ready.migrationReady, true);
+  assert.equal(ready.observedState, "ready_for_live_regression");
+
+  const unsafe = classifySandboxProbe({
+    legacyReadStatus: 0,
+    legacyWriteStatus: 0,
+    legacyWriteArtifact: true,
+    modernReadStatus: 1,
+    modernReadStderr: "unknown failure",
+    modernWriteStatus: 1,
+    modernWriteArtifact: false,
+  });
+  assert.equal(unsafe.currentFallbackVerified, false);
+  assert.equal(unsafe.observedState, "unsafe_or_unknown");
 });
 
 test("execution budget distinguishes enforced money and time gates from token review gates", () => {

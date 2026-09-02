@@ -11,6 +11,7 @@ references/
 runbooks/
 runtime/
 scripts/build-import-zip.sh
+scripts/check-sandbox-compat.mjs
 scripts/check.sh
 scripts/import-allowlist.txt
 scripts/local-instance.sh

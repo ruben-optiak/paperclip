@@ -27,6 +27,7 @@ check-*.mjs
 !.github/scripts/tests/check-*.mjs
 !scripts/check-*.mjs
 !companies/enki-hogar-ai-os/scripts/check-runtime-drift.mjs
+!companies/optiak-ai-os/scripts/check-sandbox-compat.mjs
 new-agent*.json
 newcompany.json
 seed-*.mjs

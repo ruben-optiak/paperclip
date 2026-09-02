@@ -98,11 +98,14 @@ const requiredFiles = [
   "runbooks/local-setup.md",
   "runbooks/connections.md",
   "runbooks/execution-budgets.md",
+  "runbooks/sandbox-migration.md",
   "runbooks/security.md",
   "runbooks/smoke-test.md",
+  "runtime/compatibility.lock.json",
   "runtime/docker-compose.paperclip.yml",
   "scripts/scan-secrets.sh",
   "scripts/build-import-zip.sh",
+  "scripts/check-sandbox-compat.mjs",
   "scripts/import-allowlist.txt",
   "scripts/local-instance.sh",
   "scripts/summarize-run-usage.mjs",
@@ -125,7 +128,7 @@ for (const path of allFiles.filter((candidate) => candidate.endsWith(".json"))) 
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md must declare agentcompanies/v1");
 if (company.slug !== "optiak-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.3") fail("Unexpected company version");
+if (company.version !== "0.1.4") fail("Unexpected company version");
 if (company.license !== "LicenseRef-Optiak-Internal") fail("Unexpected company license");
 
 const agentFiles = allFiles.filter((path) => path.endsWith(`${sep}AGENTS.md`) && path.includes(`${sep}agents${sep}`));
@@ -246,6 +249,19 @@ if ((paperclip.match(/timeoutSec: 300/g) || []).length !== 10) fail("Every agent
 if ((paperclip.match(/maxDailyRuns: /g) || []).length !== 10) fail("Every agent must have a daily run cap");
 if ((paperclip.match(/maxDailyCostCents: /g) || []).length !== 10) fail("Every agent must have a daily cost cap");
 
+const compatibility = JSON.parse(readFileSync(join(packageDir, "runtime", "compatibility.lock.json"), "utf8"));
+if (compatibility.schema !== "optiak-runtime-compatibility/v1") fail("Unexpected runtime compatibility schema");
+if (compatibility.packageVersion !== company.version) fail("Runtime compatibility package version drift");
+if (compatibility.codex?.targetBackendStatus !== "blocked") fail("Modern sandbox must remain blocked until live migration evidence exists");
+const expectedLegacyFlags = compatibility.codex?.expectedLegacyFlagOccurrences;
+if ((paperclip.match(/features\.use_legacy_landlock=true/g) || []).length !== expectedLegacyFlags) {
+  fail("Legacy sandbox flag count does not match the compatibility lock");
+}
+const compose = readFileSync(join(packageDir, "runtime", "docker-compose.paperclip.yml"), "utf8");
+for (const pattern of [/privileged:\s*true/i, /SYS_ADMIN/i, /seccomp\s*[:=]\s*unconfined/i, /apparmor\s*[:=]\s*unconfined/i]) {
+  if (pattern.test(compose)) fail("Control-plane Compose must not weaken Docker isolation for Bubblewrap");
+}
+
 const executionBudget = readFileSync(join(packageDir, "policies", "execution-budget.yaml"), "utf8");
 for (const marker of [
   "monthlyBilledCents: 15000",
@@ -291,7 +307,7 @@ for (const marker of [
 }
 
 const desired = readFileSync(join(packageDir, "policies", "desired-state.yaml"), "utf8");
-for (const marker of ["expected: 10", "expected: 4", "importedPaused: true", "companyMonthlyBilledCents: 15000", "warnPercent: 80", "hardStopPercent: 100", "productionMutation: deny"]) {
+for (const marker of ["expected: 10", "expected: 4", "importedPaused: true", "companyMonthlyBilledCents: 15000", "warnPercent: 80", "hardStopPercent: 100", "productionMutation: deny", "migrationStatus: blocked", "controlPlanePrivilegeExpansion: deny"]) {
   if (!desired.includes(marker)) fail(`Desired-state marker missing: ${marker}`);
 }
 const allowlist = readFileSync(join(packageDir, "policies", "tool-allowlist.yaml"), "utf8");

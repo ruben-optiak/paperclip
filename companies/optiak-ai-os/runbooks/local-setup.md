@@ -38,6 +38,8 @@ It creates `data/docker-paperclip-optiak/.better-auth-secret` on first use with 
 
 Do not point in-container `PAPERCLIP_API_URL` at host port `3200`: that port exists on the Docker host, not on the container loopback interface.
 
+The current shared container cannot start Codex's Bubblewrap sandbox under Docker's built-in seccomp profile. Keep the versioned legacy Landlock fallback and follow `sandbox-migration.md`; removing the warning without passing its `--require-ready` probe would break agent commands. Never add broad Docker privileges to this control-plane service as a workaround.
+
 To stop Optiak without touching Enki:
 
 ```sh
