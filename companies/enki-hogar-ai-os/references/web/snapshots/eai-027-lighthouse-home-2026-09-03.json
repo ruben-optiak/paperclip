@@ -1,0 +1,29 @@
+{
+  "schema": "enki-lighthouse-summary/v1",
+  "observedAt": "2026-09-03T12:21:41.529Z",
+  "origin": "https://www.enkihogar.com",
+  "lighthouseVersion": "13.4.1",
+  "environment": {
+    "formFactor": "mobile",
+    "screenEmulation": {"mobile": true, "width": 412, "height": 823, "deviceScaleFactor": 1.75},
+    "throttlingMethod": "simulate",
+    "benchmarkIndex": 2607.5,
+    "userAgentRetained": false
+  },
+  "categories": {"performance": 0.62, "accessibility": 0.86, "bestPractices": 1, "seo": 1},
+  "metrics": {
+    "firstContentfulPaintMs": 2944.469,
+    "largestContentfulPaintMs": 6272.707,
+    "cumulativeLayoutShift": 0.160760,
+    "speedIndexMs": 4573.811,
+    "totalBlockingTimeMs": 115.5,
+    "serverResponseTimeMs": 50
+  },
+  "budgetComparison": {
+    "fcpPassed": false,
+    "lcpPassed": false,
+    "clsPassed": true
+  },
+  "retention": {"rawReportRetained": false, "screenshotsRetained": false, "responseBodiesRetained": false},
+  "authority": {"isObservationOnly": true, "isOptimizationAuthority": false, "containsPii": false, "containsCredentials": false}
+}

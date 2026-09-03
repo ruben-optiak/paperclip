@@ -1,0 +1,43 @@
+{
+  "schema": "enki-public-web-baseline-config/v1",
+  "version": "1.0.0",
+  "origin": "https://www.enkihogar.com",
+  "environment": {
+    "browser": "system-google-chrome-headless",
+    "viewport": {"width": 1365, "height": 768},
+    "locale": "es-ES",
+    "timezoneId": "Europe/Madrid",
+    "cache": "cold-context-per-run",
+    "networkThrottle": "none"
+  },
+  "safety": {
+    "allowedMethods": ["GET", "HEAD"],
+    "clicksAllowed": false,
+    "formSubmissionAllowed": false,
+    "cookiesRetained": false,
+    "responseBodiesRetained": false,
+    "screenshotsRetained": false
+  },
+  "targets": [
+    {"id": "home", "kind": "home", "path": "/", "required": ["h1", "canonical_same_origin"]},
+    {"id": "category", "kind": "category", "path": "/accesorios-de-bano-estanterias/", "required": ["h1", "canonical_same_origin", "product_links"]},
+    {"id": "product", "kind": "product", "path": "/estanteria-pared-n1/", "required": ["h1", "canonical_same_origin", "purchase_control"]},
+    {"id": "help", "kind": "content", "path": "/ayuda-de-compra/", "required": ["h1", "canonical_same_origin"]}
+  ],
+  "budgets": {
+    "status2xx": true,
+    "ttfbMsMax": 1500,
+    "fcpMsMax": 2500,
+    "lcpMsMax": 4000,
+    "clsMax": 0.25,
+    "loadMsMax": 6000,
+    "encodedBytesMax": 5242880
+  },
+  "interpretation": {
+    "functionalFailure": "A required page signal is absent or navigation is non-2xx.",
+    "budgetFailure": "Observed lab metric exceeds its explicit budget; this is evidence for review, not optimization authority.",
+    "missingMetric": "Unavailable is not pass and must remain null.",
+    "lighthouseScore": "Produced separately with pinned Lighthouse 13.4.1; never substitute browser-harness timings for its scores."
+  },
+  "authority": {"isReadOnly": true, "isOptimizationAuthority": false, "isPublicationAuthority": false}
+}

@@ -1,0 +1,36 @@
+{
+  "schema": "enki-wordpress-technical-desired-state/v1",
+  "version": "1.0.0",
+  "owner": "technology-manager",
+  "surfaces": {
+    "wordpressLive": ["core_version", "active_theme", "active_plugins", "snippets", "public_rest_namespaces"],
+    "repository": ["scanner", "functional_checks", "performance_budgets", "rollback_evidence"],
+    "runtimeConfiguration": ["gtm_container", "cache", "cdn", "consent_configuration"]
+  },
+  "invariants": {
+    "httpsRequired": true,
+    "publicInspectionMethods": ["GET", "HEAD"],
+    "credentialsAllowed": false,
+    "customerDataAllowed": false,
+    "rawHtmlRetentionAllowed": false,
+    "gtmIdentifiersRetained": false,
+    "pluginOrThemeMutationAllowed": false,
+    "wordpressVersionInferenceAllowed": false
+  },
+  "snapshot": {
+    "command": "node scripts/web/inspect-public-wordpress.mjs https://www.enkihogar.com/",
+    "approvedBaselineSha256": null,
+    "approvalStatus": "pending_board_baseline_selection",
+    "newSnapshotOnEveryRun": true
+  },
+  "drift": {
+    "fail": ["https_missing", "homepage_non_2xx", "rest_index_non_2xx", "credential_or_pii_detected", "canonical_cross_origin"],
+    "review": ["generator_changed", "plugin_slug_set_changed", "theme_slug_changed", "rest_namespace_set_changed", "gtm_fingerprint_changed", "cache_or_cdn_signal_changed"],
+    "informational": ["header_value_changed", "asset_count_changed"]
+  },
+  "changeEvidence": {
+    "requiredBeforeChange": ["issue_revision", "board_decision", "before_snapshot_sha256", "target_surface", "expected_effect", "rollback_steps"],
+    "requiredAfterChange": ["after_snapshot_sha256", "functional_smoke", "performance_comparison", "observed_effect", "rollback_status"]
+  },
+  "authority": {"isObservedDesiredState": true, "isDeploymentAuthority": false, "isPublicationAuthority": false}
+}

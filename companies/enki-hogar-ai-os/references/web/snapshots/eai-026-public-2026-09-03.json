@@ -1,0 +1,65 @@
+{
+  "schema": "enki-wordpress-public-snapshot/v1",
+  "observedAt": "2026-09-03T12:18:05.934Z",
+  "origin": "https://www.enkihogar.com",
+  "requests": {"methods": ["GET"], "homepageStatus": 200, "restStatus": 200},
+  "wordpress": {
+    "generator": "WordPress 7.1",
+    "plugins": [
+      "ajax-search-for-woocommerce",
+      "cart-for-woocommerce",
+      "complianz-gdpr-premium",
+      "duracelltomi-google-tag-manager",
+      "elementor",
+      "elementor-pro",
+      "jet-elements",
+      "jet-engine",
+      "jet-tricks",
+      "woo-variation-swatches",
+      "woocommerce",
+      "wp-marketing-automations",
+      "wp-rocket",
+      "wp-whatsapp-chat",
+      "yith-woocommerce-ajax-product-filter-premium",
+      "yith-woocommerce-product-add-ons"
+    ],
+    "themes": ["hello-elementor"],
+    "gtm": {
+      "present": true,
+      "count": 1,
+      "fingerprintSha256": "54a93a744105531e56c67ceaf7be19cdf20633017be724cf78a8647dd740e00d",
+      "identifiersRetained": false
+    },
+    "canonical": {"present": true, "sameOrigin": true},
+    "rawHtmlRetained": false,
+    "restNamespaces": [
+      "adsagent/v1", "adtribes/v1", "autonami/v1", "autonami/v2", "code-snippets/v1",
+      "complianz/v1", "croco/v1", "elementor-ai/v1", "elementor-pro/v1", "elementor/v1",
+      "elementor/v1/documents", "enki-ai-discovery/v1", "filebird/public/v1", "filebird/v1",
+      "fkcf/v1", "funnelkit-app", "jet-elements-api/v1", "jet-engine/v1", "jet-engine/v2",
+      "jet-tricks-api/v1", "jetpack/v4", "mcp", "oembed/1.0", "popup-maker/v2", "ppom/v1",
+      "pum/v1", "qlwapp/v1", "quadlayers/wp-whatsapp-chat", "redirection/v1", "saswp-output",
+      "wc-admin", "wc-admin-email", "wc-analytics", "wc-telemetry", "wc/pos/v1/catalog",
+      "wc/private", "wc/store", "wc/store/v1", "wc/v1", "wc/v2", "wc/v3", "wccom-site/v3",
+      "wfacp-admin", "wffn", "woofunnel_customer/v1", "woofunnels/v1", "wp-abilities/v1",
+      "wp-all-import/v1", "wp-block-editor/v1", "wp-rocket/v1", "wp-site-health/v1", "wp/v2",
+      "yoast/v1"
+    ]
+  },
+  "infrastructureSignals": {
+    "homepageHeaders": {"server": "Apache", "cache-control": "max-age=0"},
+    "restHeaders": {"server": "Apache", "cache-control": "max-age=0"}
+  },
+  "unknown": {
+    "activePluginVersions": true,
+    "snippets": true,
+    "consentConfiguration": true,
+    "changeHistory": true
+  },
+  "authority": {
+    "publicObservationOnly": true,
+    "containsCredentials": false,
+    "containsPii": false,
+    "isMutationAuthority": false
+  }
+}

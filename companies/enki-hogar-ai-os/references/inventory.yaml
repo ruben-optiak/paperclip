@@ -226,6 +226,62 @@
       "license": "LicenseRef-Enki-Hogar-Internal",
       "purpose": "Canonical manifest contract for immutable approved brand/domain support packs",
       "sensitivity": "enki_internal"
+    },
+    {
+      "target": "measurement/eai-006-baseline-2026-09-03.json",
+      "targetSha256": "9cb8e4b3b2a04039c683b169dcf1017543b5afbbe7ca55f471fe4353b9894e88",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Closed-period GA4, GSC and Woo aggregate receipt with explicit measurement usability gates",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "finance/minimum-data-contract-v1.json",
+      "targetSha256": "3e965770d915f70bc0f383b72898c80525f2ec5389c3556b36d08f01280b33af",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Fail-closed financial source contract separating observable commerce aggregates from unavailable accounting truth",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "web/wordpress-technical-desired-state.json",
+      "targetSha256": "a43eb30b128ec70e8a2f70294c305be215eeb4f01714beaa613dbb91d1d67b3d",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Read-only WordPress technical desired state, drift classes and change/rollback evidence contract",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "web/public-web-baseline-v1.json",
+      "targetSha256": "6703b2f793bdc39d65164da1ff2199aa1ec7e9e62ef191bd4deb6750899ec398",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Pinned same-origin functional targets, lab environment, safety invariants and performance budgets",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "web/snapshots/eai-026-public-2026-09-03.json",
+      "targetSha256": "343d13fe52bd3d511dc6a421400bb660dec8764f232a31523c5c2a88ff401093",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Redacted public WordPress inventory with explicit administrative unknowns",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "web/snapshots/eai-027-browser-2026-09-03.json",
+      "targetSha256": "06bef14deb91d7d8338dabc5d0b83629ec3abd34b76ccb5ecebd69a65006f1d7",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Redacted four-page functional and Web Vitals baseline retaining failed checks",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "web/snapshots/eai-027-lighthouse-home-2026-09-03.json",
+      "targetSha256": "533324b56f0ffdda7cb946b43ce37876f6cde2fbbf0ad5500560ed9a5ccd6955",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Redacted pinned Lighthouse 13.4.1 mobile summary without raw bodies, requests or screenshots",
+      "sensitivity": "enki_internal"
     }
   ]
 }
