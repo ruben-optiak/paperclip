@@ -5,4 +5,4 @@ assignee: finance-bi-manager
 project: foundation-data-readiness
 ---
 
-Inventory the definitions and sources needed for COGS, shipping, payment fees, refunds, VAT treatment, new-customer status, and channel attribution. Produce a data contract and mark unavailable fields; do not estimate them as actuals.
+Apply `references/finance/minimum-data-contract-v1.json` and `runbooks/financial-data-contract.md`. Report recognized orders and checkout aggregates only with their exact Woo semantics. Keep COGS, statutory VAT/net revenue, carrier cost, PSP fees, refund-transaction timing, new customers and governed channel attribution unavailable until a reconciled source is admitted. CAC, gross margin, contribution margin and channel profitability remain `null`; do not estimate them as actuals or request customer-level data.
