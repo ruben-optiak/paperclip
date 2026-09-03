@@ -62,7 +62,7 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 
 “Always on” means event-driven alerts and bounded routines. Agents must not burn budget by polling unmanaged processes or claim on-call coverage when no signal source is connected.
 
-## Safety state in v0.1.9
+## Safety state in v0.1.10
 
 - All agents and routine schedules import paused.
 - Public documentation may be read; its freshness must be recorded.
@@ -91,6 +91,11 @@ The Board may assign work directly to any specialist. Reporting lines define acc
   trace search, session replay, attachments, and payload content are denied.
   All connections and automatic on-call coverage remain unavailable until their
   smokes and signed-alert tabletop pass.
+- Promotion of this AI OS is governed separately from an Optiak product release.
+  Direct local-to-production promotion is denied; the same immutable package
+  and Paperclip image candidate must pass preproduction, complete backup/restore,
+  paused import, selected-agent smokes, rollback rehearsal, and Board gates.
+  No infrastructure provider has been selected and the evaluator cannot execute.
 - No source checkout, GitHub credential or installation, approved staging tenant, browser session, backlog snapshot, logs, metrics, or production credentials are bundled.
 - Production is read-only even after connection.
 - Sandbox mutations require a dedicated test tenant, synthetic data, bounded cleanup, and an approved tool policy.
@@ -110,7 +115,7 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 Build a deterministic import archive outside the package:
 
 ```sh
-./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.9.zip
+./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.10.zip
 ```
 
 ## Getting started

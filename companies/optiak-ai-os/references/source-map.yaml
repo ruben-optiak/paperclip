@@ -8,6 +8,7 @@ policy:
   repositoryAuthorityRef: skills/optiak-pr-review/references/repository-authority.yaml
   testEnvironmentAuthorityRef: skills/optiak-e2e-validation/references/test-environment-contract.json
   observabilityAuthorityRef: skills/optiak-incident-triage/references/observability-source-contract.json
+  promotionAuthorityRef: skills/optiak-release-readiness/references/ai-os-promotion-contract.json
 sources:
   - id: public-overview
     url: https://docs.optiak.dev/getting-started/overview

@@ -1,5 +1,5 @@
 schema: optiak-desired-state/v1
-version: 0.1.9
+version: 0.1.10
 instance:
   isolation: separate_from_enki
   database: separate
@@ -76,6 +76,17 @@ connections:
     sessionReplay: deny
   production:
     state: disconnected
+promotion:
+  state: offline_contract_defined_not_deployed
+  contract: skills/optiak-release-readiness/references/ai-os-promotion-contract.json
+  infrastructureProvider: undecided
+  directLocalToProduction: deny
+  requiredValidationEnvironment: preproduction
+  sameImmutableCandidateAcrossEnvironments: true
+  importAgentsPaused: true
+  importRoutineTriggersDisabled: true
+  stageDecisionOwner: board
+  evaluatorMayExecute: false
 autonomy:
   localFixturesAndDrafts: allow
   localCredentialFreeHealthReads: exact_loopback_only

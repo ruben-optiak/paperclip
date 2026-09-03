@@ -20,6 +20,12 @@ Future declarations are created only when their connection is approved:
 | Runtime deployment read credential | `OPTIAK_RUNTIME_DEPLOY_READ_CREDENTIAL` | reliability connection | task-definition and image-digest reader only |
 | Alert webhook secret | `OPTIAK_ALERT_WEBHOOK_SECRET` | Paperclip/operator | webhook verifier only |
 
+Promotion also requires deployment-runtime secrets such as Paperclip session
+and tool-action signing keys, database credentials, storage authority, and
+secret-provider bootstrap. Their exact provider-specific names are selected
+only with the infrastructure design. They remain operator/runtime inputs, not
+company-package inputs or agent credentials.
+
 Rules:
 
 - Use dedicated identities and least privilege.
@@ -46,3 +52,6 @@ Rules:
   it; an Optiak visibility-only application budget is insufficient.
 - Secret metadata may be visible; values never enter prompts unless a governed connector requires them internally.
 - Revoke each test credential independently and record provider-side revocation evidence.
+- A database backup never substitutes for backup of the independently protected
+  local encryption master key or hosted secret-provider bootstrap required to
+  recover secret bindings.

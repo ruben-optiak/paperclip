@@ -108,6 +108,7 @@ const requiredFiles = [
   "scripts/scan-secrets.sh",
   "scripts/build-import-zip.sh",
   "scripts/check-sandbox-compat.mjs",
+  "scripts/evaluate-promotion-readiness.mjs",
   "scripts/import-allowlist.txt",
   "scripts/local-instance.sh",
   "scripts/probe-test-environment.mjs",
@@ -120,6 +121,7 @@ const requiredFiles = [
   "skills/optiak-e2e-validation/references/test-environment-contract.json",
   "skills/optiak-e2e-validation/references/golden-journey-matrix.json",
   "skills/optiak-incident-triage/references/observability-source-contract.json",
+  "skills/optiak-release-readiness/references/ai-os-promotion-contract.json",
 ];
 for (const path of requiredFiles) if (!statSafe(join(packageDir, path))) fail(`Missing required file: ${path}`);
 
@@ -136,7 +138,7 @@ for (const path of allFiles.filter((candidate) => candidate.endsWith(".json"))) 
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md must declare agentcompanies/v1");
 if (company.slug !== "optiak-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.9") fail("Unexpected company version");
+if (company.version !== "0.1.10") fail("Unexpected company version");
 if (company.license !== "LicenseRef-Optiak-Internal") fail("Unexpected company license");
 
 const agentFiles = allFiles.filter((path) => path.endsWith(`${sep}AGENTS.md`) && path.includes(`${sep}agents${sep}`));
@@ -315,15 +317,18 @@ for (const marker of [
 }
 
 const desired = readFileSync(join(packageDir, "policies", "desired-state.yaml"), "utf8");
-for (const marker of ["expected: 10", "expected: 4", "importedPaused: true", "companyMonthlyBilledCents: 15000", "warnPercent: 80", "hardStopPercent: 100", "inference: deliberately_deferred_until_deployed_environment", "state: offline_contract_defined_connection_disconnected", "automaticOncallCoverage: false", "productionMutation: deny", "migrationStatus: blocked", "controlPlanePrivilegeExpansion: deny"]) {
+for (const marker of ["expected: 10", "expected: 4", "importedPaused: true", "companyMonthlyBilledCents: 15000", "warnPercent: 80", "hardStopPercent: 100", "inference: deliberately_deferred_until_deployed_environment", "state: offline_contract_defined_connection_disconnected", "automaticOncallCoverage: false", "state: offline_contract_defined_not_deployed", "infrastructureProvider: undecided", "directLocalToProduction: deny", "sameImmutableCandidateAcrossEnvironments: true", "evaluatorMayExecute: false", "productionMutation: deny", "migrationStatus: blocked", "controlPlanePrivilegeExpansion: deny"]) {
   if (!desired.includes(marker)) fail(`Desired-state marker missing: ${marker}`);
 }
 const allowlist = readFileSync(join(packageDir, "policies", "tool-allowlist.yaml"), "utf8");
-for (const marker of ["defaultDecision: quarantine", "productionMutation: deny", "merge: deny", "deploy: deny", "secretAdministration: deny", "follow_versioned_observability_source_contract", "capability: raw_events_read", "capability: application_logs_read", "capability: sentry_session_replay_read", "decision: pending_connection_and_tabletop"]) {
+for (const marker of ["defaultDecision: quarantine", "productionMutation: deny", "merge: deny", "deploy: deny", "secretAdministration: deny", "follow_versioned_observability_source_contract", "capability: raw_events_read", "capability: application_logs_read", "capability: sentry_session_replay_read", "decision: pending_connection_and_tabletop", "capability: promotion_evidence_read", "capability: promotion_readiness_evaluate", "output_is_advice_not_authority", "capability: promotion_deploy_import_restore_or_activate"]) {
   if (!allowlist.includes(marker)) fail(`Tool policy marker missing: ${marker}`);
 }
 const sourceMap = readFileSync(join(packageDir, "references", "source-map.yaml"), "utf8");
 if (!sourceMap.includes("wholeSiteSnapshotsAllowed: false")) fail("Source map must deny whole-site snapshots");
+if (!sourceMap.includes("promotionAuthorityRef: skills/optiak-release-readiness/references/ai-os-promotion-contract.json")) {
+  fail("Promotion source-map authority reference missing");
+}
 if ((sourceMap.match(/status: disconnected/g) || []).length !== 4) fail("Future source disconnection state drift");
 for (const marker of ["status: authorized_pending_connection", "provider: Linear", "team: OPT", "https://mcp.linear.app/mcp/readonly"]) {
   if (!sourceMap.includes(marker)) fail(`Product source-map marker missing: ${marker}`);
@@ -458,6 +463,85 @@ for (const field of [
   if (!observabilityContract.redaction?.neverReturn?.includes(field)) {
     fail(`Observability redaction marker missing: ${field}`);
   }
+}
+
+const promotionContract = JSON.parse(readFileSync(
+  join(
+    packageDir,
+    "skills",
+    "optiak-release-readiness",
+    "references",
+    "ai-os-promotion-contract.json",
+  ),
+  "utf8",
+));
+if (promotionContract.schema !== "optiak-ai-os-promotion-contract/v1") {
+  fail("Unexpected AI OS promotion contract schema");
+}
+if (promotionContract.packageVersion !== company.version) {
+  fail("AI OS promotion contract package version drift");
+}
+if (promotionContract.status !== "offline_defined_not_deployed") {
+  fail("AI OS promotion contract must not imply a deployed environment");
+}
+if (promotionContract.providerPolicy?.infrastructureProvider !== "undecided"
+  || promotionContract.providerPolicy?.portableRequirementsOnly !== true
+  || promotionContract.providerPolicy?.requiredImageIdentity !== "immutable_registry_digest"
+  || promotionContract.providerPolicy?.mutableImageTagIsEvidence !== false) {
+  fail("AI OS promotion provider-neutral or immutable-image policy drift");
+}
+if (promotionContract.environmentPolicy?.directLocalToProduction !== "deny"
+  || promotionContract.environmentPolicy?.requiredValidationEnvironment !== "preproduction"
+  || promotionContract.environmentPolicy?.localEvidenceMaySupportProductionReadiness !== false) {
+  fail("AI OS promotion environment policy drift");
+}
+if (promotionContract.environmentPolicy?.requiredEvidenceScopes?.preproduction
+    !== "connected_non_production"
+  || promotionContract.environmentPolicy?.requiredEvidenceScopes?.production !== "production") {
+  fail("AI OS promotion evidence-scope policy drift");
+}
+if (promotionContract.environmentPolicy?.finalEnvironment !== "production"
+  || promotionContract.environmentPolicy?.authoring !== "local") {
+  fail("AI OS promotion environment sequence drift");
+}
+const expectedPromotionStages = ["paused_import", "limited_agent_activation", "routine_activation"];
+if (JSON.stringify(promotionContract.stageOrder) !== JSON.stringify(expectedPromotionStages)) {
+  fail("AI OS promotion stage order drift");
+}
+if (promotionContract.gates?.length !== 22) {
+  fail(`Expected 22 AI OS promotion gates, found ${promotionContract.gates?.length ?? 0}`);
+}
+const promotionGateIds = new Set((promotionContract.gates ?? []).map((gate) => gate.id));
+if (promotionGateIds.size !== promotionContract.gates?.length) fail("Duplicate AI OS promotion gate id");
+for (const requiredGate of [
+  "package_archive_reproducible",
+  "paperclip_image_pinned",
+  "complete_backup_set_ready",
+  "restore_rehearsal_passed",
+  "import_preview_collision_free",
+  "rollback_rehearsal_passed",
+  "same_candidate_passed_preproduction",
+  "production_prechange_backup_fresh",
+]) {
+  if (!promotionGateIds.has(requiredGate)) fail(`Missing AI OS promotion gate: ${requiredGate}`);
+}
+for (const backupItem of [
+  "object_or_local_disk_attachments_and_artifacts",
+  "registered_project_and_execution_workspace_data_required_for_recovery",
+  "secret_provider_metadata_and_the_separately_protected_master_key_or_provider_bootstrap",
+]) {
+  if (!promotionContract.completeBackupSet?.includes(backupItem)) {
+    fail(`AI OS complete backup-set item missing: ${backupItem}`);
+  }
+}
+const promotionExecution = promotionContract.executionPolicy ?? {};
+if (promotionExecution.evaluatorMayDeploy !== false
+  || promotionExecution.agentMayDeploy !== false
+  || promotionExecution.agentMayRollback !== false
+  || promotionExecution.agentMayActivateAgentOrRoutine !== false
+  || promotionExecution.boardDecisionRequiredForEveryStage !== true
+  || promotionExecution.successfulEvaluation !== "ready_for_board_decision_only") {
+  fail("AI OS promotion execution authority drift");
 }
 
 const testEnvironment = JSON.parse(readFileSync(

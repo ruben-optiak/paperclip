@@ -116,3 +116,18 @@ reviewedCapabilities:
     decision: deny
   - capability: production_observability_read
     decision: pending_connection_tabletop_and_board_approval
+  - capability: promotion_evidence_read
+    decision: allow
+    conditions:
+      - exact_candidate_fingerprint
+      - redacted_metadata_only
+      - no_secret_values
+      - no_infrastructure_or_deployment_mutation
+  - capability: promotion_readiness_evaluate
+    decision: allow
+    conditions:
+      - offline_deterministic_evaluator
+      - output_is_advice_not_authority
+      - ready_means_ready_for_board_decision_only
+  - capability: promotion_deploy_import_restore_or_activate
+    decision: deny

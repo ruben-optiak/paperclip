@@ -17,7 +17,7 @@ This is versioned desired state, not proof of live Paperclip bindings. Apply pro
 
 No role has merge, deploy, production mutation, infrastructure mutation, secret administration, user impersonation, billing mutation, or policy-bypass authority in v0.1.
 
-The portable local target in v0.1.9 defaults to credential-free reachability.
+The portable local target in v0.1.10 defaults to credential-free reachability.
 No role receives an authenticated browser session, application credential, or
 synthetic write until every environment-contract gate passes. Production test
 access is denied; future production observability reads are a separate policy.
@@ -37,3 +37,7 @@ grant Git access to the Director, Engineering Assurance, Architecture,
 Engineering, QA, Product, Brand/UI, Reliability, or Documentation agents. The
 default for every repository except `optiak/optiak` and
 `optiak/optiak-frontend` is deny.
+
+Promotion evidence may be read and evaluated offline, but no role may deploy,
+import into a hosted target, restore data, activate an agent, or enable a routine.
+Each stage requires an exact Board decision outside the evaluator.

@@ -17,6 +17,12 @@ import {
   summarizeLiveProbe,
   validateTestEnvironmentContract,
 } from "../scripts/probe-test-environment.mjs";
+import {
+  candidateFingerprint,
+  evaluatePromotionEvidence,
+  loadPromotionContract,
+  requiredPromotionGates,
+} from "../scripts/evaluate-promotion-readiness.mjs";
 
 const packageDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -203,6 +209,117 @@ test("release evidence with missing gates is not ready", () => {
   const data = fixture("optiak-release-readiness", "release");
   assert.equal(data.gates.stagingE2E, "missing");
   assert.equal(data.expectedVerdict, "not_ready");
+});
+
+function materializePromotionEvidence(contract, promotionFixture, fixtureCase) {
+  const required = requiredPromotionGates(
+    contract,
+    fixtureCase.targetEnvironment,
+    fixtureCase.requestedStage,
+  );
+  return {
+    schema: "optiak-ai-os-promotion-evidence/v1",
+    evidenceScope: "fixture_only",
+    targetEnvironment: fixtureCase.targetEnvironment,
+    sourceEnvironment: fixtureCase.sourceEnvironment,
+    requestedStage: fixtureCase.requestedStage,
+    candidate: promotionFixture.candidate,
+    gateResults: required.map((gate) => {
+      const status = fixtureCase.gateOverrides[gate.id]
+        ?? fixtureCase.defaultRequiredGateStatus;
+      return {
+        gateId: gate.id,
+        status,
+        evidenceRefs: status === "pass" ? [`fixture://${fixtureCase.id}/${gate.id}`] : [],
+        checkedAt: "2026-09-03T00:00:00.000Z",
+      };
+    }),
+  };
+}
+
+test("AI OS promotion contract is provider-neutral, staged, and advice-only", () => {
+  const contract = loadPromotionContract();
+  assert.equal(contract.schema, "optiak-ai-os-promotion-contract/v1");
+  assert.equal(contract.packageVersion, "0.1.10");
+  assert.equal(contract.status, "offline_defined_not_deployed");
+  assert.equal(contract.providerPolicy.infrastructureProvider, "undecided");
+  assert.equal(contract.environmentPolicy.directLocalToProduction, "deny");
+  assert.deepEqual(contract.environmentPolicy.requiredEvidenceScopes, {
+    preproduction: "connected_non_production",
+    production: "production",
+  });
+  assert.deepEqual(contract.stageOrder, [
+    "paused_import",
+    "limited_agent_activation",
+    "routine_activation",
+  ]);
+  assert.equal(contract.gates.length, 22);
+  assert.equal(new Set(contract.gates.map((gate) => gate.id)).size, 22);
+  assert.equal(requiredPromotionGates(contract, "preproduction", "paused_import").length, 11);
+  assert.equal(requiredPromotionGates(contract, "production", "paused_import").length, 14);
+  assert.ok(contract.completeBackupSet.some((item) => item.includes("attachments_and_artifacts")));
+  assert.ok(contract.completeBackupSet.some((item) => item.includes("workspace_data")));
+  assert.ok(contract.completeBackupSet.some((item) => item.includes("master_key")));
+  assert.equal(contract.executionPolicy.evaluatorMayDeploy, false);
+  assert.equal(contract.executionPolicy.agentMayDeploy, false);
+  assert.equal(contract.executionPolicy.agentMayRollback, false);
+  assert.equal(contract.executionPolicy.agentMayActivateAgentOrRoutine, false);
+  assert.equal(contract.executionPolicy.boardDecisionRequiredForEveryStage, true);
+});
+
+test("promotion evaluator handles every synthetic fixture case without authorizing execution", () => {
+  const contract = loadPromotionContract();
+  const promotionFixture = fixture("optiak-release-readiness", "promotion");
+  assert.equal(promotionFixture.schema, "optiak-ai-os-promotion-fixture/v1");
+  for (const fixtureCase of promotionFixture.cases) {
+    const evidence = materializePromotionEvidence(contract, promotionFixture, fixtureCase);
+    const result = evaluatePromotionEvidence(evidence, contract);
+    assert.equal(result.verdict, fixtureCase.expectedVerdict, fixtureCase.id);
+    assert.equal(result.doesNotAuthorizeExecution, true, fixtureCase.id);
+    assert.match(result.candidateFingerprint, /^[0-9a-f]{64}$/);
+  }
+});
+
+test("promotion evaluator fingerprints exact candidates and rejects unsupported evidence", () => {
+  const contract = loadPromotionContract();
+  const promotionFixture = fixture("optiak-release-readiness", "promotion");
+  const fixtureCase = promotionFixture.cases.find(
+    (item) => item.id === "synthetic-preproduction-gates-only",
+  );
+  const evidence = materializePromotionEvidence(contract, promotionFixture, fixtureCase);
+  const firstFingerprint = candidateFingerprint(evidence.candidate);
+  const secondFingerprint = candidateFingerprint(structuredClone(evidence.candidate));
+  assert.equal(firstFingerprint, secondFingerprint);
+  assert.match(firstFingerprint, /^[0-9a-f]{64}$/);
+
+  evidence.gateResults[0].evidenceRefs = [];
+  assert.throws(
+    () => evaluatePromotionEvidence(evidence, contract),
+    /requires an evidence reference/,
+  );
+});
+
+test("promotion evaluator requires environment-appropriate evidence before Board readiness", () => {
+  const contract = loadPromotionContract();
+  const promotionFixture = fixture("optiak-release-readiness", "promotion");
+  const fixtureCase = promotionFixture.cases.find(
+    (item) => item.id === "synthetic-preproduction-gates-only",
+  );
+  const evidence = materializePromotionEvidence(contract, promotionFixture, fixtureCase);
+
+  const fixtureResult = evaluatePromotionEvidence(evidence, contract);
+  assert.equal(fixtureResult.verdict, "blocked_on_evidence");
+  assert.equal(fixtureResult.evidenceScopeEligible, false);
+
+  evidence.evidenceScope = "connected_non_production";
+  evidence.gateResults = evidence.gateResults.map((result) => ({
+    ...result,
+    evidenceRefs: result.evidenceRefs.map((reference) => reference.replace("fixture://", "evidence://")),
+  }));
+  const connectedResult = evaluatePromotionEvidence(evidence, contract);
+  assert.equal(connectedResult.verdict, "ready_for_board_decision");
+  assert.equal(connectedResult.evidenceScopeEligible, true);
+  assert.equal(connectedResult.doesNotAuthorizeExecution, true);
 });
 
 test("durable completion closes once from memory with run-linked time provenance", () => {
