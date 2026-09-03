@@ -109,6 +109,7 @@ const requiredFiles = [
   "scripts/build-import-zip.sh",
   "scripts/check-sandbox-compat.mjs",
   "scripts/evaluate-promotion-readiness.mjs",
+  "scripts/evaluate-prd-readiness.mjs",
   "scripts/import-allowlist.txt",
   "scripts/local-instance.sh",
   "scripts/probe-test-environment.mjs",
@@ -124,6 +125,7 @@ const requiredFiles = [
   "skills/optiak-release-readiness/references/ai-os-promotion-contract.json",
   "skills/optiak-architecture-review/references/architecture-authority-map.json",
   "skills/optiak-docs-drift/references/documentation-authority-map.json",
+  "skills/optiak-prd-review/references/prd-readiness-contract.json",
 ];
 for (const path of requiredFiles) if (!statSafe(join(packageDir, path))) fail(`Missing required file: ${path}`);
 
@@ -498,6 +500,57 @@ for (const domain of documentationDomains) {
   if (!domain.reviewCadence || !domain.escalation || !(domain.comparisonAuthorities?.length > 0)) {
     fail(`Incomplete documentation authority domain: ${domain.id}`);
   }
+}
+
+const prdReadinessContract = JSON.parse(readFileSync(
+  join(
+    packageDir,
+    "skills",
+    "optiak-prd-review",
+    "references",
+    "prd-readiness-contract.json",
+  ),
+  "utf8",
+));
+if (prdReadinessContract.schema !== "optiak-prd-readiness-contract/v1"
+  || prdReadinessContract.status !== "offline_defined_no_product_decision_implied"
+  || prdReadinessContract.humanConflictOwner !== "board") {
+  fail("Unexpected PRD readiness contract identity or authority");
+}
+if (JSON.stringify(prdReadinessContract.verdicts)
+    !== JSON.stringify(["ready_for_architecture", "changes_required", "blocked_on_evidence"])) {
+  fail("PRD readiness verdict vocabulary drift");
+}
+if (prdReadinessContract.globalPolicy?.readyVerdictAuthorizesImplementation !== false
+  || prdReadinessContract.globalPolicy?.publicDocsOrBacklogCreateProductIntent !== false
+  || prdReadinessContract.globalPolicy?.reviewerMayResolveBoardDecision !== false
+  || prdReadinessContract.globalPolicy?.notApplicableRequiresEvidenceAndRationale !== true) {
+  fail("PRD readiness safety policy drift");
+}
+const prdGates = prdReadinessContract.gates ?? [];
+const prdGateIds = new Set(prdGates.map((gate) => gate.id));
+if (prdGates.length !== 16 || prdGateIds.size !== prdGates.length) {
+  fail("PRD readiness contract must contain sixteen unique gates");
+}
+for (const gate of prdGates) {
+  if (!agents.has(gate.owner) || !agents.has(gate.reviewer)) {
+    fail(`Unknown PRD gate owner or reviewer: ${gate.id}`);
+  }
+  if (!(gate.evidence?.length > 0) || typeof gate.notApplicableAllowed !== "boolean") {
+    fail(`Incomplete PRD readiness gate: ${gate.id}`);
+  }
+}
+for (const requiredGate of [
+  "immutable_prd_revision",
+  "platform_boundary_and_non_goals",
+  "roles_permissions_and_tenancy",
+  "ui_states_brand_and_accessibility",
+  "documentation_and_support_impact",
+  "security_privacy_and_abuse",
+  "rollout_rollback_and_release",
+  "measurement_and_learning",
+]) {
+  if (!prdGateIds.has(requiredGate)) fail(`Missing PRD readiness gate: ${requiredGate}`);
 }
 
 const observabilityContract = JSON.parse(readFileSync(

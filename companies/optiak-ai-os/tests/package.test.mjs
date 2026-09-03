@@ -23,6 +23,10 @@ import {
   loadPromotionContract,
   requiredPromotionGates,
 } from "../scripts/evaluate-promotion-readiness.mjs";
+import {
+  evaluatePrdReadiness,
+  loadPrdReadinessContract,
+} from "../scripts/evaluate-prd-readiness.mjs";
 
 const packageDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -508,6 +512,74 @@ test("documentation authority covers each approved page without creating a snaps
     cases.cases.map((item) => item.expectedClassification),
     ["blocked_on_authority", "likely_drift", "confirmed_drift", "internally_inconsistent"],
   );
+});
+
+function materializePrdEvidence(contract, data, fixtureCase) {
+  return {
+    schema: "optiak-prd-readiness-evidence/v1",
+    evidenceScope: "fixture_only",
+    prd: data.prd,
+    gateResults: contract.gates.map((gate) => {
+      const status = fixtureCase.overrides[gate.id] ?? fixtureCase.defaultStatus;
+      return {
+        gateId: gate.id,
+        status,
+        evidenceRefs: status === "missing" ? [] : [`fixture://${fixtureCase.id}/${gate.id}`],
+        ...(status === "not_applicable" ? {rationale: "Fixture asserts no affected surface."} : {}),
+      };
+    }),
+  };
+}
+
+test("PRD readiness contract has complete cross-functional ownership", () => {
+  const contract = loadPrdReadinessContract();
+  assert.equal(contract.schema, "optiak-prd-readiness-contract/v1");
+  assert.equal(contract.status, "offline_defined_no_product_decision_implied");
+  assert.equal(contract.gates.length, 16);
+  assert.equal(new Set(contract.gates.map((gate) => gate.id)).size, 16);
+  assert.equal(contract.globalPolicy.readyVerdictAuthorizesImplementation, false);
+  assert.equal(contract.globalPolicy.publicDocsOrBacklogCreateProductIntent, false);
+  assert.deepEqual(
+    new Set(contract.gates.map((gate) => gate.owner)),
+    new Set([
+      "product-prd-lead",
+      "principal-platform-architect",
+      "qa-e2e-validation-engineer",
+      "brand-ui-quality-reviewer",
+      "documentation-dx-steward",
+      "engineering-assurance-lead",
+      "reliability-incident-engineer",
+    ]),
+  );
+});
+
+test("PRD evaluator distinguishes ready, changes, and missing evidence", () => {
+  const contract = loadPrdReadinessContract();
+  const data = fixture("optiak-prd-review", "readiness-cases");
+  for (const fixtureCase of data.cases) {
+    const evidence = materializePrdEvidence(contract, data, fixtureCase);
+    const result = evaluatePrdReadiness(evidence, contract);
+    assert.equal(result.verdict, fixtureCase.expectedVerdict, fixtureCase.id);
+    assert.equal(result.doesNotAuthorizeImplementation, true, fixtureCase.id);
+  }
+});
+
+test("PRD evaluator rejects duplicate, unknown, and unsupported not-applicable gates", () => {
+  const contract = loadPrdReadinessContract();
+  const data = fixture("optiak-prd-review", "readiness-cases");
+  const evidence = materializePrdEvidence(contract, data, data.cases[0]);
+
+  evidence.gateResults.push(structuredClone(evidence.gateResults[0]));
+  assert.throws(() => evaluatePrdReadiness(evidence, contract), /duplicate gate result/);
+  evidence.gateResults.pop();
+
+  evidence.gateResults[0].gateId = "unknown_gate";
+  assert.throws(() => evaluatePrdReadiness(evidence, contract), /unknown gate/);
+  evidence.gateResults[0].gateId = contract.gates[0].id;
+
+  evidence.gateResults[0].status = "not_applicable";
+  evidence.gateResults[0].rationale = "Synthetic rationale";
+  assert.throws(() => evaluatePrdReadiness(evidence, contract), /cannot be not_applicable/);
 });
 
 test("runtime defaults to paused, sandboxed, managed MCP", () => {
