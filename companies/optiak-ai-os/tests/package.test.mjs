@@ -248,7 +248,7 @@ function materializePromotionEvidence(contract, promotionFixture, fixtureCase) {
 test("AI OS promotion contract is provider-neutral, staged, and advice-only", () => {
   const contract = loadPromotionContract();
   assert.equal(contract.schema, "optiak-ai-os-promotion-contract/v1");
-  assert.equal(contract.packageVersion, "0.1.10");
+  assert.equal(contract.packageVersion, "0.1.11");
   assert.equal(contract.status, "offline_defined_not_deployed");
   assert.equal(contract.providerPolicy.infrastructureProvider, "undecided");
   assert.equal(contract.environmentPolicy.directLocalToProduction, "deny");

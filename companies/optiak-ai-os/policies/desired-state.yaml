@@ -1,5 +1,5 @@
 schema: optiak-desired-state/v1
-version: 0.1.10
+version: 0.1.11
 instance:
   isolation: separate_from_enki
   database: separate
@@ -87,6 +87,25 @@ promotion:
   importRoutineTriggersDisabled: true
   stageDecisionOwner: board
   evaluatorMayExecute: false
+qualityContracts:
+  architectureAuthority:
+    state: offline_defined_sources_not_assumed_connected
+    contract: skills/optiak-architecture-review/references/architecture-authority-map.json
+  documentationAuthority:
+    state: offline_defined_live_pages_remain_canonical
+    contract: skills/optiak-docs-drift/references/documentation-authority-map.json
+    wholeSiteSnapshots: deny
+    publication: deny
+  prdReadiness:
+    state: offline_evaluator_ready
+    contract: skills/optiak-prd-review/references/prd-readiness-contract.json
+    evaluator: scripts/evaluate-prd-readiness.mjs
+    readyVerdictAuthorizesImplementation: false
+  postmortem:
+    state: offline_evaluator_ready
+    contract: skills/optiak-incident-triage/references/postmortem-contract.json
+    evaluator: scripts/evaluate-postmortem.mjs
+    evaluatorMayExecuteCorrectiveAction: false
 autonomy:
   localFixturesAndDrafts: allow
   localCredentialFreeHealthReads: exact_loopback_only

@@ -144,7 +144,7 @@ for (const path of allFiles.filter((candidate) => candidate.endsWith(".json"))) 
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md must declare agentcompanies/v1");
 if (company.slug !== "optiak-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.10") fail("Unexpected company version");
+if (company.version !== "0.1.11") fail("Unexpected company version");
 if (company.license !== "LicenseRef-Optiak-Internal") fail("Unexpected company license");
 
 const agentFiles = allFiles.filter((path) => path.endsWith(`${sep}AGENTS.md`) && path.includes(`${sep}agents${sep}`));
@@ -323,7 +323,29 @@ for (const marker of [
 }
 
 const desired = readFileSync(join(packageDir, "policies", "desired-state.yaml"), "utf8");
-for (const marker of ["expected: 10", "expected: 4", "importedPaused: true", "companyMonthlyBilledCents: 15000", "warnPercent: 80", "hardStopPercent: 100", "inference: deliberately_deferred_until_deployed_environment", "state: offline_contract_defined_connection_disconnected", "automaticOncallCoverage: false", "state: offline_contract_defined_not_deployed", "infrastructureProvider: undecided", "directLocalToProduction: deny", "sameImmutableCandidateAcrossEnvironments: true", "evaluatorMayExecute: false", "productionMutation: deny", "migrationStatus: blocked", "controlPlanePrivilegeExpansion: deny"]) {
+for (const marker of [
+  "expected: 10",
+  "expected: 4",
+  "importedPaused: true",
+  "companyMonthlyBilledCents: 15000",
+  "warnPercent: 80",
+  "hardStopPercent: 100",
+  "inference: deliberately_deferred_until_deployed_environment",
+  "state: offline_contract_defined_connection_disconnected",
+  "automaticOncallCoverage: false",
+  "state: offline_contract_defined_not_deployed",
+  "infrastructureProvider: undecided",
+  "directLocalToProduction: deny",
+  "sameImmutableCandidateAcrossEnvironments: true",
+  "evaluatorMayExecute: false",
+  "state: offline_defined_sources_not_assumed_connected",
+  "state: offline_defined_live_pages_remain_canonical",
+  "readyVerdictAuthorizesImplementation: false",
+  "evaluatorMayExecuteCorrectiveAction: false",
+  "productionMutation: deny",
+  "migrationStatus: blocked",
+  "controlPlanePrivilegeExpansion: deny",
+]) {
   if (!desired.includes(marker)) fail(`Desired-state marker missing: ${marker}`);
 }
 const allowlist = readFileSync(join(packageDir, "policies", "tool-allowlist.yaml"), "utf8");
@@ -334,6 +356,12 @@ const sourceMap = readFileSync(join(packageDir, "references", "source-map.yaml")
 if (!sourceMap.includes("wholeSiteSnapshotsAllowed: false")) fail("Source map must deny whole-site snapshots");
 if (!sourceMap.includes("promotionAuthorityRef: skills/optiak-release-readiness/references/ai-os-promotion-contract.json")) {
   fail("Promotion source-map authority reference missing");
+}
+for (const marker of [
+  "architectureAuthorityRef: skills/optiak-architecture-review/references/architecture-authority-map.json",
+  "documentationAuthorityRef: skills/optiak-docs-drift/references/documentation-authority-map.json",
+]) {
+  if (!sourceMap.includes(marker)) fail(`Source-map authority reference missing: ${marker}`);
 }
 if ((sourceMap.match(/status: disconnected/g) || []).length !== 4) fail("Future source disconnection state drift");
 for (const marker of ["status: authorized_pending_connection", "provider: Linear", "team: OPT", "https://mcp.linear.app/mcp/readonly"]) {
