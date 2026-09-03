@@ -4,13 +4,13 @@ Fecha: 2026-08-29
 Rama: `feat/enki-hogar-approach`
 Paquete: `companies/enki-hogar-ai-os/`
 Versión inicial: `0.1.0`
-Versión actual: `0.13.0`
+Versión actual: `0.13.1`
 
 > Este documento conserva la implementación y sus evidencias históricas. El estado actual, las prioridades y el siguiente trabajo se mantienen en el [backlog vivo de Enki Hogar AI OS](2026-08-31-enki-hogar-ai-os-backlog.md).
 
 ## Objetivo
 
-Entregar una definición reproducible `agentcompanies/v1` para operar Enki Hogar desde Paperclip con seis agentes, fuentes gobernadas y autonomía por defecto limitada a lectura, análisis y borradores. v0.13.0 conserva el workflow editorial, el aprendizaje gobernado, el runtime PDF aislado, los contratos trazables, el oracle, los adaptadores multimarca y la reconciliación Woo, y añade una proyección MCP cerrada que expone al Catalogue Manager únicamente runs y evidencia por campo aprobados. Las importaciones se hacen con agentes, heartbeats y rutinas pausados.
+Entregar una definición reproducible `agentcompanies/v1` para operar Enki Hogar desde Paperclip con seis agentes, fuentes gobernadas y autonomía por defecto limitada a lectura, análisis y borradores. v0.13.1 conserva el workflow editorial, el aprendizaje gobernado y toda la cadena de catálogo, y reespecifica `ENK-7` como un único piloto Board-mandated con marca/dominio, fuentes, adaptador, entidades y campos acotados, sin autoridad de importación. Las importaciones se hacen con agentes, heartbeats y rutinas pausados.
 
 No se cambia la UI, el contrato de API, el esquema de base de datos ni las migraciones. Como excepciones de seguridad al alcance inicial, se endurece internamente el importador para asignar un `CODEX_HOME` gestionado y único por agente importado, se conserva la carga de proveedores Codex en ese home y el adaptador entrega los MCP gestionados con cabeceras HTTP válidas y delegación explícita de aprobación al gateway de Paperclip. El paquete portable no puede calcular esos paths porque los UUID se generan al importar.
 
@@ -48,6 +48,7 @@ No se cambia la UI, el contrato de API, el esquema de base de datos ni las migra
 - [x] Gate automatizado de v0.11.0: paquete 121/121 —incluidas 5 comprobaciones estructurales de adaptadores—, runtime de catálogo 25/25, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 19/19 y plugin Telegram 13/13; adapter replay 21/21, secrets scan, ZIP reproducible y Compose combinado.
 - [x] Gate automatizado de v0.12.0: paquete 127/127 —incluidas 6 comprobaciones de reconciliación—, runtime de catálogo 38/38, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 19/19 y plugin Telegram 13/13; replay histórico sanitizado, secrets scan, ZIP reproducible y Compose combinado.
 - [x] Gate automatizado de v0.13.0: paquete 129/129 —incluidas 2 comprobaciones de publicación—, runtime de catálogo 38/38, Catalogue Evidence 8/8, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 19/19 y plugin Telegram 13/13; contratos estrictos, secrets scan, ZIP reproducible y Compose combinado.
+- [x] Gate automatizado de v0.13.1: paquete 131/131 —incluidas 2 comprobaciones del mandato acotado de `ENK-7`—, runtime de catálogo 38/38, Catalogue Evidence 8/8, MCP WooCommerce 25/25, Product Support 19/19, Content Publisher 19/19 y plugin Telegram 13/13; límites del piloto, secrets scan, ZIP reproducible y Compose combinado.
 - [x] Backup de la compañía local existente completado antes de las pruebas de activación.
 - [ ] Preflight del gateway en una compañía desechable con una sesión Board real.
 - [x] Importación local de v0.2.0 completada y topología verificada: 6 agentes, 8 skills, 4 proyectos, 9 tareas y 2 rutinas.
@@ -65,7 +66,7 @@ No se cambia la UI, el contrato de API, el esquema de base de datos ni las migra
 - [x] Smoke test con cuentas reales y activación individual: los cinco especialistas y el Director han superado el perímetro read-only/zero-PII; los informes del Director son operativamente `PARTIAL` porque declaran fuentes y decisiones todavía ausentes.
 - [x] Ejecución manual de Daily Brief y Weekly Review con un único run cada una, disposición terminal y restauración posterior del Director a `paused`.
 - [ ] Instalación/configuración del plugin Telegram en la instancia local y smoke con bot/IDs reales; el código y el mount están listos, pero la instancia todavía no tiene plugins instalados.
-- [ ] Activación de horarios — requiere decisión explícita de Board; el desired state de v0.13.0 mantiene ambas rutinas pausadas y sus triggers deshabilitados.
+- [ ] Activación de horarios — requiere decisión explícita de Board; el desired state de v0.13.1 mantiene ambas rutinas pausadas y sus triggers deshabilitados.
 
 El preview anterior de cinco agentes y siete skills queda superado por el hardening de v0.1.0 y no cuenta como evidencia de la versión actual.
 
@@ -233,6 +234,13 @@ Las incompatibilidades del core detectadas durante los smokes quedan corregidas.
 - Compose monta una única proyección del host en `/data/publication:ro`, usa root filesystem read-only y un bearer independiente. El health check no filtra metadatos de catálogo y los crops se releen sin seguir symlinks y se verifican de nuevo antes de responder.
 - Pasan 129 pruebas del paquete, 38 del runtime de catálogo, 71 de conectores y 13 del plugin Telegram, además de secretos, ZIP reproducible y Compose. No se importó v0.13.0, no se montó una publicación real y no hubo mutaciones en Paperclip, WooCommerce o conectores live.
 
+### Parche 0.13.1 — mandato acotado de ENK-7 (2026-09-03)
+
+- Sustituye el muestreo abierto mediante MCP de la tarea bootstrap por un piloto único: una marca/dominio, fuente oficial y export Woo completo/fresco fijados por hash, adaptador exacto, máximo 25 entidades y 50 campos, y un único candidato de pack técnico.
+- El nuevo runbook fija preflight, secuencia de regresión/reconciliación/QA/publicación, contenido obligatorio de `catalogue-audit-report` y semántica terminal `PASS/PARTIAL/FAIL`.
+- El mandato no autoriza imports Woo/feed/support, mutaciones externas ni reutilizar el replay histórico como verdad actual. Sin alcance o inputs Board completos, `ENK-7` permanece `BLOCKED`.
+- Pasan 131 pruebas del paquete más los gates existentes; no se modificó la instancia ni se procesó ningún catálogo o export real.
+
 ## Organización
 
 El flujo es hub-and-spoke, sin Chief of Staff:
@@ -249,7 +257,7 @@ Board / usuario
 
 El Director es la única raíz compatible con el rol interno CEO de Paperclip, pero no obtiene autoridad de Board. El usuario puede asignar issues directamente a cualquier especialista. Ecommerce es owner del catálogo, stock, producto y evidencia de Merchant; Growth es owner de SEO, adquisición y oportunidades; Finance valida rentabilidad; Technology opera diagnósticos; CX produce únicamente borradores con contexto anonimizado.
 
-## Fronteras de autonomía v0.13.0
+## Fronteras de autonomía v0.13.1
 
 - Verde: lecturas autorizadas, análisis, comparativas, evidencias, delegación interna y borradores locales.
 - Amarillo: propuestas para incorporar una nueva fuente, herramienta, conexión, perfil, agente o rutina; requieren revisión Board antes de configurar nada.
@@ -302,9 +310,9 @@ Las pruebas de portabilidad cubren creación y actualización con homes Codex ge
 
 Los gates globales del monorepo no están verdes en este host por causas ajenas al diff: `pnpm -r typecheck` y `pnpm build` llegan al runner Rust y paran porque `cargo` no está instalado; `pnpm test:run` alcanza `workspace-runtime.test.ts`, donde la configuración global `commit.gpgsign=true` rompe los repos Git efímeros sin TTY. Deshabilitando esa firma solo para el proceso pasan 150/154; los cuatro casos restantes reproducen diferencias locales de macOS (`/var` frente a `/private/var`), un timeout y su conflicto de puerto derivado. No existe diff de esta rama en `workspace-runtime.ts` ni en su test. Los typechecks TypeScript directos de server/adapter y todos los tests que cubren este cambio sí pasan.
 
-El preview/import inicial, la autenticación Codex, el named-gateway smoke, los cinco pilotos de especialistas, los dos pilotos manuales del Director, la memoria editorial y el primer pack técnico real ya están completados. v0.5.0 quedó importada selectivamente y desplegada sobre Quickstart: Woo, Google, Product Support y Content Publisher están sanos; ENK-23 prueba el flujo live de variación más soporte técnico; y el publicador presenta catálogo/políticas/perfiles con drift cero y `write_mode=disabled`. v0.13.0 conserva esa topología, incorpora el hardening 0.5.1, el workflow editorial v2, el ciclo de aprendizaje gobernado, los contratos de catálogo v1, la regresión y adaptadores multimarca, la reconciliación Woo posicional y el conector read-only de evidencia aprobada; todavía no se ha importado como paquete y el tooling local no lo requiere. El prototipo v0.3.0 permanece superseded: no se carga un master comercial completo en PostgreSQL. Quedan la reconciliación de medición, una primera publicación real acotada bajo un `ENK-7` reespecificado, los canaries separados de Facebook e Instagram y la instalación/configuración del plugin Telegram con bot e identidades reales. La activación de horarios sigue siendo una decisión Board separada; hasta entonces el desired state y el estado observado mantienen agentes, rutinas y triggers pausados.
+El preview/import inicial, la autenticación Codex, el named-gateway smoke, los cinco pilotos de especialistas, los dos pilotos manuales del Director, la memoria editorial y el primer pack técnico real ya están completados. v0.5.0 quedó importada selectivamente y desplegada sobre Quickstart: Woo, Google, Product Support y Content Publisher están sanos; ENK-23 prueba el flujo live de variación más soporte técnico; y el publicador presenta catálogo/políticas/perfiles con drift cero y `write_mode=disabled`. v0.13.1 conserva esa topología, toda la cadena de catálogo y el conector read-only de evidencia, y añade el mandato acotado de `ENK-7`; todavía no se ha importado como paquete y el tooling local no lo requiere. El prototipo v0.3.0 permanece superseded: no se carga un master comercial completo en PostgreSQL. Quedan la reconciliación de medición, los inputs y decisión Board para ejecutar el piloto `ENK-7`, los canaries separados de Facebook e Instagram y la instalación/configuración del plugin Telegram con bot e identidades reales. La activación de horarios sigue siendo una decisión Board separada; hasta entonces el desired state y el estado observado mantienen agentes, rutinas y triggers pausados.
 
-## GO/NO-GO v0.13.0
+## GO/NO-GO v0.13.1
 
 La arquitectura pasa a la siguiente fase solo si, de forma repetible:
 

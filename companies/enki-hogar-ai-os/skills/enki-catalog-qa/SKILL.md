@@ -30,6 +30,8 @@ Exige también el registro y las definiciones [catalog-adapter/v1](references/ca
 
 La comparación con Woo exige el perfil y los resultados [catalog-reconciliation/v1](references/catalog-reconciliation-v1.schema.json). El perfil fija el SHA y las filas del export completo, cada identidad y cada columna por `posición + original + deduplicada`. `woo-reconcile` produce los contratos v1 y únicamente diferencias locales pendientes; `woo-audit` compara exports completos antes/después contra ese change set exacto. El fixture bajo `fixtures/catalog-reconciliation/v1/` demuestra padre/variación, tres grupos de cabeceras duplicadas, precio bruto fiscalmente alineado, SEO/media en la capa padre, idempotencia y detección de deriva fuera de alcance. Consulta [el ejemplo de reconciliación](examples/woo-reconciliation.md).
 
+Para el piloto operativo `ENK-7`, exige mandato Board previo con una sola marca/dominio, máximo 25 entidades y 50 campos, fuente oficial, export Woo completo y fresco, adaptador exacto y un único candidato de pack. El mandato autoriza producir un informe, no un import. Sin cualquiera de esos valores, termina en preflight `BLOCKED` sin procesar fuentes.
+
 ## Reglas
 
 - WooCommerce live es la fuente de verdad del catálogo comercial actual. La base `product-support-knowledge` no es un catálogo paralelo y no participa como autoridad de precio, stock, publicación, URL o existencia de producto.

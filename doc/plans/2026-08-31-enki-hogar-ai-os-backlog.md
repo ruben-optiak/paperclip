@@ -2,7 +2,7 @@
 
 Última actualización: 2026-09-03
 Rama de trabajo: `feat/enki-hogar-approach`
-Paquete actual: `companies/enki-hogar-ai-os/` (`0.13.0`)
+Paquete actual: `companies/enki-hogar-ai-os/` (`0.13.1`)
 
 ## Propósito
 
@@ -35,13 +35,13 @@ Snapshot comprobado el 2026-09-01:
 - No hay plugins instalados; Telegram sigue pendiente de instalación y smoke real.
 - Quedan seis issues bootstrap vigentes en backlog: `ENK-2`, `ENK-4`, `ENK-5`, `ENK-6`, `ENK-7` y `ENK-8`. `ENK-1` fue cancelado como onboarding obsoleto y `ENK-3` se cerró con evidencia de los smokes `ENK-9` a `ENK-15`.
 - `ENK-5` está bloqueado por `ENK-2`; `ENK-8` está bloqueado por `ENK-4`. Ninguno de los seis issues retenidos se movió a `todo`.
-- El workflow editorial v2 y su ciclo de feedback, retrospectiva 7/28/90 y aprendizaje Board-only quedan consolidados en la instancia mediante el último import selectivo. El paquete fuente `0.13.0` añade tooling local, contratos trazables, regresión y adaptadores multimarca, reconciliación Woo posicional, auditoría post-import y una proyección MCP cerrada de evidencia aprobada; todavía no se ha importado ni cambia la instancia. La sincronización con upstream sigue separada bajo `EAI-016`.
+- El workflow editorial v2 y su ciclo de feedback, retrospectiva 7/28/90 y aprendizaje Board-only quedan consolidados en la instancia mediante el último import selectivo. El paquete fuente `0.13.1` añade tooling local, contratos trazables, regresión y adaptadores multimarca, reconciliación Woo posicional, auditoría post-import, una proyección MCP cerrada de evidencia aprobada y la reespecificación acotada de `ENK-7`; todavía no se ha importado ni cambia la instancia. La sincronización con upstream sigue separada bajo `EAI-016`.
 - `EAI-002` quedó cerrado mediante `ENK-29`–`ENK-31`: el brief canónico de `ENK-24` es la revisión 7 y conserva C1 únicamente como prioridad de investigación, sin autorizar consolidación ni mutaciones externas.
 
 ## Orden inmediato
 
 1. Reconciliar la medición GA4/GSC bajo `EAI-006` y declarar qué métricas editoriales son utilizables.
-2. Reespecificar `ENK-7` bajo `EAI-013` para una auditoría acotada desde un export Woo fresco, una publicación aprobada independiente y un único pack técnico seleccionado; no ejecutar todos los catálogos ni generar imports Woo live.
+2. Obtener de Board el mandato y los inputs exactos exigidos por el `ENK-7` ya reespecificado: una marca/dominio, fuente oficial, export Woo fresco, adaptador, máximo 25 entidades/50 campos y un único candidato de pack. No ejecutar ni importar hasta disponer de todo.
 3. Solo después de `EAI-006`, solicitar una nueva decisión Board para la primera ejecución editorial real; C1 sigue siendo una investigación y no una consolidación preaprobada.
 
 ## Backlog priorizado
@@ -55,7 +55,7 @@ Snapshot comprobado el 2026-09-01:
 | `EAI-010` | P2 | BLOCKED | Facebook e Instagram | Configurar credenciales y ejecutar canaries separados; no compartir aprobación ni estado de escritura con WordPress | Cada proveedor supera lectura, aprobación exacta, idempotencia y reconciliación live de forma independiente |
 | `EAI-011` | P2 | BLOCKED | Activar rutinas | Requiere backlog limpio, medición reconciliada y varios briefs/revisiones manuales aceptados por Board | Board habilita cada trigger por separado; primer run programado termina correctamente y no crea trabajo duplicado |
 | `EAI-012` | P2 | READY | Merchant Center | Ejecutar el `ENK-6` ya reespecificado: verificar la causa actual mediante fuente autorizada y preparar recuperación sin mutaciones automáticas | Diagnóstico fechado, evidencias, acciones humanas y criterios de recuperación; sin tratar DevDocs como estado real |
-| `EAI-013` | P2 | NOW | Catálogo y soporte técnico (épica) | Reespecificar `ENK-7` para una auditoría acotada desde export Woo fresco, publicación aprobada separada y selección explícita del siguiente pack técnico por marca/dominio | Mismatches reproducibles sin duplicar catálogo; pack aprobado e importable con ciclo de supersede/purge completo; las consultas live usan SKU/product ID Woo exacto |
+| `EAI-013` | P2 | BLOCKED | Catálogo y soporte técnico (épica) | Board aporta el mandato exacto y los inputs de `ENK-7` definidos en `runbooks/catalog-audit-pilot.md`; después Ecommerce ejecuta un único piloto acotado | Mismatches reproducibles sin duplicar catálogo; pack aprobado e importable con ciclo de supersede/purge completo; las consultas live usan SKU/product ID Woo exacto |
 | `EAI-014` | P2 | READY | SEO, SEM y performance (épica) | Coordinar `EAI-023`–`EAI-027`; `ENK-4`/`EAI-006` siguen siendo el gate de medición antes de ejecutar `ENK-8` | Backlog priorizado por impacto, confianza, esfuerzo y riesgo; consultas, periodos y baselines reproducibles |
 | `EAI-015` | P3 | LATER | Promoción a producción | Elegir infraestructura, fijar tag/commit, digests OCI y SHA-256 del ZIP; probar import pausado, backup, restore, smoke y rollback | Todos los campos de `runtime/compatibility.lock.yaml` completos y evidencia de restauración/promoción |
 | `EAI-016` | P3 | LATER | Sincronización con upstream Paperclip | Probar periódicamente `upstream/master` en una rama de sync, resolver conflictos allí y ejecutar gates antes de integrar en Enki | Merge de upstream aislado, verificado y documentado; nunca se experimenta directamente sobre la rama operativa |

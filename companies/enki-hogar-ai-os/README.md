@@ -31,13 +31,13 @@ The workflow is hub-and-spoke with no Chief of Staff layer and with direct Board
 1. Copy `.env.example` to an untracked environment file outside Git, generate the independent Paperclip tool-action signing secret with the provided helper, and fill only connector-side credentials. Keep publishing in `disabled` mode until its separate smoke gate passes. Leave all embedding fields empty unless intentionally configured. Store the Telegram token as a Paperclip Secret, never in `.env`.
 2. Follow [local setup](runbooks/local-setup.md), beginning with a company export backup.
 3. Install the locked workspace and offline-test dependencies, then run `./companies/enki-hogar-ai-os/scripts/check.sh` before starting integrations. This also builds and tests the Telegram plugin.
-4. Build the import archive with `./companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.13.0.zip` and preview that exact ZIP with the current Paperclip CLI or UI before applying it.
+4. Build the import archive with `./companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.13.1.zip` and preview that exact ZIP with the current Paperclip CLI or UI before applying it.
 5. Keep all agents and routines paused while configuring connections and the six disabled agent-scoped gateways; never use connection installs for Enki. Reconcile the publisher with `scripts/reconcile-content-publisher.mjs --apply` only while its independent write mode is `disabled`.
 
 For a new disposable company, preview the generated ZIP rather than the source directory:
 
 ```sh
-npx paperclipai company import /tmp/enki-hogar-ai-os-v0.13.0.zip \
+npx paperclipai company import /tmp/enki-hogar-ai-os-v0.13.1.zip \
   --target new \
   --new-company-name "Enki Hogar AI OS preflight" \
   --dry-run
@@ -56,7 +56,7 @@ a full replace preview can legitimately plan those tasks as new and would
 duplicate operational history. The reviewed patch path is:
 
 ```sh
-pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.13.0.zip \
+pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.13.1.zip \
   --include agents,skills \
   --target existing \
   --company-id <company-id> \
@@ -76,6 +76,8 @@ There are three intentionally separate product data paths. WooCommerce live is t
 The Telegram plugin is installed separately at instance level after the company import. It converts authorized messages into ordinary audited issues/comments; it does not bypass Paperclip or expose approval decisions. See [connection setup](runbooks/connections.md#telegram-director-gateway).
 
 `EAI-022` adds a fourth, narrower path between pipeline evidence and the Catalogue Manager: a dedicated [approved evidence publication](runbooks/catalog-evidence.md). It serves only exact Board-approved run manifests and field records from a checksum-closed read-only mount, with optional crops or coordinates. It cannot browse or read the pipeline's raw inputs and does not replace Woo live or the stable product-support projection.
+
+The next `EAI-013 / ENK-7` step is deliberately bounded by the [catalogue audit pilot](runbooks/catalog-audit-pilot.md): one Board-mandated brand/domain, no more than 25 entities and 50 fields, exact source/export/adapter hashes, one possible support-pack target and no import authority.
 
 ## Safety boundary
 
