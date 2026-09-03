@@ -479,6 +479,37 @@ test("architecture authority is domain-specific and fails closed", () => {
   );
 });
 
+test("documentation authority covers each approved page without creating a snapshot", () => {
+  const authority = JSON.parse(readFileSync(
+    join(
+      packageDir,
+      "skills",
+      "optiak-docs-drift",
+      "references",
+      "documentation-authority-map.json",
+    ),
+    "utf8",
+  ));
+  assert.equal(authority.schema, "optiak-documentation-authority-map/v1");
+  assert.equal(authority.status, "offline_defined_live_pages_remain_canonical");
+  assert.equal(authority.globalPolicy.wholeSiteSnapshotsAllowed, false);
+  assert.equal(authority.globalPolicy.publicPageProvesImplementation, false);
+  assert.equal(authority.globalPolicy.publicPageProvesReleaseAvailability, false);
+  assert.equal(authority.globalPolicy.documentationAgentMayPublish, false);
+  assert.equal(authority.domains.length, 8);
+
+  const sourceIds = authority.domains.flatMap((domain) => domain.sourceIds);
+  assert.equal(sourceIds.length, 14);
+  assert.equal(new Set(sourceIds).size, 14);
+  assert.ok(authority.domains.every((domain) => domain.reviewCadence && domain.escalation));
+
+  const cases = fixture("optiak-docs-drift", "authority-cases");
+  assert.deepEqual(
+    cases.cases.map((item) => item.expectedClassification),
+    ["blocked_on_authority", "likely_drift", "confirmed_drift", "internally_inconsistent"],
+  );
+});
+
 test("runtime defaults to paused, sandboxed, managed MCP", () => {
   const paperclip = readFileSync(join(packageDir, ".paperclip.yaml"), "utf8");
   assert.equal((paperclip.match(/type: codex_local/g) || []).length, 10);

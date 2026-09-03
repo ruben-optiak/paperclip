@@ -123,6 +123,7 @@ const requiredFiles = [
   "skills/optiak-incident-triage/references/observability-source-contract.json",
   "skills/optiak-release-readiness/references/ai-os-promotion-contract.json",
   "skills/optiak-architecture-review/references/architecture-authority-map.json",
+  "skills/optiak-docs-drift/references/documentation-authority-map.json",
 ];
 for (const path of requiredFiles) if (!statSafe(join(packageDir, path))) fail(`Missing required file: ${path}`);
 
@@ -453,6 +454,49 @@ for (const domain of architectureDomains.values()) {
     if (!architectureSourceClasses.has(sourceId)) {
       fail(`Unknown architecture source ${sourceId} in ${domain.id}`);
     }
+  }
+}
+
+const documentationAuthority = JSON.parse(readFileSync(
+  join(
+    packageDir,
+    "skills",
+    "optiak-docs-drift",
+    "references",
+    "documentation-authority-map.json",
+  ),
+  "utf8",
+));
+if (documentationAuthority.schema !== "optiak-documentation-authority-map/v1") {
+  fail("Unexpected documentation authority-map schema");
+}
+if (documentationAuthority.status !== "offline_defined_live_pages_remain_canonical"
+  || documentationAuthority.humanConflictOwner !== "board"
+  || documentationAuthority.globalPolicy?.wholeSiteSnapshotsAllowed !== false
+  || documentationAuthority.globalPolicy?.documentationAgentMayPublish !== false
+  || documentationAuthority.globalPolicy?.publicPageProvesImplementation !== false
+  || documentationAuthority.globalPolicy?.publicPageProvesReleaseAvailability !== false) {
+  fail("Documentation authority map safety policy drift");
+}
+const documentationDomains = documentationAuthority.domains ?? [];
+if (documentationDomains.length !== 8) fail("Expected eight documentation authority domains");
+const mappedDocumentationSources = documentationDomains.flatMap((domain) => domain.sourceIds ?? []);
+if (mappedDocumentationSources.length !== 14
+  || new Set(mappedDocumentationSources).size !== mappedDocumentationSources.length) {
+  fail("Documentation authority map must cover fourteen unique approved source ids");
+}
+const sourceMapIds = new Set([...sourceMap.matchAll(/^  - id: ([a-z0-9-]+)$/gm)].map((match) => match[1]));
+for (const sourceId of mappedDocumentationSources) {
+  if (!sourceMapIds.has(sourceId)) fail(`Unknown documentation source id: ${sourceId}`);
+}
+for (const domain of documentationDomains) {
+  for (const ownerField of ["productOwner", "implementationOwner", "documentationOwner"]) {
+    if (!agents.has(domain[ownerField])) {
+      fail(`Unknown documentation ${ownerField} for ${domain.id}`);
+    }
+  }
+  if (!domain.reviewCadence || !domain.escalation || !(domain.comparisonAuthorities?.length > 0)) {
+    fail(`Incomplete documentation authority domain: ${domain.id}`);
   }
 }
 
