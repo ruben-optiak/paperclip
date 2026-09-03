@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:enki:catalog-evidence-publication:v1",
+  "title": "Enki approved catalogue evidence publication v1",
+  "description": "Closed publication projection containing only Board-approved run manifests, field evidence and optional hashed crops.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "publicationKey", "version", "publishedAt", "timezone", "approval", "runs", "evidence", "authority"],
+  "properties": {
+    "schema": {"const": "enki-catalog-evidence-publication/v1"},
+    "publicationKey": {"$ref": "#/$defs/key"},
+    "version": {"$ref": "#/$defs/semver"},
+    "publishedAt": {"type": "string", "format": "date-time"},
+    "timezone": {"const": "Europe/Madrid"},
+    "approval": {"$ref": "#/$defs/approval"},
+    "runs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/run"}},
+    "evidence": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/evidence"}},
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approvedRunsOnly", "approvedFieldEvidenceOnly", "rawInputsIncluded", "externalWritesBlocked"],
+      "properties": {
+        "approvedRunsOnly": {"const": true},
+        "approvedFieldEvidenceOnly": {"const": true},
+        "rawInputsIncluded": {"const": false},
+        "externalWritesBlocked": {"const": true}
+      }
+    }
+  },
+  "$defs": {
+    "key": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"},
+    "semver": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "jsonPath": {"type": "string", "pattern": "^(?:runs|evidence)/[A-Za-z0-9._-]+\\.json$"},
+    "cropPath": {"type": "string", "pattern": "^crops/[A-Za-z0-9._-]+\\.(?:png|webp|jpg|jpeg)$"},
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "actorType", "actorRef", "decidedAt", "note"],
+      "properties": {
+        "state": {"const": "approved"},
+        "actorType": {"const": "board"},
+        "actorRef": {"type": "string", "minLength": 1},
+        "decidedAt": {"type": "string", "format": "date-time"},
+        "note": {"type": ["string", "null"]}
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runKey", "path", "sha256"],
+      "properties": {
+        "runKey": {"$ref": "#/$defs/key"},
+        "path": {"$ref": "#/$defs/jsonPath"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "crop": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "mimeType"],
+      "properties": {
+        "path": {"$ref": "#/$defs/cropPath"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "mimeType": {"enum": ["image/png", "image/webp", "image/jpeg"]}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidenceKey", "runKey", "path", "sha256", "brand", "series", "sku", "manufacturerRef", "fieldGroup", "fieldName", "crop"],
+      "properties": {
+        "evidenceKey": {"$ref": "#/$defs/key"},
+        "runKey": {"$ref": "#/$defs/key"},
+        "path": {"$ref": "#/$defs/jsonPath"},
+        "sha256": {"$ref": "#/$defs/sha256"},
+        "brand": {"$ref": "#/$defs/slug"},
+        "series": {"$ref": "#/$defs/slug"},
+        "sku": {"type": ["string", "null"], "minLength": 1},
+        "manufacturerRef": {"type": ["string", "null"], "minLength": 1},
+        "fieldGroup": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "fieldName": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+        "crop": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/crop"}]}
+      }
+    }
+  }
+}

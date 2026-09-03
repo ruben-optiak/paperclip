@@ -142,14 +142,18 @@ test("Google runtime pins upstream commits and complete dependency locks", () =>
 
 test("Compose binds host health ports to loopback and never injects upstream credentials into agents", () => {
   const compose = readFileSync(join(packageDir, "runtime", "docker-compose.integrations.yml"), "utf8");
-  for (const port of [8010, 8011, 8012, 8020, 8030, 8040]) assert.match(compose, new RegExp(`127\\.0\\.0\\.1:\\$\\{[^}]+:-${port}}:${port}`));
+  for (const port of [8010, 8011, 8012, 8020, 8030, 8040, 8050]) assert.match(compose, new RegExp(`127\\.0\\.0\\.1:\\$\\{[^}]+:-${port}}:${port}`));
   assert.match(compose, /GOOGLE_OAUTH_CLIENT_HOST_PATH[^\n]+:\/run\/secrets\/google\/oauth-client\.json:ro/);
   assert.doesNotMatch(compose, /^\s+GOOGLE_CLIENT_(?:ID|SECRET):/m);
   const agentConfig = readFileSync(join(packageDir, ".paperclip.yaml"), "utf8");
-  assert.doesNotMatch(agentConfig, /WOO_CONSUMER|GOOGLE_ADS_DEVELOPER_TOKEN|GOOGLE_CLIENT_SECRET|SUPPORT_DB_|SUPPORT_MCP_TOKEN|SUPPORT_EMBEDDING|WORDPRESS_APP_PASSWORD|META_GRAPH_ACCESS_TOKEN|CONTENT_PUBLISHER_MCP_TOKEN/);
+  assert.doesNotMatch(agentConfig, /WOO_CONSUMER|GOOGLE_ADS_DEVELOPER_TOKEN|GOOGLE_CLIENT_SECRET|SUPPORT_DB_|SUPPORT_MCP_TOKEN|SUPPORT_EMBEDDING|CATALOGUE_EVIDENCE|WORDPRESS_APP_PASSWORD|META_GRAPH_ACCESS_TOKEN|CONTENT_PUBLISHER_MCP_TOKEN/);
   const catalogMcpBlock = compose.match(/\n  enki-product-support-knowledge:\n([\s\S]*?)(?=\n  [a-z0-9-]+:\n|\nvolumes:)/)?.[1] || "";
   assert.doesNotMatch(catalogMcpBlock, /SUPPORT_DB_ADMIN_PASSWORD/);
   assert.match(catalogMcpBlock, /SUPPORT_DB_USER:\s*enki_support_reader/);
+  const catalogueEvidenceBlock = compose.match(/\n  enki-catalogue-evidence:\n([\s\S]*?)(?=\n  [a-z0-9-]+:\n|\nvolumes:)/)?.[1] || "";
+  assert.match(catalogueEvidenceBlock, /CATALOGUE_EVIDENCE_ROOT:\s*"?\/data\/publication"?/);
+  assert.match(catalogueEvidenceBlock, /:\/data\/publication:ro/);
+  assert.doesNotMatch(catalogueEvidenceBlock, /catalog-pipeline|source-snapshots|\/input|\/output/);
 });
 
 test("every Codex permission profile argument remains a YAML string", () => {

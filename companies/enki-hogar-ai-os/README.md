@@ -8,7 +8,7 @@ Portable `agentcompanies/v1` package for running a read-first, approval-gated En
 - Four initial projects, eleven bootstrap tasks, and two paused routines.
 - Twelve domain skills with examples and offline fixtures, including decision-gated editorial planning and human-governed learning.
 - Curated, non-secret Enki knowledge with an allowlisted sync process.
-- A pinned, networkless catalogue runtime with a small geometry core, four snapshot-scoped brand adapters, strict positional Woo reconciliation, idempotent local change sets and post-import drift audit; immutable sanitized regressions; a read-only WooCommerce MCP with live parent/variation inspection; pinned Google MCP runtime; audited Telegram gateway plugin; isolated PostgreSQL/pgvector product-support projection; and a governed WordPress/Facebook/Instagram publisher.
+- A pinned, networkless catalogue runtime with a small geometry core, four snapshot-scoped brand adapters, strict positional Woo reconciliation, idempotent local change sets and post-import drift audit; immutable sanitized regressions; a closed read-only MCP for Board-approved run/field evidence; a read-only WooCommerce MCP with live parent/variation inspection; pinned Google MCP runtime; audited Telegram gateway plugin; isolated PostgreSQL/pgvector product-support projection; and a governed WordPress/Facebook/Instagram publisher.
 - Desired connection policy, six agent-scoped managed gateways, security controls, tests, and promotion runbooks.
 
 Instance data, Paperclip database rows, Codex homes, OAuth material, API credentials, customer data, and real `.env` files are intentionally not versioned.
@@ -31,13 +31,13 @@ The workflow is hub-and-spoke with no Chief of Staff layer and with direct Board
 1. Copy `.env.example` to an untracked environment file outside Git, generate the independent Paperclip tool-action signing secret with the provided helper, and fill only connector-side credentials. Keep publishing in `disabled` mode until its separate smoke gate passes. Leave all embedding fields empty unless intentionally configured. Store the Telegram token as a Paperclip Secret, never in `.env`.
 2. Follow [local setup](runbooks/local-setup.md), beginning with a company export backup.
 3. Install the locked workspace and offline-test dependencies, then run `./companies/enki-hogar-ai-os/scripts/check.sh` before starting integrations. This also builds and tests the Telegram plugin.
-4. Build the import archive with `./companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.12.0.zip` and preview that exact ZIP with the current Paperclip CLI or UI before applying it.
+4. Build the import archive with `./companies/enki-hogar-ai-os/scripts/build-import-zip.sh /tmp/enki-hogar-ai-os-v0.13.0.zip` and preview that exact ZIP with the current Paperclip CLI or UI before applying it.
 5. Keep all agents and routines paused while configuring connections and the six disabled agent-scoped gateways; never use connection installs for Enki. Reconcile the publisher with `scripts/reconcile-content-publisher.mjs --apply` only while its independent write mode is `disabled`.
 
 For a new disposable company, preview the generated ZIP rather than the source directory:
 
 ```sh
-npx paperclipai company import /tmp/enki-hogar-ai-os-v0.12.0.zip \
+npx paperclipai company import /tmp/enki-hogar-ai-os-v0.13.0.zip \
   --target new \
   --new-company-name "Enki Hogar AI OS preflight" \
   --dry-run
@@ -56,7 +56,7 @@ a full replace preview can legitimately plan those tasks as new and would
 duplicate operational history. The reviewed patch path is:
 
 ```sh
-pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.12.0.zip \
+pnpm paperclipai company import /tmp/enki-hogar-ai-os-v0.13.0.zip \
   --include agents,skills \
   --target existing \
   --company-id <company-id> \
@@ -74,6 +74,8 @@ Paperclip issues, comments, documents and work products are durable operational 
 There are three intentionally separate product data paths. WooCommerce live is the sole authority for what is currently sold, its parent/variation structure, price and stock. Bulk audits use fresh complete Woo exports in the external Enki pipeline; official PDFs are prepared reproducibly with the [versioned catalogue runtime](runbooks/catalog-pipeline.md), then evaluated only by an exact [brand/snapshot adapter](runbooks/catalog-adapters.md) and represented through strict per-run and per-field evidence. [Woo reconciliation](runbooks/catalog-reconciliation.md) binds each comparison to the exact export position, emits only a local pending change set and audits a later full export for any out-of-scope drift. Before a replay, both the [sanitized cross-brand regression](runbooks/catalog-regression.md) and adapter gate must pass. Historical CSVs migrate under the [lossless migration runbook](runbooks/catalog-contract-migration.md). The separate database is only a rebuildable projection of approved technical facts, explicit compatibility, configuration semantics, support text and SKU crosswalks, queried through eight read-only tools. See [product-support operations](runbooks/catalog-knowledge.md).
 
 The Telegram plugin is installed separately at instance level after the company import. It converts authorized messages into ordinary audited issues/comments; it does not bypass Paperclip or expose approval decisions. See [connection setup](runbooks/connections.md#telegram-director-gateway).
+
+`EAI-022` adds a fourth, narrower path between pipeline evidence and the Catalogue Manager: a dedicated [approved evidence publication](runbooks/catalog-evidence.md). It serves only exact Board-approved run manifests and field records from a checksum-closed read-only mount, with optional crops or coordinates. It cannot browse or read the pipeline's raw inputs and does not replace Woo live or the stable product-support projection.
 
 ## Safety boundary
 

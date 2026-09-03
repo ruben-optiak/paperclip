@@ -80,7 +80,7 @@ const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md schema must be agentcompanies/v1");
 if (company.slug !== "enki-hogar-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.12.0") fail("Unexpected package version");
+if (company.version !== "0.13.0") fail("Unexpected package version");
 if (company.license !== "MIT AND LicenseRef-Enki-Hogar-Internal") fail("Unexpected package license; mixed package scope must be explicit");
 for (const required of [
   "LICENSE",
@@ -112,6 +112,8 @@ const expectedEnvExample = {
   SUPPORT_EMBEDDING_BASE_URL: "",
   SUPPORT_EMBEDDING_API_KEY: "",
   SUPPORT_EMBEDDING_MODEL: "",
+  CATALOGUE_EVIDENCE_PUBLICATION_HOST_PATH: "/absolute/path/to/approved-catalogue-evidence-publication",
+  CATALOGUE_EVIDENCE_MCP_TOKEN: "change-me-connector-token",
   CONTENT_PUBLISHER_MCP_TOKEN: "change-me-connector-token",
   CONTENT_PUBLISH_WRITE_MODE: "disabled",
   WORDPRESS_BASE_URL: "",
@@ -345,7 +347,7 @@ for (const expected of [
 
 const compatibility = jsonYaml("runtime/compatibility.lock.yaml");
 if (compatibility.schema !== "enki-runtime-compatibility/v1") fail("Unexpected runtime compatibility schema");
-if (compatibility.packageVersion !== "0.12.0") fail("Compatibility lock package version must match 0.12.0");
+if (compatibility.packageVersion !== "0.13.0") fail("Compatibility lock package version must match 0.13.0");
 if (compatibility.paperclipBundleSchemaVersion !== 7) fail("Compatibility lock must target bundle schemaVersion 7");
 if (compatibility.connectors?.woocommerce?.version !== "0.2.1") fail("Compatibility lock must pin WooCommerce connector 0.2.1");
 if (compatibility.connectors?.google?.version !== "0.1.1") fail("Compatibility lock must pin Google connector runtime 0.1.1");
@@ -355,6 +357,9 @@ if (compatibility.connectors?.productSupportKnowledge?.version !== "0.2.0") fail
 if (compatibility.connectors?.productSupportKnowledge?.postgresClient !== "3.4.9") fail("Compatibility lock must pin the support PostgreSQL client");
 if (compatibility.connectors?.productSupportKnowledge?.databaseImageDigest !== "sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f") fail("Product-support pgvector image digest drift");
 if (compatibility.connectors?.productSupportKnowledge?.agentDatabaseRoleStatus !== "verified_read_only_by_integration_test") fail("Support reader role must carry integration-test evidence");
+if (compatibility.connectors?.catalogueEvidence?.version !== "0.1.0") fail("Compatibility lock must pin catalogue-evidence connector 0.1.0");
+if (compatibility.connectors?.catalogueEvidence?.mcpSdk !== "1.30.0" || compatibility.connectors?.catalogueEvidence?.ajv !== "8.18.0" || compatibility.connectors?.catalogueEvidence?.ajvFormats !== "3.0.1" || compatibility.connectors?.catalogueEvidence?.zod !== "4.4.3") fail("Compatibility lock must pin catalogue-evidence dependencies");
+if (compatibility.connectors?.catalogueEvidence?.publicationSchema !== "enki-catalog-evidence-publication/v1" || compatibility.connectors?.catalogueEvidence?.toolCount !== 5 || compatibility.connectors?.catalogueEvidence?.mountMode !== "approved_projection_read_only" || compatibility.connectors?.catalogueEvidence?.rawInputsAccessible !== false) fail("Catalogue-evidence compatibility boundary drift");
 if (compatibility.connectors?.contentPublisher?.version !== "0.1.0") fail("Compatibility lock must pin content publisher connector 0.1.0");
 if (compatibility.connectors?.contentPublisher?.mcpSdk !== "1.30.0" || compatibility.connectors?.contentPublisher?.zod !== "4.4.3") fail("Compatibility lock must pin content publisher dependencies");
 if (compatibility.paperclip?.upstreamBaseCommit !== "35fca95626a04f5a7ec42cf95989c3d779a1687e") fail("Compatibility lock must identify the reviewed Paperclip base commit");
@@ -366,6 +371,7 @@ for (const [label, digest, status] of [
   ["WooCommerce connector image", compatibility.connectors?.woocommerce?.imageDigest, compatibility.connectors?.woocommerce?.imageStatus],
   ["Google connector image", compatibility.connectors?.google?.imageDigest, compatibility.connectors?.google?.imageStatus],
   ["Product-support connector image", compatibility.connectors?.productSupportKnowledge?.imageDigest, compatibility.connectors?.productSupportKnowledge?.imageStatus],
+  ["Catalogue-evidence connector image", compatibility.connectors?.catalogueEvidence?.imageDigest, compatibility.connectors?.catalogueEvidence?.imageStatus],
   ["Content publisher connector image", compatibility.connectors?.contentPublisher?.imageDigest, compatibility.connectors?.contentPublisher?.imageStatus],
   ["Catalogue pipeline image", compatibility.runtimes?.catalogPipeline?.imageDigest, compatibility.runtimes?.catalogPipeline?.imageStatus],
 ]) {
@@ -415,8 +421,9 @@ const uvImagePin = "ghcr.io/astral-sh/uv:0.8.15-python3.12-bookworm-slim@sha256:
 const wooDockerfile = readFileSync(join(packageDir, "connectors", "woocommerce-readonly-mcp", "Dockerfile"), "utf8");
 const googleDockerfile = readFileSync(join(packageDir, "connectors", "google-mcps", "Dockerfile"), "utf8");
 const catalogDockerfile = readFileSync(join(packageDir, "connectors", "catalog-knowledge", "Dockerfile"), "utf8");
+const catalogueEvidenceDockerfile = readFileSync(join(packageDir, "connectors", "catalog-evidence", "Dockerfile"), "utf8");
 const publisherDockerfile = readFileSync(join(packageDir, "connectors", "content-publisher", "Dockerfile"), "utf8");
-if (!wooDockerfile.includes(`FROM ${nodeImagePin}`) || !googleDockerfile.includes(`FROM ${nodeImagePin} AS node-runtime`) || !catalogDockerfile.includes(`FROM ${nodeImagePin}`) || !publisherDockerfile.includes(`FROM ${nodeImagePin}`)) fail("Connector Dockerfiles must consume the verified Node digest");
+if (!wooDockerfile.includes(`FROM ${nodeImagePin}`) || !googleDockerfile.includes(`FROM ${nodeImagePin} AS node-runtime`) || !catalogDockerfile.includes(`FROM ${nodeImagePin}`) || !catalogueEvidenceDockerfile.includes(`FROM ${nodeImagePin}`) || !publisherDockerfile.includes(`FROM ${nodeImagePin}`)) fail("Connector Dockerfiles must consume the verified Node digest");
 if (!googleDockerfile.includes(`FROM ${uvImagePin}`)) fail("Google connector Dockerfile must consume the verified uv digest");
 
 const catalogPipeline = compatibility.runtimes?.catalogPipeline || {};
@@ -438,6 +445,7 @@ if (
   catalogContracts.catalogFieldEvidence !== "enki-catalog-field-evidence/v1" ||
   catalogContracts.catalogChangeSet !== "enki-catalog-change-set/v1" ||
   catalogContracts.catalogReconciliation !== "enki-catalog-reconciliation/v1" ||
+  catalogContracts.catalogEvidencePublication !== "enki-catalog-evidence-publication/v1" ||
   catalogContracts.jsonSchema !== "2020-12-strict" ||
   catalogContracts.semanticValidator !== "enki-catalog-qa/scripts/validate_catalog_contracts.mjs" ||
   catalogContracts.reconciliationFixtureValidator !== "enki-catalog-qa/scripts/validate_catalog_reconciliation.mjs" ||
@@ -523,11 +531,33 @@ const expectedCatalogTools = [
 for (const tool of expectedCatalogTools) if (!catalogTools.includes(`\"${tool}\"`)) fail(`Product-support connector is missing read tool: ${tool}`);
 if (!/readOnlyHint:\s*true/.test(catalogTools) || !/destructiveHint:\s*false/.test(catalogTools) || !/openWorldHint:\s*false/.test(catalogTools)) fail("Product-support tools must be closed-world, read-only and non-destructive");
 for (const forbidden of ["knowledge_create", "knowledge_update", "knowledge_delete", "knowledge_archive", "knowledge_restore", "knowledge_purge", "knowledge_import", "knowledge_reindex"]) if (catalogTools.includes(`\"${forbidden}`)) fail(`Product-support MCP must not expose administrative tool: ${forbidden}`);
+
+const catalogueEvidencePackage = jsonYaml("connectors/catalog-evidence/package.json");
+if (catalogueEvidencePackage.name !== "@enki-hogar/catalogue-evidence-mcp" || catalogueEvidencePackage.version !== "0.1.0") fail("Unexpected catalogue-evidence connector package identity");
+if (catalogueEvidencePackage.dependencies?.["@modelcontextprotocol/sdk"] !== "1.30.0" || catalogueEvidencePackage.dependencies?.ajv !== "8.18.0" || catalogueEvidencePackage.dependencies?.["ajv-formats"] !== "3.0.1" || catalogueEvidencePackage.dependencies?.zod !== "4.4.3") fail("Catalogue-evidence connector dependencies must be exactly pinned");
+const catalogueEvidencePackageLock = jsonYaml("connectors/catalog-evidence/package-lock.json");
+if (catalogueEvidencePackageLock.packages?.["node_modules/@modelcontextprotocol/sdk"]?.version !== "1.30.0" || catalogueEvidencePackageLock.packages?.["node_modules/ajv"]?.version !== "8.18.0" || catalogueEvidencePackageLock.packages?.["node_modules/ajv-formats"]?.version !== "3.0.1" || catalogueEvidencePackageLock.packages?.["node_modules/zod"]?.version !== "4.4.3") fail("Catalogue-evidence connector lock must preserve reviewed dependency versions");
+const expectedCatalogueEvidenceTools = [
+  "catalogue_list_approved_runs",
+  "catalogue_search_field_evidence",
+  "catalogue_get_field_evidence",
+  "catalogue_get_evidence_crop",
+  "catalogue_evidence_coverage",
+];
+const catalogueEvidenceTools = readFileSync(join(packageDir, "connectors", "catalog-evidence", "src", "tools.mjs"), "utf8");
+for (const tool of expectedCatalogueEvidenceTools) if (!catalogueEvidenceTools.includes(`\"${tool}\"`)) fail(`Catalogue-evidence connector is missing reviewed read tool: ${tool}`);
+if (!/readOnlyHint:\s*true/.test(catalogueEvidenceTools) || !/destructiveHint:\s*false/.test(catalogueEvidenceTools) || !/openWorldHint:\s*false/.test(catalogueEvidenceTools)) fail("Catalogue-evidence tools must be closed-world, read-only and non-destructive");
+for (const forbidden of ["catalogue_create", "catalogue_update", "catalogue_delete", "catalogue_approve", "catalogue_import", "catalogue_export", "catalogue_browse_raw"]) if (catalogueEvidenceTools.includes(`\"${forbidden}`)) fail(`Catalogue-evidence MCP must not expose administrative or raw-input tool: ${forbidden}`);
+const catalogueEvidencePublication = readFileSync(join(packageDir, "connectors", "catalog-evidence", "src", "publication.mjs"), "utf8");
+for (const required of ["approvedRunsOnly", "approvedFieldEvidenceOnly", "rawInputsIncluded", "externalWritesBlocked", "local_export_ready", "approved_for_local_export", "Symlinks are forbidden", "Publication contains undeclared files"]) if (!catalogueEvidencePublication.includes(required)) fail(`Catalogue-evidence publication gate is missing: ${required}`);
 const catalogCompose = readFileSync(join(packageDir, "runtime", "docker-compose.integrations.yml"), "utf8");
 if (!catalogCompose.includes("pgvector/pgvector:0.8.6-pg17-bookworm@sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f")) fail("Compose must consume the verified pgvector image digest");
 const catalogMcpComposeBlock = catalogCompose.match(/\n  enki-product-support-knowledge:\n([\s\S]*?)(?=\n  [a-z0-9-]+:\n|\nvolumes:)/)?.[1] || "";
 if (!catalogMcpComposeBlock || /SUPPORT_DB_ADMIN_PASSWORD/.test(catalogMcpComposeBlock)) fail("Product-support MCP service must never receive the database admin password");
 if (!/SUPPORT_DB_USER:\s*enki_support_reader/.test(catalogMcpComposeBlock)) fail("Product-support MCP must connect with the dedicated reader role");
+const catalogueEvidenceComposeBlock = catalogCompose.match(/\n  enki-catalogue-evidence:\n([\s\S]*?)(?=\n  [a-z0-9-]+:\n|\nvolumes:)/)?.[1] || "";
+if (!catalogueEvidenceComposeBlock || !/CATALOGUE_EVIDENCE_ROOT:\s*["']?\/data\/publication/.test(catalogueEvidenceComposeBlock) || !/:\/data\/publication:ro/.test(catalogueEvidenceComposeBlock)) fail("Catalogue-evidence MCP must receive only its dedicated read-only publication mount");
+if (/catalog-pipeline|source-snapshots|\/input|\/output/.test(catalogueEvidenceComposeBlock)) fail("Catalogue-evidence MCP must not mount pipeline inputs or full outputs");
 const catalogMigration = readFileSync(join(packageDir, "connectors", "catalog-knowledge", "src", "migrations.mjs"), "utf8");
 if (!/default_transaction_read_only = on/.test(catalogMigration)) fail("Support migration must enforce read-only transactions on the MCP database role");
 if (/GRANT SELECT ON ALL TABLES/.test(catalogMigration)) fail("Support reader must not receive administrative tables through a blanket grant");
@@ -576,7 +606,7 @@ if (!/\/plugins\/enki-telegram-gateway:ro/.test(telegramCompose)) fail("Compose 
 
 const desired = jsonYaml("policies/desired-state.yaml");
 if (desired.schema !== "enki-runtime-desired-state/v1" || desired.mode !== "governed-publishing") fail("Desired state must be governed-publishing enki-runtime-desired-state/v1");
-if (desired.packageVersion !== "0.12.0") fail("Desired state package version must match 0.12.0");
+if (desired.packageVersion !== "0.13.0") fail("Desired state package version must match 0.13.0");
 if (desired.rejectUnexpectedActiveConnections !== true) fail("Desired state must reject unexpected active connections");
 if (desired.rejectUnexpectedAgents !== true) fail("Desired state must reject unexpected agents");
 if (desired.rejectUnexpectedProfiles !== true) fail("Desired state must reject unexpected profiles");
@@ -592,9 +622,11 @@ if (desired.plugins?.[0]?.approvalDecisions !== "ui_only" || desired.plugins?.[0
 for (const forbiddenCapability of ["approvals.respond", "issue.interactions.respond", "agents.invoke", "agents.resume", "issues.update"]) {
   if (!(desired.plugins?.[0]?.forbiddenCapabilities || []).includes(forbiddenCapability)) fail(`Telegram desired state must forbid capability: ${forbiddenCapability}`);
 }
-if (desired.connections?.length !== 6 || desired.profiles?.length !== 6 || desired.policies?.length !== 2 || desired.gateways?.length !== 6) fail("Desired state must define 6 connections, 6 profiles, 2 publishing policies, and 6 governed gateways");
+if (desired.connections?.length !== 7 || desired.profiles?.length !== 6 || desired.policies?.length !== 2 || desired.gateways?.length !== 6) fail("Desired state must define 7 connections, 6 profiles, 2 publishing policies, and 6 governed gateways");
 const desiredCatalogConnection = desired.connections?.find((connection) => connection.key === "product_support_knowledge");
 if (desiredCatalogConnection?.endpoint !== "http://enki-product-support-knowledge:8030/mcp" || (desiredCatalogConnection?.tools || []).sort().join(",") !== [...expectedCatalogTools].sort().join(",")) fail("Desired support connection must expose the exact reviewed eight-tool catalog");
+const desiredCatalogueEvidenceConnection = desired.connections?.find((connection) => connection.key === "catalogue_evidence");
+if (desiredCatalogueEvidenceConnection?.endpoint !== "http://enki-catalogue-evidence:8050/mcp" || [...(desiredCatalogueEvidenceConnection?.tools || [])].sort().join(",") !== [...expectedCatalogueEvidenceTools].sort().join(",")) fail("Desired catalogue-evidence connection must expose the exact reviewed five-tool catalog");
 const desiredPublisherConnection = desired.connections?.find((connection) => connection.key === "content_publisher");
 if (desiredPublisherConnection?.endpoint !== "http://enki-content-publisher:8040/mcp" || [...(desiredPublisherConnection?.tools || [])].sort().join(",") !== [...expectedPublisherTools].sort().join(",")) fail("Desired content publisher connection must expose the exact reviewed nine-tool catalog");
 if ([...(desiredPublisherConnection?.writeTools || [])].sort().join(",") !== [...expectedPublisherWriteTools].sort().join(",")) fail("Desired content publisher connection must identify exactly the three governed write tools");
@@ -611,6 +643,11 @@ for (const profile of desired.profiles || []) {
   desiredProfileAgents.add(profile.agentSlug);
   if ((profile.allowedTools || []).includes("list_google_ads_links")) fail(`Profile ${profile.profileKey || "unknown"} must not expose list_google_ads_links`);
   for (const tool of profile.allowedTools || []) if (!desiredToolNames.has(tool)) fail(`Profile ${profile.profileKey || "unknown"} references tool outside strict catalogs: ${tool}`);
+}
+const ecommerceProfile = desired.profiles?.find((profile) => profile.agentSlug === "ecommerce-catalogue-manager");
+if ([...(ecommerceProfile?.allowedTools || [])].filter((tool) => expectedCatalogueEvidenceTools.includes(tool)).sort().join(",") !== [...expectedCatalogueEvidenceTools].sort().join(",")) fail("Ecommerce profile must receive the exact five catalogue-evidence tools");
+for (const profile of desired.profiles || []) {
+  if (profile.agentSlug !== "ecommerce-catalogue-manager" && (profile.allowedTools || []).some((tool) => expectedCatalogueEvidenceTools.includes(tool))) fail(`Catalogue-evidence tools must remain exclusive to Ecommerce: ${profile.agentSlug}`);
 }
 for (const connection of desired.connections || []) {
   const credential = connection.requiredCredential || {};
@@ -701,7 +738,7 @@ for (const document of inventory.internalDocuments || []) {
   if (document.targetSha256 !== actualSha256) fail(`Internal knowledge hash drift: ${document.target}`);
   if (document.origin !== "package-authored" || document.license !== "LicenseRef-Enki-Hogar-Internal" || document.sensitivity !== "enki_internal") fail(`Unexpected internal document provenance: ${document.target}`);
 }
-if ((inventory.internalDocuments || []).length !== 18) fail("Knowledge inventory must include metric, evidence, content-ledger, editorial planning/feedback/retrospective/learning, catalogue processing/reconciliation contracts and replay receipt, catalogue regression and adapter contracts, legacy workflow, and both product-support contracts");
+if ((inventory.internalDocuments || []).length !== 19) fail("Knowledge inventory must include metric, evidence, content-ledger, editorial planning/feedback/retrospective/learning, catalogue processing/reconciliation/publication contracts and replay receipt, catalogue regression and adapter contracts, legacy workflow, and both product-support contracts");
 const historicalReplayReceipt = jsonYaml("references/replay-receipts/eai-021-buades-2026-04-26.json");
 if (
   historicalReplayReceipt.schema !== "enki-bounded-historical-layout-replay-receipt/v1" ||

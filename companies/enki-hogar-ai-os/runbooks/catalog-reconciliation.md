@@ -133,4 +133,4 @@ The completed EAI-021 replay is recorded in [`references/replay-receipts/eai-021
 
 The replay is evidence that the reviewed legacy layout can be interpreted; it is not current truth, approval or permission to import.
 
-Do not expand from the bounded replay to all brands or all products. That remains gated by the read-only approved-run evidence connector and a fresh operational task.
+Do not expand from the bounded replay to all brands or all products. The read-only [approved-run evidence connector](catalog-evidence.md) now enforces the publication boundary, but a broad run still requires a fresh operational task and exact source scope.

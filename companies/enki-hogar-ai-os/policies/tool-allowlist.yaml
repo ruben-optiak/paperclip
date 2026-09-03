@@ -43,6 +43,14 @@ connectors:
       knowledge_get_evidence: read
       knowledge_coverage: read
     deniedPatterns: [create, update, delete, archive, restore, purge, import, reindex, write]
+  catalogue_evidence:
+    allowed:
+      catalogue_list_approved_runs: read
+      catalogue_search_field_evidence: read
+      catalogue_get_field_evidence: read
+      catalogue_get_evidence_crop: read
+      catalogue_evidence_coverage: read
+    deniedPatterns: [create, update, delete, approve, publish, export, import, browse, raw, write]
   wordpress:
     allowed:
       render: local-draft

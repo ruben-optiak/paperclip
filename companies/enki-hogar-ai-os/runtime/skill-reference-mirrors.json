@@ -56,6 +56,9 @@
     "references/contracts/catalog-reconciliation-v1.schema.json": [
       "skills/enki-catalog-qa/references/catalog-reconciliation-v1.schema.json"
     ],
+    "references/contracts/catalog-evidence-publication-v1.schema.json": [
+      "skills/enki-catalog-qa/references/catalog-evidence-publication-v1.schema.json"
+    ],
     "references/contracts/editorial-brief-v2.schema.json": [
       "skills/enki-editorial-planning/references/editorial-brief-v2.schema.json"
     ],

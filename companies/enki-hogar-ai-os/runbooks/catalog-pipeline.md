@@ -69,7 +69,7 @@ Require all of the following before downstream work:
 - no artifact contains a host absolute path, secret, customer data or Woo commercial snapshot;
 - rerunning the same source with the same runtime produces byte-identical artifacts in a different output root.
 
-These are preparation artifacts, not approval. `EAI-018` defines the strict run, field-evidence and local change-set contracts plus their [historical migration rules](catalog-contract-migration.md). `EAI-019` provides the [sanitized multimarca regression](catalog-regression.md), EAI-020 adds the [small extraction core and four versioned adapters](catalog-adapters.md), and EAI-021 adds [strict positional Woo reconciliation and post-import audit](catalog-reconciliation.md). None authorizes a broad `ENK-7` run or a Woo import; approved-run access remains gated by EAI-022.
+These are preparation artifacts, not approval. `EAI-018` defines the strict run, field-evidence and local change-set contracts plus their [historical migration rules](catalog-contract-migration.md). `EAI-019` provides the [sanitized multimarca regression](catalog-regression.md), EAI-020 adds the [small extraction core and four versioned adapters](catalog-adapters.md), EAI-021 adds [strict positional Woo reconciliation and post-import audit](catalog-reconciliation.md), and EAI-022 adds the [approved evidence publication](catalog-evidence.md). None authorizes a Woo import. A broad `ENK-7` run still requires its own fresh operational task and source scope.
 
 ## Production portability
 

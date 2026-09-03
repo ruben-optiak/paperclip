@@ -1,7 +1,7 @@
 {
   "schema": "enki-runtime-compatibility/v1",
-  "packageVersion": "0.12.0",
-  "recordedAt": "2026-09-01",
+  "packageVersion": "0.13.0",
+  "recordedAt": "2026-09-03",
   "agentCompaniesSchema": "agentcompanies/v1",
   "paperclipBundleSchemaVersion": 7,
   "paperclip": {
@@ -75,6 +75,7 @@
         "catalogFieldEvidence": "enki-catalog-field-evidence/v1",
         "catalogChangeSet": "enki-catalog-change-set/v1",
         "catalogReconciliation": "enki-catalog-reconciliation/v1",
+        "catalogEvidencePublication": "enki-catalog-evidence-publication/v1",
         "jsonSchema": "2020-12-strict",
         "semanticValidator": "enki-catalog-qa/scripts/validate_catalog_contracts.mjs",
         "reconciliationFixtureValidator": "enki-catalog-qa/scripts/validate_catalog_reconciliation.mjs",
@@ -169,6 +170,20 @@
       "databaseImageStatus": "verified_registry_oci_index_2026-08-31",
       "agentDatabaseRole": "enki_support_reader",
       "agentDatabaseRoleStatus": "verified_read_only_by_integration_test",
+      "dependencyStatus": "verified_from_package_and_lock"
+    },
+    "catalogueEvidence": {
+      "version": "0.1.0",
+      "imageDigest": null,
+      "imageStatus": "pending_release_build_and_digest_verification",
+      "mcpSdk": "1.30.0",
+      "ajv": "8.18.0",
+      "ajvFormats": "3.0.1",
+      "zod": "4.4.3",
+      "publicationSchema": "enki-catalog-evidence-publication/v1",
+      "toolCount": 5,
+      "mountMode": "approved_projection_read_only",
+      "rawInputsAccessible": false,
       "dependencyStatus": "verified_from_package_and_lock"
     },
     "contentPublisher": {

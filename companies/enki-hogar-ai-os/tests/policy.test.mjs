@@ -30,7 +30,7 @@ test("policy quarantines every mutation except the three Board-approved publicat
   assert.equal(block?.priority, 1000);
 });
 
-test("Google, Woo and product-support allowlists contain only expected query tools", () => {
+test("Google, Woo, product-support and catalogue-evidence allowlists contain only expected query tools", () => {
   for (const tool of ["woo_sales_summary", "woo_orders_summary", "woo_get_product_structure", "search_search", "run_report", "gsc_search_analytics"]) {
     assert.match(policy, new RegExp(`\\b${tool}:`));
   }
@@ -42,6 +42,17 @@ test("Google, Woo and product-support allowlists contain only expected query too
   const support = desired.connections.find((connection) => connection.key === "product_support_knowledge");
   assert.equal(support?.tools.length, 8);
   assert.equal(support?.tools.every((tool) => /^knowledge_(?:resolve|get|check|list|search|coverage)/.test(tool)), true);
+  const evidence = desired.connections.find((connection) => connection.key === "catalogue_evidence");
+  assert.deepEqual(evidence?.tools, [
+    "catalogue_list_approved_runs",
+    "catalogue_search_field_evidence",
+    "catalogue_get_field_evidence",
+    "catalogue_get_evidence_crop",
+    "catalogue_evidence_coverage",
+  ]);
+  const ecommerce = desired.profiles.find((profile) => profile.agentSlug === "ecommerce-catalogue-manager");
+  assert.equal(evidence.tools.every((tool) => ecommerce.allowedTools.includes(tool)), true);
+  assert.equal(desired.profiles.filter((profile) => profile.agentSlug !== ecommerce.agentSlug).every((profile) => evidence.tools.every((tool) => !profile.allowedTools.includes(tool))), true);
 });
 
 test("Customer Experience is zero-PII and cannot reach any order tool", () => {

@@ -1,6 +1,6 @@
 ---
 name: enki-catalog-qa
-description: Valida datos de catálogo mediante fuentes, normalización, comparación, QA, aprobación y exportación controlada
+description: Valida datos de catálogo y proyecciones de evidencia aprobada mediante fuentes, normalización, comparación, QA, aprobación y exportación controlada
 license: MIT AND LicenseRef-Enki-Hogar-Internal
 ---
 
@@ -21,6 +21,8 @@ Toda ejecución que procese o compare datos de catálogo usa conjuntamente:
 - [catalog-change-set/v1](references/catalog-change-set-v1.schema.json) para describir la diferencia revisable y su elegibilidad para un borrador local.
 
 Valida primero los JSON contra sus schemas estrictos y después ejecuta `scripts/validate_catalog_contracts.mjs` para comprobar hashes, geometría, lineage, valores, resumen y gates cruzados. Usa `fixtures/catalog-contracts/valid/` como ejemplo saneado y `fixtures/catalog-contracts/invalid/cases.json` como regresión negativa. Un CSV o Markdown suelto puede acompañar el informe para lectura humana, pero no sustituye estos contratos.
+
+Antes de que un agente consulte evidencia de ejecuciones anteriores, valida también [catalog-evidence-publication/v1](references/catalog-evidence-publication-v1.schema.json). Exige aprobación Board de la publicación, run exacto `local_export_ready` y aprobado, campos exactos `approved`, hashes de todos los ficheros, `rawInputsIncluded: false` y `externalWritesBlocked: true`. Nunca montes ni expongas el directorio de fuentes, inputs u outputs completos del run.
 
 Antes de ejecutar un adaptador, replay histórico o auditoría real, exige además que pase la suite [catalog-regression/v1](references/catalog-regression-v1.schema.json) con `scripts/validate_catalog_regression.mjs`. Su manifiesto vive en `fixtures/catalog-regression/v1/manifest.json` y fija por hash seis casos saneados de Buades, Enki Espejos, Mundilite y Chicandbath. El gate cubre tabla, grid, detalle, columnas, varios SKU/precio, acabados y configurador, y proyecta los pares calculados a evidencia de campo v1. Consulta [el ejemplo de regresión](examples/regression-suite.md).
 
