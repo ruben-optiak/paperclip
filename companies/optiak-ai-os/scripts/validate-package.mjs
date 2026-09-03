@@ -110,6 +110,7 @@ const requiredFiles = [
   "scripts/check-sandbox-compat.mjs",
   "scripts/evaluate-promotion-readiness.mjs",
   "scripts/evaluate-prd-readiness.mjs",
+  "scripts/evaluate-postmortem.mjs",
   "scripts/import-allowlist.txt",
   "scripts/local-instance.sh",
   "scripts/probe-test-environment.mjs",
@@ -126,6 +127,7 @@ const requiredFiles = [
   "skills/optiak-architecture-review/references/architecture-authority-map.json",
   "skills/optiak-docs-drift/references/documentation-authority-map.json",
   "skills/optiak-prd-review/references/prd-readiness-contract.json",
+  "skills/optiak-incident-triage/references/postmortem-contract.json",
 ];
 for (const path of requiredFiles) if (!statSafe(join(packageDir, path))) fail(`Missing required file: ${path}`);
 
@@ -551,6 +553,49 @@ for (const requiredGate of [
   "measurement_and_learning",
 ]) {
   if (!prdGateIds.has(requiredGate)) fail(`Missing PRD readiness gate: ${requiredGate}`);
+}
+
+const postmortemContract = JSON.parse(readFileSync(
+  join(
+    packageDir,
+    "skills",
+    "optiak-incident-triage",
+    "references",
+    "postmortem-contract.json",
+  ),
+  "utf8",
+));
+if (postmortemContract.schema !== "optiak-postmortem-contract/v1"
+  || postmortemContract.status !== "offline_defined_no_incident_or_action_implied"
+  || postmortemContract.humanConflictOwner !== "board") {
+  fail("Unexpected postmortem contract identity or authority");
+}
+if (!postmortemContract.requirementPolicy?.alwaysRequiredSeverities?.includes("SEV0")
+  || !postmortemContract.requirementPolicy?.alwaysRequiredSeverities?.includes("SEV1")
+  || postmortemContract.blamelessPolicy?.unknownRootCauseAllowed !== true
+  || postmortemContract.evidencePolicy?.verifiedRootCauseMinimumIndependentRefs !== 2) {
+  fail("Postmortem requirement, blamelessness, or certainty policy drift");
+}
+for (const field of ["blame", "culprit", "personAtFault", "individualFault"]) {
+  if (!postmortemContract.blamelessPolicy?.prohibitedFields?.includes(field)) {
+    fail(`Postmortem prohibited blame field missing: ${field}`);
+  }
+}
+if (postmortemContract.requiredSections?.length !== 11
+  || new Set(postmortemContract.requiredSections).size !== 11) {
+  fail("Postmortem contract must contain eleven unique required sections");
+}
+if (postmortemContract.correctiveActionPolicy?.minimumDistinctTypesForMaterialIncident !== 2
+  || postmortemContract.correctiveActionPolicy?.unknownRootCauseRequiresInvestigationAction !== true
+  || postmortemContract.correctiveActionPolicy?.acceptedOrLaterRequiresHumanDecisionRef !== true) {
+  fail("Postmortem corrective-action policy drift");
+}
+if (postmortemContract.reviewPolicy?.independentReviewerMustDifferFromIncidentOwner !== true
+  || postmortemContract.reviewPolicy?.boardOwnsRiskAcceptance !== true
+  || postmortemContract.executionPolicy?.evaluatorMayExecuteCorrectiveAction !== false
+  || postmortemContract.executionPolicy?.agentMayChangeProduction !== false
+  || postmortemContract.executionPolicy?.agentMayCloseIncident !== false) {
+  fail("Postmortem review or execution boundary drift");
 }
 
 const observabilityContract = JSON.parse(readFileSync(

@@ -27,6 +27,10 @@ import {
   evaluatePrdReadiness,
   loadPrdReadinessContract,
 } from "../scripts/evaluate-prd-readiness.mjs";
+import {
+  evaluatePostmortem,
+  loadPostmortemContract,
+} from "../scripts/evaluate-postmortem.mjs";
 
 const packageDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -580,6 +584,58 @@ test("PRD evaluator rejects duplicate, unknown, and unsupported not-applicable g
   evidence.gateResults[0].status = "not_applicable";
   evidence.gateResults[0].rationale = "Synthetic rationale";
   assert.throws(() => evaluatePrdReadiness(evidence, contract), /cannot be not_applicable/);
+});
+
+function materializePostmortemCase(data, fixtureCase) {
+  const evidence = structuredClone(data.baseEvidence);
+  if (fixtureCase.mutation === "clear_impact_evidence") {
+    evidence.impact.evidenceRefs = [];
+  } else if (fixtureCase.mutation === "verified_root_cause_with_one_reference") {
+    evidence.rootCause.status = "verified";
+    evidence.rootCause.statement = "The synthetic timeout is declared as verified.";
+    evidence.rootCause.evidenceRefs = ["fixture://incident/one-root-cause-reference"];
+  } else if (fixtureCase.mutation === "mark_nonmaterial_sev3") {
+    evidence.incident.severity = "SEV3";
+    evidence.incident.material = false;
+  }
+  return evidence;
+}
+
+test("postmortem contract preserves blamelessness and human authority", () => {
+  const contract = loadPostmortemContract();
+  assert.equal(contract.schema, "optiak-postmortem-contract/v1");
+  assert.equal(contract.status, "offline_defined_no_incident_or_action_implied");
+  assert.deepEqual(contract.requirementPolicy.alwaysRequiredSeverities, ["SEV0", "SEV1"]);
+  assert.equal(contract.blamelessPolicy.unknownRootCauseAllowed, true);
+  assert.equal(contract.evidencePolicy.verifiedRootCauseMinimumIndependentRefs, 2);
+  assert.equal(contract.correctiveActionPolicy.minimumDistinctTypesForMaterialIncident, 2);
+  assert.equal(contract.reviewPolicy.boardOwnsRiskAcceptance, true);
+  assert.equal(contract.executionPolicy.evaluatorMayExecuteCorrectiveAction, false);
+  assert.equal(contract.executionPolicy.agentMayCloseIncident, false);
+});
+
+test("postmortem evaluator separates completeness, certainty, and requirement", () => {
+  const contract = loadPostmortemContract();
+  const data = fixture("optiak-incident-triage", "postmortem");
+  for (const fixtureCase of data.cases) {
+    const result = evaluatePostmortem(materializePostmortemCase(data, fixtureCase), contract);
+    assert.equal(result.verdict, fixtureCase.expectedVerdict, fixtureCase.id);
+    assert.equal(result.doesNotAuthorizeExecution, true, fixtureCase.id);
+  }
+});
+
+test("postmortem evaluator rejects blame fields and self-review", () => {
+  const contract = loadPostmortemContract();
+  const data = fixture("optiak-incident-triage", "postmortem");
+  const withBlame = structuredClone(data.baseEvidence);
+  withBlame.rootCause.blame = "fixture-person";
+  assert.throws(() => evaluatePostmortem(withBlame, contract), /prohibited blame field/);
+
+  const selfReviewed = structuredClone(data.baseEvidence);
+  selfReviewed.review.independentReviewer = selfReviewed.review.incidentOwner;
+  const result = evaluatePostmortem(selfReviewed, contract);
+  assert.equal(result.verdict, "changes_required");
+  assert.ok(result.changeReasons.includes("independent_reviewer_must_differ_from_incident_owner"));
 });
 
 test("runtime defaults to paused, sandboxed, managed MCP", () => {

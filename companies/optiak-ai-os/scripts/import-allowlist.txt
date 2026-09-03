@@ -15,6 +15,7 @@ scripts/check-sandbox-compat.mjs
 scripts/check.sh
 scripts/evaluate-promotion-readiness.mjs
 scripts/evaluate-prd-readiness.mjs
+scripts/evaluate-postmortem.mjs
 scripts/import-allowlist.txt
 scripts/local-instance.sh
 scripts/probe-test-environment.mjs

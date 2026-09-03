@@ -39,3 +39,10 @@ Maintain a timestamped timeline. Separate mitigation from root cause. Propose
 but do not execute production changes. Closure requires fresh recovery evidence,
 regression ownership, and postmortem disposition. See [example](examples/triage.md),
 `references/fixtures/alert.md`, and `references/fixtures/observability.md`.
+
+For every material incident, hand off to
+`references/postmortem-contract.json` and evaluate the structured draft with
+`scripts/evaluate-postmortem.mjs`. Preserve observations, hypotheses, and
+verified root cause as different states. Use
+`references/fixtures/postmortem.md` for offline regression only. A postmortem
+verdict never closes the incident, accepts risk, or executes a corrective action.
