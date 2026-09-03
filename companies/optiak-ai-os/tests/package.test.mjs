@@ -436,6 +436,49 @@ test("repository authority limits GitHub to two repositories and one read-only r
   assert.match(authority, /cloneWholeOrganization: false/);
 });
 
+test("architecture authority is domain-specific and fails closed", () => {
+  const authority = JSON.parse(readFileSync(
+    join(
+      packageDir,
+      "skills",
+      "optiak-architecture-review",
+      "references",
+      "architecture-authority-map.json",
+    ),
+    "utf8",
+  ));
+  assert.equal(authority.schema, "optiak-architecture-authority-map/v1");
+  assert.equal(authority.status, "offline_defined_sources_not_assumed_connected");
+  assert.equal(authority.globalPolicy.defaultDecision, "blocked_on_authority");
+  assert.equal(authority.globalPolicy.publicDocsProveImplementation, false);
+  assert.equal(authority.globalPolicy.sourceCodeProvesDeployment, false);
+  assert.equal(authority.globalPolicy.healthEndpointProvesReadiness, false);
+  assert.equal(authority.sourceClasses.length, 8);
+  assert.equal(authority.domains.length, 8);
+  assert.equal(new Set(authority.domains.map((domain) => domain.id)).size, 8);
+
+  const domains = new Map(authority.domains.map((domain) => [domain.id, domain]));
+  assert.equal(
+    domains.get("platform_boundary_and_product_ownership").owner,
+    "product-prd-lead",
+  );
+  assert.equal(
+    domains.get("deployed_topology_and_revision").unavailableBehavior,
+    "deployment_state_unknown",
+  );
+
+  const claims = fixture("optiak-architecture-review", "authority-claims");
+  assert.deepEqual(
+    claims.cases.map((item) => item.expectedDecision),
+    [
+      "blocked_on_contract_authority",
+      "deployment_state_unknown",
+      "blocked_on_slo_or_runtime_evidence",
+      "authority_sufficient_for_revision_scoped_review",
+    ],
+  );
+});
+
 test("runtime defaults to paused, sandboxed, managed MCP", () => {
   const paperclip = readFileSync(join(packageDir, ".paperclip.yaml"), "utf8");
   assert.equal((paperclip.match(/type: codex_local/g) || []).length, 10);

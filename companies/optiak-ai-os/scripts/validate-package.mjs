@@ -122,6 +122,7 @@ const requiredFiles = [
   "skills/optiak-e2e-validation/references/golden-journey-matrix.json",
   "skills/optiak-incident-triage/references/observability-source-contract.json",
   "skills/optiak-release-readiness/references/ai-os-promotion-contract.json",
+  "skills/optiak-architecture-review/references/architecture-authority-map.json",
 ];
 for (const path of requiredFiles) if (!statSafe(join(packageDir, path))) fail(`Missing required file: ${path}`);
 
@@ -389,6 +390,70 @@ for (const marker of [
 }
 if ((repositoryAuthority.match(/^    - slug: optiak\//gm) || []).length !== 2) {
   fail("Repository authority must contain exactly two approved Optiak repositories");
+}
+
+const architectureAuthority = JSON.parse(readFileSync(
+  join(
+    packageDir,
+    "skills",
+    "optiak-architecture-review",
+    "references",
+    "architecture-authority-map.json",
+  ),
+  "utf8",
+));
+if (architectureAuthority.schema !== "optiak-architecture-authority-map/v1") {
+  fail("Unexpected architecture authority-map schema");
+}
+if (architectureAuthority.status !== "offline_defined_sources_not_assumed_connected"
+  || architectureAuthority.humanConflictOwner !== "board"
+  || architectureAuthority.globalPolicy?.defaultDecision !== "blocked_on_authority") {
+  fail("Architecture authority map must remain offline and fail closed");
+}
+for (const policy of [
+  "publicDocsProveImplementation",
+  "sourceCodeProvesDeployment",
+  "healthEndpointProvesReadiness",
+  "fixtureProvesLiveBehavior",
+  "architectureReviewerMayCreateProductIntent",
+  "architectureReviewerMayApproveOwnImplementation",
+]) {
+  if (architectureAuthority.globalPolicy?.[policy] !== false) {
+    fail(`Architecture authority prohibition drift: ${policy}`);
+  }
+}
+const architectureSourceClasses = new Map(
+  (architectureAuthority.sourceClasses ?? []).map((source) => [source.id, source]),
+);
+const architectureDomains = new Map(
+  (architectureAuthority.domains ?? []).map((domain) => [domain.id, domain]),
+);
+if (architectureSourceClasses.size !== 8) fail("Expected eight architecture source classes");
+if (architectureDomains.size !== 8) fail("Expected eight architecture authority domains");
+for (const sourceId of [
+  "explicit_board_decision",
+  "approved_product_contract",
+  "versioned_api_or_data_contract",
+  "exact_source_revision",
+  "approved_adr_or_rfc_revision",
+  "release_and_deployment_evidence",
+  "fresh_runtime_evidence",
+  "public_documentation",
+]) {
+  if (!architectureSourceClasses.has(sourceId)) fail(`Missing architecture source class: ${sourceId}`);
+}
+for (const domain of architectureDomains.values()) {
+  if (!agents.has(domain.owner) || !agents.has(domain.reviewer)) {
+    fail(`Unknown architecture domain owner or reviewer: ${domain.id}`);
+  }
+  if (!domain.freshness || !domain.unavailableBehavior) {
+    fail(`Incomplete architecture authority domain: ${domain.id}`);
+  }
+  for (const sourceId of domain.strongestSources ?? []) {
+    if (!architectureSourceClasses.has(sourceId)) {
+      fail(`Unknown architecture source ${sourceId} in ${domain.id}`);
+    }
+  }
 }
 
 const observabilityContract = JSON.parse(readFileSync(

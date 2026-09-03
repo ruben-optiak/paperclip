@@ -9,6 +9,7 @@ policy:
   testEnvironmentAuthorityRef: skills/optiak-e2e-validation/references/test-environment-contract.json
   observabilityAuthorityRef: skills/optiak-incident-triage/references/observability-source-contract.json
   promotionAuthorityRef: skills/optiak-release-readiness/references/ai-os-promotion-contract.json
+  architectureAuthorityRef: skills/optiak-architecture-review/references/architecture-authority-map.json
 sources:
   - id: public-overview
     url: https://docs.optiak.dev/getting-started/overview
