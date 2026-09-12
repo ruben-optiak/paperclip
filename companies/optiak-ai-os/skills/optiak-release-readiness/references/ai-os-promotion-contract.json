@@ -1,7 +1,7 @@
 {
   "schema": "optiak-ai-os-promotion-contract/v1",
   "contractVersion": "1.0.0",
-  "packageVersion": "0.1.10",
+  "packageVersion": "0.1.11",
   "reviewedAt": "2026-09-03",
   "status": "offline_defined_not_deployed",
   "humanConflictOwner": "board",

@@ -8,6 +8,8 @@ trap 'rm -rf "$build_dir"' EXIT HUP INT TERM
 node --check "$package_dir/scripts/validate-package.mjs"
 node --check "$package_dir/scripts/check-sandbox-compat.mjs"
 node --check "$package_dir/scripts/evaluate-promotion-readiness.mjs"
+node --check "$package_dir/scripts/evaluate-prd-readiness.mjs"
+node --check "$package_dir/scripts/evaluate-postmortem.mjs"
 node --check "$package_dir/scripts/probe-test-environment.mjs"
 node "$package_dir/scripts/validate-package.mjs"
 node "$package_dir/scripts/check-sandbox-compat.mjs"

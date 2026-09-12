@@ -1,0 +1,130 @@
+{
+  "schema": "optiak-documentation-authority-map/v1",
+  "reviewedAt": "2026-09-03",
+  "status": "offline_defined_live_pages_remain_canonical",
+  "humanConflictOwner": "board",
+  "globalPolicy": {
+    "wholeSiteSnapshotsAllowed": false,
+    "publicPageIsAuthorityForItsPublishedWording": true,
+    "publicPageProvesImplementation": false,
+    "publicPageProvesReleaseAvailability": false,
+    "missingComparisonAuthority": "blocked_on_authority",
+    "staleOrUnretrievablePage": "stale_risk_not_confirmed_drift",
+    "documentationAgentMayPublish": false,
+    "documentationAgentMayChangeProductIntent": false,
+    "maximumPagesPerRoutineRun": 5,
+    "routineCadence": "weekly_bounded_rotation"
+  },
+  "authorityClasses": {
+    "productIntent": ["explicit_board_decision", "approved_product_contract"],
+    "apiAndSchema": ["versioned_api_or_data_contract", "generated_schema_at_exact_revision"],
+    "implementation": ["exact_source_revision", "reproducible_test_at_exact_revision"],
+    "releaseAvailability": ["release_and_deployment_evidence", "environment_scoped_smoke"],
+    "runtimeBehavior": ["fresh_environment_scoped_evidence"],
+    "publishedWording": ["retrieved_public_page_with_timestamp_and_anchor"]
+  },
+  "domains": [
+    {
+      "id": "positioning_and_first_use",
+      "sourceIds": ["public-overview", "platform-navigation", "quickstart"],
+      "productOwner": "product-prd-lead",
+      "implementationOwner": "engineering-assurance-lead",
+      "documentationOwner": "documentation-dx-steward",
+      "comparisonAuthorities": ["productIntent", "implementation", "releaseAvailability"],
+      "reviewCadence": "weekly_rotation_and_every_material_navigation_or_onboarding_release",
+      "escalation": "product-prd-lead_then_board_for_positioning_conflict"
+    },
+    {
+      "id": "organization_and_governance",
+      "sourceIds": ["company-setup", "governance"],
+      "productOwner": "product-prd-lead",
+      "implementationOwner": "principal-platform-architect",
+      "documentationOwner": "documentation-dx-steward",
+      "comparisonAuthorities": ["productIntent", "apiAndSchema", "implementation", "releaseAvailability"],
+      "reviewCadence": "weekly_rotation_and_every_permission_or_tenancy_release",
+      "escalation": "engineering-assurance-lead_then_board_for_security_or_tenant_boundary"
+    },
+    {
+      "id": "applications_and_credentials",
+      "sourceIds": ["applications", "api-keys"],
+      "productOwner": "product-prd-lead",
+      "implementationOwner": "principal-platform-architect",
+      "documentationOwner": "documentation-dx-steward",
+      "comparisonAuthorities": ["productIntent", "apiAndSchema", "implementation", "releaseAvailability"],
+      "reviewCadence": "weekly_rotation_and_every_credential_lifecycle_release",
+      "escalation": "engineering-assurance-lead_for_secret_or_permission_risk"
+    },
+    {
+      "id": "models_routing_and_providers",
+      "sourceIds": ["models-routing", "providers"],
+      "productOwner": "product-prd-lead",
+      "implementationOwner": "principal-platform-architect",
+      "documentationOwner": "documentation-dx-steward",
+      "comparisonAuthorities": ["productIntent", "apiAndSchema", "implementation", "releaseAvailability", "runtimeBehavior"],
+      "reviewCadence": "weekly_rotation_and_every_provider_or_routing_release",
+      "escalation": "principal-platform-architect_then_product-prd-lead"
+    },
+    {
+      "id": "guardrails",
+      "sourceIds": ["guardrails"],
+      "productOwner": "product-prd-lead",
+      "implementationOwner": "engineering-assurance-lead",
+      "documentationOwner": "documentation-dx-steward",
+      "comparisonAuthorities": ["productIntent", "apiAndSchema", "implementation", "releaseAvailability", "runtimeBehavior"],
+      "reviewCadence": "every_guardrail_release_and_weekly_rotation",
+      "escalation": "engineering-assurance-lead_then_board_for_safety_claim"
+    },
+    {
+      "id": "data_integrations_and_tools",
+      "sourceIds": ["data-integrations", "tools"],
+      "productOwner": "product-prd-lead",
+      "implementationOwner": "principal-platform-architect",
+      "documentationOwner": "documentation-dx-steward",
+      "comparisonAuthorities": ["productIntent", "apiAndSchema", "implementation", "releaseAvailability"],
+      "reviewCadence": "weekly_rotation_and_every_connector_or_tool_release",
+      "escalation": "engineering-assurance-lead_for_data_or_execution_boundary"
+    },
+    {
+      "id": "observability",
+      "sourceIds": ["observability"],
+      "productOwner": "product-prd-lead",
+      "implementationOwner": "reliability-incident-engineer",
+      "documentationOwner": "documentation-dx-steward",
+      "comparisonAuthorities": ["productIntent", "apiAndSchema", "implementation", "releaseAvailability", "runtimeBehavior"],
+      "reviewCadence": "every_observability_release_and_weekly_rotation",
+      "escalation": "reliability-incident-engineer_for_health_cost_or_telemetry_claim"
+    },
+    {
+      "id": "openai_compatible_api_usage",
+      "sourceIds": ["api-usage"],
+      "productOwner": "product-prd-lead",
+      "implementationOwner": "principal-platform-architect",
+      "documentationOwner": "documentation-dx-steward",
+      "comparisonAuthorities": ["apiAndSchema", "implementation", "releaseAvailability", "runtimeBehavior"],
+      "reviewCadence": "every_api_contract_release_and_weekly_rotation",
+      "escalation": "principal-platform-architect_then_engineering-assurance-lead"
+    }
+  ],
+  "findingRules": [
+    {
+      "condition": "public_claim_conflicts_with_exact_released_authority",
+      "classification": "confirmed_drift"
+    },
+    {
+      "condition": "public_claim_conflicts_with_exact_source_but_release_is_unknown",
+      "classification": "likely_drift"
+    },
+    {
+      "condition": "two_public_pages_conflict_without_stronger_authority",
+      "classification": "internally_inconsistent"
+    },
+    {
+      "condition": "page_is_stale_or_cannot_be_retrieved",
+      "classification": "stale_risk"
+    },
+    {
+      "condition": "required_comparison_authority_is_missing",
+      "classification": "blocked_on_authority"
+    }
+  ]
+}

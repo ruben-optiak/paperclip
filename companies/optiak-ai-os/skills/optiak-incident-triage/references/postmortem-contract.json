@@ -1,0 +1,68 @@
+{
+  "schema": "optiak-postmortem-contract/v1",
+  "contractVersion": "1.0.0",
+  "reviewedAt": "2026-09-03",
+  "status": "offline_defined_no_incident_or_action_implied",
+  "humanConflictOwner": "board",
+  "verdicts": ["ready_for_human_review", "changes_required", "blocked_on_evidence", "not_required"],
+  "evidenceScopes": ["fixture_only", "versioned_internal", "connected_live"],
+  "requirementPolicy": {
+    "alwaysRequiredSeverities": ["SEV0", "SEV1"],
+    "conditionalSeverity": "SEV2",
+    "conditionalTriggers": ["material_customer_impact", "security_or_data_risk", "repeated_failure", "extended_recovery", "board_request"],
+    "optionalSeverity": "SEV3",
+    "humanMayRequireAnyIncident": true
+  },
+  "blamelessPolicy": {
+    "focus": ["system_conditions", "decision_context", "control_gaps", "learning"],
+    "prohibitedFields": ["blame", "culprit", "personAtFault", "individualFault"],
+    "humanActionMayBeRecordedOnlyAs": "context_without_moral_judgment_and_with_system_conditions",
+    "unsupportedRootCauseCertainty": "changes_required",
+    "unknownRootCauseAllowed": true
+  },
+  "evidencePolicy": {
+    "observationsSeparateFromHypotheses": true,
+    "verifiedRootCauseMinimumIndependentRefs": 2,
+    "missingImpactTimelineOrDetectionEvidence": "blocked_on_evidence",
+    "sourceCodeOrMergedPrProvesDeployment": false,
+    "clearedAlertProvesRecovery": false,
+    "fixtureProvesLiveIncident": false
+  },
+  "requiredSections": [
+    "incident",
+    "impact",
+    "timeline",
+    "detection",
+    "rootCause",
+    "contributingConditions",
+    "response",
+    "correctiveActions",
+    "learning",
+    "recurrenceRisk",
+    "review"
+  ],
+  "correctiveActionPolicy": {
+    "types": ["prevent", "detect", "mitigate", "recover"],
+    "minimumDistinctTypesForMaterialIncident": 2,
+    "requiredFields": ["id", "type", "owner", "dueAt", "status", "verification"],
+    "unassignedOwner": "changes_required",
+    "missingDueDate": "changes_required",
+    "missingVerificationSignal": "changes_required",
+    "unknownRootCauseRequiresInvestigationAction": true,
+    "allowedStatuses": ["proposed", "accepted", "in_progress", "verified", "cancelled"],
+    "acceptedOrLaterRequiresHumanDecisionRef": true
+  },
+  "reviewPolicy": {
+    "incidentOwnerRequired": true,
+    "facilitatorRequired": true,
+    "independentReviewerRequired": true,
+    "independentReviewerMustDifferFromIncidentOwner": true,
+    "boardOwnsRiskAcceptance": true
+  },
+  "executionPolicy": {
+    "evaluatorMayExecuteCorrectiveAction": false,
+    "agentMayChangeProduction": false,
+    "agentMayCloseIncident": false,
+    "readyVerdict": "ready_for_human_review_only"
+  }
+}

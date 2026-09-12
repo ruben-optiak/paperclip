@@ -109,6 +109,8 @@ const requiredFiles = [
   "scripts/build-import-zip.sh",
   "scripts/check-sandbox-compat.mjs",
   "scripts/evaluate-promotion-readiness.mjs",
+  "scripts/evaluate-prd-readiness.mjs",
+  "scripts/evaluate-postmortem.mjs",
   "scripts/import-allowlist.txt",
   "scripts/local-instance.sh",
   "scripts/probe-test-environment.mjs",
@@ -122,6 +124,10 @@ const requiredFiles = [
   "skills/optiak-e2e-validation/references/golden-journey-matrix.json",
   "skills/optiak-incident-triage/references/observability-source-contract.json",
   "skills/optiak-release-readiness/references/ai-os-promotion-contract.json",
+  "skills/optiak-architecture-review/references/architecture-authority-map.json",
+  "skills/optiak-docs-drift/references/documentation-authority-map.json",
+  "skills/optiak-prd-review/references/prd-readiness-contract.json",
+  "skills/optiak-incident-triage/references/postmortem-contract.json",
 ];
 for (const path of requiredFiles) if (!statSafe(join(packageDir, path))) fail(`Missing required file: ${path}`);
 
@@ -138,7 +144,7 @@ for (const path of allFiles.filter((candidate) => candidate.endsWith(".json"))) 
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md must declare agentcompanies/v1");
 if (company.slug !== "optiak-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.10") fail("Unexpected company version");
+if (company.version !== "0.1.11") fail("Unexpected company version");
 if (company.license !== "LicenseRef-Optiak-Internal") fail("Unexpected company license");
 
 const agentFiles = allFiles.filter((path) => path.endsWith(`${sep}AGENTS.md`) && path.includes(`${sep}agents${sep}`));
@@ -317,7 +323,29 @@ for (const marker of [
 }
 
 const desired = readFileSync(join(packageDir, "policies", "desired-state.yaml"), "utf8");
-for (const marker of ["expected: 10", "expected: 4", "importedPaused: true", "companyMonthlyBilledCents: 15000", "warnPercent: 80", "hardStopPercent: 100", "inference: deliberately_deferred_until_deployed_environment", "state: offline_contract_defined_connection_disconnected", "automaticOncallCoverage: false", "state: offline_contract_defined_not_deployed", "infrastructureProvider: undecided", "directLocalToProduction: deny", "sameImmutableCandidateAcrossEnvironments: true", "evaluatorMayExecute: false", "productionMutation: deny", "migrationStatus: blocked", "controlPlanePrivilegeExpansion: deny"]) {
+for (const marker of [
+  "expected: 10",
+  "expected: 4",
+  "importedPaused: true",
+  "companyMonthlyBilledCents: 15000",
+  "warnPercent: 80",
+  "hardStopPercent: 100",
+  "inference: deliberately_deferred_until_deployed_environment",
+  "state: offline_contract_defined_connection_disconnected",
+  "automaticOncallCoverage: false",
+  "state: offline_contract_defined_not_deployed",
+  "infrastructureProvider: undecided",
+  "directLocalToProduction: deny",
+  "sameImmutableCandidateAcrossEnvironments: true",
+  "evaluatorMayExecute: false",
+  "state: offline_defined_sources_not_assumed_connected",
+  "state: offline_defined_live_pages_remain_canonical",
+  "readyVerdictAuthorizesImplementation: false",
+  "evaluatorMayExecuteCorrectiveAction: false",
+  "productionMutation: deny",
+  "migrationStatus: blocked",
+  "controlPlanePrivilegeExpansion: deny",
+]) {
   if (!desired.includes(marker)) fail(`Desired-state marker missing: ${marker}`);
 }
 const allowlist = readFileSync(join(packageDir, "policies", "tool-allowlist.yaml"), "utf8");
@@ -328,6 +356,12 @@ const sourceMap = readFileSync(join(packageDir, "references", "source-map.yaml")
 if (!sourceMap.includes("wholeSiteSnapshotsAllowed: false")) fail("Source map must deny whole-site snapshots");
 if (!sourceMap.includes("promotionAuthorityRef: skills/optiak-release-readiness/references/ai-os-promotion-contract.json")) {
   fail("Promotion source-map authority reference missing");
+}
+for (const marker of [
+  "architectureAuthorityRef: skills/optiak-architecture-review/references/architecture-authority-map.json",
+  "documentationAuthorityRef: skills/optiak-docs-drift/references/documentation-authority-map.json",
+]) {
+  if (!sourceMap.includes(marker)) fail(`Source-map authority reference missing: ${marker}`);
 }
 if ((sourceMap.match(/status: disconnected/g) || []).length !== 4) fail("Future source disconnection state drift");
 for (const marker of ["status: authorized_pending_connection", "provider: Linear", "team: OPT", "https://mcp.linear.app/mcp/readonly"]) {
@@ -389,6 +423,207 @@ for (const marker of [
 }
 if ((repositoryAuthority.match(/^    - slug: optiak\//gm) || []).length !== 2) {
   fail("Repository authority must contain exactly two approved Optiak repositories");
+}
+
+const architectureAuthority = JSON.parse(readFileSync(
+  join(
+    packageDir,
+    "skills",
+    "optiak-architecture-review",
+    "references",
+    "architecture-authority-map.json",
+  ),
+  "utf8",
+));
+if (architectureAuthority.schema !== "optiak-architecture-authority-map/v1") {
+  fail("Unexpected architecture authority-map schema");
+}
+if (architectureAuthority.status !== "offline_defined_sources_not_assumed_connected"
+  || architectureAuthority.humanConflictOwner !== "board"
+  || architectureAuthority.globalPolicy?.defaultDecision !== "blocked_on_authority") {
+  fail("Architecture authority map must remain offline and fail closed");
+}
+for (const policy of [
+  "publicDocsProveImplementation",
+  "sourceCodeProvesDeployment",
+  "healthEndpointProvesReadiness",
+  "fixtureProvesLiveBehavior",
+  "architectureReviewerMayCreateProductIntent",
+  "architectureReviewerMayApproveOwnImplementation",
+]) {
+  if (architectureAuthority.globalPolicy?.[policy] !== false) {
+    fail(`Architecture authority prohibition drift: ${policy}`);
+  }
+}
+const architectureSourceClasses = new Map(
+  (architectureAuthority.sourceClasses ?? []).map((source) => [source.id, source]),
+);
+const architectureDomains = new Map(
+  (architectureAuthority.domains ?? []).map((domain) => [domain.id, domain]),
+);
+if (architectureSourceClasses.size !== 8) fail("Expected eight architecture source classes");
+if (architectureDomains.size !== 8) fail("Expected eight architecture authority domains");
+for (const sourceId of [
+  "explicit_board_decision",
+  "approved_product_contract",
+  "versioned_api_or_data_contract",
+  "exact_source_revision",
+  "approved_adr_or_rfc_revision",
+  "release_and_deployment_evidence",
+  "fresh_runtime_evidence",
+  "public_documentation",
+]) {
+  if (!architectureSourceClasses.has(sourceId)) fail(`Missing architecture source class: ${sourceId}`);
+}
+for (const domain of architectureDomains.values()) {
+  if (!agents.has(domain.owner) || !agents.has(domain.reviewer)) {
+    fail(`Unknown architecture domain owner or reviewer: ${domain.id}`);
+  }
+  if (!domain.freshness || !domain.unavailableBehavior) {
+    fail(`Incomplete architecture authority domain: ${domain.id}`);
+  }
+  for (const sourceId of domain.strongestSources ?? []) {
+    if (!architectureSourceClasses.has(sourceId)) {
+      fail(`Unknown architecture source ${sourceId} in ${domain.id}`);
+    }
+  }
+}
+
+const documentationAuthority = JSON.parse(readFileSync(
+  join(
+    packageDir,
+    "skills",
+    "optiak-docs-drift",
+    "references",
+    "documentation-authority-map.json",
+  ),
+  "utf8",
+));
+if (documentationAuthority.schema !== "optiak-documentation-authority-map/v1") {
+  fail("Unexpected documentation authority-map schema");
+}
+if (documentationAuthority.status !== "offline_defined_live_pages_remain_canonical"
+  || documentationAuthority.humanConflictOwner !== "board"
+  || documentationAuthority.globalPolicy?.wholeSiteSnapshotsAllowed !== false
+  || documentationAuthority.globalPolicy?.documentationAgentMayPublish !== false
+  || documentationAuthority.globalPolicy?.publicPageProvesImplementation !== false
+  || documentationAuthority.globalPolicy?.publicPageProvesReleaseAvailability !== false) {
+  fail("Documentation authority map safety policy drift");
+}
+const documentationDomains = documentationAuthority.domains ?? [];
+if (documentationDomains.length !== 8) fail("Expected eight documentation authority domains");
+const mappedDocumentationSources = documentationDomains.flatMap((domain) => domain.sourceIds ?? []);
+if (mappedDocumentationSources.length !== 14
+  || new Set(mappedDocumentationSources).size !== mappedDocumentationSources.length) {
+  fail("Documentation authority map must cover fourteen unique approved source ids");
+}
+const sourceMapIds = new Set([...sourceMap.matchAll(/^  - id: ([a-z0-9-]+)$/gm)].map((match) => match[1]));
+for (const sourceId of mappedDocumentationSources) {
+  if (!sourceMapIds.has(sourceId)) fail(`Unknown documentation source id: ${sourceId}`);
+}
+for (const domain of documentationDomains) {
+  for (const ownerField of ["productOwner", "implementationOwner", "documentationOwner"]) {
+    if (!agents.has(domain[ownerField])) {
+      fail(`Unknown documentation ${ownerField} for ${domain.id}`);
+    }
+  }
+  if (!domain.reviewCadence || !domain.escalation || !(domain.comparisonAuthorities?.length > 0)) {
+    fail(`Incomplete documentation authority domain: ${domain.id}`);
+  }
+}
+
+const prdReadinessContract = JSON.parse(readFileSync(
+  join(
+    packageDir,
+    "skills",
+    "optiak-prd-review",
+    "references",
+    "prd-readiness-contract.json",
+  ),
+  "utf8",
+));
+if (prdReadinessContract.schema !== "optiak-prd-readiness-contract/v1"
+  || prdReadinessContract.status !== "offline_defined_no_product_decision_implied"
+  || prdReadinessContract.humanConflictOwner !== "board") {
+  fail("Unexpected PRD readiness contract identity or authority");
+}
+if (JSON.stringify(prdReadinessContract.verdicts)
+    !== JSON.stringify(["ready_for_architecture", "changes_required", "blocked_on_evidence"])) {
+  fail("PRD readiness verdict vocabulary drift");
+}
+if (prdReadinessContract.globalPolicy?.readyVerdictAuthorizesImplementation !== false
+  || prdReadinessContract.globalPolicy?.publicDocsOrBacklogCreateProductIntent !== false
+  || prdReadinessContract.globalPolicy?.reviewerMayResolveBoardDecision !== false
+  || prdReadinessContract.globalPolicy?.notApplicableRequiresEvidenceAndRationale !== true) {
+  fail("PRD readiness safety policy drift");
+}
+const prdGates = prdReadinessContract.gates ?? [];
+const prdGateIds = new Set(prdGates.map((gate) => gate.id));
+if (prdGates.length !== 16 || prdGateIds.size !== prdGates.length) {
+  fail("PRD readiness contract must contain sixteen unique gates");
+}
+for (const gate of prdGates) {
+  if (!agents.has(gate.owner) || !agents.has(gate.reviewer)) {
+    fail(`Unknown PRD gate owner or reviewer: ${gate.id}`);
+  }
+  if (!(gate.evidence?.length > 0) || typeof gate.notApplicableAllowed !== "boolean") {
+    fail(`Incomplete PRD readiness gate: ${gate.id}`);
+  }
+}
+for (const requiredGate of [
+  "immutable_prd_revision",
+  "platform_boundary_and_non_goals",
+  "roles_permissions_and_tenancy",
+  "ui_states_brand_and_accessibility",
+  "documentation_and_support_impact",
+  "security_privacy_and_abuse",
+  "rollout_rollback_and_release",
+  "measurement_and_learning",
+]) {
+  if (!prdGateIds.has(requiredGate)) fail(`Missing PRD readiness gate: ${requiredGate}`);
+}
+
+const postmortemContract = JSON.parse(readFileSync(
+  join(
+    packageDir,
+    "skills",
+    "optiak-incident-triage",
+    "references",
+    "postmortem-contract.json",
+  ),
+  "utf8",
+));
+if (postmortemContract.schema !== "optiak-postmortem-contract/v1"
+  || postmortemContract.status !== "offline_defined_no_incident_or_action_implied"
+  || postmortemContract.humanConflictOwner !== "board") {
+  fail("Unexpected postmortem contract identity or authority");
+}
+if (!postmortemContract.requirementPolicy?.alwaysRequiredSeverities?.includes("SEV0")
+  || !postmortemContract.requirementPolicy?.alwaysRequiredSeverities?.includes("SEV1")
+  || postmortemContract.blamelessPolicy?.unknownRootCauseAllowed !== true
+  || postmortemContract.evidencePolicy?.verifiedRootCauseMinimumIndependentRefs !== 2) {
+  fail("Postmortem requirement, blamelessness, or certainty policy drift");
+}
+for (const field of ["blame", "culprit", "personAtFault", "individualFault"]) {
+  if (!postmortemContract.blamelessPolicy?.prohibitedFields?.includes(field)) {
+    fail(`Postmortem prohibited blame field missing: ${field}`);
+  }
+}
+if (postmortemContract.requiredSections?.length !== 11
+  || new Set(postmortemContract.requiredSections).size !== 11) {
+  fail("Postmortem contract must contain eleven unique required sections");
+}
+if (postmortemContract.correctiveActionPolicy?.minimumDistinctTypesForMaterialIncident !== 2
+  || postmortemContract.correctiveActionPolicy?.unknownRootCauseRequiresInvestigationAction !== true
+  || postmortemContract.correctiveActionPolicy?.acceptedOrLaterRequiresHumanDecisionRef !== true) {
+  fail("Postmortem corrective-action policy drift");
+}
+if (postmortemContract.reviewPolicy?.independentReviewerMustDifferFromIncidentOwner !== true
+  || postmortemContract.reviewPolicy?.boardOwnsRiskAcceptance !== true
+  || postmortemContract.executionPolicy?.evaluatorMayExecuteCorrectiveAction !== false
+  || postmortemContract.executionPolicy?.agentMayChangeProduction !== false
+  || postmortemContract.executionPolicy?.agentMayCloseIncident !== false) {
+  fail("Postmortem review or execution boundary drift");
 }
 
 const observabilityContract = JSON.parse(readFileSync(

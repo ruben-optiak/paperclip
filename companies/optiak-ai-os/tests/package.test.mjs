@@ -23,6 +23,14 @@ import {
   loadPromotionContract,
   requiredPromotionGates,
 } from "../scripts/evaluate-promotion-readiness.mjs";
+import {
+  evaluatePrdReadiness,
+  loadPrdReadinessContract,
+} from "../scripts/evaluate-prd-readiness.mjs";
+import {
+  evaluatePostmortem,
+  loadPostmortemContract,
+} from "../scripts/evaluate-postmortem.mjs";
 
 const packageDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -240,7 +248,7 @@ function materializePromotionEvidence(contract, promotionFixture, fixtureCase) {
 test("AI OS promotion contract is provider-neutral, staged, and advice-only", () => {
   const contract = loadPromotionContract();
   assert.equal(contract.schema, "optiak-ai-os-promotion-contract/v1");
-  assert.equal(contract.packageVersion, "0.1.10");
+  assert.equal(contract.packageVersion, "0.1.11");
   assert.equal(contract.status, "offline_defined_not_deployed");
   assert.equal(contract.providerPolicy.infrastructureProvider, "undecided");
   assert.equal(contract.environmentPolicy.directLocalToProduction, "deny");
@@ -434,6 +442,200 @@ test("repository authority limits GitHub to two repositories and one read-only r
   assert.match(authority, /writeToolsAllowed: false/);
   assert.match(authority, /recheckHeadBeforeVerdict: true/);
   assert.match(authority, /cloneWholeOrganization: false/);
+});
+
+test("architecture authority is domain-specific and fails closed", () => {
+  const authority = JSON.parse(readFileSync(
+    join(
+      packageDir,
+      "skills",
+      "optiak-architecture-review",
+      "references",
+      "architecture-authority-map.json",
+    ),
+    "utf8",
+  ));
+  assert.equal(authority.schema, "optiak-architecture-authority-map/v1");
+  assert.equal(authority.status, "offline_defined_sources_not_assumed_connected");
+  assert.equal(authority.globalPolicy.defaultDecision, "blocked_on_authority");
+  assert.equal(authority.globalPolicy.publicDocsProveImplementation, false);
+  assert.equal(authority.globalPolicy.sourceCodeProvesDeployment, false);
+  assert.equal(authority.globalPolicy.healthEndpointProvesReadiness, false);
+  assert.equal(authority.sourceClasses.length, 8);
+  assert.equal(authority.domains.length, 8);
+  assert.equal(new Set(authority.domains.map((domain) => domain.id)).size, 8);
+
+  const domains = new Map(authority.domains.map((domain) => [domain.id, domain]));
+  assert.equal(
+    domains.get("platform_boundary_and_product_ownership").owner,
+    "product-prd-lead",
+  );
+  assert.equal(
+    domains.get("deployed_topology_and_revision").unavailableBehavior,
+    "deployment_state_unknown",
+  );
+
+  const claims = fixture("optiak-architecture-review", "authority-claims");
+  assert.deepEqual(
+    claims.cases.map((item) => item.expectedDecision),
+    [
+      "blocked_on_contract_authority",
+      "deployment_state_unknown",
+      "blocked_on_slo_or_runtime_evidence",
+      "authority_sufficient_for_revision_scoped_review",
+    ],
+  );
+});
+
+test("documentation authority covers each approved page without creating a snapshot", () => {
+  const authority = JSON.parse(readFileSync(
+    join(
+      packageDir,
+      "skills",
+      "optiak-docs-drift",
+      "references",
+      "documentation-authority-map.json",
+    ),
+    "utf8",
+  ));
+  assert.equal(authority.schema, "optiak-documentation-authority-map/v1");
+  assert.equal(authority.status, "offline_defined_live_pages_remain_canonical");
+  assert.equal(authority.globalPolicy.wholeSiteSnapshotsAllowed, false);
+  assert.equal(authority.globalPolicy.publicPageProvesImplementation, false);
+  assert.equal(authority.globalPolicy.publicPageProvesReleaseAvailability, false);
+  assert.equal(authority.globalPolicy.documentationAgentMayPublish, false);
+  assert.equal(authority.domains.length, 8);
+
+  const sourceIds = authority.domains.flatMap((domain) => domain.sourceIds);
+  assert.equal(sourceIds.length, 14);
+  assert.equal(new Set(sourceIds).size, 14);
+  assert.ok(authority.domains.every((domain) => domain.reviewCadence && domain.escalation));
+
+  const cases = fixture("optiak-docs-drift", "authority-cases");
+  assert.deepEqual(
+    cases.cases.map((item) => item.expectedClassification),
+    ["blocked_on_authority", "likely_drift", "confirmed_drift", "internally_inconsistent"],
+  );
+});
+
+function materializePrdEvidence(contract, data, fixtureCase) {
+  return {
+    schema: "optiak-prd-readiness-evidence/v1",
+    evidenceScope: "fixture_only",
+    prd: data.prd,
+    gateResults: contract.gates.map((gate) => {
+      const status = fixtureCase.overrides[gate.id] ?? fixtureCase.defaultStatus;
+      return {
+        gateId: gate.id,
+        status,
+        evidenceRefs: status === "missing" ? [] : [`fixture://${fixtureCase.id}/${gate.id}`],
+        ...(status === "not_applicable" ? {rationale: "Fixture asserts no affected surface."} : {}),
+      };
+    }),
+  };
+}
+
+test("PRD readiness contract has complete cross-functional ownership", () => {
+  const contract = loadPrdReadinessContract();
+  assert.equal(contract.schema, "optiak-prd-readiness-contract/v1");
+  assert.equal(contract.status, "offline_defined_no_product_decision_implied");
+  assert.equal(contract.gates.length, 16);
+  assert.equal(new Set(contract.gates.map((gate) => gate.id)).size, 16);
+  assert.equal(contract.globalPolicy.readyVerdictAuthorizesImplementation, false);
+  assert.equal(contract.globalPolicy.publicDocsOrBacklogCreateProductIntent, false);
+  assert.deepEqual(
+    new Set(contract.gates.map((gate) => gate.owner)),
+    new Set([
+      "product-prd-lead",
+      "principal-platform-architect",
+      "qa-e2e-validation-engineer",
+      "brand-ui-quality-reviewer",
+      "documentation-dx-steward",
+      "engineering-assurance-lead",
+      "reliability-incident-engineer",
+    ]),
+  );
+});
+
+test("PRD evaluator distinguishes ready, changes, and missing evidence", () => {
+  const contract = loadPrdReadinessContract();
+  const data = fixture("optiak-prd-review", "readiness-cases");
+  for (const fixtureCase of data.cases) {
+    const evidence = materializePrdEvidence(contract, data, fixtureCase);
+    const result = evaluatePrdReadiness(evidence, contract);
+    assert.equal(result.verdict, fixtureCase.expectedVerdict, fixtureCase.id);
+    assert.equal(result.doesNotAuthorizeImplementation, true, fixtureCase.id);
+  }
+});
+
+test("PRD evaluator rejects duplicate, unknown, and unsupported not-applicable gates", () => {
+  const contract = loadPrdReadinessContract();
+  const data = fixture("optiak-prd-review", "readiness-cases");
+  const evidence = materializePrdEvidence(contract, data, data.cases[0]);
+
+  evidence.gateResults.push(structuredClone(evidence.gateResults[0]));
+  assert.throws(() => evaluatePrdReadiness(evidence, contract), /duplicate gate result/);
+  evidence.gateResults.pop();
+
+  evidence.gateResults[0].gateId = "unknown_gate";
+  assert.throws(() => evaluatePrdReadiness(evidence, contract), /unknown gate/);
+  evidence.gateResults[0].gateId = contract.gates[0].id;
+
+  evidence.gateResults[0].status = "not_applicable";
+  evidence.gateResults[0].rationale = "Synthetic rationale";
+  assert.throws(() => evaluatePrdReadiness(evidence, contract), /cannot be not_applicable/);
+});
+
+function materializePostmortemCase(data, fixtureCase) {
+  const evidence = structuredClone(data.baseEvidence);
+  if (fixtureCase.mutation === "clear_impact_evidence") {
+    evidence.impact.evidenceRefs = [];
+  } else if (fixtureCase.mutation === "verified_root_cause_with_one_reference") {
+    evidence.rootCause.status = "verified";
+    evidence.rootCause.statement = "The synthetic timeout is declared as verified.";
+    evidence.rootCause.evidenceRefs = ["fixture://incident/one-root-cause-reference"];
+  } else if (fixtureCase.mutation === "mark_nonmaterial_sev3") {
+    evidence.incident.severity = "SEV3";
+    evidence.incident.material = false;
+  }
+  return evidence;
+}
+
+test("postmortem contract preserves blamelessness and human authority", () => {
+  const contract = loadPostmortemContract();
+  assert.equal(contract.schema, "optiak-postmortem-contract/v1");
+  assert.equal(contract.status, "offline_defined_no_incident_or_action_implied");
+  assert.deepEqual(contract.requirementPolicy.alwaysRequiredSeverities, ["SEV0", "SEV1"]);
+  assert.equal(contract.blamelessPolicy.unknownRootCauseAllowed, true);
+  assert.equal(contract.evidencePolicy.verifiedRootCauseMinimumIndependentRefs, 2);
+  assert.equal(contract.correctiveActionPolicy.minimumDistinctTypesForMaterialIncident, 2);
+  assert.equal(contract.reviewPolicy.boardOwnsRiskAcceptance, true);
+  assert.equal(contract.executionPolicy.evaluatorMayExecuteCorrectiveAction, false);
+  assert.equal(contract.executionPolicy.agentMayCloseIncident, false);
+});
+
+test("postmortem evaluator separates completeness, certainty, and requirement", () => {
+  const contract = loadPostmortemContract();
+  const data = fixture("optiak-incident-triage", "postmortem");
+  for (const fixtureCase of data.cases) {
+    const result = evaluatePostmortem(materializePostmortemCase(data, fixtureCase), contract);
+    assert.equal(result.verdict, fixtureCase.expectedVerdict, fixtureCase.id);
+    assert.equal(result.doesNotAuthorizeExecution, true, fixtureCase.id);
+  }
+});
+
+test("postmortem evaluator rejects blame fields and self-review", () => {
+  const contract = loadPostmortemContract();
+  const data = fixture("optiak-incident-triage", "postmortem");
+  const withBlame = structuredClone(data.baseEvidence);
+  withBlame.rootCause.blame = "fixture-person";
+  assert.throws(() => evaluatePostmortem(withBlame, contract), /prohibited blame field/);
+
+  const selfReviewed = structuredClone(data.baseEvidence);
+  selfReviewed.review.independentReviewer = selfReviewed.review.incidentOwner;
+  const result = evaluatePostmortem(selfReviewed, contract);
+  assert.equal(result.verdict, "changes_required");
+  assert.ok(result.changeReasons.includes("independent_reviewer_must_differ_from_incident_owner"));
 });
 
 test("runtime defaults to paused, sandboxed, managed MCP", () => {

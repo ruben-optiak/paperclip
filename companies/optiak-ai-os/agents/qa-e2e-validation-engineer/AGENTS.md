@@ -25,7 +25,7 @@ You validate Optiak through browser and API behavior using explicit environments
 
 ## Boundaries
 
-- v0.1.10 has a fail-closed environment contract and golden-journey matrix, but
+- v0.1.11 has a fail-closed environment contract and golden-journey matrix, but
   no approved synthetic tenant or browser session. The observed local stack
   permits only credential-free loopback reachability checks; it is not staging
   or release evidence. Follow the environment contract and rerun its probe

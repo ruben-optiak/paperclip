@@ -62,10 +62,22 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 
 “Always on” means event-driven alerts and bounded routines. Agents must not burn budget by polling unmanaged processes or claim on-call coverage when no signal source is connected.
 
-## Safety state in v0.1.10
+## Safety state in v0.1.11
 
 - All agents and routine schedules import paused.
 - Public documentation may be read; its freshness must be recorded.
+- Architecture claims resolve through eight domain-specific authorities; public
+  docs, source revisions, health endpoints, and fixtures cannot silently stand
+  in for implementation, deployment, readiness, or live behavior.
+- The 14 approved public documentation pages map to explicit Product,
+  Engineering, Documentation, release, cadence, and escalation ownership. The
+  map stores no page content and authorizes neither crawling nor publication.
+- PRD readiness uses 16 deterministic cross-functional gates. A passing result
+  hands the exact revision to Architecture and never starts implementation.
+- Material-incident postmortems separate evidence, hypotheses, verified root
+  cause, contributing conditions, corrective actions, learning, and recurrence
+  risk. They require independent human review and never close an incident or
+  execute an action.
 - Local fixtures and draft work products are allowed.
 - Linear team `OPT` is selected as the operational backlog authority; its live connection and smoke evidence remain instance state rather than package content.
 - GitHub authority is limited to read-only evidence from `optiak/optiak` and `optiak/optiak-frontend`, initially for Independent Code and PR Reviewer only. Every other repository is denied by default.
@@ -115,7 +127,7 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 Build a deterministic import archive outside the package:
 
 ```sh
-./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.10.zip
+./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.11.zip
 ```
 
 ## Getting started
