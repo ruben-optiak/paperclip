@@ -20,6 +20,11 @@ representation:
 
 periods:
   businessTimezone: Europe/Madrid
+  sourceTimezones:
+    gsc: America/Los_Angeles
+    ga4: "Verify the property timezone; the current Enki property uses Europe/Madrid"
+    woocommerce: Europe/Madrid
+  crossSourceRule: "Identical date labels in different source timezones do not represent identical instants; never relabel GSC as Madrid"
   boundaryRule: "Calendar-day boundaries are converted from Europe/Madrid to UTC, including DST transitions"
   wooOrderBasis: "WooCommerce order creation time filtered with inclusive after/before instants"
 

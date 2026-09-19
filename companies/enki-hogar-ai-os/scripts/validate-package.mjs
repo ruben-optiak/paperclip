@@ -80,7 +80,7 @@ const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md schema must be agentcompanies/v1");
 if (company.slug !== "enki-hogar-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.14.0") fail("Unexpected package version");
+if (company.version !== "0.15.0") fail("Unexpected package version");
 if (company.license !== "MIT AND LicenseRef-Enki-Hogar-Internal") fail("Unexpected package license; mixed package scope must be explicit");
 for (const required of [
   "LICENSE",
@@ -349,7 +349,7 @@ for (const expected of [
 
 const compatibility = jsonYaml("runtime/compatibility.lock.yaml");
 if (compatibility.schema !== "enki-runtime-compatibility/v1") fail("Unexpected runtime compatibility schema");
-if (compatibility.packageVersion !== "0.14.0") fail("Compatibility lock package version must match 0.14.0");
+if (compatibility.packageVersion !== "0.15.0") fail("Compatibility lock package version must match 0.15.0");
 if (compatibility.paperclipBundleSchemaVersion !== 7) fail("Compatibility lock must target bundle schemaVersion 7");
 if (compatibility.connectors?.woocommerce?.version !== "0.2.1") fail("Compatibility lock must pin WooCommerce connector 0.2.1");
 if (compatibility.connectors?.google?.version !== "0.1.1") fail("Compatibility lock must pin Google connector runtime 0.1.1");
@@ -608,7 +608,7 @@ if (!/\/plugins\/enki-telegram-gateway:ro/.test(telegramCompose)) fail("Compose 
 
 const desired = jsonYaml("policies/desired-state.yaml");
 if (desired.schema !== "enki-runtime-desired-state/v1" || desired.mode !== "governed-publishing") fail("Desired state must be governed-publishing enki-runtime-desired-state/v1");
-if (desired.packageVersion !== "0.14.0") fail("Desired state package version must match 0.14.0");
+if (desired.packageVersion !== "0.15.0") fail("Desired state package version must match 0.15.0");
 if (desired.rejectUnexpectedActiveConnections !== true) fail("Desired state must reject unexpected active connections");
 if (desired.rejectUnexpectedAgents !== true) fail("Desired state must reject unexpected agents");
 if (desired.rejectUnexpectedProfiles !== true) fail("Desired state must reject unexpected profiles");
@@ -740,7 +740,7 @@ for (const document of inventory.internalDocuments || []) {
   if (document.targetSha256 !== actualSha256) fail(`Internal knowledge hash drift: ${document.target}`);
   if (document.origin !== "package-authored" || document.license !== "LicenseRef-Enki-Hogar-Internal" || document.sensitivity !== "enki_internal") fail(`Unexpected internal document provenance: ${document.target}`);
 }
-if ((inventory.internalDocuments || []).length !== 26) fail("Knowledge inventory must include all governed contracts, replay receipts, measurement/finance contracts, and public technical baselines");
+if ((inventory.internalDocuments || []).length !== 43) fail("Knowledge inventory must include all governed contracts, replay receipts, measurement/finance contracts, Merchant diagnostics, and public technical/SEO baselines");
 const historicalReplayReceipt = jsonYaml("references/replay-receipts/eai-021-buades-2026-04-26.json");
 if (
   historicalReplayReceipt.schema !== "enki-bounded-historical-layout-replay-receipt/v1" ||

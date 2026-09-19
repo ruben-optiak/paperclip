@@ -1,0 +1,2548 @@
+{
+  "schema": "enki-merchant-rejection-audit/v1",
+  "as_of": "2026-09-12T13:45:42.686Z",
+  "timezone": "Europe/Madrid",
+  "status": "partial",
+  "source_authority": "Operator-authorized Merchant UI, bounded public pages, existing read-only Woo tools; no Merchant API or full-feed export.",
+  "coverage": {
+    "cohort": 25,
+    "merchant_raw_attribute_rows": 1,
+    "verified_feed_woo_joins": 1,
+    "woo_candidates_including_verified": 17,
+    "unresolved_woo_candidates": 8,
+    "public_pages": 11,
+    "woo_calls": 12,
+    "woo_call_failures": 1,
+    "public_variant_empty_images": 13,
+    "image_http_probes": 2
+  },
+  "cohort": {
+    "source": "Merchant Center UI / Needs attention / all issues",
+    "observed_on": "2026-09-12",
+    "timezone": "Europe/Madrid",
+    "filters": {
+      "countries": "All",
+      "marketing_methods": "All",
+      "data_sources": "All",
+      "prioritized_fixes": false
+    },
+    "reported_count": 25,
+    "rows": [
+      {
+        "offer_id": "1853",
+        "title": "Estantería pared con perchas 50cm Cromo Taladro",
+        "issue": "missing_image",
+        "identity_status": "candidate_public_title_options_and_id_to_woo_feed_join_pending",
+        "woo_candidate": {
+          "woo_id": 1853,
+          "sku": "150201",
+          "root_id": 1851,
+          "price": "162.26",
+          "url": "https://www.enkihogar.com/estanteria-pared-con-perchas-n2/"
+        }
+      },
+      {
+        "offer_id": "1850",
+        "title": "Estantería pared 50cm Cromo Taladro",
+        "issue": "missing_image",
+        "identity_status": "candidate_public_title_options_and_id_to_woo_feed_join_pending",
+        "woo_candidate": {
+          "woo_id": 1850,
+          "sku": "150101",
+          "root_id": 1848,
+          "price": "151.37",
+          "url": "https://www.enkihogar.com/estanteria-pared-n1/"
+        }
+      },
+      {
+        "offer_id": "1859",
+        "title": "Escobillero suelo cuadrado Negro mate",
+        "issue": "missing_image",
+        "identity_status": "candidate_public_title_options_and_id_to_woo_feed_join_pending",
+        "woo_candidate": {
+          "woo_id": 1859,
+          "sku": "080102",
+          "root_id": 1858,
+          "price": "107.81",
+          "url": "https://www.enkihogar.com/escobillero-suelo-cuadrado/"
+        }
+      },
+      {
+        "offer_id": "1852",
+        "title": "Estantería pared con perchas 50cm Negro mate Taladro",
+        "issue": "missing_image",
+        "identity_status": "candidate_public_title_options_and_id_to_woo_feed_join_pending",
+        "woo_candidate": {
+          "woo_id": 1852,
+          "sku": "150202",
+          "root_id": 1851,
+          "price": "164.44",
+          "url": "https://www.enkihogar.com/estanteria-pared-con-perchas-n2/"
+        }
+      },
+      {
+        "offer_id": "1855",
+        "title": "Estantería pared 48cm Cromo Taladro",
+        "issue": "missing_image",
+        "identity_status": "candidate_public_title_options_and_id_to_woo_feed_join_pending",
+        "woo_candidate": {
+          "woo_id": 1855,
+          "sku": "150301",
+          "root_id": 1854,
+          "price": "106.72",
+          "url": "https://www.enkihogar.com/estanteria-pared-n4/"
+        }
+      },
+      {
+        "offer_id": "1842",
+        "title": "Esponjera recta ARES Cromo Taladro",
+        "issue": "missing_image",
+        "identity_status": "candidate_public_title_options_and_id_to_woo_feed_join_pending",
+        "woo_candidate": {
+          "woo_id": 1842,
+          "sku": "100607",
+          "root_id": 1840,
+          "price": "33.37",
+          "url": "https://www.enkihogar.com/esponjera-recta-ares/"
+        }
+      },
+      {
+        "offer_id": "8559",
+        "title": "Rociador inox rectangular 2 funciones cascada y lluvia Spa 200",
+        "issue": "invalid_price",
+        "identity_status": "verified_feed_mpn_and_link_to_woo",
+        "woo_candidate": {
+          "woo_id": 8559,
+          "sku": "BD.7107125",
+          "root_id": 8559,
+          "price": null,
+          "url": "https://www.enkihogar.com/rociador-inox-rectangular-2-funciones-cascada-y-lluvia/"
+        }
+      },
+      {
+        "offer_id": "1849",
+        "title": "Estantería pared 50cm Negro mate Taladro",
+        "issue": "missing_image",
+        "identity_status": "candidate_public_title_options_and_id_to_woo_feed_join_pending",
+        "woo_candidate": {
+          "woo_id": 1849,
+          "sku": "150102",
+          "root_id": 1848,
+          "price": "153.55",
+          "url": "https://www.enkihogar.com/estanteria-pared-n1/"
+        }
+      },
+      {
+        "offer_id": "8199",
+        "title": "Grifo Mezclador monomando bidé serie toke Níquel Cepillado",
+        "issue": "missing_image",
+        "identity_status": "unresolved",
+        "woo_candidate": null
+      },
+      {
+        "offer_id": "32370",
+        "title": "Mueble de baño Aqua 2 cajones + lavabo Flat Ceniza 100cm Quarzo",
+        "issue": "invalid_price",
+        "identity_status": "candidate_public_title_options_and_id_to_woo_feed_join_pending",
+        "woo_candidate": {
+          "woo_id": 32370,
+          "sku": "72125",
+          "root_id": 32309,
+          "price": null,
+          "url": "https://www.enkihogar.com/mueble-de-bano-aqua-2-cajones-lavabo-flat/"
+        }
+      },
+      {
+        "offer_id": "1860",
+        "title": "Escobillero suelo cuadrado Laton cepillado",
+        "issue": "missing_image",
+        "identity_status": "candidate_public_title_options_and_id_to_woo_feed_join_pending",
+        "woo_candidate": {
+          "woo_id": 1860,
+          "sku": "080103",
+          "root_id": 1858,
+          "price": "127.41",
+          "url": "https://www.enkihogar.com/escobillero-suelo-cuadrado/"
+        }
+      },
+      {
+        "offer_id": "1861",
+        "title": "Escobillero suelo cuadrado Cromo",
+        "issue": "missing_image",
+        "identity_status": "candidate_public_title_options_and_id_to_woo_feed_join_pending",
+        "woo_candidate": {
+          "woo_id": 1861,
+          "sku": "080101",
+          "root_id": 1858,
+          "price": "102.37",
+          "url": "https://www.enkihogar.com/escobillero-suelo-cuadrado/"
+        }
+      },
+      {
+        "offer_id": "1841",
+        "title": "Esponjera recta ARES Negro mate Taladro",
+        "issue": "missing_image",
+        "identity_status": "candidate_public_title_options_and_id_to_woo_feed_join_pending",
+        "woo_candidate": {
+          "woo_id": 1841,
+          "sku": "100602",
+          "root_id": 1840,
+          "price": "38.57",
+          "url": "https://www.enkihogar.com/esponjera-recta-ares/"
+        }
+      },
+      {
+        "offer_id": "8201",
+        "title": "Grifo Mezclador monomando bidé serie toke Cromo",
+        "issue": "missing_image",
+        "identity_status": "unresolved",
+        "woo_candidate": null
+      },
+      {
+        "offer_id": "8203",
+        "title": "Grifo Mezclador monomando bidé serie toke Oro Pulido",
+        "issue": "missing_image",
+        "identity_status": "unresolved",
+        "woo_candidate": null
+      },
+      {
+        "offer_id": "8198",
+        "title": "Grifo Mezclador monomando bidé serie toke Negro",
+        "issue": "missing_image",
+        "identity_status": "unresolved",
+        "woo_candidate": null
+      },
+      {
+        "offer_id": "1839",
+        "title": "Esponjera Gel recta 50cm Cromo Taladro",
+        "issue": "unsupported_image_type",
+        "identity_status": "candidate_public_title_options_and_id_to_woo_feed_join_pending",
+        "woo_candidate": {
+          "woo_id": 1839,
+          "sku": "100501",
+          "root_id": 1838,
+          "price": "94.74",
+          "url": "https://www.enkihogar.com/esponjera-gel-recta-n5/"
+        }
+      },
+      {
+        "offer_id": "1845",
+        "title": "Esponjera recta Inox pulido brillo Cromo Taladro",
+        "issue": "missing_image",
+        "identity_status": "candidate_public_title_options_and_id_to_woo_feed_join_pending",
+        "woo_candidate": {
+          "woo_id": 1845,
+          "sku": "100707",
+          "root_id": 1843,
+          "price": "49.01",
+          "url": "https://www.enkihogar.com/esponjera-recta-n7/"
+        }
+      },
+      {
+        "offer_id": "8204",
+        "title": "Grifo Mezclador monomando bidé serie toke Oro Rosado Pulido",
+        "issue": "missing_image",
+        "identity_status": "unresolved",
+        "woo_candidate": null
+      },
+      {
+        "offer_id": "8205",
+        "title": "Grifo Mezclador monomando bidé serie toke Blanco",
+        "issue": "missing_image",
+        "identity_status": "unresolved",
+        "woo_candidate": null
+      },
+      {
+        "offer_id": "8200",
+        "title": "Grifo Mezclador monomando bidé serie toke Oro Rosado Cepillado",
+        "issue": "missing_image",
+        "identity_status": "unresolved",
+        "woo_candidate": null
+      },
+      {
+        "offer_id": "1847",
+        "title": "Esponjera de grifo 30cm Cromo",
+        "issue": "missing_image",
+        "identity_status": "candidate_public_title_options_and_id_to_woo_feed_join_pending",
+        "woo_candidate": {
+          "woo_id": 1847,
+          "sku": "100901",
+          "root_id": 1846,
+          "price": "114.35",
+          "url": "https://www.enkihogar.com/esponjera-de-grifo-n9/"
+        }
+      },
+      {
+        "offer_id": "1856",
+        "title": "Estantería pared 54cm Inox pulido brillo cromo",
+        "issue": "missing_image",
+        "identity_status": "candidate_public_title_options_and_id_to_woo_feed_join_pending",
+        "woo_candidate": {
+          "woo_id": 1856,
+          "sku": "",
+          "root_id": 1856,
+          "price": "69.70",
+          "url": "https://www.enkihogar.com/estanteria-pared-n5/"
+        }
+      },
+      {
+        "offer_id": "8202",
+        "title": "Grifo Mezclador monomando bidé serie toke Oro Cepillado",
+        "issue": "missing_image",
+        "identity_status": "unresolved",
+        "woo_candidate": null
+      },
+      {
+        "offer_id": "1844",
+        "title": "Esponjera recta Inox pulido brillo Negro mate Taladro",
+        "issue": "missing_image",
+        "identity_status": "candidate_public_title_options_and_id_to_woo_feed_join_pending",
+        "woo_candidate": {
+          "woo_id": 1844,
+          "sku": "100702",
+          "root_id": 1843,
+          "price": "54.45",
+          "url": "https://www.enkihogar.com/esponjera-recta-n7/"
+        }
+      }
+    ],
+    "raw_attributes_observed": [
+      {
+        "offer_id": "8559",
+        "observed_on": "2026-09-12",
+        "title": "Rociador inox rectangular 2 funciones cascada y lluvia Spa 200",
+        "link": "https://www.enkihogar.com/rociador-inox-rectangular-2-funciones-cascada-y-lluvia/",
+        "image_link": "https://www.enkihogar.com/wp-content/uploads/2023/09/BD.7107125.jpg",
+        "price": "EUR0.00",
+        "availability": "in_stock",
+        "brand": "Buades",
+        "mpn": "BD.7107125",
+        "additional_image_link": "8561,"
+      }
+    ]
+  },
+  "public": {
+    "schema": "enki-merchant-public-audit/v1",
+    "fetched_at": "2026-09-12T13:42:27.531Z",
+    "note": "Candidate public pages, not assumed Merchant destinations except offer 8559. Variations filtered to the fixed 25 IDs; no identity asserted from numeric ID alone.",
+    "pages": [
+      {
+        "requested_url": "https://www.enkihogar.com/rociador-inox-rectangular-2-funciones-cascada-y-lluvia/",
+        "fetched_at": "2026-09-12T13:42:23.640Z",
+        "final_url": "https://www.enkihogar.com/rociador-inox-rectangular-2-funciones-cascada-y-lluvia/",
+        "http_status": 200,
+        "content_type": "text/html; charset=UTF-8",
+        "html_sha256": "a46b1122672be5c748e9cd7814b9635c268fc4787dd30e48431fedddee7e8449",
+        "canonical": "https://www.enkihogar.com/rociador-inox-rectangular-2-funciones-cascada-y-lluvia/",
+        "title": "Rociador inox rectangular 2 funciones cascada y lluvia Spa 200",
+        "product_jsonld": [
+          {
+            "@id": "https://www.enkihogar.com/rociador-inox-rectangular-2-funciones-cascada-y-lluvia/#Product",
+            "url": "https://www.enkihogar.com/rociador-inox-rectangular-2-funciones-cascada-y-lluvia/",
+            "name": "Rociador inox rectangular 2 funciones cascada y lluvia Spa 200",
+            "sku": "BD.7107125",
+            "mpn": "8559",
+            "image": [
+              {
+                "@type": "ImageObject",
+                "@id": "https://www.enkihogar.com/rociador-inox-rectangular-2-funciones-cascada-y-lluvia/#primaryimage",
+                "url": "https://www.enkihogar.com/wp-content/uploads/2023/09/BD.7107125-1200x1200.jpg",
+                "width": "1200",
+                "height": "1200"
+              },
+              {
+                "@type": "ImageObject",
+                "url": "https://www.enkihogar.com/wp-content/uploads/2023/09/BD.7107125-1200x900.jpg",
+                "width": "1200",
+                "height": "900"
+              },
+              {
+                "@type": "ImageObject",
+                "url": "https://www.enkihogar.com/wp-content/uploads/2023/09/BD.7107125-1200x675.jpg",
+                "width": "1200",
+                "height": "675"
+              },
+              {
+                "@type": "ImageObject",
+                "url": "https://www.enkihogar.com/wp-content/uploads/2023/09/BD.7107125.jpg",
+                "width": "1000",
+                "height": "1000"
+              }
+            ],
+            "offers": {
+              "@type": "Offer",
+              "availability": "https://schema.org/InStock",
+              "price": "0",
+              "priceCurrency": "EUR",
+              "url": "https://www.enkihogar.com/rociador-inox-rectangular-2-funciones-cascada-y-lluvia/",
+              "priceValidUntil": "2026-10-14T10:11:43+00:00"
+            }
+          }
+        ],
+        "cohort_variations": [],
+        "main_price_markup": [],
+        "variation_form_ids": []
+      },
+      {
+        "requested_url": "https://www.enkihogar.com/mueble-de-bano-aqua-2-cajones-lavabo-flat/",
+        "fetched_at": "2026-09-12T13:42:27.121Z",
+        "final_url": "https://www.enkihogar.com/mueble-de-bano-aqua-2-cajones-lavabo-flat/",
+        "http_status": 200,
+        "content_type": "text/html; charset=UTF-8",
+        "html_sha256": "fe6dc2ca20f950dde9b5216a8711a7e89397975cdea419b2f3419bfeb3b23a31",
+        "canonical": "https://www.enkihogar.com/mueble-de-bano-aqua-2-cajones-lavabo-flat/",
+        "title": "Mueble de baño Aqua 2 cajones + lavabo Flat",
+        "product_jsonld": [
+          {
+            "@id": "https://www.enkihogar.com/mueble-de-bano-aqua-2-cajones-lavabo-flat/#Product",
+            "url": "https://www.enkihogar.com/mueble-de-bano-aqua-2-cajones-lavabo-flat/",
+            "name": "Mueble de baño Aqua 2 cajones + lavabo Flat",
+            "sku": "32309",
+            "mpn": "32309",
+            "image": [
+              {
+                "@type": "ImageObject",
+                "@id": "https://www.enkihogar.com/mueble-de-bano-aqua-2-cajones-lavabo-flat/#primaryimage",
+                "url": "https://www.enkihogar.com/wp-content/uploads/2024/12/Aqua_new_5-1200x1200.webp",
+                "width": "1200",
+                "height": "1200"
+              },
+              {
+                "@type": "ImageObject",
+                "url": "https://www.enkihogar.com/wp-content/uploads/2024/12/Aqua_new_5-1200x900.webp",
+                "width": "1200",
+                "height": "900"
+              },
+              {
+                "@type": "ImageObject",
+                "url": "https://www.enkihogar.com/wp-content/uploads/2024/12/Aqua_new_5-1200x675.webp",
+                "width": "1200",
+                "height": "675"
+              },
+              {
+                "@type": "ImageObject",
+                "url": "https://www.enkihogar.com/wp-content/uploads/2024/12/Aqua_new_5.webp",
+                "width": "1000",
+                "height": "1000"
+              }
+            ],
+            "offers": {
+              "@type": "AggregateOffer",
+              "lowPrice": 299.11,
+              "highPrice": 394.94,
+              "priceCurrency": "EUR",
+              "availability": "https://schema.org/InStock",
+              "offerCount": 71
+            }
+          }
+        ],
+        "cohort_variations": [],
+        "main_price_markup": [],
+        "variation_form_ids": [
+          "32309"
+        ]
+      },
+      {
+        "requested_url": "https://www.enkihogar.com/estanteria-pared-con-perchas-n2/",
+        "fetched_at": "2026-09-12T13:42:27.176Z",
+        "final_url": "https://www.enkihogar.com/estanteria-pared-con-perchas-n2/",
+        "http_status": 200,
+        "content_type": "text/html; charset=UTF-8",
+        "html_sha256": "b709d2fc8aef3bf26d157f46110a031713023a971884901ac3674b3d1cf8be0d",
+        "canonical": "https://www.enkihogar.com/estanteria-pared-con-perchas-n2/",
+        "title": "Estantería pared con perchas 50cm",
+        "product_jsonld": [
+          {
+            "@id": "https://www.enkihogar.com/estanteria-pared-con-perchas-n2/#Product",
+            "url": "https://www.enkihogar.com/estanteria-pared-con-perchas-n2/",
+            "name": "Estantería pared con perchas 50cm",
+            "sku": "1851",
+            "mpn": "1851",
+            "offers": {
+              "@type": "AggregateOffer",
+              "lowPrice": 162.26,
+              "highPrice": 164.44,
+              "priceCurrency": "EUR",
+              "availability": "https://schema.org/InStock",
+              "offerCount": 2
+            }
+          }
+        ],
+        "cohort_variations": [
+          {
+            "variation_id": 1852,
+            "sku": "150202",
+            "attributes": {
+              "attribute_pa_acabado": "negromate",
+              "attribute_pa_instalacion": "taladro"
+            },
+            "display_price": 164.44,
+            "display_regular_price": 182.71,
+            "is_purchasable": true,
+            "variation_is_active": true,
+            "variation_is_visible": true,
+            "image": {
+              "title": "",
+              "caption": "",
+              "url": "",
+              "alt": "",
+              "src": "",
+              "srcset": false,
+              "sizes": false
+            },
+            "price_html": "<span class=\"price\"><del aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>182,71<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></del> <span class=\"screen-reader-text\">El precio original era: 182,71&euro;.</span><ins aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>164,44<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></ins><span class=\"screen-reader-text\">El precio actual es: 164,44&euro;.</span></span>"
+          },
+          {
+            "variation_id": 1853,
+            "sku": "150201",
+            "attributes": {
+              "attribute_pa_acabado": "cromo",
+              "attribute_pa_instalacion": "taladro"
+            },
+            "display_price": 162.26,
+            "display_regular_price": 180.29,
+            "is_purchasable": true,
+            "variation_is_active": true,
+            "variation_is_visible": true,
+            "image": {
+              "title": "",
+              "caption": "",
+              "url": "",
+              "alt": "",
+              "src": "",
+              "srcset": false,
+              "sizes": false
+            },
+            "price_html": "<span class=\"price\"><del aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>180,29<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></del> <span class=\"screen-reader-text\">El precio original era: 180,29&euro;.</span><ins aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>162,26<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></ins><span class=\"screen-reader-text\">El precio actual es: 162,26&euro;.</span></span>"
+          }
+        ],
+        "main_price_markup": [],
+        "variation_form_ids": [
+          "1851"
+        ]
+      },
+      {
+        "requested_url": "https://www.enkihogar.com/estanteria-pared-n1/",
+        "fetched_at": "2026-09-12T13:42:27.219Z",
+        "final_url": "https://www.enkihogar.com/estanteria-pared-n1/",
+        "http_status": 200,
+        "content_type": "text/html; charset=UTF-8",
+        "html_sha256": "107c7f025c466772fe61c9a409ed4d2309a396f9e47b66104cc96cc4eaacacc9",
+        "canonical": "https://www.enkihogar.com/estanteria-pared-n1/",
+        "title": "Estantería pared 50cm",
+        "product_jsonld": [
+          {
+            "@id": "https://www.enkihogar.com/estanteria-pared-n1/#Product",
+            "url": "https://www.enkihogar.com/estanteria-pared-n1/",
+            "name": "Estantería pared 50cm",
+            "sku": "1848",
+            "mpn": "1848",
+            "offers": {
+              "@type": "AggregateOffer",
+              "lowPrice": 151.37,
+              "highPrice": 153.55,
+              "priceCurrency": "EUR",
+              "availability": "https://schema.org/InStock",
+              "offerCount": 2
+            }
+          }
+        ],
+        "cohort_variations": [
+          {
+            "variation_id": 1849,
+            "sku": "150102",
+            "attributes": {
+              "attribute_pa_acabado": "negromate",
+              "attribute_pa_instalacion": "taladro"
+            },
+            "display_price": 153.55,
+            "display_regular_price": 170.61,
+            "is_purchasable": true,
+            "variation_is_active": true,
+            "variation_is_visible": true,
+            "image": {
+              "title": "",
+              "caption": "",
+              "url": "",
+              "alt": "",
+              "src": "",
+              "srcset": false,
+              "sizes": false
+            },
+            "price_html": "<span class=\"price\"><del aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>170,61<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></del> <span class=\"screen-reader-text\">El precio original era: 170,61&euro;.</span><ins aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>153,55<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></ins><span class=\"screen-reader-text\">El precio actual es: 153,55&euro;.</span></span>"
+          },
+          {
+            "variation_id": 1850,
+            "sku": "150101",
+            "attributes": {
+              "attribute_pa_acabado": "cromo",
+              "attribute_pa_instalacion": "taladro"
+            },
+            "display_price": 151.37,
+            "display_regular_price": 168.19,
+            "is_purchasable": true,
+            "variation_is_active": true,
+            "variation_is_visible": true,
+            "image": {
+              "title": "",
+              "caption": "",
+              "url": "",
+              "alt": "",
+              "src": "",
+              "srcset": false,
+              "sizes": false
+            },
+            "price_html": "<span class=\"price\"><del aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>168,19<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></del> <span class=\"screen-reader-text\">El precio original era: 168,19&euro;.</span><ins aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>151,37<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></ins><span class=\"screen-reader-text\">El precio actual es: 151,37&euro;.</span></span>"
+          }
+        ],
+        "main_price_markup": [],
+        "variation_form_ids": [
+          "1848"
+        ]
+      },
+      {
+        "requested_url": "https://www.enkihogar.com/estanteria-pared-n4/",
+        "fetched_at": "2026-09-12T13:42:27.263Z",
+        "final_url": "https://www.enkihogar.com/estanteria-pared-n4/",
+        "http_status": 200,
+        "content_type": "text/html; charset=UTF-8",
+        "html_sha256": "b97824abc2326287a3665f5c2ac72e1f49344ba1e1855b178ccdb3d189c2435f",
+        "canonical": "https://www.enkihogar.com/estanteria-pared-n4/",
+        "title": "Estantería pared 48cm",
+        "product_jsonld": [
+          {
+            "@id": "https://www.enkihogar.com/estanteria-pared-n4/#Product",
+            "url": "https://www.enkihogar.com/estanteria-pared-n4/",
+            "name": "Estantería pared 48cm",
+            "sku": "1854",
+            "mpn": "1854",
+            "offers": {
+              "@type": "AggregateOffer",
+              "lowPrice": 106.72,
+              "highPrice": 106.72,
+              "priceCurrency": "EUR",
+              "availability": "https://schema.org/InStock",
+              "offerCount": 1
+            }
+          }
+        ],
+        "cohort_variations": [
+          {
+            "variation_id": 1855,
+            "sku": "150301",
+            "attributes": {
+              "attribute_pa_acabado": "cromo",
+              "attribute_pa_instalacion": "taladro"
+            },
+            "display_price": 106.72,
+            "display_regular_price": 118.58,
+            "is_purchasable": true,
+            "variation_is_active": true,
+            "variation_is_visible": true,
+            "image": {
+              "title": "",
+              "caption": "",
+              "url": "",
+              "alt": "",
+              "src": "",
+              "srcset": false,
+              "sizes": false
+            },
+            "price_html": ""
+          }
+        ],
+        "main_price_markup": [],
+        "variation_form_ids": [
+          "1854"
+        ]
+      },
+      {
+        "requested_url": "https://www.enkihogar.com/estanteria-pared-n5/",
+        "fetched_at": "2026-09-12T13:42:27.306Z",
+        "final_url": "https://www.enkihogar.com/estanteria-pared-n5/",
+        "http_status": 200,
+        "content_type": "text/html; charset=UTF-8",
+        "html_sha256": "8a35627304d9e742e3bde161410035474d5ac24dd7695c8afffce1148cd6e6dc",
+        "canonical": "https://www.enkihogar.com/estanteria-pared-n5/",
+        "title": "Estantería pared 54cm Inox pulido brillo cromo",
+        "product_jsonld": [
+          {
+            "@id": "https://www.enkihogar.com/estanteria-pared-n5/#Product",
+            "url": "https://www.enkihogar.com/estanteria-pared-n5/",
+            "name": "Estantería pared 54cm Inox pulido brillo cromo",
+            "sku": "1856",
+            "mpn": "1856",
+            "offers": {
+              "@type": "Offer",
+              "availability": "https://schema.org/InStock",
+              "price": "69.7",
+              "priceCurrency": "EUR",
+              "url": "https://www.enkihogar.com/estanteria-pared-n5/",
+              "priceValidUntil": "2025-10-21T09:32:38+00:00"
+            }
+          }
+        ],
+        "cohort_variations": [],
+        "main_price_markup": [],
+        "variation_form_ids": []
+      },
+      {
+        "requested_url": "https://www.enkihogar.com/escobillero-suelo-cuadrado/",
+        "fetched_at": "2026-09-12T13:42:27.348Z",
+        "final_url": "https://www.enkihogar.com/escobillero-suelo-cuadrado/",
+        "http_status": 200,
+        "content_type": "text/html; charset=UTF-8",
+        "html_sha256": "a3535a803dd2753e1c170dde2f9fbb7eec970608e7c52d2d9407fe4cc79efa43",
+        "canonical": "https://www.enkihogar.com/escobillero-suelo-cuadrado/",
+        "title": "Escobillero suelo cuadrado",
+        "product_jsonld": [
+          {
+            "@id": "https://www.enkihogar.com/escobillero-suelo-cuadrado/#Product",
+            "url": "https://www.enkihogar.com/escobillero-suelo-cuadrado/",
+            "name": "Escobillero suelo cuadrado",
+            "sku": "1858",
+            "mpn": "1858",
+            "offers": {
+              "@type": "AggregateOffer",
+              "lowPrice": 102.37,
+              "highPrice": 127.41,
+              "priceCurrency": "EUR",
+              "availability": "https://schema.org/InStock",
+              "offerCount": 3
+            }
+          }
+        ],
+        "cohort_variations": [
+          {
+            "variation_id": 1859,
+            "sku": "080102",
+            "attributes": {
+              "attribute_pa_acabado": "negromate"
+            },
+            "display_price": 107.81,
+            "display_regular_price": 119.79,
+            "is_purchasable": true,
+            "variation_is_active": true,
+            "variation_is_visible": true,
+            "image": {
+              "title": "",
+              "caption": "",
+              "url": "",
+              "alt": "",
+              "src": "",
+              "srcset": false,
+              "sizes": false
+            },
+            "price_html": "<span class=\"price\"><del aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>119,79<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></del> <span class=\"screen-reader-text\">El precio original era: 119,79&euro;.</span><ins aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>107,81<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></ins><span class=\"screen-reader-text\">El precio actual es: 107,81&euro;.</span></span>"
+          },
+          {
+            "variation_id": 1860,
+            "sku": "080103",
+            "attributes": {
+              "attribute_pa_acabado": "latoncepillado"
+            },
+            "display_price": 127.41,
+            "display_regular_price": 141.57,
+            "is_purchasable": true,
+            "variation_is_active": true,
+            "variation_is_visible": true,
+            "image": {
+              "title": "",
+              "caption": "",
+              "url": "",
+              "alt": "",
+              "src": "",
+              "srcset": false,
+              "sizes": false
+            },
+            "price_html": "<span class=\"price\"><del aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>141,57<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></del> <span class=\"screen-reader-text\">El precio original era: 141,57&euro;.</span><ins aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>127,41<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></ins><span class=\"screen-reader-text\">El precio actual es: 127,41&euro;.</span></span>"
+          },
+          {
+            "variation_id": 1861,
+            "sku": "080101",
+            "attributes": {
+              "attribute_pa_acabado": "cromo"
+            },
+            "display_price": 102.37,
+            "display_regular_price": 113.74,
+            "is_purchasable": true,
+            "variation_is_active": true,
+            "variation_is_visible": true,
+            "image": {
+              "title": "",
+              "caption": "",
+              "url": "",
+              "alt": "",
+              "src": "",
+              "srcset": false,
+              "sizes": false
+            },
+            "price_html": "<span class=\"price\"><del aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>113,74<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></del> <span class=\"screen-reader-text\">El precio original era: 113,74&euro;.</span><ins aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>102,37<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></ins><span class=\"screen-reader-text\">El precio actual es: 102,37&euro;.</span></span>"
+          }
+        ],
+        "main_price_markup": [],
+        "variation_form_ids": [
+          "1858"
+        ]
+      },
+      {
+        "requested_url": "https://www.enkihogar.com/esponjera-recta-ares/",
+        "fetched_at": "2026-09-12T13:42:27.393Z",
+        "final_url": "https://www.enkihogar.com/esponjera-recta-ares/",
+        "http_status": 200,
+        "content_type": "text/html; charset=UTF-8",
+        "html_sha256": "df6218c4eff88eb9f8ea22ceb12b1a4cc2603a50b8d238348ae5230d96e43dc0",
+        "canonical": "https://www.enkihogar.com/esponjera-recta-ares/",
+        "title": "Esponjera recta ARES",
+        "product_jsonld": [
+          {
+            "@id": "https://www.enkihogar.com/esponjera-recta-ares/#Product",
+            "url": "https://www.enkihogar.com/esponjera-recta-ares/",
+            "name": "Esponjera recta ARES",
+            "sku": "1840",
+            "mpn": "1840",
+            "offers": {
+              "@type": "AggregateOffer",
+              "lowPrice": 33.37,
+              "highPrice": 38.57,
+              "priceCurrency": "EUR",
+              "availability": "https://schema.org/InStock",
+              "offerCount": 2
+            }
+          }
+        ],
+        "cohort_variations": [
+          {
+            "variation_id": 1841,
+            "sku": "100602",
+            "attributes": {
+              "attribute_pa_acabado": "negromate",
+              "attribute_pa_instalacion": "taladro"
+            },
+            "display_price": 38.57,
+            "display_regular_price": 51.301425,
+            "is_purchasable": true,
+            "variation_is_active": true,
+            "variation_is_visible": true,
+            "image": {
+              "title": "",
+              "caption": "",
+              "url": "",
+              "alt": "",
+              "src": "",
+              "srcset": false,
+              "sizes": false
+            },
+            "price_html": "<span class=\"price\"><del aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>51,30<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></del> <span class=\"screen-reader-text\">El precio original era: 51,30&euro;.</span><ins aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>38,57<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></ins><span class=\"screen-reader-text\">El precio actual es: 38,57&euro;.</span></span>"
+          },
+          {
+            "variation_id": 1842,
+            "sku": "100607",
+            "attributes": {
+              "attribute_pa_acabado": "cromo",
+              "attribute_pa_instalacion": "taladro"
+            },
+            "display_price": 33.37,
+            "display_regular_price": 44.378775,
+            "is_purchasable": true,
+            "variation_is_active": true,
+            "variation_is_visible": true,
+            "image": {
+              "title": "",
+              "caption": "",
+              "url": "",
+              "alt": "",
+              "src": "",
+              "srcset": false,
+              "sizes": false
+            },
+            "price_html": "<span class=\"price\"><del aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>44,38<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></del> <span class=\"screen-reader-text\">El precio original era: 44,38&euro;.</span><ins aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>33,37<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></ins><span class=\"screen-reader-text\">El precio actual es: 33,37&euro;.</span></span>"
+          }
+        ],
+        "main_price_markup": [],
+        "variation_form_ids": [
+          "1840"
+        ]
+      },
+      {
+        "requested_url": "https://www.enkihogar.com/esponjera-recta-n7/",
+        "fetched_at": "2026-09-12T13:42:27.440Z",
+        "final_url": "https://www.enkihogar.com/esponjera-recta-n7/",
+        "http_status": 200,
+        "content_type": "text/html; charset=UTF-8",
+        "html_sha256": "d4939a0808d41da90e11708e1577d0f8aab1b462198c2cda263e0b393c782010",
+        "canonical": "https://www.enkihogar.com/esponjera-recta-n7/",
+        "title": "Esponjera recta Inox pulido brillo",
+        "product_jsonld": [
+          {
+            "@id": "https://www.enkihogar.com/esponjera-recta-n7/#Product",
+            "url": "https://www.enkihogar.com/esponjera-recta-n7/",
+            "name": "Esponjera recta Inox pulido brillo",
+            "sku": "1843",
+            "mpn": "1843",
+            "offers": {
+              "@type": "AggregateOffer",
+              "lowPrice": 49.01,
+              "highPrice": 54.45,
+              "priceCurrency": "EUR",
+              "availability": "https://schema.org/InStock",
+              "offerCount": 2
+            }
+          }
+        ],
+        "cohort_variations": [
+          {
+            "variation_id": 1844,
+            "sku": "100702",
+            "attributes": {
+              "attribute_pa_acabado": "negromate",
+              "attribute_pa_instalacion": "taladro"
+            },
+            "display_price": 54.45,
+            "display_regular_price": 60.5,
+            "is_purchasable": true,
+            "variation_is_active": true,
+            "variation_is_visible": true,
+            "image": {
+              "title": "",
+              "caption": "",
+              "url": "",
+              "alt": "",
+              "src": "",
+              "srcset": false,
+              "sizes": false
+            },
+            "price_html": "<span class=\"price\"><del aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>60,50<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></del> <span class=\"screen-reader-text\">El precio original era: 60,50&euro;.</span><ins aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>54,45<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></ins><span class=\"screen-reader-text\">El precio actual es: 54,45&euro;.</span></span>"
+          },
+          {
+            "variation_id": 1845,
+            "sku": "100707",
+            "attributes": {
+              "attribute_pa_acabado": "cromo",
+              "attribute_pa_instalacion": "taladro"
+            },
+            "display_price": 49.01,
+            "display_regular_price": 54.45,
+            "is_purchasable": true,
+            "variation_is_active": true,
+            "variation_is_visible": true,
+            "image": {
+              "title": "",
+              "caption": "",
+              "url": "",
+              "alt": "",
+              "src": "",
+              "srcset": false,
+              "sizes": false
+            },
+            "price_html": "<span class=\"price\"><del aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>54,45<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></del> <span class=\"screen-reader-text\">El precio original era: 54,45&euro;.</span><ins aria-hidden=\"true\"><span class=\"woocommerce-Price-amount amount\"><bdi>49,01<span class=\"woocommerce-Price-currencySymbol\" translate=\"no\">&euro;</span></bdi></span></ins><span class=\"screen-reader-text\">El precio actual es: 49,01&euro;.</span></span>"
+          }
+        ],
+        "main_price_markup": [],
+        "variation_form_ids": [
+          "1843"
+        ]
+      },
+      {
+        "requested_url": "https://www.enkihogar.com/esponjera-de-grifo-n9/",
+        "fetched_at": "2026-09-12T13:42:27.482Z",
+        "final_url": "https://www.enkihogar.com/esponjera-de-grifo-n9/",
+        "http_status": 200,
+        "content_type": "text/html; charset=UTF-8",
+        "html_sha256": "f8ef5228c9800af1f0cd8385e1433dcc264ad78ea8850fe7ef58ff384e43fd7f",
+        "canonical": "https://www.enkihogar.com/esponjera-de-grifo-n9/",
+        "title": "Esponjera de grifo 30cm",
+        "product_jsonld": [
+          {
+            "@id": "https://www.enkihogar.com/esponjera-de-grifo-n9/#Product",
+            "url": "https://www.enkihogar.com/esponjera-de-grifo-n9/",
+            "name": "Esponjera de grifo 30cm",
+            "sku": "1846",
+            "mpn": "1846",
+            "offers": {
+              "@type": "AggregateOffer",
+              "lowPrice": 114.35,
+              "highPrice": 114.35,
+              "priceCurrency": "EUR",
+              "availability": "https://schema.org/InStock",
+              "offerCount": 1
+            }
+          }
+        ],
+        "cohort_variations": [
+          {
+            "variation_id": 1847,
+            "sku": "100901",
+            "attributes": {
+              "attribute_pa_acabado": "cromo"
+            },
+            "display_price": 114.35,
+            "display_regular_price": 127.05,
+            "is_purchasable": true,
+            "variation_is_active": true,
+            "variation_is_visible": true,
+            "image": {
+              "title": "",
+              "caption": "",
+              "url": "",
+              "alt": "",
+              "src": "",
+              "srcset": false,
+              "sizes": false
+            },
+            "price_html": ""
+          }
+        ],
+        "main_price_markup": [],
+        "variation_form_ids": [
+          "1846"
+        ]
+      },
+      {
+        "requested_url": "https://www.enkihogar.com/esponjera-gel-recta-n5/",
+        "fetched_at": "2026-09-12T13:42:27.530Z",
+        "final_url": "https://www.enkihogar.com/esponjera-gel-recta-n5/",
+        "http_status": 200,
+        "content_type": "text/html; charset=UTF-8",
+        "html_sha256": "b5da1a8d0e24651180633e6cc6f5703be6fa1b68db42241440c7dd508aa7981e",
+        "canonical": "https://www.enkihogar.com/esponjera-gel-recta-n5/",
+        "title": "Esponjera Gel recta 50cm",
+        "product_jsonld": [
+          {
+            "@id": "https://www.enkihogar.com/esponjera-gel-recta-n5/#Product",
+            "url": "https://www.enkihogar.com/esponjera-gel-recta-n5/",
+            "name": "Esponjera Gel recta 50cm",
+            "sku": "1838",
+            "mpn": "1838",
+            "image": [
+              {
+                "@type": "ImageObject",
+                "@id": "https://www.enkihogar.com/esponjera-gel-recta-n5/#primaryimage",
+                "url": "https://www.enkihogar.com/wp-content/uploads/2023/02/633-Esponjera-Gel-recta-50cm.jpg",
+                "width": "0",
+                "height": "0",
+                "caption": "Esponjera Gel recta 50cm"
+              }
+            ],
+            "offers": {
+              "@type": "AggregateOffer",
+              "lowPrice": 94.74,
+              "highPrice": 94.74,
+              "priceCurrency": "EUR",
+              "availability": "https://schema.org/InStock",
+              "offerCount": 1
+            }
+          }
+        ],
+        "cohort_variations": [
+          {
+            "variation_id": 1839,
+            "sku": "100501",
+            "attributes": {
+              "attribute_pa_acabado": "cromo",
+              "attribute_pa_instalacion": "taladro"
+            },
+            "display_price": 94.74,
+            "display_regular_price": 105.27,
+            "is_purchasable": true,
+            "variation_is_active": true,
+            "variation_is_visible": true,
+            "image": {
+              "title": "Esponjera Gel recta 50cm",
+              "caption": "",
+              "url": "https://www.enkihogar.com/wp-content/uploads/2023/02/633-Esponjera-Gel-recta-50cm.jpg",
+              "alt": "Esponjera Gel recta 50cm",
+              "src": "https://www.enkihogar.com/wp-content/uploads/2023/02/633-Esponjera-Gel-recta-50cm.jpg",
+              "srcset": false,
+              "sizes": "(max-width: 1px) 100vw, 1px",
+              "full_src": "https://www.enkihogar.com/wp-content/uploads/2023/02/633-Esponjera-Gel-recta-50cm.jpg",
+              "full_src_w": 0,
+              "full_src_h": 0,
+              "gallery_thumbnail_src": "https://www.enkihogar.com/wp-content/uploads/2023/02/633-Esponjera-Gel-recta-50cm.jpg",
+              "gallery_thumbnail_src_w": 1,
+              "gallery_thumbnail_src_h": 1,
+              "thumb_src": "https://www.enkihogar.com/wp-content/uploads/2023/02/633-Esponjera-Gel-recta-50cm.jpg",
+              "thumb_src_w": 1,
+              "thumb_src_h": 1,
+              "src_w": 1,
+              "src_h": 1
+            },
+            "price_html": ""
+          }
+        ],
+        "main_price_markup": [],
+        "variation_form_ids": [
+          "1838"
+        ]
+      }
+    ]
+  },
+  "woocommerce": {
+    "schema": "enki-merchant-woo-audit/v1",
+    "fetched_at": "2026-09-12T13:44:48.793Z",
+    "note": "Published read-only tool only; parent variation reads bounded to one page. Non-cohort siblings removed from stored receipt. Candidate matches are not equivalent to a verified Merchant destination/MPN join.",
+    "receipts": [
+      {
+        "public_candidate_url": "https://www.enkihogar.com/rociador-inox-rectangular-2-funciones-cascada-y-lluvia/",
+        "identity_input_basis": "Public Product JSON-LD SKU",
+        "tool": "woo_get_product_structure",
+        "arguments": {
+          "sku": "BD.7107125",
+          "max_pages": 1
+        },
+        "meta": {
+          "source": "woocommerce.product-structure",
+          "fetched_at": "2026-09-12T13:43:32.925Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "Europe/Madrid",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "partial",
+          "partial": true,
+          "warnings": [
+            "WooCommerce product responses do not declare currency; price values are live but currency must be established separately"
+          ],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-metrics/v1#woocommerce-product-structure"
+          ]
+        },
+        "resolution": {
+          "input_kind": "sku",
+          "match_kind": "product",
+          "matched_id": 8559,
+          "matched_sku": "BD.7107125",
+          "root_product_id": 8559
+        },
+        "product": {
+          "id": 8559,
+          "sku": "BD.7107125",
+          "name": "Rociador inox rectangular 2 funciones cascada y lluvia Spa 200",
+          "slug": "rociador-inox-rectangular-2-funciones-cascada-y-lluvia",
+          "status": "publish",
+          "type": "simple",
+          "catalog_visibility": "visible",
+          "price": null,
+          "regular_price": null,
+          "sale_price": null,
+          "stock_status": "instock",
+          "manage_stock": false,
+          "stock_quantity": null,
+          "backorders": "no",
+          "categories": [
+            {
+              "id": 347,
+              "name": "Rociadores",
+              "slug": "griferia-de-bano-rociadores"
+            }
+          ],
+          "attributes": [
+            {
+              "id": 32,
+              "name": "Acabados",
+              "variation": true,
+              "options": [
+                "Gris",
+                "Inox. Satinado"
+              ]
+            }
+          ],
+          "date_modified_gmt": "2025-10-14T10:11:43",
+          "permalink": "https://www.enkihogar.com/rociador-inox-rectangular-2-funciones-cascada-y-lluvia/",
+          "original_pdf_sku": null
+        },
+        "cohort_variations": [],
+        "coverage": {
+          "variations_returned": 0,
+          "reported_total_variations": 0,
+          "pages_fetched": 0,
+          "total_pages": 0,
+          "max_pages": 1,
+          "truncated": false
+        }
+      },
+      {
+        "public_candidate_url": "https://www.enkihogar.com/mueble-de-bano-aqua-2-cajones-lavabo-flat/",
+        "identity_input_basis": "Public variation form data-product_id",
+        "tool": "woo_get_product_structure",
+        "arguments": {
+          "product_id": 32309,
+          "max_pages": 1
+        },
+        "meta": {
+          "source": "woocommerce.product-structure",
+          "fetched_at": "2026-09-12T13:43:37.918Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "Europe/Madrid",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "partial",
+          "partial": true,
+          "warnings": [
+            "WooCommerce product responses do not declare currency; price values are live but currency must be established separately"
+          ],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-metrics/v1#woocommerce-product-structure"
+          ]
+        },
+        "resolution": {
+          "input_kind": "product_id",
+          "match_kind": "product",
+          "matched_id": 32309,
+          "matched_sku": "",
+          "root_product_id": 32309
+        },
+        "product": {
+          "id": 32309,
+          "sku": "",
+          "name": "Mueble de baño Aqua 2 cajones + lavabo Flat",
+          "slug": "mueble-de-bano-aqua-2-cajones-lavabo-flat",
+          "status": "publish",
+          "type": "variable",
+          "catalog_visibility": "visible",
+          "price": "299.11",
+          "regular_price": null,
+          "sale_price": null,
+          "stock_status": "instock",
+          "manage_stock": false,
+          "stock_quantity": null,
+          "backorders": "no",
+          "categories": [
+            {
+              "id": 279,
+              "name": "Muebles de baño",
+              "slug": "muebles-de-bano"
+            },
+            {
+              "id": 979,
+              "name": "Muebles de baño con lavabo",
+              "slug": "muebles-bano-lavabo"
+            }
+          ],
+          "attributes": [
+            {
+              "id": 58,
+              "name": "Acabados Visobath",
+              "variation": true,
+              "options": [
+                "Aliso",
+                "Avio",
+                "Blanco Ada",
+                "Ceniza",
+                "Quarzo",
+                "Valenti"
+              ]
+            },
+            {
+              "id": 12,
+              "name": "Medidas",
+              "variation": true,
+              "options": [
+                "60 cm",
+                "70cm",
+                "80cm",
+                "100cm"
+              ]
+            },
+            {
+              "id": 59,
+              "name": "Tirador Visobath",
+              "variation": true,
+              "options": [
+                "Aluminio",
+                "Grafito",
+                "Quarzo"
+              ]
+            }
+          ],
+          "date_modified_gmt": "2025-01-09T16:53:00",
+          "permalink": "https://www.enkihogar.com/mueble-de-bano-aqua-2-cajones-lavabo-flat/",
+          "original_pdf_sku": null
+        },
+        "cohort_variations": [
+          {
+            "id": 32370,
+            "parent_id": 32309,
+            "sku": "72125",
+            "status": "publish",
+            "purchasable": false,
+            "price": null,
+            "regular_price": null,
+            "sale_price": null,
+            "stock_status": "instock",
+            "manage_stock": false,
+            "stock_quantity": null,
+            "backorders": "no",
+            "attributes": [
+              {
+                "id": 58,
+                "name": "Acabados Visobath",
+                "option": "Ceniza"
+              },
+              {
+                "id": 12,
+                "name": "Medidas",
+                "option": "100cm"
+              },
+              {
+                "id": 59,
+                "name": "Tirador Visobath",
+                "option": "Quarzo"
+              }
+            ],
+            "original_pdf_sku": null,
+            "date_modified_gmt": "2025-01-07T11:49:54"
+          }
+        ],
+        "coverage": {
+          "variations_returned": 72,
+          "reported_total_variations": 72,
+          "pages_fetched": 1,
+          "total_pages": 1,
+          "max_pages": 1,
+          "truncated": false
+        }
+      },
+      {
+        "public_candidate_url": "https://www.enkihogar.com/estanteria-pared-con-perchas-n2/",
+        "identity_input_basis": "Public variation form data-product_id",
+        "tool": "woo_get_product_structure",
+        "arguments": {
+          "product_id": 1851,
+          "max_pages": 1
+        },
+        "meta": {
+          "source": "woocommerce.product-structure",
+          "fetched_at": "2026-09-12T13:43:41.739Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "Europe/Madrid",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "partial",
+          "partial": true,
+          "warnings": [
+            "WooCommerce product responses do not declare currency; price values are live but currency must be established separately"
+          ],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-metrics/v1#woocommerce-product-structure"
+          ]
+        },
+        "resolution": {
+          "input_kind": "product_id",
+          "match_kind": "product",
+          "matched_id": 1851,
+          "matched_sku": "",
+          "root_product_id": 1851
+        },
+        "product": {
+          "id": 1851,
+          "sku": "",
+          "name": "Estantería pared con perchas 50cm",
+          "slug": "estanteria-pared-con-perchas-n2",
+          "status": "publish",
+          "type": "variable",
+          "catalog_visibility": "visible",
+          "price": "162.26",
+          "regular_price": null,
+          "sale_price": null,
+          "stock_status": "instock",
+          "manage_stock": false,
+          "stock_quantity": null,
+          "backorders": "no",
+          "categories": [
+            {
+              "id": 330,
+              "name": "Estanterías",
+              "slug": "accesorios-de-bano-estanterias"
+            },
+            {
+              "id": 1207,
+              "name": "Repisas y estanterías de Baño",
+              "slug": "repisas-estanterias"
+            }
+          ],
+          "attributes": [
+            {
+              "id": 15,
+              "name": "Acabado",
+              "variation": true,
+              "options": [
+                "Cromo",
+                "Negro mate"
+              ]
+            },
+            {
+              "id": 16,
+              "name": "Instalación",
+              "variation": true,
+              "options": [
+                "Taladro"
+              ]
+            }
+          ],
+          "date_modified_gmt": "2024-10-21T10:33:32",
+          "permalink": "https://www.enkihogar.com/estanteria-pared-con-perchas-n2/",
+          "original_pdf_sku": null
+        },
+        "cohort_variations": [
+          {
+            "id": 1852,
+            "parent_id": 1851,
+            "sku": "150202",
+            "status": "publish",
+            "purchasable": true,
+            "price": "164.44",
+            "regular_price": "182.71",
+            "sale_price": "164.44",
+            "stock_status": "instock",
+            "manage_stock": true,
+            "stock_quantity": 100,
+            "backorders": "no",
+            "attributes": [
+              {
+                "id": 15,
+                "name": "Acabado",
+                "option": "Negro mate"
+              },
+              {
+                "id": 16,
+                "name": "Instalación",
+                "option": "Taladro"
+              }
+            ],
+            "original_pdf_sku": null,
+            "date_modified_gmt": "2024-10-08T15:11:49"
+          },
+          {
+            "id": 1853,
+            "parent_id": 1851,
+            "sku": "150201",
+            "status": "publish",
+            "purchasable": true,
+            "price": "162.26",
+            "regular_price": "180.29",
+            "sale_price": "162.26",
+            "stock_status": "instock",
+            "manage_stock": true,
+            "stock_quantity": 100,
+            "backorders": "no",
+            "attributes": [
+              {
+                "id": 15,
+                "name": "Acabado",
+                "option": "Cromo"
+              },
+              {
+                "id": 16,
+                "name": "Instalación",
+                "option": "Taladro"
+              }
+            ],
+            "original_pdf_sku": null,
+            "date_modified_gmt": "2024-10-08T15:11:49"
+          }
+        ],
+        "coverage": {
+          "variations_returned": 2,
+          "reported_total_variations": 2,
+          "pages_fetched": 1,
+          "total_pages": 1,
+          "max_pages": 1,
+          "truncated": false
+        }
+      },
+      {
+        "public_candidate_url": "https://www.enkihogar.com/estanteria-pared-n1/",
+        "identity_input_basis": "Public variation form data-product_id",
+        "tool": "woo_get_product_structure",
+        "arguments": {
+          "product_id": 1848,
+          "max_pages": 1
+        },
+        "meta": {
+          "source": "woocommerce.product-structure",
+          "fetched_at": "2026-09-12T13:43:45.464Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "Europe/Madrid",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "partial",
+          "partial": true,
+          "warnings": [
+            "WooCommerce product responses do not declare currency; price values are live but currency must be established separately"
+          ],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-metrics/v1#woocommerce-product-structure"
+          ]
+        },
+        "resolution": {
+          "input_kind": "product_id",
+          "match_kind": "product",
+          "matched_id": 1848,
+          "matched_sku": "",
+          "root_product_id": 1848
+        },
+        "product": {
+          "id": 1848,
+          "sku": "",
+          "name": "Estantería pared 50cm",
+          "slug": "estanteria-pared-n1",
+          "status": "publish",
+          "type": "variable",
+          "catalog_visibility": "visible",
+          "price": "151.37",
+          "regular_price": null,
+          "sale_price": null,
+          "stock_status": "instock",
+          "manage_stock": false,
+          "stock_quantity": null,
+          "backorders": "no",
+          "categories": [
+            {
+              "id": 330,
+              "name": "Estanterías",
+              "slug": "accesorios-de-bano-estanterias"
+            },
+            {
+              "id": 1207,
+              "name": "Repisas y estanterías de Baño",
+              "slug": "repisas-estanterias"
+            }
+          ],
+          "attributes": [
+            {
+              "id": 15,
+              "name": "Acabado",
+              "variation": true,
+              "options": [
+                "Cromo",
+                "Negro mate"
+              ]
+            },
+            {
+              "id": 16,
+              "name": "Instalación",
+              "variation": true,
+              "options": [
+                "Taladro"
+              ]
+            }
+          ],
+          "date_modified_gmt": "2024-10-21T10:33:06",
+          "permalink": "https://www.enkihogar.com/estanteria-pared-n1/",
+          "original_pdf_sku": null
+        },
+        "cohort_variations": [
+          {
+            "id": 1849,
+            "parent_id": 1848,
+            "sku": "150102",
+            "status": "publish",
+            "purchasable": true,
+            "price": "153.55",
+            "regular_price": "170.61",
+            "sale_price": "153.55",
+            "stock_status": "instock",
+            "manage_stock": true,
+            "stock_quantity": 100,
+            "backorders": "no",
+            "attributes": [
+              {
+                "id": 15,
+                "name": "Acabado",
+                "option": "Negro mate"
+              },
+              {
+                "id": 16,
+                "name": "Instalación",
+                "option": "Taladro"
+              }
+            ],
+            "original_pdf_sku": null,
+            "date_modified_gmt": "2024-10-08T15:05:46"
+          },
+          {
+            "id": 1850,
+            "parent_id": 1848,
+            "sku": "150101",
+            "status": "publish",
+            "purchasable": true,
+            "price": "151.37",
+            "regular_price": "168.19",
+            "sale_price": "151.37",
+            "stock_status": "instock",
+            "manage_stock": true,
+            "stock_quantity": 100,
+            "backorders": "no",
+            "attributes": [
+              {
+                "id": 15,
+                "name": "Acabado",
+                "option": "Cromo"
+              },
+              {
+                "id": 16,
+                "name": "Instalación",
+                "option": "Taladro"
+              }
+            ],
+            "original_pdf_sku": null,
+            "date_modified_gmt": "2024-10-08T15:05:46"
+          }
+        ],
+        "coverage": {
+          "variations_returned": 2,
+          "reported_total_variations": 2,
+          "pages_fetched": 1,
+          "total_pages": 1,
+          "max_pages": 1,
+          "truncated": false
+        }
+      },
+      {
+        "public_candidate_url": "https://www.enkihogar.com/estanteria-pared-n4/",
+        "identity_input_basis": "Public variation form data-product_id",
+        "tool": "woo_get_product_structure",
+        "arguments": {
+          "product_id": 1854,
+          "max_pages": 1
+        },
+        "meta": {
+          "source": "woocommerce.product-structure",
+          "fetched_at": "2026-09-12T13:43:49.204Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "Europe/Madrid",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "partial",
+          "partial": true,
+          "warnings": [
+            "WooCommerce product responses do not declare currency; price values are live but currency must be established separately"
+          ],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-metrics/v1#woocommerce-product-structure"
+          ]
+        },
+        "resolution": {
+          "input_kind": "product_id",
+          "match_kind": "product",
+          "matched_id": 1854,
+          "matched_sku": "",
+          "root_product_id": 1854
+        },
+        "product": {
+          "id": 1854,
+          "sku": "",
+          "name": "Estantería pared 48cm",
+          "slug": "estanteria-pared-n4",
+          "status": "publish",
+          "type": "variable",
+          "catalog_visibility": "visible",
+          "price": "106.72",
+          "regular_price": null,
+          "sale_price": null,
+          "stock_status": "instock",
+          "manage_stock": false,
+          "stock_quantity": null,
+          "backorders": "no",
+          "categories": [
+            {
+              "id": 330,
+              "name": "Estanterías",
+              "slug": "accesorios-de-bano-estanterias"
+            },
+            {
+              "id": 1207,
+              "name": "Repisas y estanterías de Baño",
+              "slug": "repisas-estanterias"
+            }
+          ],
+          "attributes": [
+            {
+              "id": 15,
+              "name": "Acabado",
+              "variation": true,
+              "options": [
+                "Cromo"
+              ]
+            },
+            {
+              "id": 16,
+              "name": "Instalación",
+              "variation": true,
+              "options": [
+                "Taladro"
+              ]
+            }
+          ],
+          "date_modified_gmt": "2024-10-21T10:32:16",
+          "permalink": "https://www.enkihogar.com/estanteria-pared-n4/",
+          "original_pdf_sku": null
+        },
+        "cohort_variations": [
+          {
+            "id": 1855,
+            "parent_id": 1854,
+            "sku": "150301",
+            "status": "publish",
+            "purchasable": true,
+            "price": "106.72",
+            "regular_price": "118.58",
+            "sale_price": "106.72",
+            "stock_status": "instock",
+            "manage_stock": true,
+            "stock_quantity": 100,
+            "backorders": "no",
+            "attributes": [
+              {
+                "id": 15,
+                "name": "Acabado",
+                "option": "Cromo"
+              },
+              {
+                "id": 16,
+                "name": "Instalación",
+                "option": "Taladro"
+              }
+            ],
+            "original_pdf_sku": null,
+            "date_modified_gmt": "2024-10-07T13:48:18"
+          }
+        ],
+        "coverage": {
+          "variations_returned": 1,
+          "reported_total_variations": 1,
+          "pages_fetched": 1,
+          "total_pages": 1,
+          "max_pages": 1,
+          "truncated": false
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/estanteria-pared-n5/",
+        "args": {
+          "sku": "1856",
+          "max_pages": 1
+        },
+        "error": "No WooCommerce product or variation has exact SKU 1856"
+      },
+      {
+        "public_candidate_url": "https://www.enkihogar.com/escobillero-suelo-cuadrado/",
+        "identity_input_basis": "Public variation form data-product_id",
+        "tool": "woo_get_product_structure",
+        "arguments": {
+          "product_id": 1858,
+          "max_pages": 1
+        },
+        "meta": {
+          "source": "woocommerce.product-structure",
+          "fetched_at": "2026-09-12T13:43:54.944Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "Europe/Madrid",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "partial",
+          "partial": true,
+          "warnings": [
+            "WooCommerce product responses do not declare currency; price values are live but currency must be established separately"
+          ],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-metrics/v1#woocommerce-product-structure"
+          ]
+        },
+        "resolution": {
+          "input_kind": "product_id",
+          "match_kind": "product",
+          "matched_id": 1858,
+          "matched_sku": "",
+          "root_product_id": 1858
+        },
+        "product": {
+          "id": 1858,
+          "sku": "",
+          "name": "Escobillero suelo cuadrado",
+          "slug": "escobillero-suelo-cuadrado",
+          "status": "publish",
+          "type": "variable",
+          "catalog_visibility": "visible",
+          "price": "102.37",
+          "regular_price": null,
+          "sale_price": null,
+          "stock_status": "instock",
+          "manage_stock": false,
+          "stock_quantity": null,
+          "backorders": "no",
+          "categories": [
+            {
+              "id": 335,
+              "name": "Escobilleros",
+              "slug": "accesorios-de-bano-escobilleros"
+            },
+            {
+              "id": 1208,
+              "name": "Portarrollos y Escobilleros",
+              "slug": "portarrollos-escobilleros"
+            }
+          ],
+          "attributes": [
+            {
+              "id": 15,
+              "name": "Acabado",
+              "variation": true,
+              "options": [
+                "Cromo",
+                "Negro mate",
+                "Laton cepillado"
+              ]
+            }
+          ],
+          "date_modified_gmt": "2024-10-21T10:56:21",
+          "permalink": "https://www.enkihogar.com/escobillero-suelo-cuadrado/",
+          "original_pdf_sku": null
+        },
+        "cohort_variations": [
+          {
+            "id": 1859,
+            "parent_id": 1858,
+            "sku": "080102",
+            "status": "publish",
+            "purchasable": true,
+            "price": "107.81",
+            "regular_price": "119.79",
+            "sale_price": "107.81",
+            "stock_status": "instock",
+            "manage_stock": true,
+            "stock_quantity": 100,
+            "backorders": "no",
+            "attributes": [
+              {
+                "id": 15,
+                "name": "Acabado",
+                "option": "Negro mate"
+              }
+            ],
+            "original_pdf_sku": null,
+            "date_modified_gmt": "2024-10-03T14:04:59"
+          },
+          {
+            "id": 1860,
+            "parent_id": 1858,
+            "sku": "080103",
+            "status": "publish",
+            "purchasable": true,
+            "price": "127.41",
+            "regular_price": "141.57",
+            "sale_price": "127.41",
+            "stock_status": "instock",
+            "manage_stock": true,
+            "stock_quantity": 100,
+            "backorders": "no",
+            "attributes": [
+              {
+                "id": 15,
+                "name": "Acabado",
+                "option": "Laton cepillado"
+              }
+            ],
+            "original_pdf_sku": null,
+            "date_modified_gmt": "2024-10-03T14:04:59"
+          },
+          {
+            "id": 1861,
+            "parent_id": 1858,
+            "sku": "080101",
+            "status": "publish",
+            "purchasable": true,
+            "price": "102.37",
+            "regular_price": "113.74",
+            "sale_price": "102.37",
+            "stock_status": "instock",
+            "manage_stock": true,
+            "stock_quantity": 100,
+            "backorders": "no",
+            "attributes": [
+              {
+                "id": 15,
+                "name": "Acabado",
+                "option": "Cromo"
+              }
+            ],
+            "original_pdf_sku": null,
+            "date_modified_gmt": "2024-10-03T14:04:59"
+          }
+        ],
+        "coverage": {
+          "variations_returned": 3,
+          "reported_total_variations": 3,
+          "pages_fetched": 1,
+          "total_pages": 1,
+          "max_pages": 1,
+          "truncated": false
+        }
+      },
+      {
+        "public_candidate_url": "https://www.enkihogar.com/esponjera-recta-ares/",
+        "identity_input_basis": "Public variation form data-product_id",
+        "tool": "woo_get_product_structure",
+        "arguments": {
+          "product_id": 1840,
+          "max_pages": 1
+        },
+        "meta": {
+          "source": "woocommerce.product-structure",
+          "fetched_at": "2026-09-12T13:43:58.755Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "Europe/Madrid",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "partial",
+          "partial": true,
+          "warnings": [
+            "WooCommerce product responses do not declare currency; price values are live but currency must be established separately"
+          ],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-metrics/v1#woocommerce-product-structure"
+          ]
+        },
+        "resolution": {
+          "input_kind": "product_id",
+          "match_kind": "product",
+          "matched_id": 1840,
+          "matched_sku": "",
+          "root_product_id": 1840
+        },
+        "product": {
+          "id": 1840,
+          "sku": "",
+          "name": "Esponjera recta ARES",
+          "slug": "esponjera-recta-ares",
+          "status": "publish",
+          "type": "variable",
+          "catalog_visibility": "visible",
+          "price": "33.37",
+          "regular_price": null,
+          "sale_price": null,
+          "stock_status": "instock",
+          "manage_stock": false,
+          "stock_quantity": null,
+          "backorders": "no",
+          "categories": [
+            {
+              "id": 350,
+              "name": "Esponjeras",
+              "slug": "accesorios-de-bano-esponjeras"
+            },
+            {
+              "id": 1211,
+              "name": "Perchas, soportes y esponjeras",
+              "slug": "perchas-soportes-esponjeras"
+            }
+          ],
+          "attributes": [
+            {
+              "id": 15,
+              "name": "Acabado",
+              "variation": true,
+              "options": [
+                "Cromo",
+                "Negro mate"
+              ]
+            },
+            {
+              "id": 16,
+              "name": "Instalación",
+              "variation": true,
+              "options": [
+                "Taladro"
+              ]
+            }
+          ],
+          "date_modified_gmt": "2024-10-22T13:35:01",
+          "permalink": "https://www.enkihogar.com/esponjera-recta-ares/",
+          "original_pdf_sku": null
+        },
+        "cohort_variations": [
+          {
+            "id": 1841,
+            "parent_id": 1840,
+            "sku": "100602",
+            "status": "publish",
+            "purchasable": true,
+            "price": "38.57",
+            "regular_price": "51.301425",
+            "sale_price": "38.57",
+            "stock_status": "instock",
+            "manage_stock": true,
+            "stock_quantity": 100,
+            "backorders": "no",
+            "attributes": [
+              {
+                "id": 15,
+                "name": "Acabado",
+                "option": "Negro mate"
+              },
+              {
+                "id": 16,
+                "name": "Instalación",
+                "option": "Taladro"
+              }
+            ],
+            "original_pdf_sku": null,
+            "date_modified_gmt": "2023-07-31T21:00:37"
+          },
+          {
+            "id": 1842,
+            "parent_id": 1840,
+            "sku": "100607",
+            "status": "publish",
+            "purchasable": true,
+            "price": "33.37",
+            "regular_price": "44.378775",
+            "sale_price": "33.37",
+            "stock_status": "instock",
+            "manage_stock": true,
+            "stock_quantity": 100,
+            "backorders": "no",
+            "attributes": [
+              {
+                "id": 15,
+                "name": "Acabado",
+                "option": "Cromo"
+              },
+              {
+                "id": 16,
+                "name": "Instalación",
+                "option": "Taladro"
+              }
+            ],
+            "original_pdf_sku": null,
+            "date_modified_gmt": "2023-07-31T21:00:36"
+          }
+        ],
+        "coverage": {
+          "variations_returned": 2,
+          "reported_total_variations": 2,
+          "pages_fetched": 1,
+          "total_pages": 1,
+          "max_pages": 1,
+          "truncated": false
+        }
+      },
+      {
+        "public_candidate_url": "https://www.enkihogar.com/esponjera-recta-n7/",
+        "identity_input_basis": "Public variation form data-product_id",
+        "tool": "woo_get_product_structure",
+        "arguments": {
+          "product_id": 1843,
+          "max_pages": 1
+        },
+        "meta": {
+          "source": "woocommerce.product-structure",
+          "fetched_at": "2026-09-12T13:44:02.619Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "Europe/Madrid",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "partial",
+          "partial": true,
+          "warnings": [
+            "WooCommerce product responses do not declare currency; price values are live but currency must be established separately"
+          ],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-metrics/v1#woocommerce-product-structure"
+          ]
+        },
+        "resolution": {
+          "input_kind": "product_id",
+          "match_kind": "product",
+          "matched_id": 1843,
+          "matched_sku": "",
+          "root_product_id": 1843
+        },
+        "product": {
+          "id": 1843,
+          "sku": "",
+          "name": "Esponjera recta Inox pulido brillo",
+          "slug": "esponjera-recta-n7",
+          "status": "publish",
+          "type": "variable",
+          "catalog_visibility": "visible",
+          "price": "49.01",
+          "regular_price": null,
+          "sale_price": null,
+          "stock_status": "instock",
+          "manage_stock": false,
+          "stock_quantity": null,
+          "backorders": "no",
+          "categories": [
+            {
+              "id": 350,
+              "name": "Esponjeras",
+              "slug": "accesorios-de-bano-esponjeras"
+            },
+            {
+              "id": 1211,
+              "name": "Perchas, soportes y esponjeras",
+              "slug": "perchas-soportes-esponjeras"
+            }
+          ],
+          "attributes": [
+            {
+              "id": 15,
+              "name": "Acabado",
+              "variation": true,
+              "options": [
+                "Cromo",
+                "Negro mate"
+              ]
+            },
+            {
+              "id": 16,
+              "name": "Instalación",
+              "variation": true,
+              "options": [
+                "Taladro"
+              ]
+            }
+          ],
+          "date_modified_gmt": "2024-10-22T13:35:26",
+          "permalink": "https://www.enkihogar.com/esponjera-recta-n7/",
+          "original_pdf_sku": null
+        },
+        "cohort_variations": [
+          {
+            "id": 1844,
+            "parent_id": 1843,
+            "sku": "100702",
+            "status": "publish",
+            "purchasable": true,
+            "price": "54.45",
+            "regular_price": "60.50",
+            "sale_price": "54.45",
+            "stock_status": "instock",
+            "manage_stock": true,
+            "stock_quantity": 100,
+            "backorders": "no",
+            "attributes": [
+              {
+                "id": 15,
+                "name": "Acabado",
+                "option": "Negro mate"
+              },
+              {
+                "id": 16,
+                "name": "Instalación",
+                "option": "Taladro"
+              }
+            ],
+            "original_pdf_sku": null,
+            "date_modified_gmt": "2024-10-08T14:52:55"
+          },
+          {
+            "id": 1845,
+            "parent_id": 1843,
+            "sku": "100707",
+            "status": "publish",
+            "purchasable": true,
+            "price": "49.01",
+            "regular_price": "54.45",
+            "sale_price": "49.01",
+            "stock_status": "instock",
+            "manage_stock": true,
+            "stock_quantity": 100,
+            "backorders": "no",
+            "attributes": [
+              {
+                "id": 15,
+                "name": "Acabado",
+                "option": "Cromo"
+              },
+              {
+                "id": 16,
+                "name": "Instalación",
+                "option": "Taladro"
+              }
+            ],
+            "original_pdf_sku": null,
+            "date_modified_gmt": "2024-10-08T14:52:55"
+          }
+        ],
+        "coverage": {
+          "variations_returned": 2,
+          "reported_total_variations": 2,
+          "pages_fetched": 1,
+          "total_pages": 1,
+          "max_pages": 1,
+          "truncated": false
+        }
+      },
+      {
+        "public_candidate_url": "https://www.enkihogar.com/esponjera-de-grifo-n9/",
+        "identity_input_basis": "Public variation form data-product_id",
+        "tool": "woo_get_product_structure",
+        "arguments": {
+          "product_id": 1846,
+          "max_pages": 1
+        },
+        "meta": {
+          "source": "woocommerce.product-structure",
+          "fetched_at": "2026-09-12T13:44:06.412Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "Europe/Madrid",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "partial",
+          "partial": true,
+          "warnings": [
+            "WooCommerce product responses do not declare currency; price values are live but currency must be established separately"
+          ],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-metrics/v1#woocommerce-product-structure"
+          ]
+        },
+        "resolution": {
+          "input_kind": "product_id",
+          "match_kind": "product",
+          "matched_id": 1846,
+          "matched_sku": "",
+          "root_product_id": 1846
+        },
+        "product": {
+          "id": 1846,
+          "sku": "",
+          "name": "Esponjera de grifo 30cm",
+          "slug": "esponjera-de-grifo-n9",
+          "status": "publish",
+          "type": "variable",
+          "catalog_visibility": "visible",
+          "price": "114.35",
+          "regular_price": null,
+          "sale_price": null,
+          "stock_status": "instock",
+          "manage_stock": false,
+          "stock_quantity": null,
+          "backorders": "no",
+          "categories": [
+            {
+              "id": 350,
+              "name": "Esponjeras",
+              "slug": "accesorios-de-bano-esponjeras"
+            },
+            {
+              "id": 1211,
+              "name": "Perchas, soportes y esponjeras",
+              "slug": "perchas-soportes-esponjeras"
+            }
+          ],
+          "attributes": [
+            {
+              "id": 15,
+              "name": "Acabado",
+              "variation": true,
+              "options": [
+                "Cromo"
+              ]
+            }
+          ],
+          "date_modified_gmt": "2024-10-22T13:36:04",
+          "permalink": "https://www.enkihogar.com/esponjera-de-grifo-n9/",
+          "original_pdf_sku": null
+        },
+        "cohort_variations": [
+          {
+            "id": 1847,
+            "parent_id": 1846,
+            "sku": "100901",
+            "status": "publish",
+            "purchasable": true,
+            "price": "114.35",
+            "regular_price": "127.05",
+            "sale_price": "114.35",
+            "stock_status": "instock",
+            "manage_stock": true,
+            "stock_quantity": 100,
+            "backorders": "no",
+            "attributes": [
+              {
+                "id": 15,
+                "name": "Acabado",
+                "option": "Cromo"
+              }
+            ],
+            "original_pdf_sku": null,
+            "date_modified_gmt": "2024-10-08T14:58:24"
+          }
+        ],
+        "coverage": {
+          "variations_returned": 1,
+          "reported_total_variations": 1,
+          "pages_fetched": 1,
+          "total_pages": 1,
+          "max_pages": 1,
+          "truncated": false
+        }
+      },
+      {
+        "public_candidate_url": "https://www.enkihogar.com/esponjera-gel-recta-n5/",
+        "identity_input_basis": "Public variation form data-product_id",
+        "tool": "woo_get_product_structure",
+        "arguments": {
+          "product_id": 1838,
+          "max_pages": 1
+        },
+        "meta": {
+          "source": "woocommerce.product-structure",
+          "fetched_at": "2026-09-12T13:44:10.266Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "Europe/Madrid",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "partial",
+          "partial": true,
+          "warnings": [
+            "WooCommerce product responses do not declare currency; price values are live but currency must be established separately"
+          ],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-metrics/v1#woocommerce-product-structure"
+          ]
+        },
+        "resolution": {
+          "input_kind": "product_id",
+          "match_kind": "product",
+          "matched_id": 1838,
+          "matched_sku": "",
+          "root_product_id": 1838
+        },
+        "product": {
+          "id": 1838,
+          "sku": "",
+          "name": "Esponjera Gel recta 50cm",
+          "slug": "esponjera-gel-recta-n5",
+          "status": "publish",
+          "type": "variable",
+          "catalog_visibility": "visible",
+          "price": "94.74",
+          "regular_price": null,
+          "sale_price": null,
+          "stock_status": "instock",
+          "manage_stock": false,
+          "stock_quantity": null,
+          "backorders": "no",
+          "categories": [
+            {
+              "id": 350,
+              "name": "Esponjeras",
+              "slug": "accesorios-de-bano-esponjeras"
+            },
+            {
+              "id": 1211,
+              "name": "Perchas, soportes y esponjeras",
+              "slug": "perchas-soportes-esponjeras"
+            }
+          ],
+          "attributes": [
+            {
+              "id": 15,
+              "name": "Acabado",
+              "variation": true,
+              "options": [
+                "Cromo"
+              ]
+            },
+            {
+              "id": 16,
+              "name": "Instalación",
+              "variation": true,
+              "options": [
+                "Taladro"
+              ]
+            }
+          ],
+          "date_modified_gmt": "2024-10-22T13:34:34",
+          "permalink": "https://www.enkihogar.com/esponjera-gel-recta-n5/",
+          "original_pdf_sku": null
+        },
+        "cohort_variations": [
+          {
+            "id": 1839,
+            "parent_id": 1838,
+            "sku": "100501",
+            "status": "publish",
+            "purchasable": true,
+            "price": "94.74",
+            "regular_price": "105.27",
+            "sale_price": "94.74",
+            "stock_status": "instock",
+            "manage_stock": true,
+            "stock_quantity": 100,
+            "backorders": "no",
+            "attributes": [
+              {
+                "id": 15,
+                "name": "Acabado",
+                "option": "Cromo"
+              },
+              {
+                "id": 16,
+                "name": "Instalación",
+                "option": "Taladro"
+              }
+            ],
+            "original_pdf_sku": null,
+            "date_modified_gmt": "2024-10-03T15:17:24"
+          }
+        ],
+        "coverage": {
+          "variations_returned": 1,
+          "reported_total_variations": 1,
+          "pages_fetched": 1,
+          "total_pages": 1,
+          "max_pages": 1,
+          "truncated": false
+        }
+      },
+      {
+        "public_candidate_url": "https://www.enkihogar.com/estanteria-pared-n5/",
+        "identity_input_basis": "Public HTML body postid-1856 observed 2026-09-12T13:44:27.587Z",
+        "tool": "woo_get_product_structure",
+        "arguments": {
+          "product_id": 1856,
+          "max_pages": 1
+        },
+        "meta": {
+          "source": "woocommerce.product-structure",
+          "fetched_at": "2026-09-12T13:44:48.776Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "Europe/Madrid",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "partial",
+          "partial": true,
+          "warnings": [
+            "WooCommerce product responses do not declare currency; price values are live but currency must be established separately"
+          ],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-metrics/v1#woocommerce-product-structure"
+          ]
+        },
+        "resolution": {
+          "input_kind": "product_id",
+          "match_kind": "product",
+          "matched_id": 1856,
+          "matched_sku": "",
+          "root_product_id": 1856
+        },
+        "product": {
+          "id": 1856,
+          "sku": "",
+          "name": "Estantería pared 54cm Inox pulido brillo cromo",
+          "slug": "estanteria-pared-n5",
+          "status": "publish",
+          "type": "simple",
+          "catalog_visibility": "visible",
+          "price": "69.70",
+          "regular_price": "77.44",
+          "sale_price": "69.70",
+          "stock_status": "instock",
+          "manage_stock": false,
+          "stock_quantity": null,
+          "backorders": "no",
+          "categories": [
+            {
+              "id": 330,
+              "name": "Estanterías",
+              "slug": "accesorios-de-bano-estanterias"
+            },
+            {
+              "id": 1207,
+              "name": "Repisas y estanterías de Baño",
+              "slug": "repisas-estanterias"
+            }
+          ],
+          "attributes": [
+            {
+              "id": 15,
+              "name": "Acabado",
+              "variation": true,
+              "options": [
+                "Cromo"
+              ]
+            }
+          ],
+          "date_modified_gmt": "2024-10-21T10:32:38",
+          "permalink": "https://www.enkihogar.com/estanteria-pared-n5/",
+          "original_pdf_sku": null
+        },
+        "cohort_variations": [],
+        "coverage": {
+          "variations_returned": 0,
+          "reported_total_variations": 0,
+          "pages_fetched": 0,
+          "total_pages": 0,
+          "max_pages": 1,
+          "truncated": false
+        }
+      }
+    ]
+  },
+  "image_http_probes": [
+    {
+      "url": "https://www.enkihogar.com/wp-content/uploads/2023/02/633-Esponjera-Gel-recta-50cm.jpg",
+      "fetched_at": "2026-09-12T13:42:57.872Z",
+      "http_status": 404,
+      "content_type": "text/html; charset=UTF-8",
+      "content_length": 48914,
+      "first16hex": "3c21646f63747970652068746d6c3e0a",
+      "relation": "Public variant 1839 image; original Merchant image_link not yet read"
+    },
+    {
+      "url": "https://www.enkihogar.com/wp-content/uploads/2023/09/BD.7107125.jpg",
+      "fetched_at": "2026-09-12T13:42:57.939Z",
+      "http_status": 200,
+      "content_type": "image/jpeg",
+      "content_length": 44187,
+      "first16hex": "ffd8ffe109c54578696600004d4d002a",
+      "relation": "Exact image_link observed in Merchant raw attributes for 8559"
+    }
+  ],
+  "limitations": [
+    "The Merchant browser surface was changed by the operator/another workflow; no stable exclusive reading interval was available.",
+    "Only 8559 has a direct raw-feed MPN + landing URL join; 16 other candidates must not be called verified Merchant/Woo matches.",
+    "Eight Toke offers have no candidate/source detail in this receipt.",
+    "Woo decimal null means missing or invalid after connector sanitization, not necessarily a literal database NULL. Woo currency remains undeclared.",
+    "Public HTML/JSON-LD and image signatures are point-in-time HTTP evidence, not visual, checkout, Googlebot or complete structured-data validation.",
+    "No live price, stock, product, image, feed, policy, Ads or agent-state mutation performed."
+  ]
+}

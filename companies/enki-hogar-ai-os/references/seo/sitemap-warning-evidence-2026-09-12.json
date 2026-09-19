@@ -1,0 +1,368 @@
+{
+  "schema": "enki-gsc-sitemap-warning-diagnostic/v1",
+  "ticket": "EAI-029",
+  "diagnosticStatus": "complete_with_detail_unavailable",
+  "capturedAt": "2026-09-12T14:30:55.515Z",
+  "property": "sc-domain:enkihogar.com",
+  "scope": {
+    "authorizedProviderTool": "gsc_list_sitemaps",
+    "providerToolCalls": 1,
+    "catalogReadsRetained": 1,
+    "initialCatalogDiscoveryReads": 1,
+    "newTools": false,
+    "directProviderApi": false,
+    "administrativeUi": false,
+    "externalMutations": false,
+    "agentActivation": false
+  },
+  "provenance": [
+    {
+      "path": "references/seo/sources-2026-09-12-restored.json",
+      "sha256": "3be5a2c59d7a417e6de11ebd106ec0ad4a78a286c5e1b89b28be24ce7789a9db"
+    },
+    {
+      "path": "references/seo/public-2026-09-12.json",
+      "sha256": "709fe3c94c51df7349f11b34ac903e4849194e705dc631d4ddfdc427698a5aba"
+    },
+    {
+      "path": "policies/tool-allowlist.yaml",
+      "sha256": "4d2bf33cf21c009caf1779fbc88cbcd6c27bdf35f2c246d97939b88fb15c4ed9"
+    },
+    {
+      "path": "scripts/seo/capture-sources.mjs",
+      "sha256": "af2456b38a07bf81b75d34870f0db985e978d2430c01bee96066e99e7eb23a9e"
+    }
+  ],
+  "baseline": {
+    "file": "references/seo/sources-2026-09-12-restored.json",
+    "sourceCaptureAt": "2026-09-12T12:31:34.636Z",
+    "sitemap": {
+      "url": "https://www.enkihogar.com/sitemap_index.xml",
+      "lastSubmitted": "2025-06-30T06:50:08.118Z",
+      "lastDownloaded": "2026-09-02T01:49:53.797Z",
+      "isPending": null,
+      "isSitemapsIndex": null,
+      "warnings": 61,
+      "errors": 0
+    },
+    "providerRawResponseRetained": false
+  },
+  "current": {
+    "fetchedAt": "2026-09-12T14:30:55.514Z",
+    "sitemap": "https://www.enkihogar.com/sitemap_index.xml",
+    "typeRendered": "Unknown",
+    "type": null,
+    "isPending": null,
+    "isSitemapsIndex": null,
+    "lastSubmitted": "2025-06-30T06:50:08.118Z",
+    "lastDownloaded": "2026-09-12T13:16:23.855Z",
+    "warningsRendered": 60,
+    "errorsRendered": 0,
+    "providerWarningPresenceVerified": true,
+    "providerErrorPresenceVerified": false,
+    "contentCountsRendered": [
+      {
+        "type": "web",
+        "submitted": 789,
+        "indexed": 0
+      },
+      {
+        "type": "image",
+        "submitted": 673,
+        "indexed": 0
+      }
+    ],
+    "usableIndexedCount": null,
+    "childSitemaps": null,
+    "warningMessages": null,
+    "affectedUrls": null,
+    "detailCoverage": "unavailable_not_zero_warnings",
+    "limitations": [
+      "Receipt is the exact MCP-rendered response, not raw Google API JSON.",
+      "Formatter maps absent errors and warnings to 0; positive 60 warnings is not a fallback, while errors=0 cannot distinguish an explicit provider zero from omission.",
+      "Type Unknown can be a formatter fallback; isPending and isSitemapsIndex are not rendered.",
+      "contents.indexed is deprecated in Google's API; rendered 0 indexed is unusable and may also be a formatter fallback.",
+      "Submitted web/image counts are different content types; do not add them into unique pages or infer indexed coverage.",
+      "Google's last download and our retrieval time are distinct timestamps, both UTC; no report-period attribution is made."
+    ]
+  },
+  "comparison": {
+    "sameSitemap": true,
+    "warningCountChange": -1,
+    "lastDownloadedChanged": true,
+    "causesResolved": null,
+    "affectedUrlCount": null,
+    "claim": "The rendered warning total changed from 61 to 60 across snapshots; neither a particular fix nor the identity of a resolved warning is established."
+  },
+  "receipts": {
+    "schema": "enki-gsc-sitemap-warning-read/v1",
+    "capturedAt": "2026-09-12T14:30:55.515Z",
+    "source": "authorized-gsc-mcp",
+    "catalog": {
+      "startedAt": "2026-09-12T14:30:54.994Z",
+      "fetchedAt": "2026-09-12T14:30:55.023Z",
+      "method": "tools/list",
+      "httpStatus": 200,
+      "result": {
+        "tools": [
+          {
+            "name": "gsc_list_sites",
+            "description": "List all sites (properties) in Google Search Console accessible to the authenticated Google account.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {}
+            },
+            "_meta": {
+              "fastmcp": {
+                "tags": []
+              }
+            }
+          },
+          {
+            "name": "gsc_search_analytics",
+            "description": "Query Google Search Console search analytics. Returns clicks, impressions, CTR, and position. Dimensions: query, page, country, device, date, searchAppearance.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "site_url": {
+                  "type": "string",
+                  "description": "Site URL as registered in GSC (e.g. 'https://example.com/' or 'sc-domain:example.com')"
+                },
+                "start_date": {
+                  "type": "string",
+                  "description": "Start date (YYYY-MM-DD)"
+                },
+                "end_date": {
+                  "type": "string",
+                  "description": "End date (YYYY-MM-DD)"
+                },
+                "dimensions": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Dimensions to group by: 'query', 'page', 'country', 'device', 'date', 'searchAppearance'"
+                },
+                "row_limit": {
+                  "type": "number",
+                  "description": "Max rows (default 100, max 25000)"
+                },
+                "start_row": {
+                  "type": "number",
+                  "description": "Starting row for pagination (default 0)"
+                },
+                "query_filter": {
+                  "type": "string",
+                  "description": "Filter search queries containing this string (case-insensitive)"
+                },
+                "page_filter": {
+                  "type": "string",
+                  "description": "Filter pages whose URL contains this string"
+                },
+                "dimension_filters": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "dimension": {
+                        "type": "string"
+                      },
+                      "operator": {
+                        "type": "string",
+                        "description": "'contains', 'equals', 'notContains', 'notEquals', 'includingRegex', 'excludingRegex'"
+                      },
+                      "expression": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "description": "Optional filters, e.g. [{\"dimension\":\"query\",\"operator\":\"contains\",\"expression\":\"keyword\"}]"
+                },
+                "type": {
+                  "type": "string",
+                  "description": "Search type: 'web' (default), 'image', 'video', 'news', 'discover', 'googleNews'"
+                }
+              },
+              "required": [
+                "site_url",
+                "start_date",
+                "end_date"
+              ]
+            },
+            "_meta": {
+              "fastmcp": {
+                "tags": []
+              }
+            }
+          },
+          {
+            "name": "gsc_inspect_url",
+            "description": "Inspect a URL's indexing status in Google Search Console. Shows whether the URL is indexed, crawl issues, and mobile usability.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "site_url": {
+                  "type": "string",
+                  "description": "Site URL as registered in GSC"
+                },
+                "inspection_url": {
+                  "type": "string",
+                  "description": "The full URL to inspect"
+                }
+              },
+              "required": [
+                "site_url",
+                "inspection_url"
+              ]
+            },
+            "_meta": {
+              "fastmcp": {
+                "tags": []
+              }
+            }
+          },
+          {
+            "name": "gsc_list_sitemaps",
+            "description": "List all sitemaps submitted for a site in Google Search Console. Returns paths, types, dates, and errors/warnings.",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "site_url": {
+                  "type": "string",
+                  "description": "Site URL as registered in GSC"
+                }
+              },
+              "required": [
+                "site_url"
+              ]
+            },
+            "_meta": {
+              "fastmcp": {
+                "tags": []
+              }
+            }
+          }
+        ]
+      }
+    },
+    "sitemap": {
+      "startedAt": "2026-09-12T14:30:55.023Z",
+      "fetchedAt": "2026-09-12T14:30:55.514Z",
+      "method": "tools/call",
+      "params": {
+        "name": "gsc_list_sitemaps",
+        "arguments": {
+          "site_url": "sc-domain:enkihogar.com"
+        }
+      },
+      "httpStatus": 200,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "# Sitemaps for sc-domain:enkihogar.com\n\n## https://www.enkihogar.com/sitemap_index.xml\n- **Type**: Unknown\n- **Last submitted**: 2025-06-30T06:50:08.118Z\n- **Last downloaded**: 2026-09-12T13:16:23.855Z\n- **Errors**: 0 | **Warnings**: 60\n- **web**: 789 submitted, 0 indexed\n- **image**: 673 submitted, 0 indexed\n"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "implementation": {
+      "package": "@jlnkrth/gsc-mcp-server",
+      "version": "1.1.0",
+      "file": "src/tools.js",
+      "sha256": "c4b0495c670fde06eb2a447846884d2a2495fad9804fc5d70af3d6971f890364",
+      "observations": {
+        "forwardsOnlySiteUrl": true,
+        "usesZeroWhenWarningOrErrorAbsent": true,
+        "rendersDeprecatedIndexedWithZeroFallback": true,
+        "rendersInspectionReferringSitemaps": true
+      },
+      "reviewedLineRanges": [
+        [
+          89,
+          100
+        ],
+        [
+          211,
+          239
+        ],
+        [
+          241,
+          263
+        ]
+      ]
+    }
+  },
+  "capabilityAssessment": {
+    "sitemapToolInputProperties": [
+      "site_url"
+    ],
+    "sitemapIndexFilterPublished": false,
+    "sitemapIndexFilterForwarded": false,
+    "warningDetailFieldsInDocumentedGoogleSitemapResource": false,
+    "googleSitemapIndexParameterDocumented": true,
+    "indexInspectionIsWarningEnumeration": false,
+    "inspectionReferringSitemapsRenderedUpstream": true,
+    "currentSeoDecoderRetainsReferringSitemaps": false,
+    "decoderLimitationRelevance": "Retaining referring sitemaps would not enumerate sitemap warning messages or prove a particular URL caused one.",
+    "absentMcpData": [
+      "warning messages",
+      "affected URL list",
+      "child sitemap breakdown",
+      "isPending",
+      "isSitemapsIndex"
+    ],
+    "rejectedInferenceLinks": [
+      "brand sitemap robots rule",
+      "manage-profile noindex",
+      "Estanterías unknown indexing"
+    ],
+    "prohibitedWorkarounds": [
+      "undeclared sitemapIndex argument",
+      "direct Google API call using connector credentials",
+      "connector or allowlist mutation without approval",
+      "unapproved GSC administrative UI"
+    ]
+  },
+  "officialReferences": [
+    {
+      "url": "https://developers.google.com/webmaster-tools/v1/sitemaps",
+      "accessedOn": "2026-09-12",
+      "claims": [
+        "warnings and errors are aggregate counters with different documented meanings",
+        "contents.indexed is deprecated",
+        "documented resource has no warning-message or affected-URL list"
+      ]
+    },
+    {
+      "url": "https://developers.google.com/webmaster-tools/v1/sitemaps/list",
+      "accessedOn": "2026-09-12",
+      "claims": [
+        "sitemapIndex parameter can select child sitemap entries; current MCP does not expose it"
+      ]
+    },
+    {
+      "url": "https://support.google.com/webmasters/answer/7451001?hl=en",
+      "accessedOn": "2026-09-12",
+      "claims": [
+        "individual sitemap details and expandable errors are available in the report",
+        "this does not prove today's UI exposes the 60 legacy warning messages; UI was not inspected"
+      ]
+    }
+  ],
+  "nextStep": {
+    "owner": "Board/operator",
+    "authorizationRequired": true,
+    "preferredEvidence": "Authorize a bounded read-only visit to the exact sitemap details in Search Console, or provide a dated capture/export containing property, sitemap, last read, status, messages and affected examples if available.",
+    "acceptance": "Record what the UI actually exposes; preserve explicit absence if warning detail is not shown. Do not promise that opening the UI will explain all 60.",
+    "alternative": "Propose a reviewed MCP change exposing sitemapIndex for child aggregates. Not implemented or authorized; this alone cannot create warning-message fields missing from the documented API resource.",
+    "notAuthorized": [
+      "submit sitemap",
+      "request indexing",
+      "live test",
+      "web/feed/robots mutation",
+      "new credentials",
+      "agent activation"
+    ]
+  }
+}

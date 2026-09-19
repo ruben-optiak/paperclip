@@ -1,0 +1,198 @@
+{
+  "schema": "enki-public-sitemap-http-diagnostic/v1",
+  "ticket": "EAI-030",
+  "operationalIssue": "ENK-34",
+  "capturedAt": "2026-09-19T16:18:43Z",
+  "captureCompletedAt": "2026-09-19T16:18:51Z",
+  "diagnosticStatus": "current_public_success_historical_cause_unproven",
+  "authority": {
+    "scope": "Bounded public GETs for the brand sitemap, four host/scheme variants, robots.txt and the root sitemap index",
+    "methods": ["GET"],
+    "customGoogleUserAgent": false,
+    "accessRestrictionBypass": false,
+    "credentials": false,
+    "providerUi": false,
+    "providerApi": false,
+    "serverOrCdnLogs": false,
+    "externalMutations": false,
+    "agentActivation": false
+  },
+  "previousEvidence": [
+    {
+      "file": "seo/sitemap-ui-diagnostic-2026-09-12.md",
+      "sha256": "bb0ea98282a19f2e94d938a26a62923e6df9ccce2ad617dd803433b170758182",
+      "claim": "GSC displayed Sitemap could not be read and one General HTTP error for the exact canonical child sitemap."
+    },
+    {
+      "file": "seo/sitemap-ui-evidence-2026-09-12.json",
+      "sha256": "d90af928f566ca4a1efd4b965efcc618bb440309db7055347045f0a480168f8a",
+      "claim": "The UI exposed no specific status code, failure timestamp or proven cause."
+    }
+  ],
+  "httpResponses": [
+    {
+      "label": "canonical_https_www",
+      "requestedUrl": "https://www.enkihogar.com/yith_product_brand-sitemap.xml",
+      "effectiveUrl": "https://www.enkihogar.com/yith_product_brand-sitemap.xml",
+      "status": 200,
+      "httpVersion": "2",
+      "redirects": 0,
+      "contentType": "text/xml; charset=UTF-8",
+      "bodyBytes": 1499,
+      "bodySha256": "4fedb734008b571242b744d32a54c600c84cb2bda814c2a564b6986d78339283",
+      "server": "Apache",
+      "responseDate": "2026-09-19T16:18:43Z",
+      "cacheControl": "max-age=0",
+      "xRobotsTag": "noindex, follow",
+      "tlsVersion": "TLSv1.3",
+      "remoteIp": "31.47.77.19"
+    },
+    {
+      "label": "https_apex",
+      "requestedUrl": "https://enkihogar.com/yith_product_brand-sitemap.xml",
+      "effectiveUrl": "https://enkihogar.com/yith_product_brand-sitemap.xml",
+      "status": 200,
+      "httpVersion": "2",
+      "redirects": 0,
+      "contentType": "text/xml; charset=UTF-8",
+      "bodyBytes": 1499,
+      "bodySha256": "4fedb734008b571242b744d32a54c600c84cb2bda814c2a564b6986d78339283",
+      "server": "Apache",
+      "responseDate": "2026-09-19T16:18:43Z",
+      "cacheControl": "max-age=0",
+      "xRobotsTag": "noindex, follow",
+      "tlsVersion": "TLSv1.3",
+      "remoteIp": "31.47.77.19"
+    },
+    {
+      "label": "http_www",
+      "requestedUrl": "http://www.enkihogar.com/yith_product_brand-sitemap.xml",
+      "effectiveUrl": "http://www.enkihogar.com/yith_product_brand-sitemap.xml",
+      "status": 200,
+      "httpVersion": "1.1",
+      "redirects": 0,
+      "contentType": "text/xml; charset=UTF-8",
+      "bodyBytes": 1462,
+      "bodySha256": "18adbf654b3d87953c004b97f965d73b5e9440071791b73918549c9f96511392",
+      "server": "Apache",
+      "responseDate": "2026-09-19T16:18:43Z",
+      "cacheControl": "max-age=0",
+      "xRobotsTag": "noindex, follow",
+      "tlsVersion": null,
+      "remoteIp": "31.47.77.19"
+    },
+    {
+      "label": "http_apex",
+      "requestedUrl": "http://enkihogar.com/yith_product_brand-sitemap.xml",
+      "effectiveUrl": "http://enkihogar.com/yith_product_brand-sitemap.xml",
+      "status": 200,
+      "httpVersion": "1.1",
+      "redirects": 0,
+      "contentType": "text/xml; charset=UTF-8",
+      "bodyBytes": 1462,
+      "bodySha256": "18adbf654b3d87953c004b97f965d73b5e9440071791b73918549c9f96511392",
+      "server": "Apache",
+      "responseDate": "2026-09-19T16:18:43Z",
+      "cacheControl": "max-age=0",
+      "xRobotsTag": "noindex, follow",
+      "tlsVersion": null,
+      "remoteIp": "31.47.77.19"
+    }
+  ],
+  "brandSitemap": {
+    "canonicalUrl": "https://www.enkihogar.com/yith_product_brand-sitemap.xml",
+    "xmlParser": "Ruby REXML",
+    "xmlValid": true,
+    "rootElement": "urlset",
+    "urlElements": 7,
+    "locElements": 7,
+    "lastmodElements": 7,
+    "allLocsUseHttpsWww": true,
+    "variantDataEquivalent": true,
+    "httpHttpsDifference": "Only the XML stylesheet href differs; URL and lastmod data are equal.",
+    "rawBodyRetainedInPackage": false
+  },
+  "rootSitemapIndex": {
+    "url": "https://www.enkihogar.com/sitemap_index.xml",
+    "status": 200,
+    "contentType": "text/xml; charset=UTF-8",
+    "bodyBytes": 1196,
+    "bodySha256": "282c315dc250ea300b2039900de08287cc78bab542b906b51732eada2397ea23",
+    "xmlValid": true,
+    "rootElement": "sitemapindex",
+    "childSitemaps": 7,
+    "brandSitemapDeclared": true,
+    "rawBodyRetainedInPackage": false
+  },
+  "robots": {
+    "url": "https://www.enkihogar.com/robots.txt",
+    "status": 200,
+    "contentType": "text/plain; charset=UTF-8",
+    "bodyBytes": 1005,
+    "bodySha256": "57b3c25f26f0a5fabf286ac75a528840be510eb429bdc0bb2bb9ee7b1332f65e",
+    "sitemapDeclaration": "https://www.enkihogar.com/sitemap_index.xml",
+    "observedRule": "Disallow: *yith_product_brand",
+    "occurrences": 2,
+    "groups": ["Googlebot", "*"],
+    "googlebotUsesSpecificGroup": true,
+    "globalGroupCombinedForGooglebot": false,
+    "startsWithDocumentedSlash": false,
+    "wouldTextuallyMatchBrandSitemapPathIfAccepted": true,
+    "effectiveGooglebotDecisionProven": null,
+    "rawBodyRetainedInPackage": false
+  },
+  "officialDocumentation": [
+    {
+      "url": "https://support.google.com/webmasters/answer/7451001?hl=en",
+      "claim": "Google respects robots.txt when fetching sitemaps; a blocked sitemap can produce a fetch failure, and current access should be checked with live URL inspection."
+    },
+    {
+      "url": "https://developers.google.com/crawling/docs/robots-txt/robots-txt-spec",
+      "claim": "Rules are matched against URL paths, wildcard * matches zero or more characters, a rule path should start with /, and a specific Googlebot group is not combined with the global group."
+    }
+  ],
+  "assessment": {
+    "historicalGscFailureConfirmed": true,
+    "currentPublicFailureReproduced": false,
+    "currentCanonicalPublicGetSuccessful": true,
+    "persistent404": false,
+    "persistentInvalidXml": false,
+    "brokenRootIndexReference": false,
+    "historicalCauseProven": false,
+    "candidateCauses": [
+      {
+        "candidate": "robots_rule_matching_brand_sitemap",
+        "status": "plausible_but_unproven",
+        "support": "The rule text contains the child sitemap name and Google documents robots blocking as a sitemap fetch failure cause.",
+        "counterEvidence": "The observed rule lacks the documented leading slash and no Googlebot live test or origin log was authorized."
+      },
+      {
+        "candidate": "transient_server_network_or_cdn_failure",
+        "status": "plausible_but_unproven",
+        "support": "GSC reported a general HTTP error historically while all current public GETs succeed.",
+        "counterEvidence": "No timestamped origin or CDN log was available."
+      }
+    ],
+    "independentFinding": "HTTP/HTTPS and www/apex variants return 200 without canonical redirects; this is not evidence for the historical failure of the exact HTTPS www URL."
+  },
+  "nextActions": {
+    "performed": false,
+    "requiresBoardReview": true,
+    "proposal": "Review the intended YITH blocking scope and prepare a minimal valid robots rule set that explicitly allows /yith_product_brand-sitemap.xml in the effective Googlebot group while preserving any approved filter-page exclusions.",
+    "postChangeChecks": [
+      "Diff and test the exact robots rules for the sitemap and intended blocked URLs.",
+      "Use operator-authorized live URL inspection to verify Crawl allowed = Yes and Page fetch = Successful.",
+      "Resubmit only after separate operator approval if Search Console still requires it.",
+      "If the failure persists, inspect sanitized origin/CDN logs for Google's fetch attempt."
+    ],
+    "separateFollowUp": "Assess canonical redirects for HTTP and apex variants independently."
+  },
+  "mutations": {
+    "robots": false,
+    "sitemaps": false,
+    "wordpress": false,
+    "cdnOrServer": false,
+    "searchConsole": false,
+    "indexing": false
+  }
+}

@@ -63,6 +63,7 @@ PYTHONPATH="$package_dir/scripts/catalog-pipeline/src" PYTHONDONTWRITEBYTECODE=1
   python -m enki_catalog_pipeline adapter-regression \
   --manifest "$package_dir/skills/enki-catalog-qa/fixtures/catalog-regression/v1/manifest.json"
 node --test "$package_dir"/tests/*.test.mjs
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s "$package_dir/scripts/seo/tests" -v
 npm --prefix "$package_dir/connectors/woocommerce-readonly-mcp" test
 npm --prefix "$package_dir/connectors/catalog-knowledge" test
 npm --prefix "$package_dir/connectors/catalog-evidence" test
