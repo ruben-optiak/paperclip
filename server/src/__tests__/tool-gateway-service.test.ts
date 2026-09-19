@@ -1,4 +1,8 @@
 import { randomUUID } from "node:crypto";
+import { createServer } from "node:http";
+import { readFileSync } from "node:fs";
+import express from "express";
+import request from "supertest";
 import { and, eq } from "drizzle-orm";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import {
@@ -6,6 +10,7 @@ import {
   agents,
   approvals,
   companies,
+  companyMemberships,
   companySecretBindings,
   companySecrets,
   connectionGrants,
@@ -32,6 +37,8 @@ import {
   ToolGatewayHttpError,
 } from "../services/tool-gateway.js";
 import { canonicalToolArguments, signToolArguments } from "../services/tool-content-guards.js";
+import { OPTIAK_LINEAR_ENDPOINT, type OptiakLinearPrivacyBinding } from "../services/optiak-linear-privacy.js";
+import { toolGatewayRoutes } from "../routes/tool-gateway.js";
 import {
   getEmbeddedPostgresTestSupport,
   startEmbeddedPostgresTestDatabase,
@@ -183,11 +190,242 @@ describeEmbeddedPostgres("tool gateway service", () => {
     await db.delete(heartbeatRuns);
     await db.delete(issues);
     await db.delete(agents);
+    await db.delete(companyMemberships);
     await db.delete(companies);
   });
 
   afterAll(async () => {
     await tempDb?.cleanup();
+  });
+
+  describe("Optiak Linear privacy boundary with HTTP and PostgreSQL", () => {
+    const fixture = JSON.parse(readFileSync(new URL("../../../companies/optiak-ai-os/connectors/linear-privacy/fixture.json", import.meta.url), "utf8"));
+    let upstream: ReturnType<typeof createServer> | undefined;
+    afterEach(async () => {
+      if (upstream) await new Promise<void>((resolve, reject) => upstream!.close(err => err ? reject(err) : resolve()));
+      upstream = undefined;
+    });
+    async function setup(payload?: unknown, protectedConnection = true, toolName = "get_team") {
+      const run = await createRunFixture(db);
+      const remote = await createRemoteMcpToolFixture(db, run.company.id);
+      await db.update(toolConnections).set({ config: { url: OPTIAK_LINEAR_ENDPOINT } }).where(eq(toolConnections.id, remote.connection.id));
+      await db.update(toolCatalogEntries).set({ toolName, name: toolName, reviewedAt: new Date(),
+        isWrite: false, isDestructive: false, schemaHash: "a".repeat(64), versionHash: "b".repeat(64) }).where(eq(toolCatalogEntries.id, remote.catalogEntry.id));
+      for (const name of ["get_team", "list_issues", "get_issue"].filter(name => name !== toolName)) {
+        await db.insert(toolCatalogEntries).values({ companyId: run.company.id, applicationId: remote.application.id,
+          connectionId: remote.connection.id, name, toolName: name, entryKind: "tool", riskLevel: "read", status: "active",
+          reviewedAt: new Date(), isReadOnly: true, isWrite: false, isDestructive: false,
+          schemaHash: "a".repeat(64), versionHash: "b".repeat(64) });
+      }
+      await db.insert(toolPolicies).values({ companyId: run.company.id, name: "Synthetic reads", policyType: "allow", selectors: { riskLevel: "read" } });
+      let calls = 0;
+      upstream = createServer(async (req, res) => {
+        const chunks = [];
+        for await (const chunk of req) chunks.push(chunk);
+        const call = JSON.parse(Buffer.concat(chunks).toString());
+        calls++;
+        const args = call.params.arguments;
+        const issue = (id: string, started = false) => ({ ...fixture.issue, identifier: id,
+          url: `https://linear.app/optiak/issue/${id}/PERSON_CANARY`, status: started ? "In Progress" : "Todo" });
+        const data = call.params.name === "get_team" ? { ...fixture.issue, key: "OPT" }
+          : call.params.name === "get_issue" ? issue(args.id)
+            : { issues: Array.from({ length: 5 }, (_, i) => issue(`OPT-${(args.state === "started" ? 101 : 201) + i}`, args.state === "started")) };
+        res.setHeader("content-type", "application/json; synthetic=PERSON_CANARY");
+        res.setHeader("x-request-id", "PERSON_CANARY");
+        res.end(JSON.stringify(payload ?? { jsonrpc: "2.0", id: call.id, result: { content: [{ type: "text", text: JSON.stringify(data) }] } }));
+      });
+      await new Promise<void>(resolve => upstream!.listen(0, "127.0.0.1", resolve));
+      const address = upstream.address();
+      if (!address || typeof address === "string") throw new Error("Missing synthetic server address");
+      const binding: OptiakLinearPrivacyBinding = { companyId: run.company.id, connectionId: remote.connection.id,
+        tools: Object.fromEntries(["get_team", "list_issues", "get_issue"].map(name => [name, { schemaHash: "a".repeat(64), versionHash: "b".repeat(64) }])) as OptiakLinearPrivacyBinding["tools"] };
+      const options = { optiakLinearPrivacy: protectedConnection ? binding : undefined,
+        now: () => Date.parse(fixture.retrievedAt),
+        remoteHttpRequest: async (url: string, init: RequestInit) => {
+          expect(url).toBe(OPTIAK_LINEAR_ENDPOINT);
+          return fetch(`http://127.0.0.1:${address.port}`, init);
+        } };
+      const gateway = createTestToolGatewayService(db, options);
+      const session = await gateway.createSession({ companyId: run.company.id, agentId: run.agent.id, runId: run.run.id });
+      const tools = (await gateway.listToolsForSession(session.token)).filter(t => t.connectionId === remote.connection.id);
+      const tool = tools.find(t => t.upstreamToolName === toolName)!;
+      return { ...run, ...remote, gateway, options, session, tool, tools, calls: () => calls };
+    }
+    async function assertCleanSinks(response: unknown) {
+      const sinks = { response, invocations: await db.select().from(toolInvocations),
+        callEvents: await db.select().from(toolCallEvents), audit: await db.select().from(toolAccessAuditEvents),
+        activity: await db.select().from(activityLog), interactions: await db.select().from(issueThreadInteractions) };
+      for (const [name, value] of Object.entries(sinks)) for (const canary of fixture.canaries) expect(JSON.stringify(value), name).not.toContain(canary);
+    }
+    it("projects the authenticated HTTP route and every persisted result copy", async () => {
+      const f = await setup();
+      const app = express(); app.use(express.json()); app.use("/api", toolGatewayRoutes(db, f.gateway));
+      const response = await request(app).post("/api/tool-gateway/tools/call")
+        .set("x-paperclip-tool-gateway-token", f.session.token)
+        .send({ tool: f.tool.name, parameters: { query: "OPT" } });
+      expect(response.status).toBe(200);
+      expect(response.body.result.content).toContain("metadata_only");
+      expect(f.calls()).toBe(1);
+      expect(await db.select().from(toolCallEvents)).not.toHaveLength(0);
+      expect(await db.select().from(toolAccessAuditEvents)).not.toHaveLength(0);
+      expect(await db.select().from(activityLog)).not.toHaveLength(0);
+      await assertCleanSinks(response.body);
+    });
+    it("projects Test-tab calls through the same boundary", async () => {
+      const f = await setup();
+      await db.insert(companyMemberships).values({ companyId: f.company.id, principalType: "user", principalId: "fixture-board", status: "active" });
+      const result = await f.gateway.executeTestCall({ companyId: f.company.id, connectionId: f.connection.id,
+        agentId: f.agent.id, userId: "fixture-board", toolName: "get_team", parameters: { query: "OPT" } });
+      expect(result.decision).toBe("allowed");
+      expect(JSON.stringify(result)).toContain("metadata_only");
+      await assertCleanSinks(result);
+    });
+    it("also projects tools invoked through the on-demand run_tool wrapper", async () => {
+      const f = await setup();
+      await db.update(toolConnections).set({ config: { url: OPTIAK_LINEAR_ENDPOINT, onDemandTools: true } }).where(eq(toolConnections.id, f.connection.id));
+      const result = await f.gateway.executeTool({ sessionToken: f.session.token, tool: "run_tool",
+        parameters: { tool: f.tool.name, arguments: { query: "OPT" } } });
+      expect(JSON.stringify(result)).toContain("metadata_only");
+      expect(f.calls()).toBe(1);
+      await assertCleanSinks(result);
+    });
+    it("does not persist an arbitrary transport exception after the deadline", async () => {
+      const f = await setup();
+      const gateway = createTestToolGatewayService(db, { ...f.options,
+        remoteHttpRequest: async (_url, init) => new Promise<Response>((_resolve, reject) => {
+          init.signal!.addEventListener("abort", () => reject(new Error("PERSON_CANARY")), { once: true });
+        }) });
+      await expect(gateway.executeTool({ sessionToken: f.session.token, tool: f.tool.name,
+        parameters: { query: "OPT" }, timeoutMs: 50 })).rejects.toMatchObject({ reasonCode: "linear_privacy_denied" });
+      await assertCleanSinks(null);
+    });
+    it.each([
+      { jsonrpc: "2.0", error: { code: -1, message: "PERSON_CANARY" } },
+      { jsonrpc: "2.0", method: "elicitation/create", params: { message: "PERSON_CANARY", requestedSchema: { type: "object", properties: {} } } },
+      { jsonrpc: "2.0", result: { isError: true, content: [{ type: "text", text: "PERSON_CANARY" }] } },
+      { jsonrpc: "2.0", result: { content: [{ type: "resource", resource: { text: "PERSON_CANARY" } }] } },
+    ])("rejects unsafe provider envelopes without persisting their content %#", async payload => {
+      const f = await setup(payload);
+      await expect(f.gateway.executeTool({ sessionToken: f.session.token, tool: f.tool.name, parameters: { query: "OPT" } })).rejects.toMatchObject({ reasonCode: "linear_privacy_denied" });
+      expect(f.calls()).toBe(1);
+      expect(await db.select().from(issueThreadInteractions)).toHaveLength(0);
+      await assertCleanSinks(null);
+    });
+    it("denies unsafe arguments before summaries, audit and upstream dispatch", async () => {
+      const f = await setup();
+      await expect(f.gateway.executeTool({ sessionToken: f.session.token, tool: f.tool.name,
+        parameters: { id: "OPT-101", query: "PERSON_CANARY" } })).rejects.toMatchObject({ reasonCode: "linear_privacy_denied" });
+      expect(f.calls()).toBe(0);
+      expect(await db.select().from(toolInvocations)).toHaveLength(0);
+      await assertCleanSinks(null);
+    });
+    it("rejects schema drift and endpoint drift before dispatch", async () => {
+      const f = await setup();
+      await db.update(toolCatalogEntries).set({ schemaHash: "c".repeat(64) }).where(eq(toolCatalogEntries.id, f.catalogEntry.id));
+      await expect(f.gateway.executeTool({ sessionToken: f.session.token, tool: f.tool.name, parameters: { query: "OPT" } })).rejects.toMatchObject({ reasonCode: "linear_privacy_denied" });
+      await db.update(toolCatalogEntries).set({ schemaHash: "a".repeat(64) }).where(eq(toolCatalogEntries.id, f.catalogEntry.id));
+      await db.update(toolConnections).set({ config: { url: "https://example.invalid/mcp" } }).where(eq(toolConnections.id, f.connection.id));
+      await expect(f.gateway.executeTool({ sessionToken: f.session.token, tool: f.tool.name, parameters: { query: "OPT" } })).rejects.toMatchObject({ reasonCode: "linear_privacy_denied" });
+      expect(f.calls()).toBe(0);
+    });
+    it("cannot replay even a successful projected invocation via an idempotency key", async () => {
+      const f = await setup();
+      const input = { sessionToken: f.session.token, tool: f.tool.name, parameters: { query: "OPT" }, idempotencyKey: "synthetic-replay" };
+      await f.gateway.executeTool(input);
+      await expect(f.gateway.executeTool(input)).rejects.toMatchObject({ reasonCode: "linear_privacy_denied" });
+      expect(f.calls()).toBe(1);
+      await assertCleanSinks(null);
+    });
+    it("does not replay a pre-activation raw summary or erase historical evidence", async () => {
+      const f = await setup();
+      const unprotected = createTestToolGatewayService(db, { ...f.options, optiakLinearPrivacy: undefined });
+      const input = { sessionToken: f.session.token, tool: f.tool.name, parameters: { query: "OPT" }, idempotencyKey: "historical-raw" };
+      await unprotected.executeTool(input);
+      const before = await db.select().from(toolInvocations);
+      expect(JSON.stringify(before)).toContain("PERSON_CANARY");
+      await expect(f.gateway.executeTool(input)).rejects.toMatchObject({ reasonCode: "linear_privacy_denied" });
+      expect(f.calls()).toBe(1);
+      expect(await db.select().from(toolInvocations)).toEqual(before);
+    });
+    it("denies activation-time approvals and test-status recovery of historical data", async () => {
+      const f = await setup();
+      await db.insert(companyMemberships).values({ companyId: f.company.id, principalType: "user", principalId: "fixture-board", status: "active" });
+      await db.delete(toolPolicies);
+      await db.insert(toolPolicies).values({ companyId: f.company.id, name: "Historical ask-first", policyType: "require_approval", selectors: { riskLevel: "read" } });
+      const unprotected = createTestToolGatewayService(db, { ...f.options, optiakLinearPrivacy: undefined });
+      await unprotected.executeTestCall({ companyId: f.company.id, connectionId: f.connection.id,
+        agentId: f.agent.id, userId: "fixture-board", toolName: "get_team", parameters: { id: "OPT-101", note: "PERSON_CANARY" } });
+      const [action] = await db.select().from(toolActionRequests);
+      expect(action).toBeDefined();
+      await expect(f.gateway.approveActionRequest({ companyId: f.company.id, actionRequestId: action.id,
+        actor: { userId: "fixture-board" } })).rejects.toMatchObject({ reasonCode: "linear_privacy_denied" });
+      await expect(f.gateway.getTestCallStatus({ companyId: f.company.id, connectionId: f.connection.id,
+        actionRequestId: action.id })).rejects.toMatchObject({ reasonCode: "linear_privacy_denied" });
+      expect((await db.select().from(toolActionRequests))[0]).toEqual(action);
+      expect(f.calls()).toBe(0);
+    });
+    it("keeps the six-invocation run budget across service reconstruction", async () => {
+      const f = await setup();
+      const call = (name: string, parameters: Record<string, unknown>) => f.gateway.executeTool({
+        sessionToken: f.session.token, tool: f.tools.find(t => t.upstreamToolName === name)!.name, parameters });
+      await call("get_team", { query: "OPT" });
+      for (const state of ["started", "unstarted"]) await call("list_issues", { team: "OPT", state, limit: 5, orderBy: "updatedAt" });
+      for (const id of ["OPT-101", "OPT-102", "OPT-201"]) await call("get_issue", { id });
+      const restarted = createTestToolGatewayService(db, f.options);
+      await expect(restarted.executeTool({ sessionToken: f.session.token,
+        tool: f.tools.find(t => t.upstreamToolName === "get_issue")!.name, parameters: { id: "OPT-202" } })).rejects.toMatchObject({ reasonCode: "linear_privacy_denied" });
+      expect(f.calls()).toBe(6);
+      await assertCleanSinks(null);
+    });
+    it("does not dispatch details outside the accepted sample or retry a failed provider after restart", async () => {
+      const f = await setup({ jsonrpc: "2.0", error: { code: -1, message: "PERSON_CANARY" } });
+      const detail = f.tools.find(t => t.upstreamToolName === "get_issue")!;
+      await expect(f.gateway.executeTool({ sessionToken: f.session.token, tool: detail.name,
+        parameters: { id: "OPT-101" } })).rejects.toMatchObject({ reasonCode: "linear_privacy_denied" });
+      expect(f.calls()).toBe(0);
+      await expect(f.gateway.executeTool({ sessionToken: f.session.token, tool: f.tool.name,
+        parameters: { query: "OPT" } })).rejects.toMatchObject({ reasonCode: "linear_privacy_denied" });
+      const restarted = createTestToolGatewayService(db, f.options);
+      await expect(restarted.executeTool({ sessionToken: f.session.token, tool: f.tool.name,
+        parameters: { query: "OPT" } })).rejects.toMatchObject({ reasonCode: "linear_privacy_denied" });
+      expect(f.calls()).toBe(1);
+      await assertCleanSinks(null);
+    });
+    it("does not change unbound connections", async () => {
+      const f = await setup(undefined, false);
+      const result = await f.gateway.executeTool({ sessionToken: f.session.token, tool: f.tool.name, parameters: { query: "OPT" } });
+      expect(JSON.stringify(result)).toContain("PERSON_CANARY");
+      expect(f.calls()).toBe(1);
+    });
+    it("leaves a different connection untouched while the binding is enabled", async () => {
+      const f = await setup();
+      const gateway = createTestToolGatewayService(db, { ...f.options,
+        optiakLinearPrivacy: { ...f.options.optiakLinearPrivacy!, connectionId: randomUUID() } });
+      const result = await gateway.executeTool({ sessionToken: f.session.token, tool: f.tool.name, parameters: { query: "OPT" } });
+      expect(JSON.stringify(result)).toContain("PERSON_CANARY");
+    });
+    it("fails closed when the operator binds the wrong company", async () => {
+      const f = await setup();
+      const gateway = createTestToolGatewayService(db, { ...f.options,
+        optiakLinearPrivacy: { ...f.options.optiakLinearPrivacy!, companyId: randomUUID() } });
+      await expect(gateway.executeTool({ sessionToken: f.session.token, tool: f.tool.name, parameters: { query: "OPT" } })).rejects.toMatchObject({ reasonCode: "linear_privacy_denied" });
+      expect(f.calls()).toBe(0);
+    });
+    it("denies ask-first calls without creating an unexecutable approval", async () => {
+      const f = await setup();
+      await db.delete(toolPolicies);
+      await db.insert(toolPolicies).values({ companyId: f.company.id, name: "Ask first", policyType: "require_approval", selectors: { riskLevel: "read" } });
+      await expect(f.gateway.executeTool({ sessionToken: f.session.token, tool: f.tool.name, parameters: { query: "OPT" } })).rejects.toMatchObject({ reasonCode: "linear_privacy_denied" });
+      expect(await db.select().from(toolActionRequests)).toHaveLength(0);
+      expect(f.calls()).toBe(0);
+    });
+    it("rejects an explicit approved retry before using any old arguments", async () => {
+      const f = await setup();
+      await expect(f.gateway.executeTool({ sessionToken: f.session.token, tool: f.tool.name,
+        parameters: { query: "PERSON_CANARY" }, approvedActionRequestId: randomUUID() })).rejects.toMatchObject({ reasonCode: "linear_privacy_denied" });
+      expect(f.calls()).toBe(0);
+      await assertCleanSinks(null);
+    });
   });
 
   it("gates write tools with an action request and executes only stored reviewed arguments once", async () => {

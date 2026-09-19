@@ -14,6 +14,13 @@ Never summarize these layers with an unqualified `done`, `complete`, `PASS`, `bl
 
 Use `optiak-result-envelope/v1`. The bundled JSON Schema is `references/contracts/result-envelope-v1.schema.json` inside this skill. In a Markdown report the same fields may be rendered as a compact labelled list; field names and values must remain exact.
 
+New completions use the bundled validator and completion helper before writing.
+The allowed evidence scopes are `missing`, `fixture_only`,
+`connected_non_production`, and `production`. A connected Linear backlog review
+uses `connected_non_production` and readiness `not_assessed`; this is not a claim
+that staging, application behavior or production was validated. Never invent a
+scope label to describe a narrow sample: record that coverage in its source ledger.
+
 ## Canonical selection
 
 The canonical identity is the tuple `(object.type, object.revision, object.reviewKind)`.

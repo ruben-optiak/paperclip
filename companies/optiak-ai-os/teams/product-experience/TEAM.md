@@ -12,4 +12,4 @@ tags:
   - documentation
 ---
 
-Product and Experience protects the relationship between user problems, platform positioning, interface behavior, public claims, and measurable acceptance criteria.
+Product and Experience owns Product & Engineering domain 4.1. It protects the relationship between user problems, platform positioning, interface behavior, public claims, and measurable acceptance criteria, and reviews product impact across the technical domains without taking their technical approval authority.

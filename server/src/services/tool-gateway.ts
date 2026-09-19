@@ -115,6 +115,11 @@ import {
   verifyToolArgumentsSignature,
 } from "./tool-content-guards.js";
 import { extendApprovedExecutionWaitDeadline } from "./approved-execution-wait.js";
+import {
+  normalizeOptiakLinearRequest, OPTIAK_LINEAR_ENDPOINT, parseOptiakLinearPrivacyBinding,
+  projectOptiakLinearResult, readOptiakLinearResponse, type OptiakLinearPrivacyBinding,
+} from "./optiak-linear-privacy.js";
+import { createOptiakLinearSampleGate, type LinearSampleClaim } from "./optiak-linear-sample.js";
 
 const DEFAULT_SESSION_TTL_MS = 15 * 60 * 1000;
 const MAX_SESSION_TTL_MS = 60 * 60 * 1000;
@@ -317,6 +322,7 @@ type HeaderPolicySummary = {
 
 type RemoteHttpExecutionResult = {
   result: unknown;
+  privateLinearSample?: { claim: LinearSampleClaim; sampleIds: string[] };
   headerSummary?: HeaderPolicySummary;
   execution?: RemoteHttpExecutionAudit;
 };
@@ -836,6 +842,8 @@ export function createToolGatewayService(
     trustedLocalStdioRuntimeHost?: string | null;
     runtimeSupervisor?: ToolRuntimeSupervisorOptions;
     toolActionSigningSecret?: string;
+    /** Operator-owned opt-in; never supplied by agent arguments or connection config. */
+    optiakLinearPrivacy?: OptiakLinearPrivacyBinding;
     /** Test seam for deterministic remote MCP protocol fixtures. */
     remoteHttpRequest?: (url: string, init: RequestInit) => Promise<Response>;
     /** Test seam for Composio session creation without vendor traffic. */
@@ -872,6 +880,29 @@ export function createToolGatewayService(
     now?: () => number;
   } = {},
 ) {
+  // Clone and validate even constructor-injected bindings; no caller-owned mutable policy.
+  const linearPrivacy = parseOptiakLinearPrivacyBinding(
+    options.optiakLinearPrivacy === undefined ? undefined : JSON.stringify(options.optiakLinearPrivacy),
+  );
+  const linearSample = linearPrivacy ? createOptiakLinearSampleGate(db, linearPrivacy) : undefined;
+  async function finishLinearSample(receipt: RemoteHttpExecutionResult["privateLinearSample"], success: boolean) {
+    if (!receipt) return;
+    try { await linearSample!.settle(receipt.claim, success, success ? receipt.sampleIds : []); }
+    catch { throw privacyRejected(); }
+  }
+  function privacyRejected() {
+    return new ToolGatewayHttpError(403, "Optiak Linear metadata boundary rejected the call", "linear_privacy_denied");
+  }
+  function isPrivateLinear(companyId: string, connectionId: string | null | undefined): boolean {
+    if (!linearPrivacy || connectionId !== linearPrivacy.connectionId) return false;
+    if (companyId !== linearPrivacy.companyId) throw privacyRejected();
+    return true;
+  }
+  function rejectPrivateLinearRecovery(invocation: typeof toolInvocations.$inferSelect) {
+    // Historical summaries and approved arguments have no projection provenance.
+    if (isPrivateLinear(invocation.companyId, invocation.connectionId)) throw privacyRejected();
+  }
+
   const runtimeSupervisor = createToolRuntimeSupervisor(db, {
     deploymentMode: options.deploymentMode,
     deploymentExposure: options.deploymentExposure,
@@ -3309,9 +3340,28 @@ export function createToolGatewayService(
     tool: ToolGatewayDescriptor,
     parameters: unknown,
   ): Promise<unknown> {
+    if (isPrivateLinear(session.companyId, tool.connectionId)) {
+      return privateLinearArguments(session, tool, parameters);
+    }
     if (tool.providerType !== "mcp_remote_http") return parameters;
     const { connection } = await resolveConnectedRemoteTool(session, tool);
     return projectedConnectionToolArguments(connection, parameters);
+  }
+
+  async function privateLinearArguments(session: ToolGatewaySession, tool: ToolGatewayDescriptor, parameters: unknown) {
+    try {
+      const { connection, entry } = await resolveConnectedRemoteTool(session, tool);
+      const hashes = linearPrivacy!.tools[entry.toolName as keyof OptiakLinearPrivacyBinding["tools"]];
+      if (!hashes || connection.config.url !== OPTIAK_LINEAR_ENDPOINT
+        || connection.config.mcpSessionRequired === true || composioChildConfig(connection)
+        || !entry.reviewedAt || entry.quarantinedAt || !entry.isReadOnly || entry.isWrite || entry.isDestructive
+        || entry.riskLevel !== "read" || entry.schemaHash !== hashes.schemaHash || entry.versionHash !== hashes.versionHash) {
+        throw privacyRejected();
+      }
+      const normalized = normalizeOptiakLinearRequest(entry.toolName, parameters);
+      if (stableSerialize(projectedConnectionToolArguments(connection, normalized)) !== stableSerialize(normalized)) throw privacyRejected();
+      return normalized;
+    } catch { throw privacyRejected(); }
   }
 
   async function approvedManagedArgumentsRemainCurrent(
@@ -4083,7 +4133,44 @@ export function createToolGatewayService(
     invocationId: string,
     callerHeaders?: ExecuteGatewayToolInput["callerHeaders"],
   ): Promise<RemoteHttpExecutionResult> {
+    if (!isPrivateLinear(session.companyId, tool.connectionId)) {
+      return dispatchRemoteHttpTool(session, tool, parameters, ms, invocationId, callerHeaders);
+    }
+    let claim: LinearSampleClaim | undefined;
+    try {
+      if (!session.runId && !(session.id === "test-call" && session.actorType === "user")) throw privacyRejected();
+      parameters = await privateLinearArguments(session, tool, parameters);
+      if (session.runId) {
+        claim = await linearSample!.claim({ companyId: session.companyId, connectionId: tool.connectionId!,
+          agentId: session.agentId!, runId: session.runId, invocationId, toolName: tool.upstreamToolName! }, parameters);
+      }
+      // Inbound HTTP headers authenticate the gateway, not the provider. Never
+      // forward caller-controlled headers for this boundary.
+      const execution = await dispatchRemoteHttpTool(session, tool, parameters, Math.min(ms, 15_000), invocationId);
+      if (claim) {
+        const projected = JSON.parse(asRecord(execution.result)!.content as string);
+        const sampleIds = claim.toolName === "list_issues" ? projected.issues.map((issue: { identifier: string }) => issue.identifier) : [];
+        execution.privateLinearSample = { claim, sampleIds };
+      }
+      return execution;
+    } catch {
+      if (claim) try { await linearSample!.settle(claim, false); } catch { /* unrecordable failure leaves durable claim in flight */ }
+      // Includes auth/transport failures before the inner dispatch try block.
+      // No upstream causes, headers, elicitation data or old error text escape.
+      throw privacyRejected();
+    }
+  }
+
+  async function dispatchRemoteHttpTool(
+    session: ToolGatewaySession,
+    tool: ToolGatewayDescriptor,
+    parameters: unknown,
+    ms: number,
+    invocationId: string,
+    callerHeaders?: ExecuteGatewayToolInput["callerHeaders"],
+  ): Promise<RemoteHttpExecutionResult> {
     const { entry, connection } = await resolveConnectedRemoteTool(session, tool);
+    const privateLinear = isPrivateLinear(session.companyId, connection.id);
     const grant = await resolveConnectionGrant(session, connection);
     const composioScopeRevision = `${grant.id}:${grant.status}:${grant.updatedAt.toISOString()}`;
     const composioChild = composioChildConfig(connection);
@@ -4094,6 +4181,7 @@ export function createToolGatewayService(
         })
       : null;
     let endpoint = composioSession?.url ?? await resolvedRemoteEndpoint(session, connection, grant);
+    if (privateLinear && endpoint !== OPTIAK_LINEAR_ENDPOINT) throw privacyRejected();
     // Method-defined headers are trusted catalog configuration. Treat them as
     // managed headers so callers cannot override the scope that was reviewed
     // during tools/list. Credentials remain authoritative on collisions.
@@ -4228,12 +4316,12 @@ export function createToolGatewayService(
           headers: mcpHttpRequestHeaders(headers),
         });
       }
-      const body = await readBoundedRemoteResponse(response);
+      const body = privateLinear ? await readOptiakLinearResponse(response) : await readBoundedRemoteResponse(response);
       execution.response = {
         httpStatus: response.status,
-        contentType: response.headers.get("content-type"),
+        contentType: privateLinear ? null : response.headers.get("content-type"),
         bodySizeBytes: Buffer.byteLength(body, "utf8"),
-        upstreamRequestId:
+        upstreamRequestId: privateLinear ? null :
           response.headers.get("x-request-id")
           ?? response.headers.get("x-zapier-request-id")
           ?? response.headers.get("traceparent"),
@@ -4260,6 +4348,15 @@ export function createToolGatewayService(
       }
       const payloadRecord = asRecord(payload);
       if (!payloadRecord) throw malformedRemoteMcpResponse();
+      // This must precede both elicitation handlers: those create durable UI cards.
+      if (privateLinear) {
+        if (payloadRecord.error !== undefined || extractMcpElicitationRequest(payloadRecord)
+          || extractMcpElicitationRequest(payloadRecord.result)) throw privacyRejected();
+        const projected = projectOptiakLinearResult(entry.toolName, parameters, payloadRecord.result, options.now?.() ?? Date.now());
+        const result = normalizeMcpToolResult(projected, "mcp_http", false);
+        await markRemoteConnectionHealth(connection, "ok", "Linear metadata projection succeeded.");
+        return { result, execution }; // No provider-controlled response headers.
+      }
       const topLevelElicitation = extractMcpElicitationRequest(payloadRecord);
       if (topLevelElicitation) {
         await requestElicitationForRecordedToolCall({ session, tool, invocationId, request: topLevelElicitation });
@@ -5102,6 +5199,7 @@ export function createToolGatewayService(
     parameters: unknown,
     actionRequestId: string,
   ): Promise<void> {
+    rejectPrivateLinearRecovery(invocation);
     const agentId = invocation.agentId;
     if (!invocation.connectionId || !agentId) return;
     const userId = invocation.actorId ?? "board";
@@ -5405,6 +5503,7 @@ export function createToolGatewayService(
     invocation: typeof toolInvocations.$inferSelect;
   }) {
     const { actionRequest, invocation } = input;
+    rejectPrivateLinearRecovery(invocation);
     if (!invocation.agentId || !invocation.issueId || isTestOriginInvocation(invocation)) {
       throw new ToolGatewayHttpError(409, "Tool action request is not an agent-origin action", "action_origin_invalid");
     }
@@ -5771,6 +5870,7 @@ export function createToolGatewayService(
     actionRequest: typeof toolActionRequests.$inferSelect,
     invocation: typeof toolInvocations.$inferSelect,
   ): ToolConnectionTestCallStatus {
+    rejectPrivateLinearRecovery(invocation);
     const invocationDone =
       invocation.status === "succeeded"
       || invocation.status === "failed"
@@ -6350,6 +6450,7 @@ export function createToolGatewayService(
         consumeRateLimit: true,
       });
       const accessDecision = await policyService.decide(decisionInput);
+      if (accessDecision.decision === "require_approval" && isPrivateLinear(session.companyId, tool.connectionId)) throw privacyRejected();
       const recorded = await policyService.recordInvocation(decisionInput, accessDecision);
       await policyService.writeAudit(decisionInput, accessDecision);
       const invocationId = recorded.invocation.id;
@@ -6529,6 +6630,7 @@ export function createToolGatewayService(
       if (!invocation || invocation.companyId !== input.companyId) {
         throw new ToolGatewayHttpError(404, "Tool invocation not found", "invocation_not_found");
       }
+      rejectPrivateLinearRecovery(invocation);
       if (input.issueId !== undefined || input.interactionId !== undefined) {
         if (
           !input.issueId
@@ -6825,6 +6927,8 @@ export function createToolGatewayService(
       // already-reviewed signed payload unchanged.
       if (!input.approvedActionRequestId) {
         requestedParameters = await governedToolArguments(session, tool, requestedParameters);
+      } else if (isPrivateLinear(session.companyId, tool.connectionId)) {
+        throw privacyRejected();
       }
 
       const argumentValidation = validateToolContent({
@@ -6836,7 +6940,7 @@ export function createToolGatewayService(
       let effectiveParameters: unknown = requestedParameters;
       let effectiveArgumentsSummary = argumentValidation.summary;
 
-      if (!input.approvedActionRequestId) {
+      if (!input.approvedActionRequestId && !isPrivateLinear(session.companyId, tool.connectionId)) {
         const replay = await replayMatchingAgentAction({
           session,
           toolName: tool.name,
@@ -7106,10 +7210,12 @@ export function createToolGatewayService(
           consumeRateLimit: true,
         });
         const accessDecision = await policyService.decide(decisionInput);
+        if (accessDecision.decision === "require_approval" && isPrivateLinear(session.companyId, tool.connectionId)) throw privacyRejected();
         const recorded = await policyService.recordInvocation(decisionInput, accessDecision);
         await policyService.writeAudit(decisionInput, accessDecision);
         invocationId = recorded.invocation.id;
         if (recorded.replayed) {
+          rejectPrivateLinearRecovery(recorded.invocation);
           await writeAudit({
             session,
             companyId: session.companyId,
@@ -7203,6 +7309,7 @@ export function createToolGatewayService(
         },
       });
 
+      let privateLinearReceipt: RemoteHttpExecutionResult["privateLinearSample"];
       try {
         const executionTimeoutMs = timeoutMs(input.timeoutMs);
         if (tool.providerType === "paperclip_plugin" && (!session.agentId || !session.runId)) {
@@ -7214,6 +7321,7 @@ export function createToolGatewayService(
             : tool.providerType === "mcp_local_stdio"
             ? await executeLocalStdioTool(session, tool, effectiveParameters, executionTimeoutMs)
             : null;
+        privateLinearReceipt = connectedMcpExecution?.privateLinearSample;
         const result =
           connectedMcpExecution
             ? connectedMcpExecution.result
@@ -7309,6 +7417,7 @@ export function createToolGatewayService(
             execution: connectedMcpExecution?.execution ?? undefined,
           },
         });
+        await finishLinearSample(privateLinearReceipt, true);
         return {
           invocationId,
           status: "completed" as const,
@@ -7317,7 +7426,8 @@ export function createToolGatewayService(
           result: resultValidation.value,
         };
       } catch (err) {
-        const normalizedError = err instanceof ToolRuntimeSupervisorError
+        if (privateLinearReceipt) try { await finishLinearSample(privateLinearReceipt, false); } catch { /* fail closed */ }
+        const normalizedError = isPrivateLinear(session.companyId, tool.connectionId) ? privacyRejected() : err instanceof ToolRuntimeSupervisorError
           ? new ToolGatewayHttpError(err.status, err.message, err.reasonCode, err.details)
           : err;
         const status = normalizedError instanceof ToolGatewayHttpError ? normalizedError.status : 502;

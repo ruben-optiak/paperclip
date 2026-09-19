@@ -1,0 +1,98 @@
+{
+  "schema": "optiak-product-engineering-operating-model/v1",
+  "version": "1.0.0",
+  "reviewedAt": "2026-09-19",
+  "status": "offline_defined_no_runtime_authority",
+  "humanConflictOwner": "board",
+  "principles": {
+    "oneAgentPerDomainRequired": false,
+    "boardMayAssignSpecialistsDirectly": true,
+    "authorMayApproveOwnChange": false,
+    "domainOwnershipCreatesEvidenceAuthority": false,
+    "successfulGateAuthorizesRelease": false
+  },
+  "domains": [
+    {
+      "id": "4.1",
+      "slug": "product-management-strategy",
+      "name": "Product Management & Strategy",
+      "accountable": "product-prd-lead",
+      "responsible": ["product-prd-lead", "brand-ui-quality-reviewer", "documentation-dx-steward"],
+      "reviewers": ["qa-e2e-validation-engineer"],
+      "staffingStatus": "covered",
+      "scope": ["product_vision_strategy", "roadmap_goals", "discovery_customer_insights", "prds_product_specs", "product_decisions"]
+    },
+    {
+      "id": "4.2",
+      "slug": "core-product-platform",
+      "name": "Core Product Platform",
+      "accountable": "engineering-assurance-lead",
+      "responsible": ["principal-platform-architect", "senior-platform-engineer"],
+      "reviewers": ["independent-code-reviewer", "qa-e2e-validation-engineer"],
+      "staffingStatus": "covered",
+      "scope": ["gateway_apis", "governance_guardrails", "routing_optimization", "context_memory", "customer_observability_analytics", "core_platform_architecture"]
+    },
+    {
+      "id": "4.3",
+      "slug": "integrations-enterprise",
+      "name": "Integrations & Enterprise",
+      "accountable": "engineering-assurance-lead",
+      "responsible": ["principal-platform-architect", "senior-platform-engineer"],
+      "reviewers": ["independent-code-reviewer", "qa-e2e-validation-engineer"],
+      "staffingStatus": "temporary_coverage",
+      "scope": ["data_integrations_connectors", "tools_mcp", "identity_permissions_delegation", "byo_providers_models", "enterprise_capabilities"]
+    },
+    {
+      "id": "4.4",
+      "slug": "data-platform-ai-quality",
+      "name": "Data Platform & AI Quality",
+      "accountable": "engineering-assurance-lead",
+      "responsible": ["principal-platform-architect", "qa-e2e-validation-engineer"],
+      "reviewers": ["independent-code-reviewer", "reliability-incident-engineer"],
+      "staffingStatus": "temporary_coverage_explicit_gap",
+      "candidateFutureRole": "data-platform-ai-quality-engineer",
+      "scope": ["event_data_models", "analytics_data_platform", "data_pipelines_transformations", "evals_benchmarks", "experiments_ml_pipelines"]
+    },
+    {
+      "id": "4.5",
+      "slug": "infrastructure-reliability",
+      "name": "Infrastructure & Reliability",
+      "accountable": "engineering-assurance-lead",
+      "responsible": ["reliability-incident-engineer", "senior-platform-engineer"],
+      "reviewers": ["independent-code-reviewer", "qa-e2e-validation-engineer"],
+      "staffingStatus": "covered",
+      "scope": ["cloud_aws", "iac", "environments", "ci_cd", "reliability_sre", "performance_capacity", "incidents_postmortems", "security_engineering"]
+    },
+    {
+      "id": "4.6",
+      "slug": "engineering-handbook",
+      "name": "Engineering Handbook",
+      "accountable": "engineering-assurance-lead",
+      "responsible": ["documentation-dx-steward"],
+      "reviewers": ["independent-code-reviewer"],
+      "staffingStatus": "covered_by_chapter_owners",
+      "scope": ["architecture_principles", "adr_rfc_process", "development_standards", "testing_strategy", "release_process", "engineering_ways_of_working"]
+    }
+  ],
+  "deliveryPipeline": [
+    {"id": "discovery", "owner": "product-prd-lead"},
+    {"id": "product_decision", "owner": "product-prd-lead"},
+    {"id": "prd", "owner": "product-prd-lead"},
+    {"id": "architecture_review", "owner": "principal-platform-architect"},
+    {"id": "domain_implementation", "owner": "senior-platform-engineer"},
+    {"id": "independent_review", "owner": "independent-code-reviewer"},
+    {"id": "qa_ui_docs_validation", "owner": "qa-e2e-validation-engineer"},
+    {"id": "release_readiness", "owner": "engineering-assurance-lead"},
+    {"id": "human_release_decision", "owner": "board"},
+    {"id": "measurement_learning", "owner": "product-prd-lead"}
+  ],
+  "agentCreationGates": [
+    "recurring_queue_observed",
+    "stable_authoritative_source",
+    "bounded_testable_deliverable",
+    "distinct_tools_permissions_context_or_independence",
+    "explicit_reporting_handoffs_review_budget_escalation",
+    "fixture_smoke_and_paused_import",
+    "measured_bottleneck_or_control_risk"
+  ]
+}

@@ -11,14 +11,10 @@ Use this skill for the final disposition of every Optiak issue. It complements t
 
 1. Finish the requested analysis or deliverable before preparing the final report.
 2. Re-read the issue state and this run's comments. If this run already left the intended final report and the issue already has the intended disposition, stop without writing again.
-3. Build one concise Markdown report entirely in process memory. Do not create a temporary payload, report, or cleanup file for a control-plane update.
-4. Send the report and disposition together in one `PATCH /api/issues/{issueId}` request with one JSON object such as `{ "status": "done", "comment": report }`. Include the current run header required by Paperclip. Do not call the standalone comment endpoint first and do not repeat the report in a later status update.
-5. Treat the response as confirmation only when it returns the expected issue status and a persisted comment. Verify that the comment is attributed to the current run through `createdByRunId` when that field is returned.
-6. After an empty response, timeout, lost connection, or other ambiguous result, do not blindly replay the write. Re-fetch the issue and its comments first, then reconcile by `createdByRunId` and the intended status:
-   - report present and status present: success; write nothing;
-   - report absent and status present: add the report once without repeating the status transition;
-   - report present and status absent: update only the status;
-   - neither present: retry the combined update at most once, following Paperclip's bounded-write rule.
+3. Build the body and structured envelope in process memory. Use the bundled `scripts/complete-issue.mjs` for completed reports; its sibling validator travels with this skill. See [helper usage](references/completion-helper.md). Do not create temporary payload or cleanup files.
+4. The helper validates exact enum values, current run/issue binding and domain fields before any request. It verifies your active checkout, sends one combined `PATCH /api/issues/{issueId}` with `status: done`, report and run header, then verifies the persisted comment through `createdByRunId`. Do not post a separate completion comment.
+5. A same-run replay with identical content is a no-op. A different existing final report, changed scope or checkout, duplicate report, authorization denial or conflict is a stop condition, not permission to repair or overwrite history.
+6. After an empty response, timeout or lost connection, the helper reads back the issue and comments without replaying the write. If persistence cannot be confirmed, report that failure through the runtime output and stop; do not switch to curl or the CLI to bypass its guard. A future explicitly authorized recovery may reconcile the issue state without duplicating the report.
 7. Leave `done` for a completed report even when the report's conclusion is partial, failed, unknown, or not verifiable. Use `in_review` or `blocked` only when the corresponding first-class waiting path exists.
 
 Checkout and necessary work-product writes are outside the single-disposition-write count. The invariant is one final report, one intended disposition transition, and no duplicate completion comment from the same run.
@@ -33,7 +29,7 @@ Never collapse workflow completion, report history, reviewed-object verdict, ope
 - `operations.readiness` is separate and remains `not_assessed` unless its gate ran;
 - `evidence.scope` and `evidence.prerequisiteState` state what could actually be assessed.
 
-Do not use an unqualified `done`, `complete`, `PASS`, `blocked`, or `ready` as the overall result. A final issue comment may render the envelope as a compact labelled list instead of JSON, but the qualified field names and exact values must remain visible.
+Do not use an unqualified `done`, `complete`, `PASS`, `blocked`, or `ready` as the overall result. New helper-generated reports carry one JSON envelope; historical labelled lists remain readable but must not invent enum values. Use `connected_non_production` for connected backlog evidence, with `operations.readiness: not_assessed`: this describes the evidence path, not staging or release validation. Keep `fixture_only` for every synthetic exercise.
 
 At most one report from a run can be canonical, and at most one report can be canonical for `(object.type, object.revision, object.reviewKind)`. Preserve prerequisite diagnostics and recovery messages as history. When a valid retry supersedes them, point them to the new report; never delete or silently reinterpret them.
 
@@ -60,4 +56,6 @@ Prefer a structured Paperclip tool or direct API client that accepts an in-memor
 
 Never paste bearer tokens, environment secrets, or bridge URLs into the report. Never infer success from an exit code with an empty body or from a piped/truncated response.
 
-Use [the completion example](examples/completion.md), [the qualified result example](examples/result-envelope.md), and the portable fixtures at `references/fixtures/completion.md` and `references/fixtures/result-set.md`.
+Operator QA after closure is not an agent continuation. Do not post a normal comment to a closed task merely to annotate its report: that can request recovery. The operator uses the package's immutable QA-document runbook; no status or assignment change is needed.
+
+Use [the completion example](examples/completion.md), [the qualified result example](examples/result-envelope.md), and portable fixtures at `references/fixtures/completion.md`, `references/fixtures/result-set.md`, and `references/fixtures/connected-sample.md`.

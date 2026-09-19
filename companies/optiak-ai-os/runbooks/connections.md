@@ -74,6 +74,11 @@ Initial connection contract:
 4. Authorize the Optiak workspace and keep the operational query scope on team `OPT`.
 5. Enable only catalog entries classified as reads. If any create, update, comment, assignment, archive, delete, export, or admin action appears, leave it disabled and quarantined.
 6. Keep every newly discovered tool quarantined until manual review.
+   Verify `quarantineNewEntries: true` on both `config` and `transportConfig`,
+   not only an instruction in the agent prompt. Preserve `defaultAction: deny`
+   and explicit exclusions such as unreviewed notifications. Follow
+   [connected review quality](connected-review-quality.md) for the executable
+   preflight and reviewed name/schema/version hash baseline.
 7. Do not paste OAuth tokens, API keys, client secrets, connection IDs, or workspace IDs into Git, issues, comments, screenshots, or agent environment variables.
 
 Smoke gate before Product may use the source:

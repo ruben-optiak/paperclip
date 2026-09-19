@@ -1,5 +1,5 @@
 schema: optiak-source-map/v1
-reviewedAt: "2026-09-03"
+reviewedAt: "2026-09-19"
 policy:
   liveDocsRemainCanonical: true
   wholeSiteSnapshotsAllowed: false
@@ -11,6 +11,9 @@ policy:
   promotionAuthorityRef: skills/optiak-release-readiness/references/ai-os-promotion-contract.json
   architectureAuthorityRef: skills/optiak-architecture-review/references/architecture-authority-map.json
   documentationAuthorityRef: skills/optiak-docs-drift/references/documentation-authority-map.json
+  productEngineeringOperatingModelRef: references/product-engineering-operating-model.json
+  systemRepositoryRegisterRef: references/system-repository-register.yaml
+  engineeringHandbookIndexRef: references/engineering-handbook-index.md
 sources:
   - id: public-overview
     url: https://docs.optiak.dev/getting-started/overview

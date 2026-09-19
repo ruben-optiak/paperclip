@@ -15,4 +15,4 @@ tags:
   - reliability
 ---
 
-Engineering Assurance turns approved intent into inspectable technical work and independent evidence. Implementation, review, validation, and incident ownership remain distinct even when they collaborate on the same outcome.
+Engineering Assurance is accountable for Product & Engineering domains 4.2–4.6, with temporary coverage for Integrations & Enterprise and an explicit staffing gap in Data Platform & AI Quality. It turns approved intent into inspectable technical work and independent evidence. Implementation, review, validation, and incident ownership remain distinct even when they collaborate on the same outcome.

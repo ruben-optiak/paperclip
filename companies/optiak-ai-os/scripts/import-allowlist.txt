@@ -5,6 +5,7 @@ COMPANY.md
 LICENSE
 README.md
 agents/
+connectors/
 policies/
 projects/
 references/
@@ -18,7 +19,10 @@ scripts/evaluate-prd-readiness.mjs
 scripts/evaluate-postmortem.mjs
 scripts/import-allowlist.txt
 scripts/local-instance.sh
+scripts/linear-preflight.mjs
+scripts/record-qa-note.mjs
 scripts/probe-test-environment.mjs
+scripts/probe-linear-privacy-core.mjs
 scripts/scan-secrets.sh
 scripts/summarize-run-usage.mjs
 scripts/validate-result-envelopes.mjs

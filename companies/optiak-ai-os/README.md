@@ -25,6 +25,21 @@ Optiak is an AI gateway and control plane. Its applications group credentials, m
 
 See `references/product-boundary.md` and `references/source-map.yaml`.
 
+## Product & Engineering operating model
+
+The organization works through six durable domains without creating one agent per heading:
+
+| Domain | Accountable owner | Current delivery coverage |
+| --- | --- | --- |
+| 4.1 Product Management & Strategy | Product & PRD Lead | Product, Brand/UI, Documentation/DX and QA |
+| 4.2 Core Product Platform | Engineering Assurance Lead | Architecture, Platform Engineering, Independent Review and QA |
+| 4.3 Integrations & Enterprise | Engineering Assurance Lead (temporary) | Architecture, Platform Engineering, Independent Review and QA |
+| 4.4 Data Platform & AI Quality | Engineering Assurance Lead (temporary) | Explicit staffing gap; Architecture and QA cover the initial contract |
+| 4.5 Infrastructure & Reliability | Engineering Assurance Lead | Reliability, Platform Engineering, Independent Review and QA |
+| 4.6 Engineering Handbook | Engineering Assurance Lead | Documentation/DX custody with chapter-specific owners and review |
+
+See `references/product-engineering-operating-model.md` for scope, decision rights, the feature-delivery pipeline, handoffs, and evidence-based hiring gates. `references/system-repository-register.yaml` keeps systems and approved repositories distinct from live connection proof. `references/engineering-handbook-index.md` assigns chapter custody without inventing handbook content that has not yet been connected.
+
 ## Organization
 
 | Agent | Reports to | Primary responsibility |
@@ -62,9 +77,26 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 
 “Always on” means event-driven alerts and bounded routines. Agents must not burn budget by polling unmanaged processes or claim on-call coverage when no signal source is connected.
 
-## Safety state in v0.1.11
+## Safety state in v0.1.14
 
+- The Linear privacy candidate projects metadata before the gateway/audit
+  boundary and is tested with synthetic identity canaries. It is **offline,
+  not deployed or imported as a connection**. Semantic Product review is not
+  possible from its metadata-only output. Runtime placement/authentication and
+  live sink verification remain separate gates; see `connectors/linear-privacy/README.md`.
+- New report completions use a self-contained installed helper: enum and source
+  validation, exact run binding, one write and verified readback. A connected
+  Product sample has per-item dispositions, not an invented aggregate verdict.
+- Linear has an operator-only metadata preflight with reviewed catalog hashes,
+  fail-closed quarantine and audience checks. It neither refreshes credentials
+  nor grants access, and does not claim to redact raw provider audit storage.
+- Post-completion operator QA uses immutable issue documents instead of comments
+  that could reopen a closed task. See `runbooks/connected-review-quality.md`.
 - All agents and routine schedules import paused.
+- Six Product & Engineering domains route to the existing ten agents. No new
+  agent, repository access, source connection, or authority is created by the
+  operating-model taxonomy. Data Platform & AI Quality remains an explicit
+  staffing gap under temporary Engineering Assurance coverage.
 - Public documentation may be read; its freshness must be recorded.
 - Architecture claims resolve through eight domain-specific authorities; public
   docs, source revisions, health endpoints, and fixtures cannot silently stand
@@ -127,7 +159,7 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 Build a deterministic import archive outside the package:
 
 ```sh
-./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.11.zip
+./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.14.zip
 ```
 
 ## Getting started
@@ -161,6 +193,10 @@ See `runbooks/local-setup.md`, `runbooks/test-environment.md`,
 `runbooks/execution-budgets.md`, `runbooks/connections.md`,
 `runbooks/observability-and-oncall.md`, `runbooks/security.md`,
 `runbooks/sandbox-migration.md`, and `runbooks/smoke-test.md` before import.
+
+Review `references/product-engineering-operating-model.md` and
+`references/engineering-handbook-index.md` before changing ownership, creating
+an agent, or modifying the feature-delivery pipeline.
 
 ## References
 

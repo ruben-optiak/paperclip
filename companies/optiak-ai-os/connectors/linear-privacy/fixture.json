@@ -1,0 +1,22 @@
+{
+  "synthetic": true,
+  "retrievedAt": "2026-01-01T10:00:00Z",
+  "canaries": ["PERSON_CANARY", "person-canary@example.invalid", "PHONE_CANARY", "ADDRESS_CANARY", "TOKEN_CANARY", "ATTACHMENT_CANARY"],
+  "issue": {
+    "id": "internal-fixture-id",
+    "identifier": "OPT-101",
+    "url": "https://linear.app/optiak/issue/OPT-101/PERSON_CANARY",
+    "title": "PERSON_CANARY reports a technical problem",
+    "description": "Contact person-canary@example.invalid PHONE_CANARY ADDRESS_CANARY",
+    "status": "Todo",
+    "priority": {"value": 2, "name": "PERSON_CANARY"},
+    "updatedAt": "2026-01-01T09:00:00.000Z",
+    "team": {"key": "OPT", "name": "PERSON_CANARY"},
+    "createdBy": {"name": "PERSON_CANARY", "email": "person-canary@example.invalid"},
+    "assignee": {"name": "PERSON_CANARY", "email": "person-canary@example.invalid"},
+    "labels": ["PERSON_CANARY"],
+    "attachments": [{"title": "ATTACHMENT_CANARY", "url": "https://example.invalid/TOKEN_CANARY"}],
+    "customerNeeds": [{"company": "PERSON_CANARY", "contact": "person-canary@example.invalid"}],
+    "futureProviderField": {"nested": "TOKEN_CANARY"}
+  }
+}

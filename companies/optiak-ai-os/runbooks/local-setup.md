@@ -59,3 +59,31 @@ To stop Optiak without touching Enki:
 7. Run the fixture-only smoke test before activating the Director.
 
 For a later update that must replace already-installed package skills, use the Board import preview/apply flow and verify the exact replacement set. The existing-company CLI route is intentionally safe and rejects `collisionStrategy: replace`; do not use `rename`, because it would create duplicate skills.
+
+For `0.1.12`, preview/apply only `agents,skills` against the existing company:
+ten existing agents and thirteen skills, no new agents/skills, and no company,
+project, task or routine import. The new helper scripts must appear in the
+installed durable-completion skill inventory and their retrieved bytes must
+match the source; a README or successful ZIP build alone does not prove that.
+Verify the same live issue count before/after import, all agents paused, all
+schedule triggers disabled, existing budget caps and unchanged Linear access.
+Then follow `connected-review-quality.md` for one fixture-only manual smoke
+and a repeated QA-document annotation. Source-control signing or live checks
+left incomplete must be recorded; they do not authorize production promotion.
+
+`0.1.13` adds an offline Linear privacy candidate. It is not a deployed connector
+and importing the package cannot activate its response projection. Keep the
+last validated runtime in place until the separate placement/authentication,
+content-access and live-audit gates in `connectors/linear-privacy/README.md` pass.
+
+`0.1.14` changes no agent count, reporting line, adapter, skill behavior,
+project, task, routine, connection, or runtime permission. It versions the
+six-domain Product & Engineering operating model, updates instructions for the
+existing ten agents, and advances the package identity embedded in the
+release-readiness promotion contract. For an existing company, preview
+replacement of the ten agents and `optiak-release-readiness`; if the import UI
+cannot select one skill independently, replace the existing thirteen skills
+after confirming the preview creates none. Keep all agents paused and verify
+that projects, issues, connections, policies, and routine triggers are
+unchanged. Importing the package does not create the Data Platform & AI Quality
+candidate role or grant access to a source.

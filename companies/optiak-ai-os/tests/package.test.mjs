@@ -248,7 +248,7 @@ function materializePromotionEvidence(contract, promotionFixture, fixtureCase) {
 test("AI OS promotion contract is provider-neutral, staged, and advice-only", () => {
   const contract = loadPromotionContract();
   assert.equal(contract.schema, "optiak-ai-os-promotion-contract/v1");
-  assert.equal(contract.packageVersion, "0.1.11");
+  assert.equal(contract.packageVersion, "0.1.14");
   assert.equal(contract.status, "offline_defined_not_deployed");
   assert.equal(contract.providerPolicy.infrastructureProvider, "undecided");
   assert.equal(contract.environmentPolicy.directLocalToProduction, "deny");
@@ -400,6 +400,9 @@ test("source map selects approved authorities without pretending GitHub is live"
   assert.match(sourceMap, /https:\/\/mcp\.linear\.app\/mcp\/readonly/);
   assert.match(sourceMap, /https:\/\/api\.githubcopilot\.com\/mcp\/readonly/);
   assert.match(sourceMap, /optiak\/optiak-frontend/);
+  assert.match(sourceMap, /productEngineeringOperatingModelRef: references\/product-engineering-operating-model\.json/);
+  assert.match(sourceMap, /systemRepositoryRegisterRef: references\/system-repository-register\.yaml/);
+  assert.match(sourceMap, /engineeringHandbookIndexRef: references\/engineering-handbook-index\.md/);
 });
 
 test("product authority is field-specific, fresh, bounded, and read-only", () => {
@@ -801,4 +804,122 @@ test("local instance remains isolated behind host port 3200", () => {
   assert.match(helper, /docker-paperclip-optiak/);
   assert.match(helper, /OPTIAK_PAPERCLIP_PORT:-3200/);
   assert.doesNotMatch(helper, /enki-hogar|enki-connectors/);
+});
+
+test("Product and Engineering domains map to the existing organization without automatic hiring", () => {
+  const model = JSON.parse(readFileSync(
+    join(packageDir, "references", "product-engineering-operating-model.json"),
+    "utf8",
+  ));
+  const agentSlugs = new Set(readdirSync(join(packageDir, "agents")));
+
+  assert.equal(model.schema, "optiak-product-engineering-operating-model/v1");
+  assert.equal(model.status, "offline_defined_no_runtime_authority");
+  assert.equal(model.principles.oneAgentPerDomainRequired, false);
+  assert.deepEqual(model.domains.map((domain) => domain.id), ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6"]);
+  for (const domain of model.domains) {
+    assert.ok(agentSlugs.has(domain.accountable), `${domain.id} has an unknown accountable owner`);
+    for (const slug of [...domain.responsible, ...domain.reviewers]) {
+      assert.ok(agentSlugs.has(slug), `${domain.id} references unknown agent ${slug}`);
+    }
+  }
+
+  const dataQuality = model.domains.find((domain) => domain.id === "4.4");
+  assert.equal(dataQuality.staffingStatus, "temporary_coverage_explicit_gap");
+  assert.equal(dataQuality.accountable, "engineering-assurance-lead");
+  assert.equal(dataQuality.candidateFutureRole, "data-platform-ai-quality-engineer");
+  assert.equal(model.agentCreationGates.length, 7);
+});
+
+test("feature delivery keeps independent review and the release decision human", () => {
+  const model = JSON.parse(readFileSync(
+    join(packageDir, "references", "product-engineering-operating-model.json"),
+    "utf8",
+  ));
+  assert.deepEqual(
+    model.deliveryPipeline.map((stage) => stage.id),
+    [
+      "discovery",
+      "product_decision",
+      "prd",
+      "architecture_review",
+      "domain_implementation",
+      "independent_review",
+      "qa_ui_docs_validation",
+      "release_readiness",
+      "human_release_decision",
+      "measurement_learning",
+    ],
+  );
+  assert.equal(
+    model.deliveryPipeline.find((stage) => stage.id === "independent_review").owner,
+    "independent-code-reviewer",
+  );
+  assert.equal(
+    model.deliveryPipeline.find((stage) => stage.id === "human_release_decision").owner,
+    "board",
+  );
+  assert.equal(model.principles.authorMayApproveOwnChange, false);
+  assert.equal(model.principles.successfulGateAuthorizesRelease, false);
+});
+
+test("routing fixtures cover all domains and never self-review an authored implementation", () => {
+  const model = JSON.parse(readFileSync(
+    join(packageDir, "references", "product-engineering-operating-model.json"),
+    "utf8",
+  ));
+  const routing = JSON.parse(readFileSync(
+    join(packageDir, "references", "fixtures", "product-engineering-routing.json"),
+    "utf8",
+  ));
+  const agentSlugs = new Set(readdirSync(join(packageDir, "agents")));
+  const domains = new Map(model.domains.map((domain) => [domain.id, domain]));
+
+  assert.equal(routing.evidenceScope, "fixture_only");
+  assert.equal(routing.cases.length, 12);
+  assert.deepEqual(
+    new Set(routing.cases.map((fixtureCase) => fixtureCase.primaryDomain)),
+    new Set(["4.1", "4.2", "4.3", "4.4", "4.5", "4.6"]),
+  );
+  for (const fixtureCase of routing.cases) {
+    assert.equal(fixtureCase.accountable, domains.get(fixtureCase.primaryDomain).accountable);
+    assert.ok(agentSlugs.has(fixtureCase.lead));
+    assert.ok(fixtureCase.nextGate);
+    if (fixtureCase.implementationAuthor) {
+      assert.ok(agentSlugs.has(fixtureCase.implementationAuthor));
+      assert.ok(!fixtureCase.reviewers.includes(fixtureCase.implementationAuthor));
+    }
+    assert.ok(fixtureCase.reviewers.every((slug) => agentSlugs.has(slug)));
+  }
+});
+
+test("system register stays deny-by-default and handbook chapters stay source-pending", () => {
+  const register = readFileSync(
+    join(packageDir, "references", "system-repository-register.yaml"),
+    "utf8",
+  );
+  const handbook = readFileSync(
+    join(packageDir, "references", "engineering-handbook-index.md"),
+    "utf8",
+  );
+
+  assert.match(register, /status: offline_inventory_not_connection_proof/);
+  assert.match(register, /unlistedRepository: deny/);
+  assert.match(register, /repositoryEntryCreatesAccess: false/);
+  assert.deepEqual(
+    [...register.matchAll(/^  - slug: (optiak\/[a-z0-9-]+)$/gm)].map((match) => match[1]),
+    ["optiak/optiak", "optiak/optiak-frontend"],
+  );
+  for (const chapter of [
+    "Architecture principles",
+    "ADR / RFC process",
+    "Development standards",
+    "Testing strategy",
+    "Release process",
+    "Engineering ways of working",
+  ]) {
+    assert.match(handbook, new RegExp(`\\| ${chapter.replace("/", "\\/")} \\|`));
+  }
+  assert.match(handbook, /source pending/);
+  assert.match(handbook, /superseded, never silently overwritten/);
 });

@@ -1,5 +1,5 @@
 schema: optiak-desired-state/v1
-version: 0.1.11
+version: 0.1.14
 instance:
   isolation: separate_from_enki
   database: separate
@@ -12,6 +12,19 @@ agents:
 routines:
   expected: 4
   importedPaused: true
+operatingModel:
+  state: offline_defined_no_runtime_authority
+  contract: references/product-engineering-operating-model.json
+  domainsExpected: 6
+  oneAgentPerDomainRequired: false
+  orgChartChanged: false
+  dataPlatformAiQuality:
+    staffingStatus: temporary_coverage_explicit_gap
+    accountable: engineering-assurance-lead
+    architectureOwner: principal-platform-architect
+    validationOwner: qa-e2e-validation-engineer
+  agentCreationRequiresAllVersionedGates: true
+  successfulGateAuthorizesRelease: false
 budgets:
   companyMonthlyBilledCents: 15000
   agentMonthlyBilledCentsTotal: 10000
@@ -21,6 +34,12 @@ budgets:
   dailyRunCapsPortable: true
   timeoutSeconds: 300
 connections:
+  linearResponseProjection:
+    state: offline_candidate_runtime_not_applied
+    mode: metadata_only
+    semanticReviewAvailable: false
+    implementation: connectors/linear-privacy/projection.mjs
+    integrationGate: explicit_boundary_and_data_contract_decision
   publicDocs:
     state: public_read_only
   roadmapBacklog:
@@ -88,6 +107,12 @@ promotion:
   stageDecisionOwner: board
   evaluatorMayExecute: false
 qualityContracts:
+  productEngineeringOperatingModel:
+    state: offline_defined_no_runtime_authority
+    contract: references/product-engineering-operating-model.json
+    routingFixture: references/fixtures/product-engineering-routing.json
+    systemRepositoryRegister: references/system-repository-register.yaml
+    handbookIndex: references/engineering-handbook-index.md
   architectureAuthority:
     state: offline_defined_sources_not_assumed_connected
     contract: skills/optiak-architecture-review/references/architecture-authority-map.json

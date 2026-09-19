@@ -94,6 +94,11 @@ const requiredFiles = [
   "references/product-boundary.md",
   "references/source-map.yaml",
   "references/quality-model.md",
+  "references/product-engineering-operating-model.md",
+  "references/product-engineering-operating-model.json",
+  "references/system-repository-register.yaml",
+  "references/engineering-handbook-index.md",
+  "references/fixtures/product-engineering-routing.json",
   "references/run-efficiency-baseline.json",
   "runbooks/observability-and-oncall.md",
   "runbooks/local-setup.md",
@@ -116,6 +121,16 @@ const requiredFiles = [
   "scripts/probe-test-environment.mjs",
   "scripts/summarize-run-usage.mjs",
   "scripts/validate-result-envelopes.mjs",
+  "scripts/linear-preflight.mjs",
+  "scripts/record-qa-note.mjs",
+  "policies/linear-catalog-baseline.json",
+  "skills/optiak-durable-completion/scripts/complete-issue.mjs",
+  "skills/optiak-durable-completion/scripts/validate-result-envelopes.mjs",
+  "runbooks/connected-review-quality.md",
+  "connectors/linear-privacy/projection.mjs",
+  "connectors/linear-privacy/fixture.json",
+  "connectors/linear-privacy/README.md",
+  "scripts/probe-linear-privacy-core.mjs",
   "skills/optiak-durable-completion/references/contracts/result-envelope-v1.schema.json",
   "skills/optiak-durable-completion/references/result-taxonomy.md",
   "skills/optiak-product-triage/references/product-authority.yaml",
@@ -144,7 +159,7 @@ for (const path of allFiles.filter((candidate) => candidate.endsWith(".json"))) 
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md must declare agentcompanies/v1");
 if (company.slug !== "optiak-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.11") fail("Unexpected company version");
+if (company.version !== "0.1.14") fail("Unexpected company version");
 if (company.license !== "LicenseRef-Optiak-Internal") fail("Unexpected company license");
 
 const agentFiles = allFiles.filter((path) => path.endsWith(`${sep}AGENTS.md`) && path.includes(`${sep}agents${sep}`));
@@ -327,6 +342,11 @@ for (const marker of [
   "expected: 10",
   "expected: 4",
   "importedPaused: true",
+  "domainsExpected: 6",
+  "oneAgentPerDomainRequired: false",
+  "orgChartChanged: false",
+  "staffingStatus: temporary_coverage_explicit_gap",
+  "agentCreationRequiresAllVersionedGates: true",
   "companyMonthlyBilledCents: 15000",
   "warnPercent: 80",
   "hardStopPercent: 100",
@@ -360,6 +380,9 @@ if (!sourceMap.includes("promotionAuthorityRef: skills/optiak-release-readiness/
 for (const marker of [
   "architectureAuthorityRef: skills/optiak-architecture-review/references/architecture-authority-map.json",
   "documentationAuthorityRef: skills/optiak-docs-drift/references/documentation-authority-map.json",
+  "productEngineeringOperatingModelRef: references/product-engineering-operating-model.json",
+  "systemRepositoryRegisterRef: references/system-repository-register.yaml",
+  "engineeringHandbookIndexRef: references/engineering-handbook-index.md",
 ]) {
   if (!sourceMap.includes(marker)) fail(`Source-map authority reference missing: ${marker}`);
 }
@@ -850,6 +873,153 @@ if (goldenJourneyMatrix.initialSmokeBudget?.plannedInferenceRequests !== 4
   || goldenJourneyMatrix.initialSmokeBudget?.maximumInferenceRequests !== 12
   || goldenJourneyMatrix.initialSmokeBudget?.automaticRetries !== 0) {
   fail("Golden-journey budget drift");
+}
+
+const operatingModel = JSON.parse(readFileSync(
+  join(packageDir, "references", "product-engineering-operating-model.json"),
+  "utf8",
+));
+if (operatingModel.schema !== "optiak-product-engineering-operating-model/v1"
+  || operatingModel.status !== "offline_defined_no_runtime_authority"
+  || operatingModel.humanConflictOwner !== "board") {
+  fail("Unexpected Product & Engineering operating-model identity or authority");
+}
+if (operatingModel.principles?.oneAgentPerDomainRequired !== false
+  || operatingModel.principles?.boardMayAssignSpecialistsDirectly !== true
+  || operatingModel.principles?.authorMayApproveOwnChange !== false
+  || operatingModel.principles?.domainOwnershipCreatesEvidenceAuthority !== false
+  || operatingModel.principles?.successfulGateAuthorizesRelease !== false) {
+  fail("Product & Engineering operating-model principles drift");
+}
+const expectedDomainIds = ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6"];
+const operatingDomains = operatingModel.domains ?? [];
+if (JSON.stringify(operatingDomains.map((domain) => domain.id)) !== JSON.stringify(expectedDomainIds)) {
+  fail("Product & Engineering operating model must define ordered domains 4.1 through 4.6");
+}
+const operatingDomainMap = new Map(operatingDomains.map((domain) => [domain.id, domain]));
+for (const domain of operatingDomains) {
+  for (const agentSlug of [domain.accountable, ...(domain.responsible ?? []), ...(domain.reviewers ?? [])]) {
+    if (!agents.has(agentSlug)) fail(`Unknown operating-model agent ${agentSlug} in domain ${domain.id}`);
+  }
+  if (!(domain.scope?.length > 0) || !domain.staffingStatus) {
+    fail(`Incomplete Product & Engineering domain: ${domain.id}`);
+  }
+}
+const dataQualityDomain = operatingDomainMap.get("4.4");
+if (dataQualityDomain?.staffingStatus !== "temporary_coverage_explicit_gap"
+  || dataQualityDomain?.accountable !== "engineering-assurance-lead"
+  || dataQualityDomain?.candidateFutureRole !== "data-platform-ai-quality-engineer") {
+  fail("Data Platform & AI Quality must remain an explicit temporary-coverage staffing gap");
+}
+const expectedPipeline = [
+  "discovery",
+  "product_decision",
+  "prd",
+  "architecture_review",
+  "domain_implementation",
+  "independent_review",
+  "qa_ui_docs_validation",
+  "release_readiness",
+  "human_release_decision",
+  "measurement_learning",
+];
+if (JSON.stringify((operatingModel.deliveryPipeline ?? []).map((stage) => stage.id))
+    !== JSON.stringify(expectedPipeline)) {
+  fail("Product & Engineering delivery pipeline drift");
+}
+for (const stage of operatingModel.deliveryPipeline ?? []) {
+  if (stage.owner !== "board" && !agents.has(stage.owner)) {
+    fail(`Unknown delivery-pipeline owner ${stage.owner} for ${stage.id}`);
+  }
+}
+if (operatingModel.deliveryPipeline?.find((stage) => stage.id === "independent_review")?.owner
+    !== "independent-code-reviewer"
+  || operatingModel.deliveryPipeline?.find((stage) => stage.id === "human_release_decision")?.owner
+    !== "board") {
+  fail("Independent review or human release-decision ownership drift");
+}
+if (operatingModel.agentCreationGates?.length !== 7
+  || new Set(operatingModel.agentCreationGates).size !== 7) {
+  fail("Agent creation policy must retain seven unique evidence gates");
+}
+
+const routingFixture = JSON.parse(readFileSync(
+  join(packageDir, "references", "fixtures", "product-engineering-routing.json"),
+  "utf8",
+));
+if (routingFixture.schema !== "optiak-product-engineering-routing-fixture/v1"
+  || routingFixture.evidenceScope !== "fixture_only"
+  || routingFixture.cases?.length !== 12) {
+  fail("Unexpected Product & Engineering routing fixture identity or case count");
+}
+const routedDomainIds = new Set();
+const routingCaseIds = new Set();
+for (const fixtureCase of routingFixture.cases ?? []) {
+  if (routingCaseIds.has(fixtureCase.id)) fail(`Duplicate Product & Engineering routing case: ${fixtureCase.id}`);
+  routingCaseIds.add(fixtureCase.id);
+  routedDomainIds.add(fixtureCase.primaryDomain);
+  const domain = operatingDomainMap.get(fixtureCase.primaryDomain);
+  if (!domain) {
+    fail(`Unknown routed Product & Engineering domain: ${fixtureCase.primaryDomain}`);
+    continue;
+  }
+  if (fixtureCase.accountable !== domain.accountable) {
+    fail(`Routing accountability drift for ${fixtureCase.id}`);
+  }
+  for (const agentSlug of [
+    fixtureCase.accountable,
+    fixtureCase.lead,
+    fixtureCase.implementationAuthor,
+    ...(fixtureCase.reviewers ?? []),
+  ].filter(Boolean)) {
+    if (!agents.has(agentSlug)) fail(`Unknown routing agent ${agentSlug} in ${fixtureCase.id}`);
+  }
+  if (fixtureCase.implementationAuthor
+    && fixtureCase.reviewers?.includes(fixtureCase.implementationAuthor)) {
+    fail(`Implementation author cannot review own work in ${fixtureCase.id}`);
+  }
+  if (!fixtureCase.nextGate) fail(`Routing case has no next gate: ${fixtureCase.id}`);
+}
+if (JSON.stringify([...routedDomainIds].sort()) !== JSON.stringify(expectedDomainIds)) {
+  fail("Routing fixtures must cover every Product & Engineering domain");
+}
+
+const systemRegister = readFileSync(
+  join(packageDir, "references", "system-repository-register.yaml"),
+  "utf8",
+);
+for (const marker of [
+  "status: offline_inventory_not_connection_proof",
+  "unlistedRepository: deny",
+  "repositoryEntryCreatesAccess: false",
+  "sourceRevisionProvesDeployment: false",
+  "staffingStatus: temporary_coverage_explicit_gap",
+]) {
+  if (!systemRegister.includes(marker)) fail(`System/repository register marker missing: ${marker}`);
+}
+const registeredRepositories = [...systemRegister.matchAll(/^  - slug: (optiak\/[a-z0-9-]+)$/gm)]
+  .map((match) => match[1]);
+if (JSON.stringify(registeredRepositories) !== JSON.stringify(["optiak/optiak", "optiak/optiak-frontend"])) {
+  fail("System/repository register must contain only the two Board-approved repositories");
+}
+
+const handbookIndex = readFileSync(
+  join(packageDir, "references", "engineering-handbook-index.md"),
+  "utf8",
+);
+for (const chapter of [
+  "Architecture principles",
+  "ADR / RFC process",
+  "Development standards",
+  "Testing strategy",
+  "Release process",
+  "Engineering ways of working",
+]) {
+  if (!handbookIndex.includes(`| ${chapter} |`)) fail(`Engineering Handbook chapter missing: ${chapter}`);
+}
+if (!handbookIndex.includes("source pending")
+  || !handbookIndex.includes("superseded, never silently overwritten")) {
+  fail("Engineering Handbook must preserve source-pending and supersession semantics");
 }
 
 if (errors.length > 0) {
