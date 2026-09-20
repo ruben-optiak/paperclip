@@ -43,11 +43,85 @@ Follow `test-environment.md` and the canonical contract in
 - Repeat every target, persona, budget, catalog, cleanup, and denial gate.
 - Only a fully approved staging run can produce staging or release evidence.
 
-## Phase 2 — product and Git read paths
+## Phase 2 — internal knowledge, product, and Git read paths
 
+- Role-scoped Product & Engineering knowledge from Notion.
 - Backlog/roadmap read access for Product.
 - Immutable PR/diff/check reads for reviewers.
 - No merge, branch write, issue mutation, or repository write initially.
+
+### Phase 2.0 — Notion Product & Engineering knowledge
+
+The portable authority and desired policy are
+`skills/optiak-notion-knowledge/references/notion-authority.yaml` and
+`policies/notion-readonly.yaml`. Notion remains the live source; do not export
+or snapshot the workspace into this package.
+
+Use the shipped **Notion** app and official endpoint
+`https://mcp.notion.com/mcp`. The default setup uses OAuth dynamic client
+registration with PKCE: no client ID, client secret, API key, `.env` entry, or
+custom Notion integration is required. `http://localhost:3200` is a valid
+loopback OAuth origin.
+
+Consent and identity scope:
+
+1. Open `/OPT/apps/connect?source=notion` in the Optiak instance.
+2. Start the Notion OAuth flow with the intended identity. The live flow
+   observed on 2026-09-19 selected the workspace/account but did **not** offer a
+   page or database selector. The resulting token inherits everything that
+   identity can access.
+3. For a hard provider boundary, authorize a dedicated Notion identity that can
+   access only the approved Product & Engineering parents, or place an
+   enforcing proxy with an exact root allowlist in front of the provider. The
+   current broad human identity may be used only while agents remain paused and
+   must not be treated as proof that Finance, Fundraising, Legal/GRC, HR/People,
+   Board-private, personal, secret, customer, or production-log pages are
+   unreachable.
+4. Select **Agents I pick** for both Always installed and Agent access, then
+   select the ten current canonical agents. Never select Every/Any agent:
+   future agents must receive no implicit access.
+
+Catalog and gateway policy:
+
+1. Set both profile and transport changed-tool behavior to
+   `quarantineNewEntries: true` and set `defaultAction: deny`.
+2. Refresh the catalog and record its reviewed name/schema/version hash.
+3. Enable only the catalog actions **Get tool access**, **Fetch Notion
+   entities**, and **Query Notion data sources**. Fetch and query must receive
+   exact operator-approved IDs/URLs; they are not discovery tools.
+4. Set every other current action off, including Search/AI search, private,
+   shared, recent and favorite listings, workspace users/teams, attachments,
+   comments, agent sessions, create, update, move, duplicate, archive, delete,
+   permission, integration, admin, bulk and unknown actions. The observed
+   baseline is exactly `3 Allowed / 0 Ask first / 42 Off`.
+5. Add explicit deny rules for the write categories. Do not rely on Notion's S3
+   default: the shipped app can otherwise allow reviewed page writes.
+6. Do not add an approval override or trust rule for a Notion mutation in v0.1.
+
+Smoke gate before any agent uses Notion evidence:
+
+1. Health succeeds and records the check time.
+2. The effective catalog contains exactly the three expected actions, zero
+   ask-first actions and 42 off actions; no mutation is runnable.
+3. `Get tool access` succeeds as Director over MCP HTTP without arguments.
+4. Register exact approved live IDs outside Git. Director then fetches one
+   approved strategy or decision page.
+5. Product fetches one approved PRD by exact ID; global search remains off.
+6. Architect queries or fetches one approved architecture source by exact ID.
+7. One task-linked agent fetches its linked source without receiving an
+   unrelated root.
+8. An excluded or unshared page is refused. Do not share sensitive content just
+   to manufacture a negative test.
+9. Each result records page/database id or URL, source timestamp when available,
+   and retrieval time. Inspect the Paperclip audit row.
+10. Revoke or disable the connection and confirm tools disappear, then reconnect
+   only if the production grant is still intended.
+
+Until a hard identity/proxy boundary, exact root registry, catalog review,
+effective deny policy, and positive/negative content smokes all pass, keep
+`notionKnowledge` in `connected_policy_smoke_passed_root_registry_pending`.
+Agents must remain paused and return `blocked_on_authority`, not infer current
+internal knowledge.
 
 ### Phase 2.1 — Linear product authority
 
@@ -97,13 +171,38 @@ report backlog state as unavailable. After the smoke, change it to
 `connected_read_only` and run the existing Product task manually before enabling
 any routine.
 
+### Phase 2.1b — governed Linear issue creation
+
+This is a separate connection, credential and capability from Phase 2.1. Its
+implementation ships offline at `connectors/linear-ticket-publisher` and its
+full operator procedure is `linear-ticket-publishing.md`.
+
+- Use a dedicated private Linear OAuth app actor with only `read,issues:create`
+  and team access restricted to `OPT`.
+- Keep the official `/readonly` MCP connection unchanged for Product queries.
+- Start the publisher with its connector-side write mode disabled.
+- Install its one tool only for Product with a default-deny profile.
+- Place the exact-tool rate limit and `require_approval` policy ahead of the
+  broader write block. Test Product as `require_approval` and every other agent
+  as denied.
+- Never create a trust rule. Each batch needs a fresh action request over the
+  complete signed arguments.
+- Pass the disabled negative smoke, then one Board-approved canary and exact-ID
+  read-back before normal use.
+- Treat timeout, lost response, restart, 5xx, malformed response or result
+  mismatch as uncertain. Stop for operator reconciliation; never auto-retry.
+
+Importing a package or seeing the tool in a catalog is not connection evidence
+and does not enable this phase.
+
 ### Phase 2.2 — GitHub source, pull requests, and checks
 
 Board decision recorded on 2026-09-02:
 
-- Approved repositories: `optiak/optiak` and `optiak/optiak-frontend` only.
-- Everything else, including `optiak/optiak-tests`, infrastructure, ML, and
-  newly created repositories, is denied by default.
+- Approved repositories: `optiak/optiak`, `optiak/optiak-frontend`, and
+  `optiak/iac-infra` only.
+- Everything else, including `optiak/optiak-tests`, every other infrastructure
+  repository, ML, and newly created repositories, is denied by default.
 - Initial identity: a GitHub fine-grained personal access token.
 - Initial audience: `independent-code-reviewer` only.
 - Canonical policy: `skills/optiak-pr-review/references/repository-authority.yaml`.
@@ -117,11 +216,12 @@ boundary; the selected toolsets reduce context and exposed surface.
 Create a fine-grained token with:
 
 1. Resource owner `optiak` and repository access **Only select repositories**.
-2. Select exactly `optiak` and `optiak-frontend`.
+2. Select exactly `optiak`, `optiak-frontend`, and `iac-infra`.
 3. Set expiration to at most 30 days for the local smoke.
-4. Grant repository permissions Actions, Checks, Commit statuses, Contents,
-   Issues, and Pull requests as read-only. Metadata remains the automatic
-   read-only permission.
+4. Grant repository permissions Actions, Commit statuses, Contents, and Pull
+   requests as read-only. Metadata remains the automatic read-only permission.
+   Grant no Issues permission. GitHub currently does not support the Checks API
+   with fine-grained PATs; record this as a credential limitation.
 5. Grant no organization or account permissions and no write permission.
 6. If the Optiak organization requires approval, wait for the token to become
    active before creating the Paperclip connection.
@@ -129,13 +229,39 @@ Create a fine-grained token with:
 Connection contract:
 
 1. Name it `GitHub — Optiak Core Review Read Only`.
-2. Use bearer-token authentication and paste the token only into Paperclip's
-   credential field; do not put it in `.env` or an agent secret.
-3. Set the endpoint and both headers exactly as above.
-4. Install the connection only for Independent Code and PR Reviewer.
-5. Keep every newly discovered tool quarantined until manual review.
-6. Reject any write-capable catalog entry even if GitHub or Paperclip later adds
-   it to a selected toolset.
+2. Use **Connect your own MCP server**, not the curated GitHub card: the generic
+   flow is required to set all three headers. If Paperclip offers `Use GitHub`,
+   ignore that shortcut.
+3. Select **Advanced authentication → Custom headers** and store exactly:
+   `Authorization: Bearer <fine-grained PAT>`, `X-MCP-Readonly: true`, and
+   `X-MCP-Toolsets: repos,pull_requests,actions`. Paste the PAT only into the
+   secret-backed header value; do not put it in `.env`, Git or an agent secret.
+4. Immediately replace the generic flow's company-wide default installation
+   with Independent Code and PR Reviewer only. Set the app profile to
+   `defaultAction: deny` and confirm no other agent has effective reach.
+5. Set `quarantineNewEntries: true` on both `config` and `transportConfig`.
+   The generic flow defaults this to false, so successful connection setup is
+   not evidence that quarantine is enabled.
+6. Review the initial catalog. The verified read-only baseline exposes nineteen
+   tools. Enable only these fourteen repository-scoped reads:
+   `actions_get`, `actions_list`, `get_commit`, `get_file_contents`,
+   `get_job_logs`, `get_latest_release`, `get_release_by_tag`, `get_tag`,
+   `list_branches`, `list_commits`, `list_pull_requests`, `list_releases`,
+   `list_tags`, and `pull_request_read`.
+7. Leave `list_repository_collaborators`, `search_code`, `search_commits`,
+   `search_pull_requests`, and `search_repositories` off. They are broader than
+   the initial review workflow and do not carry the same explicit owner/repo
+   shape.
+8. Apply the policy chain in ascending priority for the fourteen enabled tools:
+   - priority 39: for Independent Reviewer, missing both `owner` and `repo`
+     requires approval. This keeps `tools/list` discoverable but parks an
+     unscoped invocation before it can reach GitHub;
+   - priority 40: allow only Independent Reviewer when `owner == optiak` and
+     `repo` is one of `optiak`, `optiak-frontend`, or `iac-infra`;
+   - priority 50: block every remaining call for the same connection and tools.
+9. Reject any write-capable catalog entry even if GitHub or Paperclip later adds
+   it to a selected toolset. Keep every newly discovered tool quarantined until
+   manual review.
 
 Smoke gate before the Reviewer may use GitHub evidence:
 
@@ -143,12 +269,14 @@ Smoke gate before the Reviewer may use GitHub evidence:
 2. The effective catalog contains only read operations; create, update,
    comment, review submission, branch, workflow, merge, release, and deployment
    tools are absent or disabled.
-3. A bounded metadata read succeeds for both approved repositories.
+3. A bounded metadata read succeeds for all three approved repositories.
 4. One exact file or commit can be read by immutable SHA from each approved
    repository.
-5. For one known pull request, resolve and record base SHA, head SHA, diff, and
-   checks/statuses for that same head. If there is no suitable pull request,
-   record that gap rather than inventing a pass.
+5. For one known pull request, resolve and record base SHA, head SHA, diff,
+   Actions runs, and commit statuses available for that same head. If there is
+   no suitable pull request, record that gap rather than inventing a pass. If a
+   required result exists only through the unsupported Checks API, record
+   `blocked_on_evidence` rather than treating it as passed.
 6. Confirm policy refuses `optiak/optiak-tests` and every unlisted repository.
    Do not probe unrelated private repositories merely to demonstrate denial.
 7. Do not attempt a mutation as a negative test; the read-only endpoint,
@@ -156,10 +284,20 @@ Smoke gate before the Reviewer may use GitHub evidence:
 8. Inspect the Paperclip audit record, then verify the token can be revoked
    independently.
 
+For `optiak/iac-infra`, the smoke is limited to repository metadata and an exact
+file or commit read. Do not retrieve Terraform state, plan output or secrets;
+do not call cloud APIs or execute Terraform. Repository source proves declared
+intent, not applied infrastructure.
+
 Until all eight checks pass, keep `gitProvider` and `repositories` pending,
 keep the Reviewer paused outside the bounded smoke, and do not issue a live PR
-verdict. A later production credential should use a dedicated GitHub App rather
-than extending this personal token indefinitely.
+verdict. The local 2026-09-19 smoke passed health, bounded reads, exact-SHA
+reads, policy denial, audit, pull-request detail/diff, Actions and commit-status
+checks. Full Check Runs remain unavailable with the initial fine-grained PAT,
+so any verdict requiring them must still return `blocked_on_evidence`. A later
+production credential should use a dedicated GitHub App rather than extending
+this personal token indefinitely; that migration is required before claiming
+complete Check Runs coverage.
 
 ## Phase 3 — isolated implementation
 

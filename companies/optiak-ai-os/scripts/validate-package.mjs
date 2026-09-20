@@ -87,9 +87,11 @@ const requiredFiles = [
   "LICENSE",
   ".paperclip.yaml",
   "policies/access-matrix.md",
+  "policies/agent-live-parity.json",
   "policies/desired-state.yaml",
   "policies/execution-budget.yaml",
   "policies/secrets-matrix.md",
+  "policies/notion-readonly.yaml",
   "policies/tool-allowlist.yaml",
   "references/product-boundary.md",
   "references/source-map.yaml",
@@ -98,6 +100,10 @@ const requiredFiles = [
   "references/product-engineering-operating-model.json",
   "references/system-repository-register.yaml",
   "references/engineering-handbook-index.md",
+  "references/execution-workspace-contract.json",
+  "references/fixtures/agent-live-parity-drift.json",
+  "references/fixtures/execution-workspace-readiness.json",
+  "references/local-skill-provenance.json",
   "references/fixtures/product-engineering-routing.json",
   "references/run-efficiency-baseline.json",
   "runbooks/observability-and-oncall.md",
@@ -105,6 +111,7 @@ const requiredFiles = [
   "runbooks/test-environment.md",
   "runbooks/connections.md",
   "runbooks/execution-budgets.md",
+  "runbooks/execution-workspaces.md",
   "runbooks/sandbox-migration.md",
   "runbooks/security.md",
   "runbooks/smoke-test.md",
@@ -113,9 +120,12 @@ const requiredFiles = [
   "scripts/scan-secrets.sh",
   "scripts/build-import-zip.sh",
   "scripts/check-sandbox-compat.mjs",
+  "scripts/check-live-agent-parity.mjs",
+  "scripts/evaluate-execution-workspace.mjs",
   "scripts/evaluate-promotion-readiness.mjs",
   "scripts/evaluate-prd-readiness.mjs",
   "scripts/evaluate-postmortem.mjs",
+  "skills/optiak-product-triage/scripts/evaluate-product-advisory.mjs",
   "scripts/import-allowlist.txt",
   "scripts/local-instance.sh",
   "scripts/probe-test-environment.mjs",
@@ -124,24 +134,44 @@ const requiredFiles = [
   "scripts/linear-preflight.mjs",
   "scripts/record-qa-note.mjs",
   "policies/linear-catalog-baseline.json",
+  "policies/linear-ticket-publisher.yaml",
   "skills/optiak-durable-completion/scripts/complete-issue.mjs",
   "skills/optiak-durable-completion/scripts/validate-result-envelopes.mjs",
   "runbooks/connected-review-quality.md",
+  "runbooks/product-advisory-review.md",
+  "runbooks/linear-ticket-publishing.md",
   "connectors/linear-privacy/projection.mjs",
   "connectors/linear-privacy/fixture.json",
   "connectors/linear-privacy/README.md",
+  "connectors/linear-ticket-publisher/README.md",
+  "connectors/linear-ticket-publisher/CONTRIBUTING.md",
+  "connectors/linear-ticket-publisher/package.json",
+  "connectors/linear-ticket-publisher/package-lock.json",
+  "connectors/linear-ticket-publisher/Dockerfile",
+  "connectors/linear-ticket-publisher/migrations/001_init.sql",
+  "connectors/linear-ticket-publisher/fixtures/valid-batch.json",
+  "runtime/docker-compose.linear-ticket-publisher.yml",
   "scripts/probe-linear-privacy-core.mjs",
   "skills/optiak-durable-completion/references/contracts/result-envelope-v1.schema.json",
   "skills/optiak-durable-completion/references/result-taxonomy.md",
   "skills/optiak-product-triage/references/product-authority.yaml",
+  "skills/optiak-product-triage/references/product-advisory-contract.json",
+  "skills/optiak-notion-knowledge/references/notion-authority.yaml",
   "skills/optiak-pr-review/references/repository-authority.yaml",
+  "skills/optiak-pr-review/references/review-rubric.md",
+  "skills/optiak-frontend-implementation/SKILL.md",
+  "skills/optiak-frontend-implementation/examples/delivery.md",
+  "skills/optiak-frontend-implementation/references/fixtures/frontend-change.md",
   "skills/optiak-e2e-validation/references/test-environment-contract.json",
   "skills/optiak-e2e-validation/references/golden-journey-matrix.json",
   "skills/optiak-incident-triage/references/observability-source-contract.json",
   "skills/optiak-release-readiness/references/ai-os-promotion-contract.json",
+  "policies/director-authority.json",
+  "scripts/prove-director-authority.mjs",
   "skills/optiak-architecture-review/references/architecture-authority-map.json",
   "skills/optiak-docs-drift/references/documentation-authority-map.json",
   "skills/optiak-prd-review/references/prd-readiness-contract.json",
+  "references/contracts/linear-ticket-batch-v1.schema.json",
   "skills/optiak-incident-triage/references/postmortem-contract.json",
 ];
 for (const path of requiredFiles) if (!statSafe(join(packageDir, path))) fail(`Missing required file: ${path}`);
@@ -159,10 +189,16 @@ for (const path of allFiles.filter((candidate) => candidate.endsWith(".json"))) 
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md must declare agentcompanies/v1");
 if (company.slug !== "optiak-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.14") fail("Unexpected company version");
+if (company.version !== "0.1.26") fail("Unexpected company version");
 if (company.license !== "LicenseRef-Optiak-Internal") fail("Unexpected company license");
 
 const agentFiles = allFiles.filter((path) => path.endsWith(`${sep}AGENTS.md`) && path.includes(`${sep}agents${sep}`));
+const unexpectedAgentFiles = allFiles.filter((path) =>
+  path.endsWith(`${sep}AGENTS.md`) && !path.includes(`${sep}agents${sep}`)
+);
+if (unexpectedAgentFiles.length > 0) {
+  fail(`Reserved AGENTS.md files outside agents/: ${unexpectedAgentFiles.map(relative).join(", ")}`);
+}
 const agents = new Map();
 for (const path of agentFiles) {
   const doc = frontmatter(path);
@@ -175,6 +211,7 @@ for (const path of agentFiles) {
 if (agents.size !== 10) fail(`Expected 10 agents, found ${agents.size}`);
 const roots = [...agents.values()].filter((agent) => agent.reportsTo === null);
 if (roots.length !== 1 || roots[0]?.slug !== "director-optiak") fail("Organization must have one director-optiak root");
+if (roots[0]?.role !== "general") fail("Director root must use the non-legacy general role");
 for (const agent of agents.values()) {
   if (agent.reportsTo && !agents.has(agent.reportsTo)) fail(`Unknown manager ${agent.reportsTo} for ${agent.slug}`);
   const visited = new Set([agent.slug]);
@@ -196,7 +233,7 @@ for (const agent of agents.values()) {
 }
 
 const skillFiles = allFiles.filter((path) => path.endsWith(`${sep}SKILL.md`) && path.includes(`${sep}skills${sep}`));
-if (skillFiles.length !== 13) fail(`Expected 13 skills, found ${skillFiles.length}`);
+if (skillFiles.length !== 16) fail(`Expected 16 skills, found ${skillFiles.length}`);
 for (const path of skillFiles) {
   const doc = frontmatter(path);
   const skillDir = dirname(path);
@@ -279,6 +316,18 @@ if (agentBudgets.length !== 10 || agentBudgets.reduce((total, value) => total + 
 if ((paperclip.match(/timeoutSec: 300/g) || []).length !== 10) fail("Every agent must use the fixture-phase 300 second timeout");
 if ((paperclip.match(/maxDailyRuns: /g) || []).length !== 10) fail("Every agent must have a daily run cap");
 if ((paperclip.match(/maxDailyCostCents: /g) || []).length !== 10) fail("Every agent must have a daily cost cap");
+const directorExtension = paperclip.match(/^  director-optiak:\n([\s\S]*?)(?=^  [a-z0-9]+(?:-[a-z0-9]+)*:\n)/m)?.[1] ?? "";
+for (const marker of [
+  "role: general",
+  "canCreateAgents: false",
+  "permissionGrants:",
+  "permissionKey: tasks:assign",
+]) {
+  if (!directorExtension.includes(marker)) fail(`Director portable authority marker missing: ${marker}`);
+}
+if (directorExtension.includes("permissionKey: agents:create")) {
+  fail("Director portable authority must not grant agents:create");
+}
 
 const compatibility = JSON.parse(readFileSync(join(packageDir, "runtime", "compatibility.lock.json"), "utf8"));
 if (compatibility.schema !== "optiak-runtime-compatibility/v1") fail("Unexpected runtime compatibility schema");
@@ -303,6 +352,10 @@ for (const marker of [
   "basis: uncached_input_tokens",
   "nativeEnforcement: false",
   "rawInputTokensAre: cumulative_usage_not_prompt_size",
+  "targetUncachedInputTokens: 25000",
+  "reviewMaximumUncachedInputTokens: 40000",
+  "overReviewMaximum: efficiency_regression",
+  "automaticRetryAllowed: false",
 ]) {
   if (!executionBudget.includes(marker)) fail(`Execution-budget marker missing: ${marker}`);
 }
@@ -362,15 +415,50 @@ for (const marker of [
   "state: offline_defined_live_pages_remain_canonical",
   "readyVerdictAuthorizesImplementation: false",
   "evaluatorMayExecuteCorrectiveAction: false",
+  "state: offline_connector_ready_not_installed",
+  "everyCallRequiresExactBoardApproval: true",
+  "trustRules: deny",
+  "automaticRetryAfterMutationAttempt: deny",
+  "state: offline_skill_versioned_workspace_not_connected",
+  "requiresPaperclipManagedIsolatedWorkspace: true",
+  "skillMayCreateOrManageWorktrees: false",
+  "state: live_read_only_remote_workspace_mode_not_configured",
+  "remoteMcpMode: true",
+  "paperclipExecutionWorkspaceMode: conditional",
+  "repositoryWrites: deny",
   "productionMutation: deny",
   "migrationStatus: blocked",
   "controlPlanePrivilegeExpansion: deny",
+  "state: connected_policy_smoke_passed_root_registry_pending",
+  "desiredPolicy: policies/notion-readonly.yaml",
+  "allTenAgentsCarrySkill: true",
+  "liveNotionRemainsCanonical: true",
+  "wholeWorkspaceExport: deny",
 ]) {
   if (!desired.includes(marker)) fail(`Desired-state marker missing: ${marker}`);
 }
 const allowlist = readFileSync(join(packageDir, "policies", "tool-allowlist.yaml"), "utf8");
 for (const marker of ["defaultDecision: quarantine", "productionMutation: deny", "merge: deny", "deploy: deny", "secretAdministration: deny", "follow_versioned_observability_source_contract", "capability: raw_events_read", "capability: application_logs_read", "capability: sentry_session_replay_read", "decision: pending_connection_and_tabletop", "capability: promotion_evidence_read", "capability: promotion_readiness_evaluate", "output_is_advice_not_authority", "capability: promotion_deploy_import_restore_or_activate"]) {
   if (!allowlist.includes(marker)) fail(`Tool policy marker missing: ${marker}`);
+}
+for (const marker of [
+  "capability: product_backlog_issue_create_exact",
+  "decision: ask_first_after_separate_connector_smoke",
+  "exact_tool_optiak_linear_create_issue_batch",
+  "paperclip_exact_action_approval_every_call",
+  "no_automatic_retry_after_mutation_attempt",
+  "no_trust_rule",
+]) {
+  if (!allowlist.includes(marker)) fail(`Linear publisher allowlist marker missing: ${marker}`);
+}
+for (const marker of [
+  "capability: notion_product_engineering_knowledge_read",
+  "decision: allow_after_oauth_catalog_policy_and_exact_root_smoke",
+  "agent_root_match_from_versioned_authority_map",
+  "capability: notion_workspace_mutation",
+  "approval_may_not_override",
+]) {
+  if (!allowlist.includes(marker)) fail(`Notion allowlist marker missing: ${marker}`);
 }
 const sourceMap = readFileSync(join(packageDir, "references", "source-map.yaml"), "utf8");
 if (!sourceMap.includes("wholeSiteSnapshotsAllowed: false")) fail("Source map must deny whole-site snapshots");
@@ -381,8 +469,10 @@ for (const marker of [
   "architectureAuthorityRef: skills/optiak-architecture-review/references/architecture-authority-map.json",
   "documentationAuthorityRef: skills/optiak-docs-drift/references/documentation-authority-map.json",
   "productEngineeringOperatingModelRef: references/product-engineering-operating-model.json",
+  "productAdvisoryQualityRef: skills/optiak-product-triage/references/product-advisory-contract.json",
   "systemRepositoryRegisterRef: references/system-repository-register.yaml",
   "engineeringHandbookIndexRef: references/engineering-handbook-index.md",
+  "notionKnowledgeAuthorityRef: skills/optiak-notion-knowledge/references/notion-authority.yaml",
 ]) {
   if (!sourceMap.includes(marker)) fail(`Source-map authority reference missing: ${marker}`);
 }
@@ -391,10 +481,21 @@ for (const marker of ["status: authorized_pending_connection", "provider: Linear
   if (!sourceMap.includes(marker)) fail(`Product source-map marker missing: ${marker}`);
 }
 for (const marker of [
+  "id: roadmap-ticket-publisher",
+  "status: offline_connector_ready_not_installed",
+  "authority: exact_board_approved_issue_creation_only",
+  "implementation: connectors/linear-ticket-publisher",
+  "exact_action_approval_every_call",
+  "no_automatic_retry_after_mutation_attempt",
+]) {
+  if (!sourceMap.includes(marker)) fail(`Linear publisher source-map marker missing: ${marker}`);
+}
+for (const marker of [
   "repositoryAuthorityRef: skills/optiak-pr-review/references/repository-authority.yaml",
   "provider: GitHub",
   "optiak/optiak",
   "optiak/optiak-frontend",
+  "optiak/iac-infra",
   "https://api.githubcopilot.com/mcp/readonly",
 ]) {
   if (!sourceMap.includes(marker)) fail(`Repository source-map marker missing: ${marker}`);
@@ -407,6 +508,62 @@ for (const marker of [
 ]) {
   if (!sourceMap.includes(marker)) fail(`Observability source-map marker missing: ${marker}`);
 }
+for (const marker of [
+  "id: notion-product-engineering-knowledge",
+  "status: connected_policy_smoke_passed_root_registry_pending",
+  "provider: Notion",
+  "https://mcp.notion.com/mcp",
+  "oauth_inherits_authorizing_user_access",
+  "writes_denied_without_approval_override",
+]) {
+  if (!sourceMap.includes(marker)) fail(`Notion source-map marker missing: ${marker}`);
+}
+const notionAuthority = readFileSync(
+  join(packageDir, "skills", "optiak-notion-knowledge", "references", "notion-authority.yaml"),
+  "utf8",
+);
+for (const marker of [
+  "schema: optiak-notion-knowledge-authority/v1",
+  "status: connected_policy_smoke_passed_root_registry_pending",
+  "endpoint: https://mcp.notion.com/mcp",
+  "authentication: oauth_dcr_pkce",
+  "wholeWorkspaceExport: deny",
+  "mutations: deny",
+  "Get tool access",
+  "Fetch Notion entities",
+  "Query Notion data sources",
+  "consentPageSelectionObserved: false",
+  "logicalRootsAreHardBoundary: false",
+  "finance",
+  "board-private",
+]) {
+  if (!notionAuthority.includes(marker)) fail(`Notion-authority marker missing: ${marker}`);
+}
+for (const agent of agents.values()) {
+  if (!(agent.skills ?? []).includes("optiak-notion-knowledge")) {
+    fail(`Agent ${agent.slug} is missing optiak-notion-knowledge`);
+  }
+}
+const notionPolicy = readFileSync(join(packageDir, "policies", "notion-readonly.yaml"), "utf8");
+for (const marker of [
+  "schema: optiak-notion-readonly-policy/v1",
+  "defaultAction: deny",
+  "quarantineNewEntries: true",
+  "consentPageSelectionAvailable: false",
+  "oauthAloneProvesRootIsolation: false",
+  "allowed: 3",
+  "askFirst: 0",
+  "off: 42",
+  "wholeWorkspaceSearch: deny",
+  "approvalMayOverride: false",
+  "trustRules: deny",
+]) {
+  if (!notionPolicy.includes(marker)) fail(`Notion policy marker missing: ${marker}`);
+}
+if ((notionPolicy.match(/^    - [a-z0-9]+(?:-[a-z0-9]+)+$/gm) || []).filter((line) =>
+  [...agents.keys()].includes(line.trim().slice(2))).length !== 10) {
+  fail("Notion policy must target all ten agents exactly once");
+}
 const productAuthority = readFileSync(
   join(packageDir, "skills", "optiak-product-triage", "references", "product-authority.yaml"),
   "utf8",
@@ -414,14 +571,74 @@ const productAuthority = readFileSync(
 for (const marker of [
   "schema: optiak-product-authority/v1",
   "humanConflictOwner: board",
+  "advisoryQualityContract: references/product-advisory-contract.json",
   "url: https://linear.app/optiak/team/OPT/",
   "endpoint: https://mcp.linear.app/mcp/readonly",
   "writeToolsAllowed: false",
   "copyWholeBacklog: false",
   "maximumAgeMinutesForCurrentClaim: 15",
+  "priorityRanking: deny",
+  "recommendationRequiresExactDetailRead: true",
+  "separateMachineEnvelope: true",
   "winner: release_and_deployment_evidence",
 ]) {
   if (!productAuthority.includes(marker)) fail(`Product-authority marker missing: ${marker}`);
+}
+const productAdvisoryContract = JSON.parse(readFileSync(
+  join(
+    packageDir,
+    "skills",
+    "optiak-product-triage",
+    "references",
+    "product-advisory-contract.json",
+  ),
+  "utf8",
+));
+if (productAdvisoryContract.schema !== "optiak-product-advisory-contract/v1"
+  || productAdvisoryContract.status !== "offline_defined_read_only_advisory"
+  || productAdvisoryContract.sourceReview?.paperclipIssue !== "OPT-39"
+  || productAdvisoryContract.sourceReview?.historicalEvidenceOnly !== true
+  || productAdvisoryContract.authority?.strategyRequiredForPriorityRecommendation !== true
+  || productAdvisoryContract.authority?.linearUpdatedAtProvesPriority !== false
+  || productAdvisoryContract.authority?.listResultSupportsSemanticRecommendation !== false
+  || productAdvisoryContract.recommendations?.maximum !== 3
+  || productAdvisoryContract.recommendations?.detailReadRequired !== true
+  || productAdvisoryContract.humanOutput?.maximumWords !== 700
+  || productAdvisoryContract.humanOutput?.maximumExecutiveSummaryLines !== 5
+  || productAdvisoryContract.humanOutput?.machineEnvelope !== "separate_from_human_report"
+  || productAdvisoryContract.efficiency?.uncachedInputTokens?.targetMaximum !== 25000
+  || productAdvisoryContract.efficiency?.uncachedInputTokens?.reviewMaximum !== 40000
+  || productAdvisoryContract.permissions?.linearWrites !== false
+  || productAdvisoryContract.permissions?.codeChanges !== false) {
+  fail("Product-advisory contract drift");
+}
+const productTriageSkill = readFileSync(
+  join(packageDir, "skills", "optiak-product-triage", "SKILL.md"),
+  "utf8",
+);
+for (const marker of [
+  "references/product-advisory-contract.json",
+  "references/fixtures/advisory-cases.md",
+  "references/fixtures/opt-39-feedback.md",
+  "scripts/evaluate-product-advisory.mjs",
+  "blocked_on_strategy",
+  "efficiency_regression",
+  "at most 700 words",
+]) {
+  if (!productTriageSkill.includes(marker)) fail(`Product-triage quality marker missing: ${marker}`);
+}
+const productAdvisoryRunbook = readFileSync(
+  join(packageDir, "runbooks", "product-advisory-review.md"),
+  "utf8",
+);
+for (const marker of [
+  "Linear recency as a strategy proxy",
+  "needs_detail_read",
+  "machine-readable result envelope is separate",
+  "25,000 uncached input tokens",
+  "Do not expand the sample or retry automatically",
+]) {
+  if (!productAdvisoryRunbook.includes(marker)) fail(`Product-advisory runbook marker missing: ${marker}`);
 }
 const repositoryAuthority = readFileSync(
   join(packageDir, "skills", "optiak-pr-review", "references", "repository-authority.yaml"),
@@ -436,16 +653,209 @@ for (const marker of [
   "- independent-code-reviewer",
   "- slug: optiak/optiak",
   "- slug: optiak/optiak-frontend",
+  "- slug: optiak/iac-infra",
   "- optiak/optiak-tests",
   "defaultDecision: deny",
   "writeToolsAllowed: false",
+  "fine_grained_pat_does_not_support_checks_api",
+  "blocked_on_evidence_when_required_ci_result_is_only_a_check_run",
   "recheckHeadBeforeVerdict: true",
   "cloneWholeOrganization: false",
 ]) {
   if (!repositoryAuthority.includes(marker)) fail(`Repository-authority marker missing: ${marker}`);
 }
-if ((repositoryAuthority.match(/^    - slug: optiak\//gm) || []).length !== 2) {
-  fail("Repository authority must contain exactly two approved Optiak repositories");
+if ((repositoryAuthority.match(/^    - slug: optiak\//gm) || []).length !== 3) {
+  fail("Repository authority must contain exactly three approved Optiak repositories");
+}
+
+const localSkillProvenance = JSON.parse(readFileSync(
+  join(packageDir, "references", "local-skill-provenance.json"),
+  "utf8",
+));
+if (localSkillProvenance.schema !== "optiak-local-skill-provenance/v1"
+  || localSkillProvenance.owner !== "Optiak"
+  || localSkillProvenance.machineLocalPathsExported !== false
+  || localSkillProvenance.sources?.length !== 3) {
+  fail("Unexpected local-skill provenance contract");
+}
+const localSkillSources = new Map(localSkillProvenance.sources.map((source) => [source.id, source]));
+for (const [sourceId, sha256] of [
+  ["frontend-skill", "d367b2d22825d74c169475507e7ff109b81c1e9c20b2de3421fb19fcfbe3329b"],
+  ["review-pr-against-main", "f58faefcf349727c3e083aa114d4d2cb35c8cde5a77d0c4ebb1a156bbfbc1f92"],
+  ["review-pr-against-main-rubric", "8ac3b5273167e082497e8dd942fc7228438ae06d306c760382eadefc1258a14d"],
+]) {
+  const source = localSkillSources.get(sourceId);
+  if (source?.sha256 !== sha256 || source?.usage !== "adapted" || source?.vendoredScripts !== false) {
+    fail(`Local-skill provenance drift: ${sourceId}`);
+  }
+}
+if (/\/(?:Users|home)\/|~\//.test(JSON.stringify(localSkillProvenance))) {
+  fail("Local-skill provenance must not export machine-local paths");
+}
+
+const frontendImplementation = readFileSync(
+  join(packageDir, "skills", "optiak-frontend-implementation", "SKILL.md"),
+  "utf8",
+);
+for (const marker of [
+  "optiak/optiak-frontend",
+  "blocked_on_workspace",
+  "created and assigned by Paperclip",
+  "Never create a nested",
+  "Code & PR Reviewer",
+  "Brand & UI Quality Reviewer",
+]) {
+  if (!frontendImplementation.includes(marker)) fail(`Frontend implementation marker missing: ${marker}`);
+}
+for (const forbidden of ["git worktree add", "gh pr checkout", "git checkout", "/Users/", "~/"]) {
+  if (frontendImplementation.includes(forbidden)) fail(`Frontend skill contains non-portable workspace instruction: ${forbidden}`);
+}
+const frontendImplementers = [...agents.values()]
+  .filter((agent) => (agent.skills ?? []).includes("optiak-frontend-implementation"))
+  .map((agent) => agent.slug);
+if (JSON.stringify(frontendImplementers) !== JSON.stringify(["senior-platform-engineer"])) {
+  fail("Only Senior Platform Engineer may carry the frontend implementation skill");
+}
+
+const prReviewSkill = readFileSync(join(packageDir, "skills", "optiak-pr-review", "SKILL.md"), "utf8");
+for (const marker of [
+  "remote_mcp",
+  "paperclip_execution_workspace",
+  "Paperclip owns execution-workspace isolation and lifecycle",
+  "references/review-rubric.md",
+]) {
+  if (!prReviewSkill.includes(marker)) fail(`PR review mode marker missing: ${marker}`);
+}
+for (const forbidden of ["git worktree add", "gh pr checkout", "scripts/prepare-review-worktree.sh", "scripts/cleanup-review-worktree.sh"]) {
+  if (prReviewSkill.includes(forbidden)) fail(`PR review skill vendors forbidden worktree orchestration: ${forbidden}`);
+}
+
+const githubConnectionRunbook = readFileSync(join(packageDir, "runbooks", "connections.md"), "utf8");
+for (const marker of [
+  "Advanced authentication → Custom headers",
+  "Authorization: Bearer <fine-grained PAT>",
+  "X-MCP-Readonly: true",
+  "X-MCP-Toolsets: repos,pull_requests,actions",
+  "priority 39:",
+  "priority 40:",
+  "priority 50:",
+  "list_repository_collaborators",
+  "search_repositories",
+]) {
+  if (!githubConnectionRunbook.includes(marker)) fail(`GitHub connection runbook marker missing: ${marker}`);
+}
+const desiredState = readFileSync(join(packageDir, "policies", "desired-state.yaml"), "utf8");
+for (const marker of [
+  "version: 0.1.26",
+  "connectionMethod: generic_mcp_custom_headers",
+  "quarantineNewEntries: true",
+  "missingOwnerAndRepoDuringDiscovery: require_approval",
+  "exactApprovedRepository: allow_for_independent_reviewer",
+  "fallback: deny",
+  "state: deferred_read_only_phase",
+  "providerKey: daytona",
+  "pluginManifestVersion: 0.1.7",
+  "pluginInstalled: true",
+  "pluginEnabled: false",
+  "environmentManagementEnabled: false",
+  "savedEnvironmentExists: false",
+  "initialAdapter: codex_local",
+  "initialAgent: senior-platform-engineer",
+  "nativeRunnerEnabled: false",
+  "providerCredentialStorage: paperclip_environment_secret_store",
+  "activationBeforeLiveMigrationGate: deny",
+  "implementationWorkspaceAssignment: deny_until_board_resumes_oai_011",
+  "state: read_only_refinement",
+  "productQualityEvaluator: skills/optiak-product-triage/scripts/evaluate-product-advisory.mjs",
+  "strategyRequiredForPriorityRecommendation: true",
+  "detailReadRequiredForRecommendation: true",
+  "linearWrites: deny",
+  "codeChangesByAgents: deny",
+  "automaticRetryAfterQualityFailure: deny",
+]) {
+  if (!desiredState.includes(marker)) fail(`GitHub desired-state marker missing: ${marker}`);
+}
+const toolAllowlist = readFileSync(join(packageDir, "policies", "tool-allowlist.yaml"), "utf8");
+if (!toolAllowlist.includes("repository_exactly_one_of_optiak_optiak_frontend_or_iac_infra")) {
+  fail("GitHub tool allowlist must name all three Board-approved repositories");
+}
+
+const publisherPolicy = readFileSync(join(packageDir, "policies", "linear-ticket-publisher.yaml"), "utf8");
+for (const marker of [
+  "schema: optiak-linear-ticket-publisher-policy/v1",
+  "state: offline_desired_state_not_applied",
+  "endpoint: http://linear-ticket-publisher:8788/mcp",
+  "quarantineNewEntries: true",
+  "defaultAction: deny",
+  "optiak_linear_create_issue_batch",
+  "expectedToolCount: 1",
+  "priority: 5",
+  "type: rate_limit",
+  "priority: 10",
+  "type: require_approval",
+  "priority: 100",
+  "type: block",
+  "allowed: false",
+  "writeModeDefault: disabled",
+  "automaticRetryAfterMutationAttempt: false",
+  "- issues:create",
+  "- write",
+  "- admin",
+  "- generic_graphql",
+]) {
+  if (!publisherPolicy.includes(marker)) fail(`Linear publisher policy marker missing: ${marker}`);
+}
+
+const publisherPackage = JSON.parse(readFileSync(
+  join(packageDir, "connectors", "linear-ticket-publisher", "package.json"),
+  "utf8",
+));
+if (publisherPackage.private !== true
+  || publisherPackage.engines?.node !== ">=24.11.0"
+  || publisherPackage.dependencies?.["@modelcontextprotocol/sdk"] !== "1.30.0"
+  || publisherPackage.dependencies?.zod !== "4.4.3") {
+  fail("Linear publisher runtime dependencies must remain exact and private");
+}
+const ticketBatchContract = JSON.parse(readFileSync(
+  join(packageDir, "references", "contracts", "linear-ticket-batch-v1.schema.json"),
+  "utf8",
+));
+if (ticketBatchContract.$id !== "optiak-linear-ticket-batch/v1"
+  || ticketBatchContract.properties?.tickets?.maxItems !== 5
+  || ticketBatchContract["x-optiak-invariants"]?.canonicalArgumentBytesMaximum !== 3900
+  || ticketBatchContract["x-optiak-invariants"]?.teamKey !== "OPT"
+  || ticketBatchContract["x-optiak-invariants"]?.personalDataAllowed !== false
+  || ticketBatchContract["x-optiak-invariants"]?.credentialMaterialAllowed !== false) {
+  fail("Linear ticket-batch contract safety boundary drift");
+}
+const publisherMigration = readFileSync(
+  join(packageDir, "connectors", "linear-ticket-publisher", "migrations", "001_init.sql"),
+  "utf8",
+);
+for (const forbiddenColumn of ["title", "description", "request_body", "response_body", "oauth_token", "client_secret"]) {
+  if (new RegExp(`\\b${forbiddenColumn}\\b`, "i").test(publisherMigration)) {
+    fail(`Linear publisher journal stores forbidden field: ${forbiddenColumn}`);
+  }
+}
+const publisherCompose = readFileSync(join(packageDir, "runtime", "docker-compose.linear-ticket-publisher.yml"), "utf8");
+for (const marker of [
+  "OPTIAK_LINEAR_TICKET_PUBLISHER_WRITE_MODE:-disabled",
+  "read_only: true",
+  "no-new-privileges:true",
+  "optiak_linear_ticket_publisher_data:/data",
+  "LINEAR_OAUTH_CLIENT_SECRET_FILE",
+]) {
+  if (!publisherCompose.includes(marker)) fail(`Linear publisher Compose marker missing: ${marker}`);
+}
+if (/(?:ports:|privileged:\s*true|SYS_ADMIN|seccomp\s*[:=]\s*unconfined)/i.test(publisherCompose)) {
+  fail("Linear publisher Compose must remain private and unprivileged");
+}
+const publisherDockerfile = readFileSync(join(packageDir, "connectors", "linear-ticket-publisher", "Dockerfile"), "utf8");
+if ((publisherDockerfile.match(/node:24\.11\.1-alpine@sha256:[0-9a-f]{64}/g) || []).length !== 2) {
+  fail("Linear publisher Docker stages must pin the exact Node image digest");
+}
+if (!(agents.get("product-prd-lead")?.skills ?? []).includes("optiak-linear-ticket-publishing")) {
+  fail("Product agent must carry the governed Linear ticket-publishing skill");
 }
 
 const architectureAuthority = JSON.parse(readFileSync(
@@ -999,8 +1409,167 @@ for (const marker of [
 }
 const registeredRepositories = [...systemRegister.matchAll(/^  - slug: (optiak\/[a-z0-9-]+)$/gm)]
   .map((match) => match[1]);
-if (JSON.stringify(registeredRepositories) !== JSON.stringify(["optiak/optiak", "optiak/optiak-frontend"])) {
-  fail("System/repository register must contain only the two Board-approved repositories");
+if (JSON.stringify(registeredRepositories) !== JSON.stringify(["optiak/optiak", "optiak/optiak-frontend", "optiak/iac-infra"])) {
+  fail("System/repository register must contain only the three Board-approved repositories");
+}
+
+const parityPolicy = JSON.parse(readFileSync(
+  join(packageDir, "policies", "agent-live-parity.json"),
+  "utf8",
+));
+if (parityPolicy.schema !== "optiak-agent-live-parity-policy/v1"
+  || parityPolicy.status !== "versioned_read_only_post_import_gate"
+  || parityPolicy.agentIdentityField !== "name"
+  || parityPolicy.requireNoUnlistedAgents !== true
+  || parityPolicy.failurePolicy?.automaticRepair !== false
+  || parityPolicy.failurePolicy?.automaticActivation !== false
+  || parityPolicy.knownEffectiveAuthorityWarnings?.length !== 0) {
+  fail("Unexpected agent live-parity policy identity or safety boundary");
+}
+for (const field of [
+  "status",
+  "adapterType",
+  "adapterConfig.model",
+  "adapterConfig.extraArgs",
+  "adapterConfig.instructionsBundleMode",
+  "runtimeConfig.managedMcpOnly",
+  "runtimeConfig.heartbeat.enabled",
+  "runtimeConfig.heartbeat.maxConcurrentRuns",
+  "runtimeConfig.heartbeat.maxDailyRuns",
+  "runtimeConfig.heartbeat.maxDailyCostCents",
+  "budgetMonthlyCents",
+]) {
+  if (!parityPolicy.comparedFields?.includes(field)) fail(`Agent live-parity field missing: ${field}`);
+}
+const directorAuthority = JSON.parse(readFileSync(
+  join(packageDir, "policies", "director-authority.json"),
+  "utf8",
+));
+if (directorAuthority.schema !== "optiak-director-authority-policy/v1"
+  || directorAuthority.agent !== "director-optiak"
+  || directorAuthority.expectedRole !== "general"
+  || directorAuthority.requiredStoredPermissions?.canCreateAgents !== false
+  || JSON.stringify(directorAuthority.requiredPermissionGrants) !== JSON.stringify(["tasks:assign"])
+  || JSON.stringify(directorAuthority.forbiddenPermissionGrants) !== JSON.stringify(["agents:create"])
+  || directorAuthority.negativeProbe?.method !== "GET"
+  || directorAuthority.negativeProbe?.expectedStatus !== 403
+  || directorAuthority.negativeProbe?.readOnly !== true
+  || directorAuthority.ephemeralCredential?.mustBeRevoked !== true
+  || directorAuthority.ephemeralCredential?.mustNeverBePrinted !== true
+  || directorAuthority.automaticRepair !== false
+  || directorAuthority.automaticActivation !== false) {
+  fail("Unexpected Director authority policy or proof boundary");
+}
+const parityFixture = JSON.parse(readFileSync(
+  join(packageDir, "references", "fixtures", "agent-live-parity-drift.json"),
+  "utf8",
+));
+if (parityFixture.schema !== "optiak-agent-live-parity-fixture/v1"
+  || parityFixture.evidenceScope !== "fixture_only"
+  || parityFixture.cases?.length !== 6) {
+  fail("Unexpected agent live-parity fixture identity or case count");
+}
+
+const workspaceContract = JSON.parse(readFileSync(
+  join(packageDir, "references", "execution-workspace-contract.json"),
+  "utf8",
+));
+if (workspaceContract.schema !== "optiak-execution-workspace-contract/v1"
+  || workspaceContract.status !== "live_lifecycle_proved_execution_boundary_blocked"
+  || workspaceContract.humanConflictOwner !== "board"
+  || workspaceContract.implementationAgent !== "senior-platform-engineer"
+  || workspaceContract.reviewAgent !== "independent-code-reviewer") {
+  fail("Unexpected execution-workspace contract identity or ownership");
+}
+if (workspaceContract.workspacePolicy?.defaultMode !== "isolated_workspace"
+  || workspaceContract.workspacePolicy?.allowIssueOverride !== false
+  || workspaceContract.workspacePolicy?.strategy?.type !== "git_worktree"
+  || workspaceContract.workspacePolicy?.strategy?.baseRef !== "origin/main"
+  || workspaceContract.workspacePolicy?.runtimeServicesInitiallyConfigured !== false
+  || workspaceContract.workspacePolicy?.additionalNetworkEgressInitiallyConfigured !== false) {
+  fail("Execution-workspace isolation policy drift");
+}
+for (const field of [
+  "sharedCheckoutAllowed",
+  "nestedWorktreeAllowed",
+  "branchSwitchAllowed",
+  "branchRenameAllowed",
+  "automaticMergeAllowed",
+  "automaticDeployAllowed",
+  "productionCredentialsAllowed",
+  "reviewerWriteAccessAllowed",
+  "sharedControlPlanePrivilegeRelaxationAllowed",
+  "successfulSmokeAuthorizesImplementation",
+]) {
+  if (workspaceContract.globalPolicy?.[field] !== false) {
+    fail(`Execution-workspace prohibition drift: ${field}`);
+  }
+}
+if (workspaceContract.globalPolicy?.oneWorkspacePerIssue !== true
+  || workspaceContract.globalPolicy?.paperclipOwnsLifecycle !== true) {
+  fail("Paperclip must own one isolated workspace per implementation issue");
+}
+if (workspaceContract.runtimeBoundaryPolicy?.required !== "dedicated_agent_execution_boundary"
+  || workspaceContract.runtimeBoundaryPolicy?.sharedControlPlaneAllowed !== false
+  || workspaceContract.runtimeBoundaryPolicy?.requiredSandboxBackend !== "bubblewrap"
+  || workspaceContract.runtimeBoundaryPolicy?.gitMetadataAccess !== "read_only"
+  || workspaceContract.runtimeBoundaryPolicy?.controlPlaneSecurityRelaxationAllowed !== false
+  || workspaceContract.sanitizedLiveFinding?.workspaceLifecycle !== "pass"
+  || workspaceContract.sanitizedLiveFinding?.agentGitInspection !== "blocked"
+  || workspaceContract.sanitizedLiveFinding?.diagnosticProbeAuthorizesLiveExecution !== false) {
+  fail("Execution-workspace runtime boundary or sanitized live finding drift");
+}
+const targetBoundary = compatibility.targetExecutionBoundary;
+if (compatibility.packageVersion !== "0.1.26"
+  || targetBoundary?.providerKind !== "sandbox_provider"
+  || targetBoundary?.providerKey !== "daytona"
+  || targetBoundary?.pluginPackage !== "@paperclipai/plugin-daytona"
+  || targetBoundary?.pluginManifestVersion !== "0.1.7"
+  || targetBoundary?.migrationDecision !== "deferred_read_only_phase"
+  || targetBoundary?.livePluginState !== "disabled"
+  || targetBoundary?.environmentManagementEnabled !== false
+  || targetBoundary?.savedEnvironmentState !== "not_created"
+  || targetBoundary?.initialAdapter !== "codex_local"
+  || targetBoundary?.initialAgent !== "senior-platform-engineer"
+  || targetBoundary?.initialAgentCount !== 1
+  || targetBoundary?.nativeRunnerEnabled !== false
+  || targetBoundary?.providerCredentialStorage !== "paperclip_environment_secret_store"
+  || targetBoundary?.providerCredentialMayEnterGit !== false
+  || targetBoundary?.controlPlaneSecurityRelaxed !== false
+  || targetBoundary?.authorizesAgentActivation !== false
+  || targetBoundary?.authorizesImplementationWorkspace !== false) {
+  fail("Unexpected staged dedicated execution-boundary contract");
+}
+if (JSON.stringify(workspaceContract.repositories?.map((repository) => repository.slug))
+    !== JSON.stringify(registeredRepositories)
+  || workspaceContract.repositories?.some((repository) =>
+    repository.baseRef !== "origin/main"
+      || repository.repoUrl !== `https://github.com/${repository.slug}.git`)) {
+  fail("Execution-workspace repositories must match the exact portable register");
+}
+if (/\/(?:Users|home)\/|~\//.test(JSON.stringify(workspaceContract))) {
+  fail("Execution-workspace contract must not export machine-local paths");
+}
+const workspaceFixture = JSON.parse(readFileSync(
+  join(packageDir, "references", "fixtures", "execution-workspace-readiness.json"),
+  "utf8",
+));
+if (workspaceFixture.schema !== "optiak-execution-workspace-readiness-fixture/v1"
+  || workspaceFixture.evidenceScope !== "fixture_only"
+  || workspaceFixture.cases?.length !== 5) {
+  fail("Unexpected execution-workspace readiness fixture identity or case count");
+}
+const workspaceRunbook = readFileSync(join(packageDir, "runbooks", "execution-workspaces.md"), "utf8");
+for (const marker of [
+  "Only Senior Platform Engineer",
+  "origin/main",
+  "isolated_workspace",
+  "git_worktree",
+  "dedicated execution boundary",
+  "Do not configure runtime services or additional network egress",
+  "Do not delete or reset the operator's primary checkout",
+]) {
+  if (!workspaceRunbook.includes(marker)) fail(`Execution-workspace runbook marker missing: ${marker}`);
 }
 
 const handbookIndex = readFileSync(

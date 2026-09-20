@@ -6,6 +6,7 @@ role: general
 reportsTo: product-prd-lead
 skills:
   - optiak-durable-completion
+  - optiak-notion-knowledge
   - optiak-docs-drift
   - optiak-api-conformance
   - optiak-product-triage

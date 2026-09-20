@@ -1,0 +1,129 @@
+{
+  "schema": "optiak-execution-workspace-readiness-fixture/v1",
+  "evidenceScope": "fixture_only",
+  "cases": [
+    {
+      "id": "contract-only-no-live-workspace",
+      "evidence": {
+        "evidenceScope": "fixture_only",
+        "agentSlug": "senior-platform-engineer",
+        "repository": "optiak/optiak-frontend",
+        "registeredRepository": true,
+        "baseRef": "origin/main",
+        "baseRevision": "fixture-sha",
+        "workspaceOwnedByPaperclip": true,
+        "mode": "isolated_workspace",
+        "strategy": "git_worktree",
+        "issueScopedBranch": true,
+        "cleanInitialWorktree": true,
+        "sharedCheckoutUsed": false,
+        "nestedWorktreeCreated": false,
+        "mergePerformed": false,
+        "deployPerformed": false,
+        "productionCredentialsPresent": false,
+        "reviewerWriteAccess": false,
+        "runtimeBoundarySeparated": true,
+        "sandboxBackend": "bubblewrap",
+        "gitMetadataReadableByAgent": true,
+        "controlPlaneSecurityRelaxed": false
+      },
+      "expectedVerdict": "not_ready",
+      "expectedBlocker": "live_evidence_required"
+    },
+    {
+      "id": "unregistered-repository",
+      "evidence": {
+        "evidenceScope": "connected_local",
+        "agentSlug": "senior-platform-engineer",
+        "repository": "optiak/unregistered",
+        "registeredRepository": false
+      },
+      "expectedVerdict": "not_ready",
+      "expectedBlocker": "repository_not_allowed"
+    },
+    {
+      "id": "shared-checkout",
+      "evidence": {
+        "evidenceScope": "connected_local",
+        "agentSlug": "senior-platform-engineer",
+        "repository": "optiak/optiak",
+        "registeredRepository": true,
+        "baseRef": "origin/main",
+        "baseRevision": "fixture-sha",
+        "workspaceOwnedByPaperclip": false,
+        "mode": "shared_workspace",
+        "strategy": "project_primary",
+        "issueScopedBranch": false,
+        "cleanInitialWorktree": false,
+        "sharedCheckoutUsed": true,
+        "nestedWorktreeCreated": false,
+        "mergePerformed": false,
+        "deployPerformed": false,
+        "productionCredentialsPresent": false,
+        "reviewerWriteAccess": false,
+        "runtimeBoundarySeparated": true,
+        "sandboxBackend": "bubblewrap",
+        "gitMetadataReadableByAgent": true,
+        "controlPlaneSecurityRelaxed": false
+      },
+      "expectedVerdict": "not_ready",
+      "expectedBlocker": "workspace_not_paperclip_owned"
+    },
+    {
+      "id": "shared-control-plane-legacy-git-metadata-blocked",
+      "evidence": {
+        "evidenceScope": "connected_local",
+        "agentSlug": "senior-platform-engineer",
+        "repository": "optiak/optiak-frontend",
+        "registeredRepository": true,
+        "baseRef": "origin/main",
+        "baseRevision": "fixture-sha",
+        "workspaceOwnedByPaperclip": true,
+        "mode": "isolated_workspace",
+        "strategy": "git_worktree",
+        "issueScopedBranch": true,
+        "cleanInitialWorktree": true,
+        "sharedCheckoutUsed": false,
+        "nestedWorktreeCreated": false,
+        "mergePerformed": false,
+        "deployPerformed": false,
+        "productionCredentialsPresent": false,
+        "reviewerWriteAccess": false,
+        "runtimeBoundarySeparated": false,
+        "sandboxBackend": "legacy_landlock",
+        "gitMetadataReadableByAgent": false,
+        "controlPlaneSecurityRelaxed": false
+      },
+      "expectedVerdict": "not_ready",
+      "expectedBlocker": "execution_boundary_not_separate"
+    },
+    {
+      "id": "valid-connected-local-shape",
+      "evidence": {
+        "evidenceScope": "connected_local",
+        "agentSlug": "senior-platform-engineer",
+        "repository": "optiak/iac-infra",
+        "registeredRepository": true,
+        "baseRef": "origin/main",
+        "baseRevision": "fixture-sha",
+        "workspaceOwnedByPaperclip": true,
+        "mode": "isolated_workspace",
+        "strategy": "git_worktree",
+        "issueScopedBranch": true,
+        "cleanInitialWorktree": true,
+        "sharedCheckoutUsed": false,
+        "nestedWorktreeCreated": false,
+        "mergePerformed": false,
+        "deployPerformed": false,
+        "productionCredentialsPresent": false,
+        "reviewerWriteAccess": false,
+        "runtimeBoundarySeparated": true,
+        "sandboxBackend": "bubblewrap",
+        "gitMetadataReadableByAgent": true,
+        "controlPlaneSecurityRelaxed": false
+      },
+      "expectedVerdict": "ready_for_controlled_smoke"
+    }
+  ],
+  "note": "The final case validates evaluator shape only. Fixture evidence never proves that a live workspace exists."
+}

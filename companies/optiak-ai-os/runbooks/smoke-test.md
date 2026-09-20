@@ -29,10 +29,27 @@ Use the versioned golden-journey matrix only after every readiness gate passes;
 otherwise return one explicit `blocked` or `not_tested` result per case without
 attempting the Yellow action.
 
-For the initial GitHub smoke, use only `optiak/optiak` and
-`optiak/optiak-frontend` through Independent Code and PR Reviewer. Capture the
+For the initial Notion smoke, follow `runbooks/connections.md` Phase 2.0 and
+`skills/optiak-notion-knowledge/references/notion-authority.yaml`. Verify both
+installation and access target the ten current agents, not future agents. The
+effective catalog must show exactly `3 Allowed / 0 Ask first / 42 Off`: `Get
+tool access`, `Fetch Notion entities`, and `Query Notion data sources` only.
+Run capability discovery first. Because the observed OAuth flow inherits the
+authorizing user's access and has no page picker, do not claim root isolation
+from OAuth success. Register exact approved IDs outside Git and use a dedicated
+restricted Notion identity or enforcing proxy before the content smoke. Then
+fetch one known page for Director, Product, Architect, and one task-linked
+specialist; record source and retrieval timestamps. Prove an excluded page is
+unavailable through identity/proxy policy or a known unshared reference, never
+by sharing sensitive content for the test.
+
+For the initial GitHub smoke, use only `optiak/optiak`,
+`optiak/optiak-frontend`, and `optiak/iac-infra` through Independent Code and
+PR Reviewer. Capture the
 exact commit or PR head SHA, recheck it before verdict, and verify checks belong
-to the same revision. The catalog must expose reads only; policy must refuse
+to the same revision. For the initial fine-grained PAT, evidence is limited to
+Actions runs and commit statuses; Check Runs may be unavailable and must block
+the verdict when required. The catalog must expose reads only; policy must refuse
 `optiak/optiak-tests` and all unlisted repositories. Do not attempt a write to
 prove it is blocked. Follow `runbooks/connections.md` Phase 2.2 and
 `skills/optiak-pr-review/references/repository-authority.yaml`.

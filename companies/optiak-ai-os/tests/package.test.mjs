@@ -31,6 +31,10 @@ import {
   evaluatePostmortem,
   loadPostmortemContract,
 } from "../scripts/evaluate-postmortem.mjs";
+import {
+  evaluateProductAdvisory,
+  loadProductAdvisoryContract,
+} from "../skills/optiak-product-triage/scripts/evaluate-product-advisory.mjs";
 
 const packageDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -44,7 +48,7 @@ function fixture(skill, name) {
 
 test("every skill ships a CLI-portable offline fixture", () => {
   const skills = readdirSync(join(packageDir, "skills"));
-  assert.equal(skills.length, 13);
+  assert.equal(skills.length, 16);
   for (const skill of skills) {
     const fixtures = readdirSync(join(packageDir, "skills", skill, "references", "fixtures"))
       .filter((path) => path.endsWith(".md"));
@@ -66,6 +70,36 @@ test("PR fixture requires independent changes", () => {
   assert.notEqual(data.author, data.reviewer);
   assert.equal(data.expectedVerdict, "request_changes");
   assert.ok(data.headRevision.startsWith("fixture-"));
+  assert.equal(data.evidenceMode, "remote_mcp");
+  assert.equal(data.commandsRunByReviewer.length, 0);
+  assert.equal(data.worktreeCreatedByReviewer, false);
+});
+
+test("frontend implementation requires a Paperclip-owned isolated workspace", () => {
+  const data = fixture("optiak-frontend-implementation", "frontend-change");
+  assert.equal(data.evidenceScope, "fixture_only");
+  assert.equal(data.repository, "optiak/optiak-frontend");
+  assert.deepEqual(data.workspace, {
+    providedBy: "paperclip",
+    mode: "isolated_workspace",
+    strategy: "git_worktree",
+    writable: true,
+  });
+  assert.equal(data.expectedDisposition, "ready_for_independent_review");
+  assert.deepEqual(data.expectedHandoffs, [
+    "independent-code-reviewer",
+    "qa-e2e-validation-engineer",
+    "brand-ui-quality-reviewer",
+  ]);
+  assert.ok(data.forbiddenActions.includes("create_nested_worktree"));
+  assert.ok(data.forbiddenActions.includes("merge"));
+  assert.ok(data.forbiddenActions.includes("deploy"));
+
+  const assignedAgents = readdirSync(join(packageDir, "agents")).filter((agent) =>
+    readFileSync(join(packageDir, "agents", agent, "AGENTS.md"), "utf8")
+      .includes("  - optiak-frontend-implementation"),
+  );
+  assert.deepEqual(assignedAgents, ["senior-platform-engineer"]);
 });
 
 test("incident fixture cannot imply a production incident", () => {
@@ -248,7 +282,7 @@ function materializePromotionEvidence(contract, promotionFixture, fixtureCase) {
 test("AI OS promotion contract is provider-neutral, staged, and advice-only", () => {
   const contract = loadPromotionContract();
   assert.equal(contract.schema, "optiak-ai-os-promotion-contract/v1");
-  assert.equal(contract.packageVersion, "0.1.14");
+  assert.equal(contract.packageVersion, "0.1.26");
   assert.equal(contract.status, "offline_defined_not_deployed");
   assert.equal(contract.providerPolicy.infrastructureProvider, "undecided");
   assert.equal(contract.environmentPolicy.directLocalToProduction, "deny");
@@ -392,6 +426,55 @@ test("every agent is assigned the durable completion contract", () => {
   }
 });
 
+test("every agent carries the governed Notion retrieval contract", () => {
+  const agentRoot = join(packageDir, "agents");
+  const agents = readdirSync(agentRoot);
+  assert.equal(agents.length, 10);
+  for (const agent of agents) {
+    const markdown = readFileSync(join(agentRoot, agent, "AGENTS.md"), "utf8");
+    assert.match(markdown, /^  - optiak-notion-knowledge$/m, `${agent} is missing Notion knowledge`);
+  }
+});
+
+test("Notion knowledge is role-scoped, read-only, and fail-closed", () => {
+  const authority = readFileSync(
+    join(packageDir, "skills", "optiak-notion-knowledge", "references", "notion-authority.yaml"),
+    "utf8",
+  );
+  assert.match(authority, /status: connected_policy_smoke_passed_root_registry_pending/);
+  assert.match(authority, /endpoint: https:\/\/mcp\.notion\.com\/mcp/);
+  assert.match(authority, /authentication: oauth_dcr_pkce/);
+  assert.match(authority, /wholeWorkspaceExport: deny/);
+  assert.match(authority, /mutations: deny/);
+  assert.match(authority, /consentPageSelectionObserved: false/);
+  assert.match(authority, /logicalRootsAreHardBoundary: false/);
+  assert.match(authority, /- finance/);
+  assert.match(authority, /- board-private/);
+  assert.equal((authority.match(/^  [a-z][a-z0-9-]+:\n    roots:/gm) || []).length, 10);
+
+  const policy = readFileSync(join(packageDir, "policies", "notion-readonly.yaml"), "utf8");
+  assert.match(policy, /defaultAction: deny/);
+  assert.match(policy, /quarantineNewEntries: true/);
+  assert.match(policy, /consentPageSelectionAvailable: false/);
+  assert.match(policy, /oauthAloneProvesRootIsolation: false/);
+  assert.match(policy, /allowed: 3\n    askFirst: 0\n    off: 42/);
+  assert.match(policy, /wholeWorkspaceSearch: deny/);
+  assert.match(policy, /approvalMayOverride: false/);
+  assert.match(policy, /trustRules: deny/);
+
+  const data = fixture("optiak-notion-knowledge", "authority-cases");
+  assert.deepEqual(
+    data.cases.map((item) => item.expectedDisposition),
+    [
+      "read_allowed",
+      "blocked_on_authority",
+      "denied_mutation",
+      "blocked_on_connection",
+      "report_authority_conflict",
+    ],
+  );
+});
+
 test("source map selects approved authorities without pretending GitHub is live", () => {
   const sourceMap = readFileSync(join(packageDir, "references", "source-map.yaml"), "utf8");
   assert.equal((sourceMap.match(/status: disconnected/g) || []).length, 4);
@@ -403,6 +486,10 @@ test("source map selects approved authorities without pretending GitHub is live"
   assert.match(sourceMap, /productEngineeringOperatingModelRef: references\/product-engineering-operating-model\.json/);
   assert.match(sourceMap, /systemRepositoryRegisterRef: references\/system-repository-register\.yaml/);
   assert.match(sourceMap, /engineeringHandbookIndexRef: references\/engineering-handbook-index\.md/);
+  assert.match(sourceMap, /notionKnowledgeAuthorityRef: skills\/optiak-notion-knowledge\/references\/notion-authority\.yaml/);
+  assert.match(sourceMap, /id: notion-product-engineering-knowledge/);
+  assert.match(sourceMap, /status: connected_policy_smoke_passed_root_registry_pending/);
+  assert.match(sourceMap, /https:\/\/mcp\.notion\.com\/mcp/);
 });
 
 test("product authority is field-specific, fresh, bounded, and read-only", () => {
@@ -415,6 +502,9 @@ test("product authority is field-specific, fresh, bounded, and read-only", () =>
   assert.match(authority, /writeToolsAllowed: false/);
   assert.match(authority, /maximumAgeMinutesForCurrentClaim: 15/);
   assert.match(authority, /copyWholeBacklog: false/);
+  assert.match(authority, /priorityRanking: deny/);
+  assert.match(authority, /recommendationRequiresExactDetailRead: true/);
+  assert.match(authority, /separateMachineEnvelope: true/);
 
   const conflicts = fixture("optiak-product-triage", "authority-conflicts");
   assert.deepEqual(
@@ -428,7 +518,70 @@ test("product authority is field-specific, fresh, bounded, and read-only", () =>
   );
 });
 
-test("repository authority limits GitHub to two repositories and one read-only reviewer", () => {
+test("product advisory contract turns OPT-39 feedback into fail-closed review gates", () => {
+  const contract = loadProductAdvisoryContract();
+  assert.equal(contract.schema, "optiak-product-advisory-contract/v1");
+  assert.equal(contract.status, "offline_defined_read_only_advisory");
+  assert.equal(contract.sourceReview.paperclipIssue, "OPT-39");
+  assert.equal(contract.sourceReview.historicalEvidenceOnly, true);
+  assert.equal(contract.authority.strategyRequiredForPriorityRecommendation, true);
+  assert.equal(contract.authority.linearUpdatedAtProvesPriority, false);
+  assert.equal(contract.authority.listResultSupportsSemanticRecommendation, false);
+  assert.equal(contract.recommendations.maximum, 3);
+  assert.equal(contract.recommendations.detailReadRequired, true);
+  assert.equal(contract.humanOutput.maximumWords, 700);
+  assert.equal(contract.humanOutput.maximumExecutiveSummaryLines, 5);
+  assert.equal(contract.humanOutput.machineEnvelope, "separate_from_human_report");
+  assert.equal(contract.efficiency.uncachedInputTokens.targetMaximum, 25000);
+  assert.equal(contract.efficiency.uncachedInputTokens.reviewMaximum, 40000);
+  assert.equal(contract.permissions.linearWrites, false);
+  assert.equal(contract.permissions.codeChanges, false);
+});
+
+test("product advisory evaluator covers strategy, depth, output and efficiency regressions", () => {
+  const data = fixture("optiak-product-triage", "advisory-cases");
+  assert.equal(data.cases.length, 5);
+  for (const fixtureCase of data.cases) {
+    const result = evaluateProductAdvisory(fixtureCase.evidence);
+    assert.equal(result.verdict, fixtureCase.expectedVerdict, fixtureCase.id);
+    assert.equal(result.doesNotAuthorizeLinearWrites, true);
+    assert.equal(result.doesNotAuthorizeImplementation, true);
+  }
+
+  const byId = new Map(data.cases.map((item) => [item.id, item]));
+  const blocked = evaluateProductAdvisory(byId.get("strategy-missing-updated-at-ranking").evidence);
+  assert.ok(blocked.strategyBlockers.includes("priority_review_requires_current_strategy_authority"));
+  assert.ok(blocked.strategyBlockers.includes("updated_at_only_cannot_support_priority_review"));
+  assert.ok(blocked.strategyBlockers.includes("bounded_sample_cannot_claim_global_priority"));
+
+  const shallow = evaluateProductAdvisory(byId.get("list-only-recommendation").evidence);
+  assert.ok(shallow.structuralViolations.includes("detail_read_required:OPT-FIXTURE-2"));
+
+  const inefficient = evaluateProductAdvisory(byId.get("opt39-efficiency-regression").evidence);
+  assert.deepEqual(inefficient.efficiencyRegressions, [
+    "uncachedInputTokens_over_review_maximum",
+    "outputTokens_over_review_maximum",
+    "durationSeconds_over_review_maximum",
+  ]);
+
+  const inline = evaluateProductAdvisory(byId.get("inline-machine-envelope").evidence);
+  assert.ok(inline.structuralViolations.includes("machine_envelope_must_be_separate"));
+});
+
+test("OPT-39 feedback is historical, mutation-free and dispositioned", () => {
+  const feedback = fixture("optiak-product-triage", "opt-39-feedback");
+  assert.equal(feedback.sourceIssue, "OPT-39");
+  assert.equal(feedback.historicalOnly, true);
+  assert.equal(feedback.linearMutations, 0);
+  assert.equal(feedback.agentActivations, 0);
+  assert.equal(feedback.improvements.length, 6);
+  assert.deepEqual(
+    feedback.decisionDispositions.map((decision) => decision.disposition),
+    ["hypothesis_pending_current_strategy", "provisional_principle", "accepted_architecture_principle"],
+  );
+});
+
+test("repository authority limits GitHub to three repositories and one read-only reviewer", () => {
   const authority = readFileSync(
     join(packageDir, "skills", "optiak-pr-review", "references", "repository-authority.yaml"),
     "utf8",
@@ -437,14 +590,52 @@ test("repository authority limits GitHub to two repositories and one read-only r
   assert.match(authority, /authentication: fine_grained_personal_access_token/);
   assert.match(authority, /maximumCredentialLifetimeDays: 30/);
   assert.match(authority, /- independent-code-reviewer/);
-  assert.equal((authority.match(/^    - slug: optiak\//gm) || []).length, 2);
+  assert.equal((authority.match(/^    - slug: optiak\//gm) || []).length, 3);
   assert.match(authority, /- slug: optiak\/optiak$/m);
   assert.match(authority, /- slug: optiak\/optiak-frontend$/m);
+  assert.match(authority, /- slug: optiak\/iac-infra$/m);
   assert.match(authority, /- optiak\/optiak-tests$/m);
   assert.match(authority, /defaultDecision: deny/);
   assert.match(authority, /writeToolsAllowed: false/);
+  assert.match(authority, /fine_grained_pat_does_not_support_checks_api/);
+  assert.match(authority, /blocked_on_evidence_when_required_ci_result_is_only_a_check_run/);
+  assert.doesNotMatch(authority, /^    checks: read$/m);
   assert.match(authority, /recheckHeadBeforeVerdict: true/);
   assert.match(authority, /cloneWholeOrganization: false/);
+
+  const desiredState = readFileSync(join(packageDir, "policies", "desired-state.yaml"), "utf8");
+  assert.match(desiredState, /connectionMethod: generic_mcp_custom_headers/);
+  assert.match(desiredState, /quarantineNewEntries: true/);
+  assert.match(desiredState, /missingOwnerAndRepoDuringDiscovery: require_approval/);
+  assert.match(desiredState, /exactApprovedRepository: allow_for_independent_reviewer/);
+  assert.match(desiredState, /fallback: deny/);
+  const enabledReadToolsBlock = desiredState.match(
+    /    enabledReadTools:\n(?<tools>(?:      - [a-z_]+\n)+)/,
+  )?.groups?.tools;
+  const disabledBroadToolsBlock = desiredState.match(
+    /    disabledBroadTools:\n(?<tools>(?:      - [a-z_]+\n)+)/,
+  )?.groups?.tools;
+  assert.equal(
+    enabledReadToolsBlock?.match(/^      - [a-z_]+$/gm)?.length,
+    14,
+    "expected fourteen enabled repository reads",
+  );
+  assert.equal(
+    disabledBroadToolsBlock?.match(/^      - [a-z_]+$/gm)?.length,
+    5,
+    "expected five disabled broad tools",
+  );
+
+  const connectionRunbook = readFileSync(join(packageDir, "runbooks", "connections.md"), "utf8");
+  assert.match(connectionRunbook, /Advanced authentication → Custom headers/);
+  assert.match(connectionRunbook, /Authorization: Bearer <fine-grained PAT>/);
+  assert.match(connectionRunbook, /priority 39:[\s\S]*requires approval/);
+  assert.match(connectionRunbook, /priority 40:[\s\S]*allow only Independent Reviewer/);
+  assert.match(connectionRunbook, /priority 50:[\s\S]*block every remaining call/);
+  assert.match(connectionRunbook, /search_repositories` off/);
+
+  const allowlist = readFileSync(join(packageDir, "policies", "tool-allowlist.yaml"), "utf8");
+  assert.match(allowlist, /repository_exactly_one_of_optiak_optiak_frontend_or_iac_infra/);
 });
 
 test("architecture authority is domain-specific and fails closed", () => {
@@ -725,6 +916,10 @@ test("execution budget distinguishes enforced money and time gates from token re
   assert.match(policy, /basis: uncached_input_tokens/);
   assert.match(policy, /nativeEnforcement: false/);
   assert.match(policy, /unpricedBehavior: no_false_cost_signal/);
+  assert.match(policy, /targetUncachedInputTokens: 25000/);
+  assert.match(policy, /reviewMaximumUncachedInputTokens: 40000/);
+  assert.match(policy, /overReviewMaximum: efficiency_regression/);
+  assert.match(policy, /automaticRetryAllowed: false/);
 });
 
 test("run baseline keeps cumulative, cached, and uncached usage mathematically separate", () => {
@@ -908,7 +1103,7 @@ test("system register stays deny-by-default and handbook chapters stay source-pe
   assert.match(register, /repositoryEntryCreatesAccess: false/);
   assert.deepEqual(
     [...register.matchAll(/^  - slug: (optiak\/[a-z0-9-]+)$/gm)].map((match) => match[1]),
-    ["optiak/optiak", "optiak/optiak-frontend"],
+    ["optiak/optiak", "optiak/optiak-frontend", "optiak/iac-infra"],
   );
   for (const chapter of [
     "Architecture principles",

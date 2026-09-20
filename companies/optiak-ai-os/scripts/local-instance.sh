@@ -12,6 +12,8 @@ public_url=${OPTIAK_PAPERCLIP_PUBLIC_URL:-"http://localhost:$port"}
 secret_file="$data_dir/.better-auth-secret"
 quickstart="$repo_root/docker/docker-compose.quickstart.yml"
 override="$package_dir/runtime/docker-compose.paperclip.yml"
+publisher_override="$package_dir/runtime/docker-compose.linear-ticket-publisher.yml"
+publisher_secret_dir="$package_dir/.runtime-secrets/linear-ticket-publisher"
 
 die() {
   echo "$*" >&2
@@ -48,6 +50,35 @@ compose() {
     "$@"
 }
 
+compose_with_publisher() {
+  docker compose \
+    --project-name "$project" \
+    -f "$quickstart" \
+    -f "$override" \
+    -f "$publisher_override" \
+    "$@"
+}
+
+publisher_init() {
+  mkdir -p "$publisher_secret_dir"
+  chmod 700 "$publisher_secret_dir"
+  if [ ! -f "$publisher_secret_dir/mcp-token" ]; then
+    openssl rand -hex -out "$publisher_secret_dir/mcp-token" 32
+  fi
+  chmod 600 "$publisher_secret_dir/mcp-token"
+  echo "Publisher secret directory initialized; MCP token value not displayed."
+  echo "Add linear-team-id, oauth-client-id and oauth-client-secret with mode 0600 before publisher-up."
+}
+
+ensure_publisher_secrets() {
+  publisher_init >/dev/null
+  for name in linear-team-id oauth-client-id oauth-client-secret mcp-token; do
+    path="$publisher_secret_dir/$name"
+    [ -s "$path" ] || die "missing publisher secret file: companies/optiak-ai-os/.runtime-secrets/linear-ticket-publisher/$name"
+    chmod 600 "$path"
+  done
+}
+
 action=${1:-}
 if [ -n "$action" ]; then
   shift
@@ -75,6 +106,31 @@ case "$action" in
     curl -fsS "$public_url/api/health"
     printf '\n'
     ;;
+  publisher-init)
+    ensure_runtime
+    publisher_init
+    ;;
+  publisher-up)
+    ensure_runtime
+    ensure_publisher_secrets
+    compose_with_publisher up -d "$@" linear-ticket-publisher
+    ;;
+  publisher-health)
+    ensure_runtime
+    ensure_publisher_secrets
+    compose_with_publisher exec -T linear-ticket-publisher node -e \
+      "fetch('http://127.0.0.1:8788/health').then(async r=>{if(!r.ok)process.exit(1);console.log(await r.text())})"
+    ;;
+  publisher-logs)
+    ensure_runtime
+    ensure_publisher_secrets
+    compose_with_publisher logs "$@" linear-ticket-publisher
+    ;;
+  publisher-stop)
+    ensure_runtime
+    ensure_publisher_secrets
+    compose_with_publisher stop linear-ticket-publisher
+    ;;
   stop)
     ensure_runtime
     compose stop "$@"
@@ -86,12 +142,15 @@ case "$action" in
     ;;
   *)
     cat >&2 <<'USAGE'
-Usage: local-instance.sh {init|up|ps|logs|health|stop|down} [compose arguments]
+Usage: local-instance.sh {init|up|ps|logs|health|stop|down|publisher-init|publisher-up|publisher-health|publisher-logs|publisher-stop} [compose arguments]
 
 Examples:
   local-instance.sh up --build
   local-instance.sh health
   local-instance.sh logs --tail 100 paperclip
+  local-instance.sh publisher-init
+  local-instance.sh publisher-up --build
+  local-instance.sh publisher-health
   local-instance.sh stop
 
 Optional overrides:

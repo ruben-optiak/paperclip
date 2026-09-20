@@ -1,0 +1,81 @@
+schema: optiak-notion-readonly-policy/v1
+connection:
+  provider: Notion
+  endpoint: https://mcp.notion.com/mcp
+  name: Notion — Optiak Product and Engineering Read Only
+  authentication: oauth_dcr_pkce
+  observedOAuthScope: authorizing_user_workspace_access
+  consentPageSelectionAvailable: false
+  hardRootBoundaryRequiresOneOf:
+    - dedicated_restricted_notion_identity
+    - enforcing_root_allowlist_proxy
+  oauthAloneProvesRootIsolation: false
+profile:
+  defaultAction: deny
+  quarantineNewEntries: true
+  installTargets:
+    - director-optiak
+    - engineering-assurance-lead
+    - product-prd-lead
+    - principal-platform-architect
+    - senior-platform-engineer
+    - independent-code-reviewer
+    - reliability-incident-engineer
+    - qa-e2e-validation-engineer
+    - brand-ui-quality-reviewer
+    - documentation-dx-steward
+catalog:
+  allowAfterReview:
+    - Get tool access
+    - Fetch Notion entities
+    - Query Notion data sources
+  observedCatalogActions: 45
+  expectedEffectiveProfile:
+    allowed: 3
+    askFirst: 0
+    off: 42
+  denyCategories:
+    - create
+    - update
+    - comment
+    - move
+    - duplicate
+    - archive
+    - delete
+    - export
+    - permission
+    - integration
+    - user
+    - admin
+    - bulk
+  changedOrUnknownTool: quarantine
+reads:
+  requireAgentRootMatch: true
+  requireExactCanonicalIdOrUrl: true
+  speculativeDiscovery: deny
+  boundedResults: true
+  wholeWorkspaceSearch: deny
+  wholeWorkspaceExport: deny
+  attachments: deny
+  personalData: deny
+  customerData: deny
+  secretMaterial: deny
+writes:
+  decision: deny
+  approvalMayOverride: false
+  trustRules: deny
+evidence:
+  requireCanonicalUrlOrId: true
+  requireRetrievalTime: true
+  requireLastEditedTimeWhenAvailable: true
+  missingOrStale: unknown_not_current
+  conflicts: report_with_human_owner
+liveValidation:
+  observedAt: 2026-09-19
+  connectionIdStoredInGit: false
+  oauthGrantStoredInGit: false
+  agentsPausedDuringValidation: true
+  smokeAction: Get tool access
+  smokeTransport: mcp_http
+  smokeResult: pass
+  contentRootSmoke: pending_approved_root_registry

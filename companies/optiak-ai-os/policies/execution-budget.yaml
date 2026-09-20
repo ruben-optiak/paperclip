@@ -81,6 +81,17 @@ controls:
     actionAt100: stop_context_expansion_and_finish_or_block
     nativeEnforcement: false
     rawInputTokensAre: cumulative_usage_not_prompt_size
+  productAdvisoryReview:
+    contract: skills/optiak-product-triage/references/product-advisory-contract.json
+    targetUncachedInputTokens: 25000
+    reviewMaximumUncachedInputTokens: 40000
+    targetOutputTokens: 4000
+    reviewMaximumOutputTokens: 6000
+    targetDurationSeconds: 180
+    reviewMaximumDurationSeconds: 240
+    overReviewMaximum: efficiency_regression
+    automaticRetryAllowed: false
+    nativeEnforcement: false
 operatorRules:
   - Never infer zero cost from an unpriced run.
   - Treat token thresholds as post-run review gates until Paperclip supports an in-flight token cap.

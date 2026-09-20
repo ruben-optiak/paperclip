@@ -1,0 +1,110 @@
+schema: optiak-notion-knowledge-authority/v1
+status: connected_policy_smoke_passed_root_registry_pending
+provider:
+  name: Notion
+  endpoint: https://mcp.notion.com/mcp
+  transport: mcp_remote
+  authentication: oauth_dcr_pkce
+  tokenStorage: paperclip_company_secret_store
+authority:
+  notion: approved_intent_decisions_and_knowledge
+  linear: current_execution_state
+  github: implementation_at_immutable_revision
+  paperclip: ai_coordination_approvals_and_run_evidence
+  publicDocs: external_claim_only
+conflictPolicy:
+  action: report_do_not_silently_merge
+  fields:
+    - source
+    - canonical_url_or_id
+    - source_timestamp
+    - retrieval_time
+    - conflicting_claim
+    - human_owner
+freshness:
+  currentClaimRequires:
+    - notion_last_edited_time_when_available
+    - retrieval_time
+  missingTimestamp: unknown_not_current
+  staleDecision: flag_for_owner_confirmation
+retention:
+  wholeWorkspaceExport: deny
+  wholePageCopy: deny
+  attachments: deny
+  minimumNecessarySummary: allow
+  boundedEvidenceExcerpt: allow
+privacy:
+  personalData: deny
+  customerData: deny
+  credentialsAndSecrets: deny
+  productionRawLogs: deny
+tools:
+  defaultDecision: deny
+  quarantineNewEntries: true
+  allowedAfterCatalogReview:
+    - Get tool access
+    - Fetch Notion entities
+    - Query Notion data sources
+  globalSearch: deny
+  mutations: deny
+scopeEnforcement:
+  oauthGrant: inherits_authorizing_user_access
+  consentPageSelectionObserved: false
+  logicalRootsAreHardBoundary: false
+  requiredBeforeActivation:
+    - register_exact_approved_page_or_data_source_ids_outside_git
+    - dedicated_restricted_notion_identity_or_enforcing_proxy
+    - positive_and_negative_content_smoke
+roots:
+  product-strategy:
+    purpose: Product vision, strategy, positioning, and non-goals
+  roadmap-goals:
+    purpose: Roadmap intent and goals; Linear remains execution authority
+  discovery-customer-insights:
+    purpose: Curated research and customer insights without customer PII
+  product-specifications:
+    purpose: PRDs, product specs, acceptance criteria, and product decisions
+  architecture-decisions:
+    purpose: Architecture principles, ADRs, RFCs, and platform decisions
+  engineering-handbook:
+    purpose: Development, testing, release, and ways-of-working standards
+  reliability-knowledge:
+    purpose: Runbooks, incident reviews, and postmortems without raw production data
+  brand-design-ux:
+    purpose: Brand, design system, UX guidance, and approved research
+  documentation-dx:
+    purpose: Documentation strategy, source maps, changelog, and DX guidance
+excludedRoots:
+  - finance
+  - fundraising
+  - legal-grc
+  - hr-people
+  - board-private
+  - personal-pages
+  - credentials-secrets
+  - customer-records
+  - production-raw-logs
+agents:
+  director-optiak:
+    roots: [product-strategy, roadmap-goals, product-specifications, architecture-decisions, engineering-handbook, reliability-knowledge]
+  engineering-assurance-lead:
+    roots: [product-specifications, architecture-decisions, engineering-handbook, reliability-knowledge]
+  product-prd-lead:
+    roots: [product-strategy, roadmap-goals, discovery-customer-insights, product-specifications, brand-design-ux, documentation-dx]
+  principal-platform-architect:
+    roots: [product-specifications, architecture-decisions, engineering-handbook, reliability-knowledge]
+  senior-platform-engineer:
+    roots: [product-specifications, architecture-decisions, engineering-handbook, reliability-knowledge]
+    taskLinkedOnly: true
+  independent-code-reviewer:
+    roots: [product-specifications, architecture-decisions, engineering-handbook]
+    taskLinkedOnly: true
+  reliability-incident-engineer:
+    roots: [architecture-decisions, engineering-handbook, reliability-knowledge]
+  qa-e2e-validation-engineer:
+    roots: [product-specifications, architecture-decisions, engineering-handbook, reliability-knowledge]
+    taskLinkedOnly: true
+  brand-ui-quality-reviewer:
+    roots: [product-specifications, discovery-customer-insights, brand-design-ux]
+  documentation-dx-steward:
+    roots: [product-specifications, architecture-decisions, engineering-handbook, documentation-dx]

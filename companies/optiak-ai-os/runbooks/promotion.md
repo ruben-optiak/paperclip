@@ -94,7 +94,7 @@ compatible backup under the selected older image.
 
 Preview the exact frozen ZIP. Confirm:
 
-- ten agents, thirteen skills, six projects, twenty-one tasks, and four routines;
+- ten agents, fifteen skills, six projects, twenty-one tasks, and four routines;
 - one `director-optiak` root and the expected reporting tree;
 - an explicit and explained collision strategy;
 - no credential, local path, database id, or connection instance state;

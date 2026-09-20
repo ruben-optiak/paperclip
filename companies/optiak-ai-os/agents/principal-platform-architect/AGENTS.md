@@ -6,6 +6,7 @@ role: general
 reportsTo: engineering-assurance-lead
 skills:
   - optiak-durable-completion
+  - optiak-notion-knowledge
   - optiak-architecture-review
   - optiak-api-conformance
   - optiak-prd-review

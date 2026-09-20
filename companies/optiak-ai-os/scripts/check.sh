@@ -6,13 +6,20 @@ build_dir=$(mktemp -d)
 trap 'rm -rf "$build_dir"' EXIT HUP INT TERM
 
 node --check "$package_dir/scripts/validate-package.mjs"
+node --check "$package_dir/scripts/check-live-agent-parity.mjs"
+node --check "$package_dir/scripts/prove-director-authority.mjs"
 node --check "$package_dir/scripts/check-sandbox-compat.mjs"
+node --check "$package_dir/scripts/evaluate-execution-workspace.mjs"
 node --check "$package_dir/scripts/evaluate-promotion-readiness.mjs"
 node --check "$package_dir/scripts/evaluate-prd-readiness.mjs"
 node --check "$package_dir/scripts/evaluate-postmortem.mjs"
+node --check "$package_dir/skills/optiak-product-triage/scripts/evaluate-product-advisory.mjs"
 node --check "$package_dir/scripts/probe-test-environment.mjs"
 node --check "$package_dir/scripts/linear-preflight.mjs"
 node --check "$package_dir/connectors/linear-privacy/projection.mjs"
+for file in "$package_dir"/connectors/linear-ticket-publisher/src/*.mjs; do
+  node --check "$file"
+done
 node --check "$package_dir/scripts/probe-linear-privacy-core.mjs"
 node --check "$package_dir/scripts/record-qa-note.mjs"
 node --check "$package_dir/skills/optiak-durable-completion/scripts/complete-issue.mjs"
@@ -22,6 +29,7 @@ node "$package_dir/scripts/check-sandbox-compat.mjs"
 node "$package_dir/scripts/probe-test-environment.mjs"
 "$package_dir/scripts/scan-secrets.sh"
 node --test "$package_dir"/tests/*.test.mjs
+(cd "$package_dir/connectors/linear-ticket-publisher" && npm test)
 
 "$package_dir/scripts/build-import-zip.sh" "$build_dir/first.zip" >/dev/null
 "$package_dir/scripts/build-import-zip.sh" "$build_dir/second.zip" >/dev/null

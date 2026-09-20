@@ -48,7 +48,7 @@ See `references/product-engineering-operating-model.md` for scope, decision righ
 | Engineering Assurance Lead | Director | Technical delivery, quality gates, release readiness |
 | Product & PRD Lead | Director | Product intent, roadmap, backlog and acceptance criteria |
 | Principal Platform Architect | Engineering Assurance Lead | Architecture, RFCs, technical debt and platform boundaries |
-| Senior Platform Engineer | Engineering Assurance Lead | Reproduction, debugging and implementation after repo connection |
+| Senior Platform Engineer | Engineering Assurance Lead | Reproduction, debugging and approved implementation, including frontend work in Paperclip-managed isolated workspaces |
 | Independent Code & PR Reviewer | Engineering Assurance Lead | Independent correctness, security and maintainability review |
 | Reliability & Incident Response Engineer | Engineering Assurance Lead | On-call triage, mitigation proposals, incident evidence and postmortems |
 | QA & E2E Validation Engineer | Engineering Assurance Lead | Golden journeys, edge cases, browser/API validation and regressions |
@@ -77,7 +77,50 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 
 “Always on” means event-driven alerts and bounded routines. Agents must not burn budget by polling unmanaged processes or claim on-call coverage when no signal source is connected.
 
-## Safety state in v0.1.14
+## Safety state in v0.1.26
+
+- A read-only post-import doctor compares all ten live agents with
+  `.paperclip.yaml` and fails on adapter, model, arguments, managed-MCP,
+  heartbeat, budget, permission or paused-state drift. It never repairs or
+  activates an agent and omits instance IDs and unrelated fields from output.
+- The Director is a `general` root (`reportsTo: null`), has
+  `canCreateAgents: false`, and receives `tasks:assign` through an explicit
+  portable grant. The live authority proof must observe a real read-only
+  `403 agents:create` denial using a short-lived key that is revoked before the
+  proof can pass.
+- The three approved repositories have a versioned execution-workspace
+  contract and deterministic evaluator. The first live
+  `optiak/optiak-frontend` lifecycle proof created a clean Paperclip-owned,
+  issue-scoped `git_worktree` from the exact `origin/main` revision and archived
+  it with zero commits ahead. Agent-side Git inspection remains blocked because
+  the shared control-plane container's legacy read-only sandbox denies
+  worktree Git metadata. The evaluator now also requires a dedicated execution
+  boundary, Bubblewrap, readable Git metadata and no control-plane privilege
+  relaxation. Shared checkouts, nested worktrees, merge, deploy, production
+  credentials and Reviewer writes remain denied.
+- The official Daytona sandbox-provider manifest `0.1.7` remains installed but
+  disabled in the local Optiak instance, and the Environments UI is off. No
+  provider secret, saved environment, sandbox lease, agent
+  default-environment assignment, adapter migration or native-runner rollout
+  exists. Agent-authored implementation is intentionally deferred: agents may
+  read approved sources, analyze, review and draft, but must not receive an
+  implementation workspace or create code changes.
+
+- Product advisory work follows the OPT-39 quality baseline. Priority and
+  roadmap recommendations require an exact approved strategy reference;
+  `updatedAt` samples support hygiene only, every recommended ticket requires a
+  same-review detail read, and the Board memo is separated from its machine
+  envelope. The deterministic evaluator also fails on excess scope, missing
+  evidence depth, external writes and context-efficiency regression.
+
+- Every agent carries `optiak-notion-knowledge`. The live connection is bound
+  explicitly to the ten current agents, with no future-agent inheritance, and
+  exposes only `Get tool access`, `Fetch Notion entities`, and `Query Notion
+  data sources`; the remaining 42 actions are off and none are ask-first. The
+  hosted OAuth flow inherits the authorizing Notion user's access and did not
+  present page selection, so logical Product & Engineering roots are a
+  fail-closed behavioral contract until a dedicated restricted Notion identity
+  or enforcing proxy supplies a hard content boundary. Agents remain paused.
 
 - The Linear privacy candidate projects metadata before the gateway/audit
   boundary and is tested with synthetic identity canaries. It is **offline,
@@ -90,9 +133,27 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 - Linear has an operator-only metadata preflight with reviewed catalog hashes,
   fail-closed quarantine and audience checks. It neither refreshes credentials
   nor grants access, and does not claim to redact raw provider audit storage.
+- Linear ticket creation is a separate, offline connector with one tool. It
+  starts disabled, accepts at most five PII-free tickets whose complete signed
+  arguments fit the approval card, and requires an exact Board action approval
+  on every call. It creates only unassigned `OPT` issues, persists no ticket
+  bodies or provider credentials, and stops for operator reconciliation rather
+  than retrying an uncertain mutation. Importing the package does not install or
+  activate it; see `runbooks/linear-ticket-publishing.md`.
 - Post-completion operator QA uses immutable issue documents instead of comments
   that could reopen a closed task. See `runbooks/connected-review-quality.md`.
+- Product advisory quality follows `runbooks/product-advisory-review.md`: strategy
+  before priority, detail before recommendation, compact Board output and a
+  deterministic efficiency/evidence gate.
 - All agents and routine schedules import paused.
+- Senior Platform Engineer carries a portable frontend implementation skill for
+  `optiak/optiak-frontend`, but it fails closed until Paperclip assigns an
+  approved isolated writable execution workspace. It uses the branch and
+  workspace supplied by the control plane and never creates its own worktree.
+- Independent PR review uses a versioned behavior-first rubric in either remote
+  MCP mode or an exact Paperclip-provided workspace. No local worktree scripts,
+  machine paths, repository writes, merge authority or deployment authority are
+  bundled.
 - Six Product & Engineering domains route to the existing ten agents. No new
   agent, repository access, source connection, or authority is created by the
   operating-model taxonomy. Data Platform & AI Quality remains an explicit
@@ -112,7 +173,8 @@ The Board may assign work directly to any specialist. Reporting lines define acc
   execute an action.
 - Local fixtures and draft work products are allowed.
 - Linear team `OPT` is selected as the operational backlog authority; its live connection and smoke evidence remain instance state rather than package content.
-- GitHub authority is limited to read-only evidence from `optiak/optiak` and `optiak/optiak-frontend`, initially for Independent Code and PR Reviewer only. Every other repository is denied by default.
+- GitHub authority is limited to read-only evidence from `optiak/optiak`, `optiak/optiak-frontend`, and `optiak/iac-infra`, initially for Independent Code and PR Reviewer only. Every other repository is denied by default, and IaC source never substitutes for deployed-state evidence.
+- The verified local GitHub pattern uses the generic MCP connector with three secret-backed headers, enables fourteen repository-scoped reads, leaves five broad search/collaborator tools off, quarantines future tools and applies a missing-scope ask-first, exact-repository allow, fallback-deny policy chain. These live controls are instance state and must be reapplied and rechecked after import.
 - The GitHub connection may remain deliberately deferred without broadening any other source.
 - Local UI, Admin, Gateway, documentation, and MCP endpoints are governed by a
   machine-readable environment contract. Only credential-free loopback
@@ -153,13 +215,14 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 ## Validation
 
 ```sh
+npm ci --prefix companies/optiak-ai-os/connectors/linear-ticket-publisher --ignore-scripts
 ./companies/optiak-ai-os/scripts/check.sh
 ```
 
 Build a deterministic import archive outside the package:
 
 ```sh
-./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.14.zip
+./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.26.zip
 ```
 
 ## Getting started
@@ -191,6 +254,8 @@ The UI import preview remains the recommended first application path because it 
 
 See `runbooks/local-setup.md`, `runbooks/test-environment.md`,
 `runbooks/execution-budgets.md`, `runbooks/connections.md`,
+`runbooks/linear-ticket-publishing.md`,
+`runbooks/product-advisory-review.md`,
 `runbooks/observability-and-oncall.md`, `runbooks/security.md`,
 `runbooks/sandbox-migration.md`, and `runbooks/smoke-test.md` before import.
 

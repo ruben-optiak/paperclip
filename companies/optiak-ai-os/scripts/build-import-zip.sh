@@ -22,7 +22,9 @@ if ! command -v zip >/dev/null 2>&1; then
   exit 4
 fi
 
-symlinks=$(find "$package_dir" -type l -print)
+symlinks=$(find "$package_dir" \
+  \( -type d \( -name node_modules -o -name dist -o -name .paperclip-sdk -o -name .runtime-secrets -o -name source-snapshots \) -prune \) \
+  -o -type l -print)
 if [ -n "$symlinks" ]; then
   echo "Refusing symlinked package inputs:" >&2
   echo "$symlinks" >&2
@@ -56,14 +58,10 @@ is_allowed() {
 
 (
   cd "$package_dir"
-  find . -type f \
-    ! -path './node_modules/*' \
-    ! -path './dist/*' \
-    ! -path './.paperclip-sdk/*' \
-    ! -path './.runtime-secrets/*' \
-    ! -path './source-snapshots/*' \
-    ! -name '*.DS_Store' \
-    -print | sed 's#^\./##' | LC_ALL=C sort
+  find . \
+    \( -type d \( -name node_modules -o -name dist -o -name .paperclip-sdk -o -name .runtime-secrets -o -name source-snapshots \) -prune \) \
+    -o \( -type f ! -name '*.DS_Store' -print \) \
+    | sed 's#^\./##' | LC_ALL=C sort
 ) | while IFS= read -r candidate; do
   if is_allowed "$candidate"; then
     printf '%s\n' "$candidate" >> "$file_list"

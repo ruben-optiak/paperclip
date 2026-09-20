@@ -5,6 +5,7 @@ policy:
   wholeSiteSnapshotsAllowed: false
   historicalEvidenceMustBeLabelled: true
   productAuthorityRef: skills/optiak-product-triage/references/product-authority.yaml
+  productAdvisoryQualityRef: skills/optiak-product-triage/references/product-advisory-contract.json
   repositoryAuthorityRef: skills/optiak-pr-review/references/repository-authority.yaml
   testEnvironmentAuthorityRef: skills/optiak-e2e-validation/references/test-environment-contract.json
   observabilityAuthorityRef: skills/optiak-incident-triage/references/observability-source-contract.json
@@ -14,6 +15,7 @@ policy:
   productEngineeringOperatingModelRef: references/product-engineering-operating-model.json
   systemRepositoryRegisterRef: references/system-repository-register.yaml
   engineeringHandbookIndexRef: references/engineering-handbook-index.md
+  notionKnowledgeAuthorityRef: skills/optiak-notion-knowledge/references/notion-authority.yaml
 sources:
   - id: public-overview
     url: https://docs.optiak.dev/getting-started/overview
@@ -72,6 +74,32 @@ sources:
     purpose: Provider integration claims
     authority: public_claim
 futureAuthorities:
+  - id: notion-product-engineering-knowledge
+    status: connected_policy_smoke_passed_root_registry_pending
+    provider: Notion
+    authority: approved_intent_decisions_and_knowledge
+    connectionEndpoint: https://mcp.notion.com/mcp
+    policy: policies/notion-readonly.yaml
+    installedFor:
+      - director-optiak
+      - engineering-assurance-lead
+      - product-prd-lead
+      - principal-platform-architect
+      - senior-platform-engineer
+      - independent-code-reviewer
+      - reliability-incident-engineer
+      - qa-e2e-validation-engineer
+      - brand-ui-quality-reviewer
+      - documentation-dx-steward
+    restrictions:
+      - oauth_inherits_authorizing_user_access
+      - exact_ids_only_no_global_search
+      - role_scoped_reads
+      - no_whole_workspace_search_or_export
+      - no_finance_legal_hr_board_private_personal_customer_or_secret_material
+      - writes_denied_without_approval_override
+      - changed_tools_quarantined
+      - dedicated_restricted_identity_or_enforcing_proxy_before_activation
   - id: roadmap-backlog
     status: authorized_pending_connection
     provider: Linear
@@ -81,6 +109,23 @@ futureAuthorities:
       workspace: optiak
       team: OPT
     connectionEndpoint: https://mcp.linear.app/mcp/readonly
+  - id: roadmap-ticket-publisher
+    status: offline_connector_ready_not_installed
+    provider: Linear
+    authority: exact_board_approved_issue_creation_only
+    scope:
+      workspace: optiak
+      team: OPT
+      actor: product-prd-lead
+    implementation: connectors/linear-ticket-publisher
+    policy: policies/linear-ticket-publisher.yaml
+    restrictions:
+      - separate_from_read_only_connection
+      - one_create_tool_only
+      - exact_action_approval_every_call
+      - write_mode_disabled_by_default
+      - no_automatic_retry_after_mutation_attempt
+      - no_trust_rule
   - id: versioned-api-contract
     status: disconnected
   - id: source-repositories
@@ -90,15 +135,18 @@ futureAuthorities:
     repositories:
       - optiak/optiak
       - optiak/optiak-frontend
+      - optiak/iac-infra
     defaultDecision: deny
     connectionEndpoint: https://api.githubcopilot.com/mcp/readonly
+    executionWorkspaceContractRef: references/execution-workspace-contract.json
   - id: git-pull-requests
     status: authorized_pending_connection
     provider: GitHub
-    authority: exact_pull_request_head_sha_and_checks
+    authority: exact_pull_request_head_sha_and_available_ci_status_evidence
     repositories:
       - optiak/optiak
       - optiak/optiak-frontend
+      - optiak/iac-infra
     installedFor:
       - independent-code-reviewer
     connectionEndpoint: https://api.githubcopilot.com/mcp/readonly

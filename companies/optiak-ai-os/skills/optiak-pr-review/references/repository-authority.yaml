@@ -2,6 +2,7 @@ schema: optiak-repository-authority/v1
 approvedAt: "2026-09-02"
 approvedBy: board
 humanConflictOwner: board
+lastAmendedAt: "2026-09-19"
 
 provider:
   name: GitHub
@@ -42,9 +43,14 @@ repositoryAllowlist:
         - frontend_source
         - user_interface_implementation_at_exact_revision
         - pull_requests_and_checks_at_exact_head_sha
+    - slug: optiak/iac-infra
+      authorityFor:
+        - infrastructure_as_code_source
+        - declared_cloud_and_environment_configuration_at_exact_revision
+        - pull_requests_and_checks_at_exact_head_sha
   explicitlyOutOfScope:
     - optiak/optiak-tests
-    - infrastructure_repositories
+    - every_unlisted_infrastructure_repository
     - machine_learning_repositories
     - experimental_repositories
     - every_unlisted_repository
@@ -53,10 +59,8 @@ credentialPermissions:
   repositoryAccess: only_selected_repositories
   repository:
     actions: read
-    checks: read
     commit_statuses: read
     contents: read
-    issues: read
     metadata: read
     pull_requests: read
   organization: none
@@ -70,6 +74,10 @@ credentialPermissions:
     - secrets
     - workflows
     - every_write_permission
+  initialCredentialLimitations:
+    - fine_grained_pat_does_not_support_checks_api
+    - check_runs_may_be_unavailable
+  futureProductionCredential: dedicated_github_app
 
 authorities:
   sourceImplementation:
@@ -79,14 +87,18 @@ authorities:
     authority: exact_pull_request_head_sha
     unavailableBehavior: blocked_on_immutable_revision
   checks:
-    authority: check_runs_and_commit_statuses_for_exact_head_sha
-    unavailableBehavior: checks_unavailable
+    authority: available_actions_runs_and_commit_statuses_for_exact_head_sha
+    initialCheckRunsApi: unavailable_with_fine_grained_pat
+    unavailableBehavior: blocked_on_evidence_when_required_ci_result_is_only_a_check_run
   productIntent:
     authority: linear_team_OPT_and_exact_board_accepted_prd_revision
     unavailableBehavior: blocked_on_intent
   deployedState:
     authority: future_release_and_deployment_evidence
     unavailableBehavior: do_not_treat_merge_as_deployed
+  infrastructureRuntimeState:
+    authority: future_cloud_inventory_and_applied_revision_evidence
+    unavailableBehavior: do_not_treat_iac_source_or_plan_as_applied
 
 conflictRules:
   - topic: source_behavior
@@ -99,11 +111,14 @@ conflictRules:
     winner: exact_pull_request_head_sha
     rule: Re-resolve the head before verdict and block if it changed during review.
   - topic: check_state
-    winner: checks_for_exact_head_sha
-    rule: Checks for another revision cannot support the verdict.
+    winner: available_ci_status_evidence_for_exact_head_sha
+    rule: Evidence for another revision cannot support the verdict, and an unavailable Check Run cannot be inferred as passing.
   - topic: deployed_or_released_state
     winner: release_and_deployment_evidence
     rule: An open, approved, or merged pull request is not proof of deployment.
+  - topic: applied_infrastructure_state
+    winner: cloud_inventory_and_applied_revision_evidence
+    rule: IaC source, a pull request, a plan, or a merge is not proof of applied cloud state.
 
 revisionAndFreshness:
   resolveHeadAtStart: true

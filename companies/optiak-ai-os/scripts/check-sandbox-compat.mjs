@@ -23,6 +23,24 @@ export function evaluateStaticCompatibility({lock, paperclip, compose}) {
   if (lock.schema !== "optiak-runtime-compatibility/v1") errors.push("unexpected compatibility schema");
   if (lock.codex?.targetBackendStatus !== "blocked") errors.push("target backend must remain blocked until live migration evidence exists");
   if (lock.codex?.currentBackend !== "legacy_landlock") errors.push("current backend must match the versioned agent configuration");
+  const boundary = lock.targetExecutionBoundary;
+  if (boundary?.providerKind !== "sandbox_provider"
+    || boundary?.providerKey !== "daytona"
+    || boundary?.pluginManifestVersion !== "0.1.7"
+    || boundary?.migrationDecision !== "deferred_read_only_phase"
+    || boundary?.livePluginState !== "disabled"
+    || boundary?.environmentManagementEnabled !== false
+    || boundary?.savedEnvironmentState !== "not_created"
+    || boundary?.initialAdapter !== "codex_local"
+    || boundary?.initialAgent !== "senior-platform-engineer"
+    || boundary?.initialAgentCount !== 1
+    || boundary?.nativeRunnerEnabled !== false
+    || boundary?.providerCredentialMayEnterGit !== false
+    || boundary?.controlPlaneSecurityRelaxed !== false
+    || boundary?.authorizesAgentActivation !== false
+    || boundary?.authorizesImplementationWorkspace !== false) {
+    errors.push("dedicated execution-boundary staging contract drift");
+  }
   if (!Number.isInteger(expectedFlags) || expectedFlags !== 10) errors.push("expected legacy flag count must be ten while blocked");
   if (legacyFlags !== expectedFlags) errors.push(`legacy flag count drift: expected ${expectedFlags}, observed ${legacyFlags}`);
   if (count(paperclip, /default_permissions="optiak-review-network"/g) !== 10) errors.push("named read-only network profile count drift");

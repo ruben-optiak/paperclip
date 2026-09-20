@@ -9,6 +9,29 @@ policy:
   infrastructureMutation: deny
   customerData: deny
 reviewedCapabilities:
+  - capability: notion_product_engineering_knowledge_read
+    decision: allow_after_oauth_catalog_policy_and_exact_root_smoke
+    conditions:
+      - official_notion_hosted_mcp
+      - oauth_dcr_pkce
+      - oauth_inherits_authorizing_user_access
+      - exact_ids_only_no_global_search
+      - agent_root_match_from_versioned_authority_map
+      - dedicated_restricted_identity_or_enforcing_proxy_before_activation
+      - exact_reviewed_read_tools_only
+      - bounded_reads_no_whole_workspace_export
+      - record_canonical_id_last_edited_and_retrieval_time
+      - newly_discovered_tools_quarantined
+  - capability: notion_workspace_mutation
+    decision: deny
+    conditions:
+      - no_create
+      - no_update
+      - no_comment
+      - no_move_duplicate_archive_or_delete
+      - no_export_permission_integration_user_admin_or_bulk_action
+      - approval_may_not_override
+      - no_trust_rule
   - capability: public_docs_read
     decision: allow
     conditions:
@@ -23,10 +46,25 @@ reviewedCapabilities:
       - product_prd_lead_only_initially
       - live_query_with_retrieval_time
       - bounded_item_reads_no_bulk_export
+  - capability: product_backlog_issue_create_exact
+    decision: ask_first_after_separate_connector_smoke
+    conditions:
+      - separate_linear_oauth_app_with_read_and_issues_create_only
+      - provider_team_access_exactly_OPT
+      - product_prd_lead_only
+      - exact_tool_optiak_linear_create_issue_batch
+      - maximum_five_unassigned_issues
+      - complete_signed_arguments_at_most_3900_bytes
+      - immutable_prd_revision_and_stable_ticket_keys
+      - paperclip_exact_action_approval_every_call
+      - connector_write_kill_switch_enabled
+      - durable_idempotency_and_uncertainty_journal
+      - no_automatic_retry_after_mutation_attempt
+      - no_trust_rule
   - capability: product_backlog_mutation
     decision: deny
     conditions:
-      - no_create
+      - no_create_outside_exact_governed_capability
       - no_update
       - no_comment
       - no_assignment
@@ -42,7 +80,7 @@ reviewedCapabilities:
     decision: allow_after_connection_smoke
     conditions:
       - official_github_remote_mcp_readonly_endpoint
-      - repository_exactly_optiak_or_optiak_frontend
+      - repository_exactly_one_of_optiak_optiak_frontend_or_iac_infra
       - independent_code_reviewer_only_initially
       - exact_head_sha_resolved_and_rechecked
       - checks_match_exact_head_sha

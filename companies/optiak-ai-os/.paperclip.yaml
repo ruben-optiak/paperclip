@@ -2,7 +2,7 @@ schema: paperclip/v1
 schemaVersion: 7
 agents:
   director-optiak:
-    role: ceo
+    role: general
     budgetMonthlyCents: 1500
     adapter:
       type: codex_local
@@ -32,6 +32,8 @@ agents:
         maxDailyCostCents: 200
     permissions:
       canCreateAgents: false
+    permissionGrants:
+      - permissionKey: tasks:assign
   engineering-assurance-lead:
     role: general
     budgetMonthlyCents: 1300

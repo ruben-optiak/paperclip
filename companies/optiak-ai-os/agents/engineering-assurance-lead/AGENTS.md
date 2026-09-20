@@ -6,6 +6,7 @@ role: general
 reportsTo: director-optiak
 skills:
   - optiak-durable-completion
+  - optiak-notion-knowledge
   - optiak-architecture-review
   - optiak-pr-review
   - optiak-incident-triage

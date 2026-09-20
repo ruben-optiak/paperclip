@@ -2,6 +2,7 @@ schema: optiak-product-authority/v1
 approvedAt: "2026-09-02"
 approvedBy: board
 humanConflictOwner: board
+advisoryQualityContract: references/product-advisory-contract.json
 
 operationalBacklog:
   provider: Linear
@@ -33,6 +34,20 @@ operationalBacklog:
       - product-prd-lead
     writeToolsAllowed: false
     newlyDiscoveredTools: quarantine
+
+ticketPublisher:
+  state: offline_connector_ready_not_installed
+  authority: exact_board_approved_issue_creation_only
+  implementation: connectors/linear-ticket-publisher
+  policy: policies/linear-ticket-publisher.yaml
+  installedFor:
+    - product-prd-lead
+  teamKey: OPT
+  maximumTicketsPerBatch: 5
+  everyCallRequiresExactActionApproval: true
+  trustRulesAllowed: false
+  automaticRetryAfterMutationAttempt: false
+  cannotChangeExistingIssues: true
 
 authorities:
   productVision:
@@ -70,6 +85,23 @@ authorities:
     owner: documentation-dx-steward
     status: public_read_only
     unavailableBehavior: public_claim_unavailable
+
+advisorySelection:
+  priorityRecommendationRequires:
+    - exact_current_board_decision
+    - approved_current_intent_reference
+  allowedWithoutStrategy:
+    - freshness_scan
+    - backlog_hygiene_scan
+    - requirement_clarity_gaps
+    - dependency_questions
+  updatedAtOnly:
+    priorityRanking: deny
+    roadmapSequence: deny
+    freshnessOrHygieneSample: allow_with_explicit_limitation
+  recommendationRequiresExactDetailRead: true
+  listOnlyDisposition: needs_detail_read
+  globalPriorityClaimFromBoundedSample: deny
 
 conflictRules:
   - topic: strategy_and_product_boundary
@@ -118,3 +150,8 @@ retention:
   persistBodiesOnlyWhen:
     - exact_item_is_required_for_current_task
     - output_is_a_local_draft_or_audited_issue_result
+  humanOutput:
+    maximumWords: 700
+    maximumRecommendations: 3
+    maximumBoardDecisions: 3
+    separateMachineEnvelope: true

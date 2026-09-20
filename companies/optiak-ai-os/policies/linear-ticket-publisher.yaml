@@ -1,0 +1,67 @@
+schema: optiak-linear-ticket-publisher-policy/v1
+state: offline_desired_state_not_applied
+connection:
+  name: Linear — Optiak Ticket Publisher
+  endpoint: http://linear-ticket-publisher:8788/mcp
+  transport: mcp_http
+  authentication: bearer_from_paperclip_secret_store
+  quarantineNewEntries: true
+  installTargets:
+    - product-prd-lead
+catalog:
+  defaultAction: deny
+  includeExactly:
+    - optiak_linear_create_issue_batch
+  expectedToolCount: 1
+  writes: true
+  destructive: false
+policyOrder:
+  - priority: 5
+    type: rate_limit
+    selector:
+      toolNames:
+        - optiak_linear_create_issue_batch
+    config:
+      limit: 5
+      windowSeconds: 86400
+      keyBy:
+        - agent
+        - tool
+  - priority: 10
+    type: require_approval
+    selector:
+      toolNames:
+        - optiak_linear_create_issue_batch
+    conditions:
+      actorSlug: product-prd-lead
+  - priority: 100
+    type: block
+    selector:
+      risk:
+        isWrite: true
+    note: Broader mutation block; the exact require-approval rule must be evaluated first.
+trustRules:
+  allowed: false
+connector:
+  writeModeDefault: disabled
+  teamKey: OPT
+  maximumTicketsPerBatch: 5
+  maximumCanonicalArgumentBytes: 3900
+  automaticRetryAfterMutationAttempt: false
+  durableJournalRequired: true
+  providerScopes:
+    - read
+    - issues:create
+  providerScopesDenied:
+    - write
+    - admin
+forbiddenTools:
+  - update_issue
+  - comment_issue
+  - assign_issue
+  - relate_issue
+  - move_issue
+  - close_issue
+  - archive_issue
+  - delete_issue
+  - generic_graphql

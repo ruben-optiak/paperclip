@@ -1,0 +1,28 @@
+{
+  "schema": "optiak-director-authority-policy/v1",
+  "agent": "director-optiak",
+  "expectedRole": "general",
+  "requiredStoredPermissions": {
+    "canCreateAgents": false
+  },
+  "requiredPermissionGrants": [
+    "tasks:assign"
+  ],
+  "forbiddenPermissionGrants": [
+    "agents:create"
+  ],
+  "negativeProbe": {
+    "method": "GET",
+    "path": "/api/companies/{companyId}/adapters/codex_local/auth-signal",
+    "expectedStatus": 403,
+    "expectedErrorFragment": "agents:create",
+    "readOnly": true
+  },
+  "ephemeralCredential": {
+    "kind": "agent_api_key",
+    "mustBeRevoked": true,
+    "mustNeverBePrinted": true
+  },
+  "automaticRepair": false,
+  "automaticActivation": false
+}

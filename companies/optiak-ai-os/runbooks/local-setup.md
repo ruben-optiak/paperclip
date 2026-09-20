@@ -5,7 +5,9 @@ Optiak must run in a Paperclip instance separate from Enki. Sharing this Git rep
 ## Before import
 
 1. Check out `integration/companies` or an approved Optiak feature branch.
-2. Run `./companies/optiak-ai-os/scripts/check.sh`.
+2. Install the publisher's exact locked dependencies with
+   `npm ci --prefix companies/optiak-ai-os/connectors/linear-ticket-publisher --ignore-scripts`,
+   then run `./companies/optiak-ai-os/scripts/check.sh`.
 3. Build the deterministic import ZIP outside the package.
 4. Create the separate Optiak Paperclip instance with its own Compose project name, host port, public URL, data directory, authentication secret, and Codex home.
 5. Confirm the Enki and Optiak containers mount different host data directories.
@@ -51,7 +53,7 @@ To stop Optiak without touching Enki:
 ## Import
 
 1. Import preview the exact ZIP.
-2. Verify ten agents, thirteen skills, six projects, twenty-one tasks, and four disabled routines.
+2. Verify ten agents, fifteen skills, six projects, twenty-one tasks, and four disabled routines.
 3. Confirm one root (`director-optiak`) and the expected reporting tree.
 4. Apply with agents and routines paused.
 5. Configure no connection during the import itself.
@@ -87,3 +89,92 @@ after confirming the preview creates none. Keep all agents paused and verify
 that projects, issues, connections, policies, and routine triggers are
 unchanged. Importing the package does not create the Data Platform & AI Quality
 candidate role or grant access to a source.
+
+`0.1.15` adds one Product skill and an offline Linear ticket-publisher runtime.
+For an existing company, preview replacement of Product & PRD Lead and the
+fourteen existing skills; if selective replacement is unavailable, replace the
+ten existing agents and fourteen skills only. Create no project, issue, routine
+or company copy. The import must not create or modify any connection, policy,
+credential, OAuth grant, Docker service or journal. Keep the publisher disabled
+until every step in `linear-ticket-publishing.md` passes.
+
+`0.1.17` adds no agent, skill, project, task, routine or connector. It records
+the verified GitHub connection procedure and its three-policy chain after the
+local smoke exposed unsafe generic defaults: company-wide installation and no
+catalog quarantine. No agent or skill content changes from `0.1.16`, so an
+existing instance does not need another agent/skill import solely for this
+runbook release. The package still creates no live connection, credential or
+policy; apply the runbook manually and keep the Reviewer paused outside bounded
+smokes until a deliberate Board activation.
+
+`0.1.18` adds `optiak-frontend-implementation`, updates
+`optiak-pr-review`, and updates Senior Platform Engineer and Independent
+Reviewer instructions. For an existing company, preview replacement of those
+two agents and `optiak-pr-review`, plus creation of exactly one skill. If the UI
+cannot select that exact subset, replace all ten existing agents and fourteen
+installed package skills, and create only `optiak-frontend-implementation`.
+Keep every agent paused. The preview must create no project, issue, routine,
+connection, policy, credential or repository workspace. Importing the skill
+does not connect a writable repository; frontend implementation remains
+`blocked_on_workspace` until a separately approved Paperclip execution
+workspace is configured.
+
+`0.1.19` adds `optiak-notion-knowledge` to all ten agents and versions the
+Notion authority, access matrix, connection runbook, and default-deny policy.
+For an existing company, preview replacement of all ten agents and the fifteen
+installed package skills, plus creation of exactly one skill. Create no company,
+project, issue, routine, connection, policy, credential, OAuth grant, page copy,
+or workspace. Keep every agent paused. Importing the package does not grant
+Notion access; complete Phase 2.0 of `connections.md` separately.
+
+`0.1.20` corrects the connection contract after live validation. The hosted
+OAuth flow inherits the authorizing user's workspace access and exposes no page
+selector. Replace only `optiak-notion-knowledge` when upgrading an instance that
+already imported `0.1.19`; agent definitions are unchanged. Reapply the manual
+connection profile so both access selectors name the ten current agents and the
+catalog reads exactly `3 Allowed / 0 Ask first / 42 Off`. Keep all agents paused
+until a dedicated restricted identity or enforcing proxy and an exact approved
+root registry pass the content smoke.
+
+`0.1.26` keeps the mandatory read-only parity check after preview/apply and before
+any agent resume. Export the live agent list through the authenticated Board CLI
+and stream it to the checker; do not put an API key on the command line or save
+the raw snapshot in Git:
+
+```sh
+paperclipai agent list \
+  --api-base http://localhost:3200 \
+  --company-id <optiak-company-id> \
+  --json \
+  | node companies/optiak-ai-os/scripts/check-live-agent-parity.mjs \
+      --snapshot - --pretty
+```
+
+The only passing verdict is `pass`. `drift` blocks activation and requires a
+Board-reviewed repair followed by another clean check. The checker never repairs
+or activates agents. It reconciles by the stable package agent name, reports
+portable slugs, and emits no
+database IDs, local instruction paths, metadata or credentials.
+
+Then prove the Director's effective authority with the Board CLI already
+authenticated. The proof reads the live agent detail, creates one short-lived
+agent API key, calls a read-only endpoint protected by `agents:create`, requires
+the real API to return `403`, and revokes the key in a `finally` block. It never
+prints the key, creates an agent, or activates anything:
+
+```sh
+node companies/optiak-ai-os/scripts/prove-director-authority.mjs \
+  --api-base http://localhost:3200 \
+  --company-id <optiak-company-id> \
+  --pretty
+```
+
+The only passing result has `roleIsNonLegacyRoot`,
+`taskAssignmentUsesExplicitGrant`, `forbiddenGrantsAbsent`,
+`agentCreationDenied`, and `ephemeralKeyRevoked` all set to `true`. Any other
+result blocks activation. If cleanup fails, revoke the key named
+`oai-043-proof-*` from the Director before retrying.
+
+The same release defines, but does not configure, isolated implementation
+workspaces. Follow `runbooks/execution-workspaces.md` when `OAI-042` is resumed.
+Importing `0.1.26` must not create a repository workspace, branch, sandbox environment or persistent credential.

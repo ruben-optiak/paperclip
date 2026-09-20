@@ -13,7 +13,9 @@ runbooks/
 runtime/
 scripts/build-import-zip.sh
 scripts/check-sandbox-compat.mjs
+scripts/check-live-agent-parity.mjs
 scripts/check.sh
+scripts/evaluate-execution-workspace.mjs
 scripts/evaluate-promotion-readiness.mjs
 scripts/evaluate-prd-readiness.mjs
 scripts/evaluate-postmortem.mjs
@@ -23,6 +25,7 @@ scripts/linear-preflight.mjs
 scripts/record-qa-note.mjs
 scripts/probe-test-environment.mjs
 scripts/probe-linear-privacy-core.mjs
+scripts/prove-director-authority.mjs
 scripts/scan-secrets.sh
 scripts/summarize-run-usage.mjs
 scripts/validate-result-envelopes.mjs

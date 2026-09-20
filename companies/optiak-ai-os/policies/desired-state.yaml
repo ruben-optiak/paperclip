@@ -1,5 +1,5 @@
 schema: optiak-desired-state/v1
-version: 0.1.14
+version: 0.1.26
 instance:
   isolation: separate_from_enki
   database: separate
@@ -9,9 +9,44 @@ agents:
   expected: 10
   importedPaused: true
   heartbeatSchedulesEnabled: false
+  liveParity:
+    state: versioned_read_only_post_import_gate
+    policy: policies/agent-live-parity.json
+    checker: scripts/check-live-agent-parity.mjs
+    automaticRepair: false
+    automaticActivation: false
+    knownEffectiveAuthorityGap: none
+  directorAuthority:
+    state: portable_non_legacy_root_live_proof_required
+    role: general
+    reportsTo: null
+    canCreateAgents: false
+    requiredGrant: tasks:assign
+    forbiddenGrant: agents:create
+    policy: policies/director-authority.json
+    proof: scripts/prove-director-authority.mjs
 routines:
   expected: 4
   importedPaused: true
+executionBoundary:
+  state: deferred_read_only_phase
+  providerKind: sandbox_provider
+  providerKey: daytona
+  pluginPackage: "@paperclipai/plugin-daytona"
+  pluginManifestVersion: 0.1.7
+  pluginInstalled: true
+  pluginEnabled: false
+  environmentManagementEnabled: false
+  savedEnvironmentExists: false
+  initialAdapter: codex_local
+  initialAgent: senior-platform-engineer
+  initialAgentCount: 1
+  nativeRunnerEnabled: false
+  sharedControlPlaneSecurityRelaxation: deny
+  providerCredentialStorage: paperclip_environment_secret_store
+  providerCredentialInGit: deny
+  activationBeforeLiveMigrationGate: deny
+  implementationWorkspaceAssignment: deny_until_board_resumes_oai_011
 operatingModel:
   state: offline_defined_no_runtime_authority
   contract: references/product-engineering-operating-model.json
@@ -25,6 +60,16 @@ operatingModel:
     validationOwner: qa-e2e-validation-engineer
   agentCreationRequiresAllVersionedGates: true
   successfulGateAuthorizesRelease: false
+advisoryPhase:
+  state: read_only_refinement
+  productQualityContract: skills/optiak-product-triage/references/product-advisory-contract.json
+  productQualityEvaluator: skills/optiak-product-triage/scripts/evaluate-product-advisory.mjs
+  strategyRequiredForPriorityRecommendation: true
+  detailReadRequiredForRecommendation: true
+  machineEnvelopeSeparatedFromBoardMemo: true
+  linearWrites: deny
+  codeChangesByAgents: deny
+  automaticRetryAfterQualityFailure: deny
 budgets:
   companyMonthlyBilledCents: 15000
   agentMonthlyBilledCentsTotal: 10000
@@ -34,6 +79,35 @@ budgets:
   dailyRunCapsPortable: true
   timeoutSeconds: 300
 connections:
+  notionKnowledge:
+    state: connected_policy_smoke_passed_root_registry_pending
+    provider: Notion
+    endpoint: https://mcp.notion.com/mcp
+    authentication: oauth_dcr_pkce
+    desiredPolicy: policies/notion-readonly.yaml
+    authority: skills/optiak-notion-knowledge/references/notion-authority.yaml
+    initialInstallTargets:
+      - director-optiak
+      - engineering-assurance-lead
+      - product-prd-lead
+      - principal-platform-architect
+      - senior-platform-engineer
+      - independent-code-reviewer
+      - reliability-incident-engineer
+      - qa-e2e-validation-engineer
+      - brand-ui-quality-reviewer
+      - documentation-dx-steward
+    oauthScope: authorizing_user_workspace_access
+    consentPageSelectionAvailable: false
+    hardRootBoundary: pending_dedicated_identity_or_enforcing_proxy
+    exactRootRegistry: pending_outside_git
+    observedEffectiveProfile:
+      allowed: 3
+      askFirst: 0
+      off: 42
+    defaultAction: deny
+    quarantineNewEntries: true
+    writes: deny
   linearResponseProjection:
     state: offline_candidate_runtime_not_applied
     mode: metadata_only
@@ -51,20 +125,70 @@ connections:
     initialInstallTargets:
       - product-prd-lead
     writes: deny
+  linearTicketPublisher:
+    state: offline_connector_ready_not_installed
+    provider: Linear GraphQL API
+    team: OPT
+    implementation: connectors/linear-ticket-publisher
+    desiredPolicy: policies/linear-ticket-publisher.yaml
+    installTargets:
+      - product-prd-lead
+    toolCount: 1
+    writeModeDefault: disabled
+    everyCallRequiresExactBoardApproval: true
+    trustRules: deny
+    automaticRetryAfterMutationAttempt: deny
   gitProvider:
-    state: authorized_pending_operator_credential
+    state: local_smoke_passed_instance_state_not_portable
     provider: GitHub
     endpoint: https://api.githubcopilot.com/mcp/readonly
     authentication: fine_grained_personal_access_token
+    connectionMethod: generic_mcp_custom_headers
+    requiredHeaders:
+      - Authorization
+      - X-MCP-Readonly
+      - X-MCP-Toolsets
+    toolsets:
+      - repos
+      - pull_requests
+      - actions
     initialInstallTargets:
       - independent-code-reviewer
+    defaultAction: deny
+    quarantineNewEntries: true
+    enabledReadTools:
+      - actions_get
+      - actions_list
+      - get_commit
+      - get_file_contents
+      - get_job_logs
+      - get_latest_release
+      - get_release_by_tag
+      - get_tag
+      - list_branches
+      - list_commits
+      - list_pull_requests
+      - list_releases
+      - list_tags
+      - pull_request_read
+    disabledBroadTools:
+      - list_repository_collaborators
+      - search_code
+      - search_commits
+      - search_pull_requests
+      - search_repositories
+    policyChain:
+      missingOwnerAndRepoDuringDiscovery: require_approval
+      exactApprovedRepository: allow_for_independent_reviewer
+      fallback: deny
     writes: deny
   repositories:
-    state: authorized_allowlist_pending_connection
+    state: local_smoke_passed_instance_state_not_portable
     default: deny
     allow:
       - optiak/optiak
       - optiak/optiak-frontend
+      - optiak/iac-infra
   localTestUiApi:
     state: observed_reachability_only
     classification: non_production_candidate
@@ -107,6 +231,51 @@ promotion:
   stageDecisionOwner: board
   evaluatorMayExecute: false
 qualityContracts:
+  executionWorkspaces:
+    state: live_lifecycle_proved_execution_boundary_blocked
+    contract: references/execution-workspace-contract.json
+    evaluator: scripts/evaluate-execution-workspace.mjs
+    implementationAgent: senior-platform-engineer
+    repositoriesExpected: 3
+    requiresPaperclipManagedIsolatedWorkspace: true
+    requiresDedicatedExecutionBoundary: true
+    requiresBubblewrap: true
+    agentGitMetadataRead: blocked_in_shared_control_plane
+    controlPlanePrivilegeExpansion: deny
+    sharedCheckout: deny
+    merge: deny
+    deploy: deny
+  notionKnowledge:
+    state: live_capability_smoke_passed_content_scope_pending
+    contract: skills/optiak-notion-knowledge/references/notion-authority.yaml
+    desiredPolicy: policies/notion-readonly.yaml
+    allTenAgentsCarrySkill: true
+    liveNotionRemainsCanonical: true
+    wholeWorkspaceExport: deny
+    writes: deny
+  frontendImplementation:
+    state: offline_skill_versioned_workspace_not_connected
+    contract: skills/optiak-frontend-implementation/SKILL.md
+    repository: optiak/optiak-frontend
+    requiresPaperclipManagedIsolatedWorkspace: true
+    skillMayCreateOrManageWorktrees: false
+    externalWrites: deny
+  pullRequestReview:
+    state: live_read_only_remote_workspace_mode_not_configured
+    contract: skills/optiak-pr-review/SKILL.md
+    rubric: skills/optiak-pr-review/references/review-rubric.md
+    remoteMcpMode: true
+    paperclipExecutionWorkspaceMode: conditional
+    skillMayCreateOrManageWorktrees: false
+    repositoryWrites: deny
+  linearTicketPublishing:
+    state: offline_connector_ready_not_installed
+    contract: references/contracts/linear-ticket-batch-v1.schema.json
+    skill: skills/optiak-linear-ticket-publishing/SKILL.md
+    desiredPolicy: policies/linear-ticket-publisher.yaml
+    importMayActivate: false
+    everyCallRequiresExactBoardApproval: true
+    uncertainOutcomeRequiresOperatorReconciliation: true
   productEngineeringOperatingModel:
     state: offline_defined_no_runtime_authority
     contract: references/product-engineering-operating-model.json
@@ -136,6 +305,7 @@ autonomy:
   localCredentialFreeHealthReads: exact_loopback_only
   localAuthenticatedJourneys: deny_pending_contract_gates
   externalReads: source_scoped
+  linearIssueCreation: deny_until_separate_connection_smoke_kill_switch_and_exact_board_approval
   sandboxWrites: require_approval
   mergesDeploysRollbacks: deny
   productionMutation: deny
@@ -145,4 +315,6 @@ sandbox:
   targetBackend: bubblewrap
   migrationStatus: blocked
   controlPlanePrivilegeExpansion: deny
+  dedicatedExecutionBoundary: required
+  executionWorkspaceLiveState: lifecycle_proved_agent_git_inspection_blocked
   compatibilityLock: runtime/compatibility.lock.json
