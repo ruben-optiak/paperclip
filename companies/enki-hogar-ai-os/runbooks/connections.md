@@ -121,6 +121,23 @@ The support connection exposes exactly eight `knowledge_*` query tools from `pol
 
 Use the separate [product-support runbook](catalog-knowledge.md) to validate/import an approved support pack and perform operator maintenance. Refresh the Paperclip catalog after a connector version change and quarantine any new tool, especially any name containing `create`, `update`, `delete`, `archive`, `restore`, `purge`, `import`, `reindex` or `write`.
 
+## Approved catalogue evidence
+
+The `enki-catalogue-evidence` service exposes the EAI-022 projection on
+`http://enki-catalogue-evidence:8050/mcp`. Generate an independent
+`CATALOGUE_EVIDENCE_MCP_TOKEN`, store it as a Paperclip Secret and bind it only
+to the `Authorization: Bearer` header of `Enki Catalogue Evidence Read Only`.
+
+`CATALOGUE_EVIDENCE_PUBLICATION_HOST_PATH` must point at a dedicated immutable
+directory that already passes [the approved evidence runbook](catalog-evidence.md).
+Compose mounts exactly that directory read-only. Never point it at a catalogue
+pipeline input, full output, source snapshot or the operational `enki-hogar`
+repository.
+
+Refresh and compare the exact five-tool catalog from
+`policies/desired-state.yaml`. Keep direct connection installs empty and add the
+tools only to the Ecommerce agent's default-deny governed profile.
+
 ## WordPress, Facebook and Instagram publisher
 
 This MCP is the only permitted external publication path. It starts in `disabled` mode even when credentials exist. Paperclip's separate policy must ask Board for every exact write request; neither control replaces the other.
@@ -169,12 +186,12 @@ Instagram v0.1.0 publishes only one JPEG whose URL is already public over HTTPS;
 
 ### Paperclip policy and activation
 
-1. Start the service with `CONTENT_PUBLISH_WRITE_MODE=disabled` and create the Paperclip-managed `content_publisher_mcp_token` Secret from the independent MCP bearer.
-2. With all six agents and both routines paused, run `scripts/reconcile-content-publisher.mjs --apply`. It creates the connection disabled, verifies the exact catalog, creates the specific approval policy, adds only the reviewed catalog entries to the three intended profiles, enables the connection and runs the full drift gate. It refuses to continue on duplicate records, active automation, catalog/risk drift or over-broad profile access. Supply `PAPERCLIP_COMPANY_ID` and `PAPERCLIP_BOARD_TOKEN` through the operator environment; never put either in a command argument or tracked file.
-3. Require exactly six reads—`publisher_get_capabilities`, `wordpress_list_posts`, `wordpress_get_article`, `facebook_list_page_posts`, `instagram_list_media`, `instagram_get_publishing_limit`—plus `wordpress_upsert_post`, `facebook_publish_page_post`, and `instagram_publish_image`. Newly discovered or changed tools remain quarantined.
-4. Keep the exact `require_approval` policy at priority `100` for those three write names, then retain `Enki block write and destructive tools` at priority `1000`. Paperclip evaluates the more specific approval rule first; all other writes reach the global block.
-5. Give the three write tools only to Growth. The Director receives publication-history reads; Technology receives only connector capabilities. Keep connection installs empty and use the six named gateways.
-6. Pass the disabled-mode smoke first. For the first real canary, set `wordpress-drafts`, restart only this connector, and create one uniquely slugged draft through an approved Growth task. `approved` mode is a later explicit Board decision after separate WordPress, Facebook and Instagram canaries.
+1. Start the service with both `CONTENT_PUBLISH_WRITE_MODE=disabled` and `PRODUCT_PUBLISH_WRITE_MODE=disabled`, mount one reviewed product-bundle directory read-only, and create the Paperclip-managed `content_publisher_mcp_token` Secret from the independent MCP bearer.
+2. With all six agents and both routines paused, run `scripts/reconcile-content-publisher.mjs --apply`. It creates the connection disabled, verifies the exact catalog, creates the specific approval policy, adds only the reviewed catalog entries to the four intended profiles, enables the connection and runs the full drift gate. It refuses to continue on duplicate records, active automation, catalog/risk drift or over-broad profile access. Supply `PAPERCLIP_COMPANY_ID` and `PAPERCLIP_BOARD_TOKEN` through the operator environment; never put either in a command argument or tracked file.
+3. Require exactly eight reads—`publisher_get_capabilities`, `woocommerce_list_product_drafts`, `woocommerce_get_product_draft`, `wordpress_list_posts`, `wordpress_get_article`, `facebook_list_page_posts`, `instagram_list_media`, `instagram_get_publishing_limit`—plus the four reviewed writes. Newly discovered or changed tools remain quarantined.
+4. Keep the exact `require_approval` policy at priority `100` for all four write names, then retain `Enki block write and destructive tools` at priority `1000`. Paperclip evaluates the more specific approval rule first; all other writes reach the global block.
+5. Give the three editorial/social writes only to Growth and the three product-draft tools only to Ecommerce. The Director receives publication-history reads; Technology receives only connector capabilities. Keep connection installs empty and use the six named gateways.
+6. Pass both disabled-mode smokes first. Test `wordpress-drafts` with one uniquely slugged article draft. Test `woo-drafts` separately with the single-product canary in [product publishing](product-publishing.md). `approved` editorial/social mode is a later explicit Board decision after separate WordPress, Facebook and Instagram canaries.
 
 Every write requires a stable key such as `<issue>:<document-key>:<revision>`. If the journal marks an outcome `uncertain`, never retry blindly. Check the live provider, then run the operator-only `src/admin.mjs reconcile` command described in the connector README. The journal contains request hashes rather than content, but it is durable safety state and must be backed up.
 
@@ -200,6 +217,8 @@ The untracked Compose environment contains only values or host paths; never past
 | `SUPPORT_EMBEDDING_BASE_URL` | optional OpenAI-compatible endpoint | no; configure with both values below or leave all empty |
 | `SUPPORT_EMBEDDING_API_KEY` | optional embedding provider key | yes; support connector only |
 | `SUPPORT_EMBEDDING_MODEL` | optional embedding model identifier | no |
+| `CATALOGUE_EVIDENCE_PUBLICATION_HOST_PATH` | absolute host path to the closed approved projection | sensitive path; never a pipeline root |
+| `CATALOGUE_EVIDENCE_MCP_TOKEN` | independent random bearer | yes; Paperclip connection and catalogue-evidence MCP only |
 | `CONTENT_PUBLISHER_MCP_TOKEN` | independent random bearer generated by the package helper | yes; Paperclip connection and publisher MCP only |
 | `CONTENT_PUBLISH_WRITE_MODE` | `disabled`, later bounded `wordpress-drafts`, or Board-approved `approved` | safety control |
 | `WORDPRESS_BASE_URL` | canonical Enki WordPress HTTPS origin | no |

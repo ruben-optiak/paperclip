@@ -1,0 +1,156 @@
+{
+  "schema": "enki-product-draft-bundle/v1",
+  "bundleKey": "fixture-sanycces-pool-variable-2026-09-20",
+  "version": "1.1.0",
+  "createdAt": "2026-09-20T10:00:00Z",
+  "sourceSnapshot": {
+    "brandSlug": "sanycces",
+    "catalog": {
+      "logicalName": "catalogo-oficial-fixture.pdf",
+      "capturedAt": "2026-09-20T08:00:00Z",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "wooExport": {
+      "logicalName": "woocommerce-products-complete.csv",
+      "capturedAt": "2026-09-20T08:30:00Z",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "officialDomains": ["manufacturer.example.invalid"],
+    "webPages": [
+      {
+        "url": "https://manufacturer.example.invalid/products/pool-mixer",
+        "capturedAt": "2026-09-20T09:00:00Z",
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    ]
+  },
+  "mediaProfile": {
+    "profileKey": "enki-square-candidate",
+    "sha256": "61684e9586cd0b821267f790cde69137093fca633320134a41a9f4b7ab06ada0"
+  },
+  "review": {
+    "status": "ready_for_board_review",
+    "externalMutationAuthority": "paperclip_exact_approval_only",
+    "brandGuardian": "PASS",
+    "catalogueQa": "PASS"
+  },
+  "products": [
+    {
+      "productKey": "fixture-pool-mixer",
+      "type": "variable",
+      "status": "draft",
+      "name": "Monomando de lavabo Pool de Sanycces",
+      "slug": "monomando-lavabo-pool-sanycces",
+      "sku": "POOL-MNO006SS",
+      "manufacturerReference": "MNO006SS",
+      "descriptionHtml": "<p>Fixture saneado de producto variable con dos acabados.</p>",
+      "shortDescriptionHtml": "<p>Monomando Pool en dos acabados.</p>",
+      "categories": [12],
+      "tags": [31],
+      "attributes": [
+        {"id": 4, "options": ["Níquel cepillado", "Raw Metal"], "visible": true, "variation": true}
+      ],
+      "variations": [
+        {
+          "variationKey": "fixture-pool-mixer-nb",
+          "status": "private",
+          "sku": "MNO006SSNB",
+          "manufacturerReference": "MNO006SSNB",
+          "gtin": "8435737779080",
+          "attributes": [{"id": 4, "option": "Níquel cepillado"}],
+          "imagePosition": 0,
+          "commerce": {
+            "regularPrice": "254.10",
+            "priceEvidenceKey": "fixture-price-mno006ssnb",
+            "salePrice": "215.99",
+            "salePriceEvidenceKey": "fixture-discount-mno006ssnb",
+            "manageStock": false,
+            "stockStatus": "outofstock"
+          },
+          "evidence": [
+            {
+              "field": "commerce.regularPrice",
+              "evidenceKey": "fixture-price-mno006ssnb",
+              "sourceSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "confidence": "high"
+            },
+            {
+              "field": "commerce.salePrice",
+              "evidenceKey": "fixture-discount-mno006ssnb",
+              "sourceSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "confidence": "high"
+            }
+          ]
+        },
+        {
+          "variationKey": "fixture-pool-mixer-rm",
+          "status": "private",
+          "sku": "MNO006SSRM",
+          "manufacturerReference": "MNO006SSRM",
+          "gtin": "8435737779097",
+          "attributes": [{"id": 4, "option": "Raw Metal"}],
+          "imagePosition": 0,
+          "commerce": {
+            "regularPrice": "310.97",
+            "priceEvidenceKey": "fixture-price-mno006ssrm",
+            "salePrice": "256.55",
+            "salePriceEvidenceKey": "fixture-discount-mno006ssrm",
+            "manageStock": false,
+            "stockStatus": "outofstock"
+          },
+          "evidence": [
+            {
+              "field": "commerce.regularPrice",
+              "evidenceKey": "fixture-price-mno006ssrm",
+              "sourceSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "confidence": "high"
+            },
+            {
+              "field": "commerce.salePrice",
+              "evidenceKey": "fixture-discount-mno006ssrm",
+              "sourceSha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+              "confidence": "high"
+            }
+          ]
+        }
+      ],
+      "images": [
+        {
+          "path": "media/fixture-pool-mixer.webp",
+          "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "width": 1000,
+          "height": 1000,
+          "alt": "Monomando de lavabo Pool de Sanycces",
+          "position": 0,
+          "sourceUrl": "https://manufacturer.example.invalid/media/pool-mixer.jpg",
+          "rightsConfirmed": true
+        }
+      ],
+      "seo": {
+        "provider": "yoast",
+        "title": "Monomando lavabo Pool Sanycces | Enki Hogar",
+        "description": "Fixture saneado para validar un borrador variable con acabados, precios, descuento y trazabilidad antes de escribir en WooCommerce.",
+        "focusKeyword": "monomando lavabo Pool Sanycces"
+      },
+      "commerce": {
+        "manageStock": false,
+        "stockStatus": "outofstock"
+      },
+      "evidence": [
+        {
+          "field": "identity.manufacturerReference",
+          "evidenceKey": "fixture-ref-pool-mixer",
+          "sourceSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "confidence": "high"
+        },
+        {
+          "field": "content.description",
+          "evidenceKey": "fixture-web-pool-mixer",
+          "sourceSha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "sourceUrl": "https://manufacturer.example.invalid/products/pool-mixer",
+          "confidence": "medium"
+        }
+      ]
+    }
+  ]
+}

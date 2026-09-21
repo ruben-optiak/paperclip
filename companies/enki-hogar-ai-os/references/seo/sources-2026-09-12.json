@@ -1,0 +1,25 @@
+{
+  "schema": "enki-seo-source-status/v1",
+  "capturedAt": "2026-09-12T11:57:14.695Z",
+  "gsc": {"status": "unavailable", "reason": "oauth_invalid_grant", "periods": null, "timezone": "America/Los_Angeles"},
+  "ga4": {"status": "unavailable", "reason": "oauth_invalid_grant", "periods": null, "timezone": null},
+  "gscOverlap": {"status": "unavailable", "reason": "oauth_invalid_grant", "rows": null},
+  "probe": {
+    "schema": "enki-seo-source-probe/v1",
+    "checks": [
+      {"tool": "gsc_search_analytics", "status": "unavailable", "reason": "oauth_invalid_grant"},
+      {"tool": "gsc_list_sitemaps", "status": "unavailable", "reason": "oauth_invalid_grant"},
+      {"tool": "get_account_summaries", "status": "unavailable", "reason": "oauth_invalid_grant"}
+    ]
+  },
+  "historicalContext": {
+    "reference": "references/measurement/eai-006-baseline-2026-09-03.json",
+    "sha256": "9cb8e4b3b2a04039c683b169dcf1017543b5afbbe7ca55f471fe4353b9894e88",
+    "capturedAt": "2026-09-03T12:14:13Z",
+    "status": "historical_aggregate_only",
+    "currentTrafficRankingAllowed": false,
+    "caveat": "The prior receipt labels all sources Europe/Madrid. GSC date labels actually use Pacific time; compare same-source closed periods and do not assume identical cross-source instants. A short GSC response does not prove exhaustive query coverage."
+  },
+  "next": "Operator renews the connector's GSC OAuth and Google ADC credentials; then rerun the read probe and collect the exact periods in pipeline-v1.json.",
+  "authority": {"externalMutation": false, "credentialsRetained": false, "privateIdentifiersRetained": false}
+}

@@ -5,4 +5,4 @@ assignee: growth-manager
 project: measurement-profitable-acquisition
 ---
 
-Document GA4, GSC, Ads, and WooCommerce periods, attribution differences, freshness, conversion definitions, and known tracking gaps. Escalate implementation proposals to Technology without making changes.
+Reproduce the closed-period GA4/GSC/Woo reconciliation in `runbooks/measurement-baseline.md`. Preserve canonical evidence envelopes during execution and retain only the sanitized aggregate receipt. Treat GSC visibility and GA4 traffic as scoped measures, Woo as the commercial aggregate, and GA4 purchases/revenue as unusable commercial truth until the observed mismatch is resolved. Consent status remains unknown without a governed diagnostic source. Escalate an exact read-only tagging/consent diagnosis to Technology; do not change analytics, tags, consent, campaigns or the site.

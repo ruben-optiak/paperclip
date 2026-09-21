@@ -71,6 +71,10 @@ jobs:
         run: npm ci --ignore-scripts
         working-directory: companies/enki-hogar-ai-os/connectors/catalog-knowledge
 
+      - name: Install locked catalogue-evidence test dependencies
+        run: npm ci --ignore-scripts
+        working-directory: companies/enki-hogar-ai-os/connectors/catalog-evidence
+
       - name: Install locked content publisher test dependencies
         run: npm ci --ignore-scripts
         working-directory: companies/enki-hogar-ai-os/connectors/content-publisher
@@ -86,6 +90,9 @@ jobs:
 
       - name: Build locked catalogue connector image
         run: docker build --tag enki-catalog-knowledge:ci companies/enki-hogar-ai-os/connectors/catalog-knowledge
+
+      - name: Build locked catalogue-evidence connector image
+        run: docker build --tag enki-catalogue-evidence:ci --file companies/enki-hogar-ai-os/connectors/catalog-evidence/Dockerfile companies/enki-hogar-ai-os
 
       - name: Build locked content publisher connector image
         run: docker build --tag enki-content-publisher:ci companies/enki-hogar-ai-os/connectors/content-publisher

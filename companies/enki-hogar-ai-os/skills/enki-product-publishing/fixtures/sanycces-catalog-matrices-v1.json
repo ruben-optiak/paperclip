@@ -1,0 +1,80 @@
+{
+  "schema": "enki-sanycces-matrix-fixture-suite/v1",
+  "version": "1.0.0",
+  "sanitized": true,
+  "cases": [
+    {
+      "key": "four-finish-clean-matrix",
+      "pageRole": "sku_matrix",
+      "words": [
+        {"text": "CR", "x0": 90, "x1": 110, "top": 100, "bottom": 110},
+        {"text": "BM", "x0": 190, "x1": 210, "top": 100, "bottom": 110},
+        {"text": "RM", "x0": 290, "x1": 310, "top": 100, "bottom": 110},
+        {"text": "RG", "x0": 390, "x1": 410, "top": 100, "bottom": 110},
+        {"text": "AAA101CR", "x0": 80, "x1": 120, "top": 125, "bottom": 135},
+        {"text": "AAA101BM", "x0": 180, "x1": 220, "top": 125, "bottom": 135},
+        {"text": "AAA101RM", "x0": 280, "x1": 320, "top": 125, "bottom": 135},
+        {"text": "AAA101RG", "x0": 380, "x1": 420, "top": 125, "bottom": 135}
+      ],
+      "expected": {"references": ["AAA101BM", "AAA101CR", "AAA101RG", "AAA101RM"], "valid": 4, "needsReview": 0}
+    },
+    {
+      "key": "two-finish-pool-matrix",
+      "pageRole": "sku_matrix",
+      "words": [
+        {"text": "RM", "x0": 290, "x1": 310, "top": 80, "bottom": 90},
+        {"text": "NB", "x0": 390, "x1": 410, "top": 80, "bottom": 90},
+        {"text": "BBB202SSRM", "x0": 275, "x1": 325, "top": 105, "bottom": 115},
+        {"text": "BBB202SSNB", "x0": 375, "x1": 425, "top": 105, "bottom": 115}
+      ],
+      "expected": {"references": ["BBB202SSNB", "BBB202SSRM"], "valid": 2, "needsReview": 0}
+    },
+    {
+      "key": "kit-variant-tail",
+      "pageRole": "sku_matrix",
+      "words": [
+        {"text": "CR", "x0": 90, "x1": 110, "top": 100, "bottom": 110},
+        {"text": "BM", "x0": 190, "x1": 210, "top": 100, "bottom": 110},
+        {"text": "CCC303CRKS", "x0": 75, "x1": 125, "top": 125, "bottom": 135},
+        {"text": "CCC303BMK", "x0": 175, "x1": 225, "top": 125, "bottom": 135}
+      ],
+      "expected": {"references": ["CCC303BMK", "CCC303CRKS"], "valid": 2, "needsReview": 0, "role": "kit_variant"}
+    },
+    {
+      "key": "concatenated-label-is-review",
+      "pageRole": "sku_matrix",
+      "words": [
+        {"text": "BM", "x0": 190, "x1": 210, "top": 100, "bottom": 110},
+        {"text": "DDD404BMKSSILICONE", "x0": 160, "x1": 240, "top": 125, "bottom": 135}
+      ],
+      "expected": {"references": ["DDD404BMKSSILICONE"], "valid": 0, "needsReview": 1, "reason": "finish_suffix_mismatch"}
+    },
+    {
+      "key": "technical-tokens-are-not-candidates",
+      "pageRole": "technical",
+      "words": [
+        {"text": "M32X1", "x0": 100, "x1": 140, "top": 100, "bottom": 110},
+        {"text": "MAX28", "x0": 200, "x1": 240, "top": 200, "bottom": 210}
+      ],
+      "expected": {"references": [], "valid": 0, "needsReview": 0}
+    },
+    {
+      "key": "reviewed-unqualified-single-finish-reference",
+      "pageRole": "sku_matrix",
+      "words": [
+        {"text": "CR", "x0": 90, "x1": 110, "top": 100, "bottom": 110},
+        {"text": "ACCLV001", "x0": 80, "x1": 120, "top": 125, "bottom": 135}
+      ],
+      "expected": {"references": ["ACCLV001"], "valid": 1, "needsReview": 0, "reason": "unqualified_reference_allowlisted"}
+    },
+    {
+      "key": "compatibility-note-reference-is-context-only",
+      "pageRole": "sku_matrix",
+      "words": [
+        {"text": "NB", "x0": 90, "x1": 110, "top": 100, "bottom": 110},
+        {"text": "BNCA006", "x0": 80, "x1": 120, "top": 500, "bottom": 510}
+      ],
+      "expected": {"references": ["BNCA006"], "valid": 1, "needsReview": 0, "reason": "context_only_reference_resolved", "role": "context_reference"}
+    }
+  ]
+}

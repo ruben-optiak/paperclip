@@ -7,4 +7,8 @@ connectors/catalog-knowledge/node_modules/
 connectors/content-publisher/node_modules/
 scripts/catalog-pipeline/.venv/
 scripts/catalog-pipeline/**/__pycache__/
+**/__pycache__/
+*.pyc
 .runtime-secrets/
+.runtime-private/proformas/
+generated-proformas/

@@ -1,3 +1,7 @@
+import {createHash} from "node:crypto";
+import {readFile} from "node:fs/promises";
+import {basename} from "node:path";
+
 const MAX_RESPONSE_BYTES = 1_000_000;
 const DEFAULT_TIMEOUT_MS = 10_000;
 
@@ -187,6 +191,254 @@ export class WordPressClient {
       slug: post.slug,
       published_at: post.date_gmt ?? post.date ?? null,
     };
+  }
+}
+
+function productReviewMeta(product) {
+  const approvedMetaKeys = new Set([
+    "_yoast_wpseo_title",
+    "_yoast_wpseo_metadesc",
+    "_yoast_wpseo_focuskw",
+    "_enki_manufacturer_reference",
+    "_enki_product_bundle_sha256",
+    "_enki_paperclip_issue",
+    "_enki_approval_document",
+    "_enki_approval_revision",
+  ]);
+  return Object.fromEntries((Array.isArray(product?.meta_data) ? product.meta_data : [])
+    .filter((item) => approvedMetaKeys.has(item?.key))
+    .map((item) => [item.key, String(item?.value ?? "")]));
+}
+
+function productView(product) {
+  return {
+    external_id: Number.isSafeInteger(Number(product?.id)) ? String(product.id) : null,
+    status: typeof product?.status === "string" ? product.status : "unknown",
+    type: typeof product?.type === "string" ? product.type : "unknown",
+    name: typeof product?.name === "string" ? product.name : "",
+    slug: typeof product?.slug === "string" ? product.slug : "",
+    sku: typeof product?.sku === "string" ? product.sku : "",
+    global_unique_id: typeof product?.global_unique_id === "string" ? product.global_unique_id : "",
+    catalog_visibility: typeof product?.catalog_visibility === "string" ? product.catalog_visibility : "unknown",
+    description_html: boundedText(product?.description ?? ""),
+    short_description_html: boundedText(product?.short_description ?? "", 10_000),
+    category_ids: Array.isArray(product?.categories) ? product.categories.map((item) => Number(item?.id)).filter(Number.isSafeInteger).sort((left, right) => left - right) : [],
+    brand_ids: Array.isArray(product?.brands) ? product.brands.map((item) => Number(item?.id)).filter(Number.isSafeInteger).sort((left, right) => left - right) : [],
+    tag_ids: Array.isArray(product?.tags) ? product.tags.map((item) => Number(item?.id)).filter(Number.isSafeInteger).sort((left, right) => left - right) : [],
+    attributes: Array.isArray(product?.attributes) ? product.attributes.map((item) => ({
+      id: Number(item?.id),
+      options: Array.isArray(item?.options) ? item.options.map(String) : [],
+      visible: item?.visible === true,
+      variation: item?.variation === true,
+    })).filter((item) => Number.isSafeInteger(item.id)).sort((left, right) => left.id - right.id) : [],
+    regular_price: typeof product?.regular_price === "string" ? product.regular_price : "",
+    sale_price: typeof product?.sale_price === "string" ? product.sale_price : "",
+    manage_stock: product?.manage_stock === true,
+    stock_quantity: product?.stock_quantity !== null && product?.stock_quantity !== undefined && Number.isSafeInteger(Number(product.stock_quantity))
+      ? Number(product.stock_quantity)
+      : null,
+    stock_status: typeof product?.stock_status === "string" ? product.stock_status : "unknown",
+    canonical_url: typeof product?.permalink === "string" ? product.permalink : null,
+    image_ids: Array.isArray(product?.images) ? product.images.map((item) => Number(item?.id)).filter(Number.isSafeInteger) : [],
+    review_meta: productReviewMeta(product),
+  };
+}
+
+function variationView(variation) {
+  return {
+    external_id: Number.isSafeInteger(Number(variation?.id)) ? String(variation.id) : null,
+    status: typeof variation?.status === "string" ? variation.status : "unknown",
+    sku: typeof variation?.sku === "string" ? variation.sku : "",
+    global_unique_id: typeof variation?.global_unique_id === "string" ? variation.global_unique_id : "",
+    regular_price: typeof variation?.regular_price === "string" ? variation.regular_price : "",
+    sale_price: typeof variation?.sale_price === "string" ? variation.sale_price : "",
+    manage_stock: variation?.manage_stock === true,
+    stock_quantity: variation?.stock_quantity !== null && variation?.stock_quantity !== undefined && Number.isSafeInteger(Number(variation.stock_quantity))
+      ? Number(variation.stock_quantity)
+      : null,
+    stock_status: typeof variation?.stock_status === "string" ? variation.stock_status : "unknown",
+    image_id: Number.isSafeInteger(Number(variation?.image?.id)) ? Number(variation.image.id) : null,
+    attributes: Array.isArray(variation?.attributes) ? variation.attributes.map((item) => ({
+      id: Number(item?.id),
+      option: typeof item?.option === "string" ? item.option : "",
+    })).filter((item) => Number.isSafeInteger(item.id)).sort((left, right) => left.id - right.id) : [],
+    review_meta: productReviewMeta(variation),
+  };
+}
+
+export class WordPressMediaClient {
+  constructor(config, {fetch: fetchImpl = globalThis.fetch} = {}) {
+    this.baseUrl = config.baseUrl;
+    this.authorization = `Basic ${Buffer.from(`${config.mediaUsername}:${config.mediaAppPassword}`).toString("base64")}`;
+    this.fetch = fetchImpl;
+  }
+
+  url(path) {
+    if (!path.startsWith("/")) throw new Error("WordPress media API path must be absolute");
+    return new URL(`/wp-json/wp/v2${path}`, this.baseUrl);
+  }
+
+  async uploadWebp(path, {alt, title, expectedSha256}) {
+    const filename = basename(path);
+    if (!/^[a-z0-9][a-z0-9._-]*\.webp$/.test(filename)) throw new Error("Product media filename is unsafe");
+    const bytes = await readFile(path);
+    const actualSha256 = createHash("sha256").update(bytes).digest("hex");
+    if (actualSha256 !== expectedSha256) throw new Error("Product media changed after bundle review");
+    const created = await call(this.fetch, this.url("/media"), {
+      method: "POST",
+      headers: {
+        authorization: this.authorization,
+        accept: "application/json",
+        "content-type": "image/webp",
+        "content-disposition": `attachment; filename="${filename}"`,
+      },
+      body: bytes,
+    }, "WordPress POST /media");
+    if (!Number.isSafeInteger(Number(created?.id))) throw new Error("WordPress did not return an ID for uploaded product media");
+    const updated = await call(this.fetch, this.url(`/media/${Number(created.id)}`), {
+      method: "POST",
+      headers: {
+        authorization: this.authorization,
+        accept: "application/json",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({alt_text: alt, title}),
+    }, `WordPress POST /media/${Number(created.id)}`);
+    return {
+      id: Number(updated?.id ?? created.id),
+      source_url: typeof updated?.source_url === "string" ? updated.source_url : typeof created?.source_url === "string" ? created.source_url : null,
+      alt,
+      name: title,
+    };
+  }
+}
+
+export class WooCommerceProductClient {
+  constructor(config, {fetch: fetchImpl = globalThis.fetch} = {}) {
+    this.baseUrl = config.baseUrl;
+    this.authorization = `Basic ${Buffer.from(`${config.consumerKey}:${config.consumerSecret}`).toString("base64")}`;
+    this.fetch = fetchImpl;
+  }
+
+  url(path, params = {}) {
+    if (!path.startsWith("/")) throw new Error("WooCommerce API path must be absolute");
+    const url = new URL(`/wp-json/wc/v3${path}`, this.baseUrl);
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== null && value !== "") url.searchParams.set(key, String(value));
+    }
+    return url;
+  }
+
+  async request(method, path, {params, body} = {}) {
+    return call(this.fetch, this.url(path, params), {
+      method,
+      headers: {
+        authorization: this.authorization,
+        accept: "application/json",
+        ...(body === undefined ? {} : {"content-type": "application/json"}),
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    }, `WooCommerce ${method} ${path}`);
+  }
+
+  async findBySku(sku) {
+    const rows = await this.request("GET", "/products", {params: {sku, status: "any", per_page: 10}});
+    if (!Array.isArray(rows)) throw new Error("WooCommerce returned a non-list product response");
+    const exact = rows.filter((entry) => entry?.sku === sku);
+    if (exact.length > 1) throw new Error(`WooCommerce returned multiple products for SKU ${sku}`);
+    return exact[0] ? productView(exact[0]) : null;
+  }
+
+  async resolveBrandBySlug(slug) {
+    const rows = await this.request("GET", "/products/brands", {params: {slug, per_page: 100}});
+    if (!Array.isArray(rows)) throw new Error("WooCommerce returned a non-list brand response");
+    const exact = rows.filter((entry) => entry?.slug === slug);
+    if (exact.length !== 1 || !Number.isSafeInteger(Number(exact[0]?.id))) {
+      throw new Error(`WooCommerce brand is missing or ambiguous: ${slug}`);
+    }
+    return {id: Number(exact[0].id), name: String(exact[0].name ?? ""), slug};
+  }
+
+  reviewMetadata(manufacturerReference, approval) {
+    return [
+      {key: "_enki_manufacturer_reference", value: manufacturerReference},
+      {key: "_enki_product_bundle_sha256", value: approval.bundleSha256},
+      {key: "_enki_paperclip_issue", value: approval.issueIdentifier},
+      {key: "_enki_approval_document", value: approval.documentKey},
+      {key: "_enki_approval_revision", value: approval.revisionId},
+    ];
+  }
+
+  async createDraft(product, images, approval, {brandId = null} = {}) {
+    const body = {
+      name: product.name,
+      slug: product.slug,
+      type: product.type,
+      status: "draft",
+      catalog_visibility: "hidden",
+      sku: product.sku,
+      ...(product.gtin ? {global_unique_id: product.gtin} : {}),
+      description: product.descriptionHtml,
+      short_description: product.shortDescriptionHtml,
+      categories: product.categories.map((id) => ({id})),
+      ...(brandId ? {brands: [{id: brandId}]} : {}),
+      tags: product.tags.map((id) => ({id})),
+      attributes: product.attributes,
+      images: images
+        .filter((image) => image.gallery !== false)
+        .map((image) => ({id: image.id, name: image.name, alt: image.alt})),
+      ...(product.commerce.regularPrice ? {regular_price: product.commerce.regularPrice} : {}),
+      ...(product.commerce.salePrice ? {sale_price: product.commerce.salePrice} : {}),
+      manage_stock: product.commerce.manageStock,
+      ...(product.commerce.stockQuantity === undefined ? {} : {stock_quantity: product.commerce.stockQuantity}),
+      stock_status: product.commerce.stockStatus,
+      meta_data: [
+        {key: "_yoast_wpseo_title", value: product.seo.title},
+        {key: "_yoast_wpseo_metadesc", value: product.seo.description},
+        {key: "_yoast_wpseo_focuskw", value: product.seo.focusKeyword},
+        ...this.reviewMetadata(product.manufacturerReference, approval),
+      ],
+    };
+    const parent = productView(await this.request("POST", "/products", {body}));
+    if (product.type !== "variable") return parent;
+    if (!parent.external_id) throw new Error("WooCommerce did not return a variable parent product ID");
+    const imageByPosition = new Map(images.map((image) => [image.position, image]));
+    const variations = [];
+    try {
+      for (const child of product.variations) {
+        const childImage = child.imagePosition === undefined ? null : imageByPosition.get(child.imagePosition);
+        const childBody = {
+          status: "private",
+          sku: child.sku,
+          ...(child.gtin ? {global_unique_id: child.gtin} : {}),
+          regular_price: child.commerce.regularPrice,
+          ...(child.commerce.salePrice ? {sale_price: child.commerce.salePrice} : {}),
+          manage_stock: child.commerce.manageStock,
+          ...(child.commerce.stockQuantity === undefined ? {} : {stock_quantity: child.commerce.stockQuantity}),
+          stock_status: child.commerce.stockStatus,
+          attributes: child.attributes,
+          ...(childImage ? {image: {id: childImage.id}} : {}),
+          meta_data: this.reviewMetadata(child.manufacturerReference, approval),
+        };
+        variations.push(variationView(await this.request(
+          "POST",
+          `/products/${parent.external_id}/variations`,
+          {body: childBody},
+        )));
+      }
+    } catch {
+      const createdIds = variations.map((item) => item.external_id).filter(Boolean).join(",") || "none";
+      throw new Error(`WooCommerce variable draft is incomplete; reconcile parent ${parent.external_id} and created variations ${createdIds} before retrying`);
+    }
+    return {...parent, variations};
+  }
+
+  async getProduct(id) {
+    return productView(await this.request("GET", `/products/${id}`));
+  }
+
+  async getVariation(productId, variationId) {
+    return variationView(await this.request("GET", `/products/${productId}/variations/${variationId}`));
   }
 }
 

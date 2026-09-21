@@ -33,7 +33,7 @@ test("evidence schema requires provenance, period, freshness and quality metadat
   for (const field of ["source", "fetched_at", "period_start", "period_end", "timezone", "currency", "currencies", "freshness", "status", "partial", "warnings", "contracts"]) {
     assert.equal(envelopeSchema.properties.meta.required.includes(field), true, field);
   }
-  assert.equal(envelopeSchema.properties.meta.properties.timezone.const, "Europe/Madrid");
+  assert.deepEqual(envelopeSchema.properties.meta.properties.timezone.enum, ["Europe/Madrid", "America/Los_Angeles"]);
   assert.deepEqual(envelopeSchema.properties.meta.properties.status.enum, ["ok", "partial", "unavailable"]);
 });
 

@@ -1,0 +1,40 @@
+{
+  "schema": "enki-measurement-baseline/v1",
+  "capturedAt": "2026-09-03T12:14:13Z",
+  "timezone": "Europe/Madrid",
+  "sources": {
+    "ga4": {"mode": "live_read_only", "query": "run_report", "propertyIdentifierRetained": false},
+    "gsc": {"mode": "live_read_only", "query": "gsc_search_analytics", "site": "sc-domain:enkihogar.com", "rowLimit": 25000},
+    "woocommerce": {"mode": "live_read_only", "query": "woo_sales_summary", "customerDataRetained": false},
+    "wordpress": {"mode": "live_read_only", "query": "wordpress_list_posts", "publishedPosts": 26}
+  },
+  "periods": [
+    {
+      "start": "2026-07-01",
+      "end": "2026-07-31",
+      "ga4": {"sessions": 792, "activeUsers": 618, "pageViews": 1470, "engagedSessions": 411, "events": 8688, "keyEvents": 4, "purchaseEvents": 4, "purchaseRevenueEur": "1684.73", "paths": 416, "editorialPathsWithViews": 6, "editorialPageViews": 8, "sampled": false, "dataLossFromOtherRow": false},
+      "gsc": {"pages": 267, "clicks": 365, "impressions": 24289, "ctr": "0.01502738", "impressionWeightedPosition": "10.2606", "editorialPagesWithImpressions": 1, "editorialClicks": 2, "editorialImpressions": 106, "truncated": false},
+      "woocommerce": {"recognizedOrders": 8, "grossRevenueEur": "2586.05", "netCheckoutRevenueEur": "2586.05", "refundTotalEur": "0", "taxTotalEur": "448.80", "shippingChargedEur": "71.08", "truncated": false},
+      "reconciliation": {"purchaseEventCoverageOfWooOrders": "0.5", "ga4RevenueMinusWooGrossEur": "-901.32", "commercialRevenueMatches": false}
+    },
+    {
+      "start": "2026-08-01",
+      "end": "2026-08-31",
+      "ga4": {"sessions": 523, "activeUsers": 430, "pageViews": 965, "engagedSessions": 273, "events": 5611, "keyEvents": 0, "purchaseEvents": 0, "purchaseRevenueEur": "0", "paths": 309, "editorialPathsWithViews": 9, "editorialPageViews": 19, "sampled": false, "dataLossFromOtherRow": false},
+      "gsc": {"pages": 272, "clicks": 322, "impressions": 23053, "ctr": "0.01396781", "impressionWeightedPosition": "13.0624", "editorialPagesWithImpressions": 1, "editorialClicks": 0, "editorialImpressions": 131, "truncated": false},
+      "woocommerce": {"recognizedOrders": 1, "grossRevenueEur": "316.49", "netCheckoutRevenueEur": "316.49", "refundTotalEur": "0", "taxTotalEur": "54.93", "shippingChargedEur": "21.49", "truncated": false},
+      "reconciliation": {"purchaseEventCoverageOfWooOrders": "0", "ga4RevenueMinusWooGrossEur": "-316.49", "commercialRevenueMatches": false}
+    }
+  ],
+  "editorialCoverage": {"publishedPosts": 26, "ga4PathsWithViewsLatestPeriod": 9, "gscPagesWithImpressionsLatestPeriod": 1, "ga4CoverageRatio": "0.34615385", "gscCoverageRatio": "0.03846154"},
+  "usability": {
+    "gscClicksImpressionsPosition": "usable_for_search_visibility_with_closed_period_and_query_scope",
+    "ga4TrafficEngagement": "usable_directionally_with_period_and_property_scope",
+    "ga4PurchasesRevenue": "not_usable_as_commercial_truth_due_to_woo_mismatch",
+    "wooOrdersCheckoutRevenue": "usable_as_current_commercial_aggregate_not_marketing_attribution",
+    "editorialPerformance": "partial_due_to_low_cross_source_url_coverage",
+    "consentModeImpact": "unknown_no_governed_consent_diagnostic_source"
+  },
+  "decision": {"status": "partial", "editorialExecutionGateCleared": false, "owner": "technology-manager", "next": "Diagnose purchase-event and consent/tagging coverage before using GA4 revenue or requesting an editorial canary."},
+  "authority": {"isObservation": true, "isExternalMutationAuthority": false, "containsPii": false, "containsPrivateIdentifiers": false}
+}

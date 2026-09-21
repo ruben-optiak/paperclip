@@ -1,0 +1,18 @@
+{
+  "schema": "enki-seo-pipeline-config/v1",
+  "version": "1.1.0",
+  "origin": "https://www.enkihogar.com",
+  "userAgent": "EnkiSeoAudit/1.0",
+  "limits": {"sitemaps": 16, "inventoryUrls": 5000, "pages": 70, "perSitemap": 10, "requestTimeoutSeconds": 15, "bodyBytes": 3000000, "redirects": 4, "delaySeconds": 0.25},
+  "seeds": ["/", "/ayuda-de-compra/", "/accesorios-de-bano-estanterias/", "/estanteria-pared-n1/"],
+  "editorialSitemap": "/post-sitemap.xml",
+  "periods": [{"start": "2026-07-01", "end": "2026-07-31"}, {"start": "2026-08-01", "end": "2026-08-31"}],
+  "sources": {
+    "gsc": {"tool": "gsc_search_analytics", "dimensions": ["page"], "rowLimit": 100, "maxPages": 100, "timezone": "America/Los_Angeles", "searchType": "web", "dataState": "final_default", "maxCaptureAgeDays": 7, "positionPrecision": 0.1, "exactUrlRecoveryLimit": 150},
+    "gscOverlap": {"tool": "gsc_search_analytics", "dimensions": ["query", "page"], "queryTextRetained": false, "minimumImpressionsPerPage": 10, "interpretation": "overlap_candidate_not_proven_cannibalization"},
+    "ga4": {"tool": "run_report", "dimensions": ["pagePath"], "metrics": ["screenPageViews"], "timezone": "verify_property_metadata", "limit": 250000, "maxCaptureAgeDays": 7, "usability": "directional_not_commercial_truth"},
+    "public": {"methods": ["GET"], "robotsRequired": true, "sameOriginOnly": true, "cookiesAllowed": false, "queryStringsAllowed": false, "rawHtmlRetained": false}
+  },
+  "prioritization": {"formula": "impact * confidence / effort", "impactRange": [1, 5], "confidenceRange": [0, 1], "effortRange": [1, 5], "riskSeparateFromScore": true, "trafficMissing": "technical_priority_only"},
+  "authority": {"publication": false, "indexing": false, "redirects": false, "configuration": false}
+}

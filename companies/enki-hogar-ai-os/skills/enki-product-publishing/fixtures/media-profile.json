@@ -1,0 +1,22 @@
+{
+  "schema": "enki-product-media-profile/v1",
+  "profileKey": "enki-square-candidate",
+  "version": "1.0.0",
+  "source": {
+    "allowedMimeTypes": ["image/jpeg", "image/png", "image/webp"],
+    "minimumWidth": 800,
+    "minimumHeight": 800,
+    "rightsConfirmationRequired": true
+  },
+  "output": {
+    "format": "webp",
+    "width": 1000,
+    "height": 1000,
+    "fit": "contain",
+    "background": "#FFFFFF",
+    "quality": 82,
+    "method": 6,
+    "allowUpscale": false,
+    "stripMetadata": true
+  }
+}

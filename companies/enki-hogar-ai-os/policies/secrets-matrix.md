@@ -15,8 +15,9 @@ No real value belongs in Git, a company package, an issue, an agent workspace, o
 | `SUPPORT_DB_READER_PASSWORD` | PostgreSQL + support MCP | untracked Compose environment | PostgreSQL role with `default_transaction_read_only=on` |
 | `SUPPORT_MCP_TOKEN` | Paperclip connection + support MCP | UI secret and untracked Compose environment | connector bearer only |
 | `SUPPORT_EMBEDDING_API_KEY` | optional support MCP/admin reindex process | untracked Compose environment | embeddings only; never agent model access |
+| `CATALOGUE_EVIDENCE_MCP_TOKEN` | Paperclip connection + catalogue-evidence MCP | UI secret and untracked Compose environment | connector bearer only |
 | Telegram BotFather token | Telegram plugin only | company-scoped Paperclip Secret bound by secret reference | one dedicated private Enki bot |
 | Codex subscription login | Paperclip-managed, unique per-agent `CODEX_HOME` | Paperclip instance | agent execution only |
 | `OPENAI_API_KEY` | no agent consumer | explicit empty plain value in every agent adapter | prevents inheritance or accidental API-key fallback |
 
-The optional embedding provider uses only `SUPPORT_EMBEDDING_API_KEY`; never reuse or inject an agent `OPENAI_API_KEY`. The Telegram token never belongs in `.env`, Compose, a command argument, plugin state, an agent environment, or an issue. Rotate a credential if it appears in logs, source snapshots, import previews, issues, artifacts, or agent prompts. After rotation, rerun the secret scan and connector/plugin checks.
+The approved-publication host path is configuration, not a secret, but it must point to a dedicated projection directory outside Git and never to a pipeline input/output root. The optional embedding provider uses only `SUPPORT_EMBEDDING_API_KEY`; never reuse or inject an agent `OPENAI_API_KEY`. The Telegram token never belongs in `.env`, Compose, a command argument, plugin state, an agent environment, or an issue. Rotate a credential if it appears in logs, source snapshots, import previews, issues, artifacts, or agent prompts. After rotation, rerun the secret scan and connector/plugin checks.

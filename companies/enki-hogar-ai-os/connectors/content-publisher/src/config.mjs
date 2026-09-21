@@ -1,4 +1,5 @@
 const WRITE_MODES = new Set(["disabled", "wordpress-drafts", "approved"]);
+const PRODUCT_WRITE_MODES = new Set(["disabled", "woo-drafts"]);
 
 function value(env, key) {
   return env[key]?.trim() || "";
@@ -50,11 +51,24 @@ function port(raw) {
 export function readConfig(env = process.env) {
   const writeMode = value(env, "CONTENT_PUBLISH_WRITE_MODE") || "disabled";
   if (!WRITE_MODES.has(writeMode)) throw new Error("CONTENT_PUBLISH_WRITE_MODE must be disabled, wordpress-drafts, or approved");
+  const productWriteMode = value(env, "PRODUCT_PUBLISH_WRITE_MODE") || "disabled";
+  if (!PRODUCT_WRITE_MODES.has(productWriteMode)) throw new Error("PRODUCT_PUBLISH_WRITE_MODE must be disabled or woo-drafts");
 
   const wordpressConfigured = completeGroup(
     env,
     ["WORDPRESS_BASE_URL", "WORDPRESS_USERNAME", "WORDPRESS_APP_PASSWORD"],
     "WordPress",
+  );
+  const productPublisherConfigured = completeGroup(
+    env,
+    [
+      "WOO_PUBLISH_BASE_URL",
+      "WOO_PUBLISH_CONSUMER_KEY",
+      "WOO_PUBLISH_CONSUMER_SECRET",
+      "PRODUCT_MEDIA_USERNAME",
+      "PRODUCT_MEDIA_APP_PASSWORD",
+    ],
+    "WooCommerce product publisher",
   );
   const metaCommonPresent = ["META_GRAPH_API_VERSION", "META_GRAPH_ACCESS_TOKEN"].some((key) => value(env, key));
   const metaTargetPresent = ["META_FACEBOOK_PAGE_ID", "META_INSTAGRAM_USER_ID"].some((key) => value(env, key));
@@ -77,11 +91,20 @@ export function readConfig(env = process.env) {
     port: port(value(env, "CONTENT_PUBLISHER_MCP_PORT")),
     token: connectorToken(env),
     writeMode,
+    productWriteMode,
+    productBundleRoot: value(env, "PRODUCT_DRAFT_BUNDLE_ROOT") || null,
     ledgerPath: value(env, "CONTENT_PUBLISH_LEDGER_PATH") || "/data/publication-ledger.json",
     wordpress: wordpressConfigured ? {
       baseUrl: safeBaseUrl(value(env, "WORDPRESS_BASE_URL"), "WORDPRESS_BASE_URL"),
       username: value(env, "WORDPRESS_USERNAME"),
       appPassword: value(env, "WORDPRESS_APP_PASSWORD"),
+    } : null,
+    productPublisher: productPublisherConfigured ? {
+      baseUrl: safeBaseUrl(value(env, "WOO_PUBLISH_BASE_URL"), "WOO_PUBLISH_BASE_URL"),
+      consumerKey: value(env, "WOO_PUBLISH_CONSUMER_KEY"),
+      consumerSecret: value(env, "WOO_PUBLISH_CONSUMER_SECRET"),
+      mediaUsername: value(env, "PRODUCT_MEDIA_USERNAME"),
+      mediaAppPassword: value(env, "PRODUCT_MEDIA_APP_PASSWORD"),
     } : null,
     meta: metaConfigured ? {
       graphApiVersion,
@@ -92,6 +115,13 @@ export function readConfig(env = process.env) {
       instagramUserId: value(env, "META_INSTAGRAM_USER_ID") || null,
     } : null,
   };
+}
+
+export function assertProductWriteAllowed(config) {
+  if (config.productWriteMode === "disabled") throw new Error("Product publishing writes are disabled by the connector kill switch");
+  if (config.productWriteMode !== "woo-drafts") throw new Error("The connector permits WooCommerce product drafts only");
+  if (!config.productBundleRoot) throw new Error("Product draft bundle is not configured");
+  if (!config.productPublisher) throw new Error("WooCommerce product publishing is not configured");
 }
 
 export function assertWriteAllowed(config, provider, status = null) {

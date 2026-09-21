@@ -76,8 +76,56 @@
   ],
   "internalDocuments": [
     {
+      "target": "seo/sources-2026-09-12-restored.json",
+      "targetSha256": "3be5a2c59d7a417e6de11ebd106ec0ad4a78a286c5e1b89b28be24ce7789a9db",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Restored scoped Google reads, exact-filter URL recovery, partial query digests and bounded index observations",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "seo/analysis-2026-09-12-restored.json",
+      "targetSha256": "ad6265bdd74b1b61cc89a44461424428efac97f3174021598ca7ecddc7fe1d84",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Replayable scoped traffic baseline, 35 search review opportunities and 21 partial overlap candidates",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "seo/pipeline-v1.json",
+      "targetSha256": "15b1038227cb71d5121282e28759f1566ab5e4e8dfbec0c83dc35946edead2cd",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Bounded public SEO crawl, exact source periods, freshness and prioritization contract",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "seo/sources-2026-09-12.json",
+      "targetSha256": "344fe8fb457e06360eba6782304345293e8c39a5877150352649ace62f35df31",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Sanitized actual Google read failures and explicitly historical aggregate provenance",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "seo/public-2026-09-12.json",
+      "targetSha256": "709fe3c94c51df7349f11b34ac903e4849194e705dc631d4ddfdc427698a5aba",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Dated public sitemap inventory and sampled HTML/link observations without raw bodies",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "seo/analysis-2026-09-12.json",
+      "targetSha256": "5453211ef017502ed6ae96b755c007d77de8d6f32ac4e735034eb611f22b6d7a",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Replayable technical priorities with unavailable traffic and overlap preserved as null",
+      "sensitivity": "enki_internal"
+    },
+    {
       "target": "metrics/metric-contracts.yaml",
-      "targetSha256": "a0439bd2020e03c8278508f83246c1b64e942028a62d7fa27f3e0de51fec585a",
+      "targetSha256": "e0fd850b783ea145ccd044ecc1bb91ac4389a4cd5fe9cfc562f4b5a321c240ad",
       "origin": "package-authored",
       "license": "LicenseRef-Enki-Hogar-Internal",
       "purpose": "Versioned definitions and quality rules for commerce, advertising, acquisition and margin metrics",
@@ -85,7 +133,7 @@
     },
     {
       "target": "contracts/evidence-envelope-v1.schema.json",
-      "targetSha256": "5a7731f904f3739834d55910c46954f47dc38d368ace16ebfc7df58ebb4143a6",
+      "targetSha256": "ee8d8ea01495eb6d845c65171e24a0f38dc21d3efd60b3b2306a16a5396f6a4a",
       "origin": "package-authored",
       "license": "LicenseRef-Enki-Hogar-Internal",
       "purpose": "Canonical machine-readable envelope for live, partial, stale and unavailable evidence",
@@ -196,6 +244,14 @@
       "sensitivity": "enki_internal"
     },
     {
+      "target": "contracts/catalog-evidence-publication-v1.schema.json",
+      "targetSha256": "978d9142adfb95c82cecb851260d6719dfa33523642dc2de7b4efd8112db7b21",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Closed Board-approved catalogue run and field-evidence publication with hashes and optional crops",
+      "sensitivity": "enki_internal"
+    },
+    {
       "target": "replay-receipts/eai-021-buades-2026-04-26.json",
       "targetSha256": "2bad6c6ffd005ed5b26505abc2529602303a280d9dd7006243719643c758b68c",
       "origin": "package-authored",
@@ -217,6 +273,190 @@
       "origin": "package-authored",
       "license": "LicenseRef-Enki-Hogar-Internal",
       "purpose": "Canonical manifest contract for immutable approved brand/domain support packs",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "measurement/eai-006-baseline-2026-09-03.json",
+      "targetSha256": "9cb8e4b3b2a04039c683b169dcf1017543b5afbbe7ca55f471fe4353b9894e88",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Closed-period GA4, GSC and Woo aggregate receipt with explicit measurement usability gates",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "finance/minimum-data-contract-v1.json",
+      "targetSha256": "3e965770d915f70bc0f383b72898c80525f2ec5389c3556b36d08f01280b33af",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Fail-closed financial source contract separating observable commerce aggregates from unavailable accounting truth",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "web/wordpress-technical-desired-state.json",
+      "targetSha256": "a43eb30b128ec70e8a2f70294c305be215eeb4f01714beaa613dbb91d1d67b3d",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Read-only WordPress technical desired state, drift classes and change/rollback evidence contract",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "web/public-web-baseline-v1.json",
+      "targetSha256": "6703b2f793bdc39d65164da1ff2199aa1ec7e9e62ef191bd4deb6750899ec398",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Pinned same-origin functional targets, lab environment, safety invariants and performance budgets",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "web/snapshots/eai-026-public-2026-09-03.json",
+      "targetSha256": "343d13fe52bd3d511dc6a421400bb660dec8764f232a31523c5c2a88ff401093",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Redacted public WordPress inventory with explicit administrative unknowns",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "web/snapshots/eai-027-browser-2026-09-03.json",
+      "targetSha256": "06bef14deb91d7d8338dabc5d0b83629ec3abd34b76ccb5ecebd69a65006f1d7",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Redacted four-page functional and Web Vitals baseline retaining failed checks",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "web/snapshots/eai-027-lighthouse-home-2026-09-03.json",
+      "targetSha256": "533324b56f0ffdda7cb946b43ce37876f6cde2fbbf0ad5500560ed9a5ccd6955",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Redacted pinned Lighthouse 13.4.1 mobile summary without raw bodies, requests or screenshots",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "merchant/diagnostic-2026-09-12.md",
+      "targetSha256": "556a20bd1254e6f34822759f55ca7de4f8d44f20101081fbc2528b01d366a496",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "EAI-012 Merchant account and product-rejection diagnosis with human recovery criteria and no mutation authority",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "merchant/rejection-audit-2026-09-12.md",
+      "targetSha256": "f8453c6dd58957ab989abe434e17ac8c2bd32fec5a779b1ea5703d008dd6cef3",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Initial bounded Merchant rejection audit retained as superseded partial evidence",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "merchant/rejection-evidence-2026-09-12.json",
+      "targetSha256": "a191fd06fd9871b1db8d10b5820da3f2e8ad6a4fe714ffcaff9e1663b9f41435",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Sanitized initial Merchant rejection receipt retained with explicit partial coverage",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "merchant/rejection-audit-complete-2026-09-12.md",
+      "targetSha256": "91806fb06c22fceddaef8cf425f0973ff550556077028737645547d85352fd67",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Completed bounded Merchant rejection audit covering all displayed affected products without retaining the feed",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "merchant/rejection-evidence-complete-2026-09-12.json",
+      "targetSha256": "365dd212a1e472c07bed108b4260ab156baf66825983b3e4726bbabb1726ca96",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Sanitized complete Merchant rejection evidence with displayed identifiers, issue classes and action limits",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "seo/sitemap-warning-diagnostic-2026-09-12.md",
+      "targetSha256": "d230da55ecedba7bbdec7185fa857bd153b8c21c01456c8b49040da216153c24",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "EAI-029 bounded GSC warning-count diagnosis and demonstrated connector detail limit",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "seo/sitemap-warning-evidence-2026-09-12.json",
+      "targetSha256": "d1cce2eac3371283c6f303d1129e0ecd23b50cf036dfdfaa57eb0ba5b9048011",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Sanitized GSC sitemap warning receipt preserving rendered counts and unavailable detail",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "seo/sitemap-ui-diagnostic-2026-09-12.md",
+      "targetSha256": "bb0ea98282a19f2e94d938a26a62923e6df9ccce2ad617dd803433b170758182",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Operator-authorized GSC UI diagnosis identifying the unreadable brand child sitemap and general HTTP error",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "seo/sitemap-ui-evidence-2026-09-12.json",
+      "targetSha256": "d90af928f566ca4a1efd4b965efcc618bb440309db7055347045f0a480168f8a",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Sanitized transcription of the GSC sitemap index, seven child rows and the expanded brand-sitemap error",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "seo/brand-sitemap-http-diagnostic-2026-09-19.md",
+      "targetSha256": "19c799d010cf5f7d8db97b47e10451b5a4c3a296a9018ea2c0f983c53e89f90f",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "EAI-030 public HTTP diagnosis separating current sitemap success, robots uncertainty and historical GSC failure",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "seo/brand-sitemap-http-evidence-2026-09-19.json",
+      "targetSha256": "47ce9993c39403dd70fcc4c2dc7460198e65d4e7cb01580c7b4244a1c8467866",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Sanitized public HTTP, XML, robots and root-index receipt for the brand sitemap without raw bodies",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/product-media-profile-v1.schema.json",
+      "targetSha256": "072c0b1bfa845682506364c1839d48005f8a87f038a0a688b5a631ffbc3750ca",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Deterministic rights-gated WebP transformation profile for reviewed product media",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/product-primary-image-policy-v1.schema.json",
+      "targetSha256": "4407e66a3f8a497be850c0e6a24d8ee7aa4fd806c06f609e0da89f0d9dbfd42e",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Strict contract for deterministic white-background primary product framing",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/product-draft-bundle-v1.schema.json",
+      "targetSha256": "4edc430c75b4e1031675a546dbd75c7b291a9da40f863ed519c25eb454bea010",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Bounded evidence-backed handoff for exact approved simple or variable WooCommerce product drafts",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "commerce/sanycces-discount-policy-v1.json",
+      "targetSha256": "eaf848abd763cbca255a1ae83017cb45dfe52d1b5fbecba0c0b4ea265df097df",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Approved Sanycces net-PVP discount tiers proven against the frozen published catalogue",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "commerce/product-primary-image-policy.json",
+      "targetSha256": "97346dd74e6efabca59e999bdcd6bfdeae4d5cff5686ee30ff337443ec980129",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Approved exact-geometry framing policy for white-background ecommerce product heroes",
       "sensitivity": "enki_internal"
     }
   ]

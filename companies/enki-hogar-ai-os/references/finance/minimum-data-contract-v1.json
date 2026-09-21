@@ -1,0 +1,37 @@
+{
+  "schema": "enki-financial-source-contract/v1",
+  "version": "1.0.0",
+  "effectiveAt": "2026-09-03T14:30:00+02:00",
+  "timezone": "Europe/Madrid",
+  "currencyPolicy": {"base": "EUR", "mixedCurrencyAggregationAllowed": false, "fxSource": null},
+  "sources": [
+    {"key": "woo_sales_summary", "owner": "ecommerce-catalogue-manager", "freshness": "live_at_query", "grain": "period_currency", "containsPii": false, "status": "available", "provides": ["recognized_order_count", "gross_checkout_revenue", "refund_total_by_original_order_period", "tax_total", "shipping_charged", "discount_total"], "limitations": ["current_status_can_restate_history", "refunds_not_attributed_to_refund_transaction_date", "tax_total_not_proven_as_statutory_vat", "shipping_charged_is_not_carrier_cost"]},
+    {"key": "google_ads_aggregate", "owner": "growth-manager", "freshness": "live_at_query", "grain": "account_period_currency_conversion_action", "containsPii": false, "status": "conditional", "provides": ["ad_spend", "platform_attributed_conversion_value"], "limitations": ["conversion_action_set_must_be_named", "attribution_is_platform_specific", "must_not_join_to_customer_or_order_rows"]},
+    {"key": "ga4_aggregate", "owner": "growth-manager", "freshness": "live_at_query", "grain": "property_period", "containsPii": false, "status": "directional_only", "provides": ["sessions", "engagement", "purchase_events", "reported_purchase_revenue"], "limitations": ["purchase_and_revenue_failed_eai_006_woo_reconciliation", "consent_impact_unknown", "not_commercial_truth"]}
+  ],
+  "requiredInputs": [
+    {"key": "accounting_net_revenue_ex_vat", "owner": "finance-bi-manager", "status": "unavailable", "approvedSource": null, "requiredFor": ["gross_margin"], "reason": "Woo net checkout revenue still includes tax/shipping semantics and is not statutory accounting revenue."},
+    {"key": "cogs", "owner": "finance-bi-manager", "status": "unavailable", "approvedSource": null, "requiredFor": ["gross_margin", "contribution_margin"], "reason": "No governed product/order-level cost source is connected."},
+    {"key": "statutory_vat", "owner": "finance-bi-manager", "status": "unavailable", "approvedSource": null, "requiredFor": ["accounting_net_revenue_ex_vat"], "reason": "Woo tax classes and refunded tax components have not been validated as statutory VAT."},
+    {"key": "carrier_fulfilment_cost", "owner": "finance-bi-manager", "status": "unavailable", "approvedSource": null, "requiredFor": ["contribution_margin"], "reason": "Shipping charged to the customer is not carrier cost."},
+    {"key": "payment_processing_fees", "owner": "finance-bi-manager", "status": "unavailable", "approvedSource": null, "requiredFor": ["contribution_margin"], "reason": "No governed PSP settlement/fee source is connected."},
+    {"key": "refunds_by_transaction_date", "owner": "finance-bi-manager", "status": "unavailable", "approvedSource": null, "requiredFor": ["accounting_period_net_revenue"], "reason": "The Woo aggregate attributes refunds to original order creation period."},
+    {"key": "verified_new_customers", "owner": "finance-bi-manager", "status": "unavailable", "approvedSource": null, "requiredFor": ["cac"], "reason": "The zero-PII connector exposes no customer identity or deduplicated new-customer aggregate."},
+    {"key": "governed_channel_attribution", "owner": "growth-manager", "status": "unavailable", "approvedSource": null, "requiredFor": ["blended_roas", "channel_profitability"], "reason": "Ads attribution is platform-specific and GA4 purchases/revenue failed reconciliation against Woo."}
+  ],
+  "metricAvailability": [
+    {"metric": "recognized_orders", "status": "available", "sourceKeys": ["woo_sales_summary"]},
+    {"metric": "gross_checkout_revenue", "status": "available", "sourceKeys": ["woo_sales_summary"]},
+    {"metric": "refund_total_by_original_order_period", "status": "available_with_limitation", "sourceKeys": ["woo_sales_summary"]},
+    {"metric": "tax_total", "status": "available_non_statutory", "sourceKeys": ["woo_sales_summary"]},
+    {"metric": "shipping_charged", "status": "available_not_cost", "sourceKeys": ["woo_sales_summary"]},
+    {"metric": "ad_spend", "status": "conditional", "sourceKeys": ["google_ads_aggregate"]},
+    {"metric": "platform_roas", "status": "conditional", "sourceKeys": ["google_ads_aggregate"]},
+    {"metric": "cac", "status": "unavailable", "sourceKeys": []},
+    {"metric": "gross_margin", "status": "unavailable", "sourceKeys": []},
+    {"metric": "contribution_margin", "status": "unavailable", "sourceKeys": []},
+    {"metric": "channel_profitability", "status": "unavailable", "sourceKeys": []}
+  ],
+  "qualityRules": {"missingIsZero": false, "decimalStringsRequired": true, "samePeriodRequired": true, "sameCurrencyRequired": true, "rowLevelCustomerJoinAllowed": false, "estimatedActualsAllowed": false},
+  "authority": {"isDataDefinition": true, "isAccountingStatement": false, "isExternalMutationAuthority": false}
+}

@@ -1,8 +1,8 @@
 # Enki Hogar AI OS — backlog vivo
 
-Última actualización: 2026-09-01
+Última actualización: 2026-09-19
 Rama de trabajo: `feat/enki-hogar-approach`
-Paquete actual: `companies/enki-hogar-ai-os/` (`0.12.0`)
+Paquete actual: `companies/enki-hogar-ai-os/` (`0.15.0`)
 
 ## Propósito
 
@@ -35,44 +35,56 @@ Snapshot comprobado el 2026-09-01:
 - No hay plugins instalados; Telegram sigue pendiente de instalación y smoke real.
 - Quedan seis issues bootstrap vigentes en backlog: `ENK-2`, `ENK-4`, `ENK-5`, `ENK-6`, `ENK-7` y `ENK-8`. `ENK-1` fue cancelado como onboarding obsoleto y `ENK-3` se cerró con evidencia de los smokes `ENK-9` a `ENK-15`.
 - `ENK-5` está bloqueado por `ENK-2`; `ENK-8` está bloqueado por `ENK-4`. Ninguno de los seis issues retenidos se movió a `todo`.
-- El workflow editorial v2 y su ciclo de feedback, retrospectiva 7/28/90 y aprendizaje Board-only quedan consolidados en la instancia mediante el último import selectivo. El paquete fuente `0.12.0` añade tooling local, contratos trazables, regresión y adaptadores multimarca, reconciliación Woo posicional y auditoría post-import; todavía no se ha importado ni cambia la instancia. La sincronización con upstream sigue separada bajo `EAI-016`.
+- El workflow editorial v2 y su ciclo de feedback, retrospectiva 7/28/90 y aprendizaje Board-only quedan consolidados en la instancia mediante el último import selectivo. El paquete fuente `0.14.0` añade además evidencia cerrada GA4/GSC/Woo, contrato financiero fail-closed, inventario técnico público de WordPress y baselines funcionales/Web Vitals/Lighthouse; todavía no se ha importado ni cambia la instancia. La sincronización con upstream sigue separada bajo `EAI-016`.
 - `EAI-002` quedó cerrado mediante `ENK-29`–`ENK-31`: el brief canónico de `ENK-24` es la revisión 7 y conserva C1 únicamente como prioridad de investigación, sin autorizar consolidación ni mutaciones externas.
+
+Comprobación incremental del 2026-09-12: las lecturas iniciales de GSC/GA4
+fallaron con `oauth_invalid_grant`; el operador renovó ambas credenciales y
+se reinició únicamente el conector Google. Las lecturas reales vuelven a
+funcionar y hay un [baseline SEO recuperado](../../companies/enki-hogar-ai-os/runbooks/seo-pipeline.md)
+con evidencia fechada. No se ha vuelto a comprobar ni modificado el estado
+de los issues/agentes/rutinas del snapshot anterior. El paquete fuente
+`0.15.0` no se ha importado a la instancia.
+
+Comprobación incremental del 2026-09-19: `EAI-012`, `EAI-028` y `EAI-029`
+constan cerrados en Paperclip y sus nueve artefactos se recuperaron desde los
+adjuntos con igualdad SHA-256. Merchant no muestra suspensión de cuenta; la
+auditoría fija 25 rechazos y completa 24 uniones MPN/SKU+URL más una unión sin
+SKU, sin corregir productos. GSC mostró 60 advertencias agregadas y un fallo
+HTTP del sitemap de marcas sin código. `EAI-030 / ENK-34` comprobó que hoy la
+ruta pública responde 200 con XML válido, y dejó la regla robots YITH como
+candidata no demostrada porque no comienza por `/` como exige la sintaxis
+documentada. No se modificaron la web, Merchant, robots, sitemaps ni GSC; el
+paquete fuente sigue sin importarse.
 
 ## Orden inmediato
 
-1. Reconciliar la medición GA4/GSC bajo `EAI-006` y declarar qué métricas editoriales son utilizables.
-2. Implementar `EAI-022`: exponer exclusivamente runs aprobados y evidencia por campo mediante un conector read-only para Catalogue Manager; no procesar todavía todos los catálogos ni generar imports Woo live.
-3. Mantener `ENK-7` en backlog hasta que `EAI-022` demuestre default-deny, alcance por run aprobado y ausencia de acceso a inputs brutos.
-4. Solo después de `EAI-006`, solicitar una nueva decisión Board para la primera ejecución editorial real; C1 sigue siendo una investigación y no una consolidación preaprobada.
+1. Someter a Board/Technology dos propuestas separadas y exactas: correcciones por cohorte para los 25 rechazos Merchant y revisión de la regla robots YITH con prueba del sitemap. No aplicar ninguna hasta aprobar diff, alcance, verificación y rollback.
+2. Obtener de Board el mandato y los inputs exactos exigidos por el `ENK-7` ya reespecificado: una marca/dominio, fuente oficial, export Woo fresco, adaptador, máximo 25 entidades/50 campos y un único candidato de pack. No ejecutar ni importar hasta disponer de todo.
+3. Solicitar una nueva decisión Board para la primera ejecución editorial real; C1 sigue siendo una investigación y no una consolidación preaprobada.
 
 ## Backlog priorizado
 
 | ID | Prioridad | Estado | Trabajo | Siguiente acción | Evidencia de cierre |
 | --- | --- | --- | --- | --- | --- |
-| `EAI-006` | P1 | NOW | Reconciliar medición GA4 | Technology investiga la divergencia GA4/GSC, cobertura de páginas editoriales, consentimiento, eventos e ingresos; Growth documenta qué métricas son utilizables | Baseline de medición con fuentes, limitaciones y consultas reproducibles; se actualizan los contratos afectados |
 | `EAI-007` | P1 | BLOCKED | Primera ejecución editorial real | Tras `EAI-006` y una nueva decisión Board, decidir entre seguir investigando C1 o elegir otro tema no solapado; producir primero un borrador local y revisión exacta | Borrador y revisión versionados; si Board autoriza canary, WordPress crea un único draft idempotente y se verifica live |
-| `EAI-008` | P1 | READY | Datos financieros mínimos | Ejecutar `ENK-2`; mantener `ENK-5` bloqueado hasta disponer del contrato de COGS, fiscalidad, transporte, comisiones, devoluciones y atribución | Contrato de fuentes financieras y lista explícita de métricas disponibles/no disponibles |
 | `EAI-009` | P1 | READY | Telegram local | Instalar el plugin, crear secret-ref del bot, fijar user/chat allowlists y ejecutar el smoke bidireccional sin autoridad de aprobación | Mensaje autorizado crea issue/comentario atribuido; reporte llega al chat; PII y decisiones de aprobación siguen bloqueadas |
 | `EAI-010` | P2 | BLOCKED | Facebook e Instagram | Configurar credenciales y ejecutar canaries separados; no compartir aprobación ni estado de escritura con WordPress | Cada proveedor supera lectura, aprobación exacta, idempotencia y reconciliación live de forma independiente |
 | `EAI-011` | P2 | BLOCKED | Activar rutinas | Requiere backlog limpio, medición reconciliada y varios briefs/revisiones manuales aceptados por Board | Board habilita cada trigger por separado; primer run programado termina correctamente y no crea trabajo duplicado |
-| `EAI-012` | P2 | READY | Merchant Center | Ejecutar el `ENK-6` ya reespecificado: verificar la causa actual mediante fuente autorizada y preparar recuperación sin mutaciones automáticas | Diagnóstico fechado, evidencias, acciones humanas y criterios de recuperación; sin tratar DevDocs como estado real |
-| `EAI-013` | P2 | BLOCKED | Catálogo y soporte técnico (épica) | Ejecutar primero `EAI-022`; `EAI-018`–`EAI-021` ya están cerrados. Después reabrir `ENK-7` para una auditoría desde export Woo fresco y seleccionar el siguiente pack técnico por marca/dominio | Mismatches reproducibles sin duplicar catálogo; pack aprobado e importable con ciclo de supersede/purge completo; las consultas live usan SKU/product ID Woo exacto |
-| `EAI-014` | P2 | READY | SEO, SEM y performance (épica) | Coordinar `EAI-023`–`EAI-027`; `ENK-4`/`EAI-006` siguen siendo el gate de medición antes de ejecutar `ENK-8` | Backlog priorizado por impacto, confianza, esfuerzo y riesgo; consultas, periodos y baselines reproducibles |
+| `EAI-013` | P2 | BLOCKED | Catálogo y soporte técnico (épica) | Board aporta el mandato exacto y los inputs de `ENK-7` definidos en `runbooks/catalog-audit-pilot.md`; después Ecommerce ejecuta un único piloto acotado | Mismatches reproducibles sin duplicar catálogo; pack aprobado e importable con ciclo de supersede/purge completo; las consultas live usan SKU/product ID Woo exacto |
+| `EAI-014` | P2 | READY | SEO, SEM y performance (épica) | Coordinar `EAI-023`–`EAI-025` y conservar `EAI-029`/`EAI-030` como diagnóstico, no como autoridad para cambiar robots o sitemaps; `ENK-8` sigue necesitando decisión Board | Backlog priorizado por impacto, confianza, esfuerzo y riesgo; consultas, periodos y baselines reproducibles |
 | `EAI-015` | P3 | LATER | Promoción a producción | Elegir infraestructura, fijar tag/commit, digests OCI y SHA-256 del ZIP; probar import pausado, backup, restore, smoke y rollback | Todos los campos de `runtime/compatibility.lock.yaml` completos y evidencia de restauración/promoción |
 | `EAI-016` | P3 | LATER | Sincronización con upstream Paperclip | Probar periódicamente `upstream/master` en una rama de sync, resolver conflictos allí y ejecutar gates antes de integrar en Enki | Merge de upstream aislado, verificado y documentado; nunca se experimenta directamente sobre la rama operativa |
-| `EAI-022` | P1 | NOW | Evidencia read-only para Catalogue Manager | Exponer runs aprobados y evidencia por campo mediante un conector sin herramientas de escritura, usando el replay histórico ya cerrado como gate de entrada | Catálogo MCP exacto, default-deny, consultas por marca/serie/SKU/campo, crops o coordenadas verificables y cero acceso a inputs brutos no aprobados |
-| `EAI-023` | P1 | BLOCKED | Pipeline SEO actual | Tras `EAI-006`, consolidar snapshot GSC/GA4, inventario de URLs, indexabilidad, canibalización, contenido y priorización con fechas y consultas reproducibles | Baseline actual, contratos de fuente/frescura, backlog medible y regresiones para canonical, redirect, noindex, sitemap y enlazado interno |
-| `EAI-024` | P1 | BLOCKED | Economía SEM por item/SKU | Tras `EAI-006`, `EAI-008` y `EAI-012`, cruzar Ads/Merchant/Woo por identificadores exactos, margen y etiquetas sin inferir costes ausentes | Informe reproducible por campaña/item/SKU con cobertura de matching, ROAS/CAC/margen utilizables, gaps explícitos y cero mutaciones de campaña |
+| `EAI-024` | P1 | BLOCKED | Economía SEM por item/SKU | `EAI-006`, `EAI-008` y `EAI-012` están cerrados, pero faltan una fuente autorizada de costes/margen y lecturas Ads por item suficientemente unibles; no reutilizar los rechazos Merchant como rentabilidad | Informe reproducible por campaña/item/SKU con cobertura de matching, ROAS/CAC/margen utilizables, gaps explícitos y cero mutaciones de campaña |
 | `EAI-025` | P1 | BLOCKED | Ledger de experimentos SEM | Tras `EAI-024`, versionar hipótesis, cohorte, presupuesto autorizado, ventana, comparador, resultado y decisión sin permitir activación automática | Cada propuesta es idempotente y auditable; datos insuficientes quedan inconclusos y toda aplicación sigue requiriendo Board y herramienta gobernada |
-| `EAI-026` | P1 | READY | Desired state técnico de WordPress | Inventariar versiones, plugins, snippets, GTM/caché/CDN y cambios históricos relevantes sin almacenar secretos ni convertir el inventario en autoridad de publicación | Snapshot fechado y redacted, rollback por cambio, checks de drift y ownership claro entre WordPress, repositorio y configuración live |
-| `EAI-027` | P2 | READY | Harness funcional y de performance web | Convertir checks históricos de compra, plantillas, Core Web Vitals y regresiones técnicas en pruebas reproducibles con baseline y presupuesto explícito | Smoke funcional read-only y baseline Lighthouse/Web Vitals con entorno, fecha, tolerancias y artefactos; ninguna optimización se aplica automáticamente |
+| `EAI-026` | P1 | BLOCKED | Desired state técnico de WordPress | Board debe autorizar una fuente administrativa para completar versiones activas, snippets, consentimiento e historial; el snapshot público, ownership, drift y rollback ya están versionados | Snapshot administrativo fechado y redacted que complete los unknowns sin secretos ni autoridad de publicación |
 
 ## Dependencias de las nuevas líneas
 
 - Catálogo: `EAI-017 → EAI-018 → EAI-019 → EAI-020 → EAI-021 → EAI-022 → ENK-7`. `EAI-013` permanece como épica y no duplica esos entregables.
-- SEO: `EAI-006 → EAI-023`; `EAI-014` agrupa el resultado y la futura ejecución de `ENK-8`.
-- SEM: `EAI-006 + EAI-008 + EAI-012 → EAI-024 → EAI-025`.
-- Estado técnico web: `EAI-026` puede avanzar sin publicar; `EAI-027` puede construir el baseline sin aplicar optimizaciones.
+- SEO: `EAI-006 → EAI-023 → EAI-029 → EAI-030` queda completado como baseline, límite de GSC, observación UI y diagnóstico HTTP público. `EAI-014` agrupa la futura ejecución de `ENK-8`; no hay autoridad nueva para mutar la web.
+- SEM: `EAI-006 + EAI-008 + EAI-012 → EAI-024 → EAI-025`; `EAI-012` ya está cerrado, pero las lecturas Ads específicas y los costes/márgenes siguen ausentes. El contrato financiero y los rechazos Merchant no los sustituyen.
+- Estado técnico web: `EAI-026` espera evidencia administrativa; `EAI-027` está cerrado sin aplicar optimizaciones.
 
 ### Disposición aplicada a `ENK-1`–`ENK-8`
 
@@ -81,9 +93,12 @@ Snapshot comprobado el 2026-09-01:
 - `ENK-3`: `done`; comentario Board enlaza los smokes `ENK-9` a `ENK-15` y el snapshot sano de conexiones.
 - `ENK-4`: `backlog`, prioridad alta; reconciliación de medición orientada a la divergencia GA4/GSC hallada en `ENK-24` (`EAI-006`).
 - `ENK-5`: `backlog`, prioridad alta y relación first-class `blocked by ENK-2`; prohíbe calcular rentabilidad sin costes y atribución.
-- `ENK-6`: `backlog`; diagnóstico Merchant Center exige evidencia actual y prohíbe tratar DevDocs como estado real (`EAI-012`).
+- `ENK-6`: `done`; diagnóstico Merchant actual entregado sin apelación ni cambios (`EAI-012`).
 - `ENK-7`: `backlog`; separa auditoría comercial desde export Woo de los packs técnicos estables (`EAI-013`).
 - `ENK-8`: `backlog` y relación first-class `blocked by ENK-4`; además exige el workflow editorial v2 antes de ejecución (`EAI-014`).
+- `ENK-32`: `done`; auditoría `EAI-028` de las 25 ofertas Merchant completada sin correcciones live.
+- `ENK-33`: `done`; `EAI-029` conserva el límite del contador GSC y el fallo HTTP observado en la UI.
+- `ENK-34`: `done`; diagnóstico `EAI-030` ejecutado manualmente sin asignar agentes, con informe y evidencia JSON adjuntos, registrados como work products y verificados por SHA-256 tras descargarlos desde Paperclip.
 
 La reconciliación se aplicó mediante la API Board de Paperclip. Los seis agentes Enki y las dos rutinas permanecieron pausados, los triggers continuaron deshabilitados y no se generó ningún run.
 
@@ -102,10 +117,19 @@ La reconciliación se aplicó mediante la API Board de Paperclip. Los seis agent
 - No cambiar `CONTENT_PUBLISH_WRITE_MODE` fuera de un canary aprobado y acotado.
 - No configurar Facebook/Instagram como un único rollout conjunto.
 - No promover a producción ni completar digests por inferencia.
-- `EAI-019`–`EAI-021` ya están cerrados, pero no ejecutar `ENK-7` sobre todos los catálogos hasta completar `EAI-022`; el replay histórico acotado demuestra lectura del layout, no autoridad para una auditoría live.
+- `EAI-019`–`EAI-022` ya están cerrados, pero no ejecutar `ENK-7` sobre todos los catálogos: la siguiente auditoría requiere alcance nuevo y explícito, export Woo fresco y una publicación aprobada independiente. El replay histórico acotado no es autoridad comercial live.
 
 ## Registro de cerrados
 
+- 2026-09-19 — `EAI-030` completado como diagnóstico HTTP público: la URL HTTPS `www` del sitemap de marcas, el índice raíz y `robots.txt` responden 200; ambos XML son válidos y el hijo contiene siete URLs. Cuatro variantes de host/esquema sirven 200 sin redirección. La directiva `Disallow: *yith_product_brand` aparece en los grupos `Googlebot` y `*`, pero no comienza por `/`; queda como candidata no demostrada junto a un posible fallo transitorio. No se modificaron web, robots, sitemaps ni Search Console.
+- 2026-09-12 — `EAI-029` completado: el MCP mostró 60 advertencias frente a 61 y no expuso mensajes o URLs; la UI autorizada confirmó índice raíz correcto y un hijo de marcas no obtenido con una instancia de error HTTP general, sin código ni causa. No hubo envío, indexación ni cambio web.
+- 2026-09-12 — `EAI-028` completado: cohorte fija de 25 rechazos Merchant, 24 uniones MPN/SKU+URL y una unión sin SKU documentada, con cuatro grupos de hallazgos y evidencia completa saneada. No se corrigieron feed, Woo, web ni Merchant.
+- 2026-09-12 — `EAI-012` completado: la cuenta Merchant seleccionada no muestra suspensión ni incidencias de cuenta; sí 25 productos no aprobados sobre 6.613. El diagnóstico separa estado visible, fuente procesada, políticas públicas y criterios de recuperación sin apelación ni mutaciones.
+- 2026-09-12 — `EAI-023` completado como baseline SEO acotado: paquete fuente `0.15.0`, 788 URLs de sitemap, 60 páginas públicas, fuentes GSC/GA4 recuperadas para julio/agosto, recuperación por filtros exactos de URLs recortadas y timezone real en el envelope. Entrega 33 observaciones técnicas, 35 oportunidades de revisión por demanda, 21 candidatos de solapamiento parcial y 19 inspecciones de índice. Conserva 16 celdas de consulta omitidas, posición redondeada y canonicals de Google no expuestos; ninguna de esas limitaciones se convierte en evidencia de canibalización o autoridad de publicación. El sitemap raíz declara 61 warnings/0 errors sin detalle de causa. Evidencia y reproducción: `runbooks/seo-pipeline.md`. Sin import ni mutaciones en la web.
+- 2026-09-03 — `EAI-027` completado: paquete fuente `0.14.0` con harness Chrome de cuatro páginas que bloquea todo método distinto de GET/HEAD, no hace clics ni formularios y retiene únicamente señales y métricas agregadas. El baseline preserva la categoría seleccionada en `noindex` y sin canonical, los excesos de TTFB/FCP de categoría y producto y un control de compra visible sin añadir al carrito. Lighthouse 13.4.1 móvil queda fijado y resumido sin informe crudo: performance 0,62, accessibility 0,86, best-practices 1,00, SEO 1,00, FCP 2,94 s y LCP 6,27 s. No se aplicó ninguna optimización ni mutación live.
+- 2026-09-03 — `EAI-008` completado: contrato financiero mínimo `v1` separa los agregados Woo disponibles y las señales Ads/GA4 condicionales de los datos ausentes de contabilidad, COGS, IVA, carrier, PSP, devoluciones, cliente nuevo y atribución gobernada. CAC, margen bruto, contribución y rentabilidad por canal permanecen `null/unavailable`; no se estiman ni se unen filas con PII. `ENK-5` sigue bloqueado hasta incorporar fuentes autorizadas.
+- 2026-09-03 — `EAI-006` completado: recibo agregado y reproducible para julio/agosto 2026 con consultas cerradas GA4, GSC y Woo. GSC queda utilizable para visibilidad; sesiones/páginas GA4 son direccionales; compras e ingresos GA4 no son verdad comercial por divergencia frente a Woo; consentimiento y cobertura editorial siguen incompletos. `EAI-023` pasa a NOW y cualquier claim editorial de performance sigue bloqueado por cobertura/atribución.
+- 2026-09-03 — `EAI-022` completado: paquete fuente `0.13.0` con `enki-catalogue-evidence` `0.1.0` y contrato estricto `enki-catalog-evidence-publication/v1`. El MCP ofrece exactamente cinco herramientas read-only y acotadas para listar runs aprobados, buscar/obtener evidencia por marca, serie, SKU, referencia y campo, devolver crops verificados o coordenadas, y resumir cobertura. La publicación es un conjunto cerrado por SHA-256 montado read-only: solo admite runs `local_export_ready` y evidencia `approved` con decisión Board exacta, rechaza symlinks, traversal, ficheros no declarados, drift de selector/checksum y estados pendientes, y no contiene ni puede navegar inputs brutos. Compose, desired state, perfil exclusivo de Ecommerce, allowlist, secretos independientes, runbook, CI y lock quedan sincronizados. Las pruebas unitarias y el gate completo verifican default-deny y ausencia de herramientas de escritura; no se importó v0.13.0, no se publicó una proyección real y no hubo mutaciones en Paperclip, WooCommerce o conectores live. `EAI-013` pasa a NOW.
 - 2026-09-01 — `EAI-021` completado: paquete fuente `0.12.0` con `enki-catalog-pipeline` `0.3.0`, contrato estricto de perfil/reporte/auditoría, lectura CSV por posición exacta, identidad simple/padre/variación, ownership de página separado, comparación fiscal EUR explícita, change sets locales idempotentes y auditoría integral del export posterior. El fixture saneado prueba cinco candidatos como dos matches y tres diferencias, además de drift fuera de alcance y fallos cerrados. Un replay efímero conservó solo checksum y agregados de un export histórico Buades de 1.196 filas y 376 columnas: cero filas mal formadas, IDs/SKUs duplicados, roles desconocidos o variaciones huérfanas; el replay inventado produjo dos matches y dos diferencias sin retener valores comerciales ni artefactos. Pasan 127 pruebas del paquete y 38 del runtime de catálogo, además de los gates de conectores, Telegram, secretos, ZIP y Compose. No se generó import ni hubo mutaciones en Paperclip, WooCommerce o conectores live. `EAI-022` pasa a NOW.
 - 2026-09-01 — `EAI-020` completado: paquete fuente `0.11.0` con `enki-catalog-pipeline` `0.2.0`, un core geométrico pequeño y cuatro definiciones `enki-catalog-adapter/v1` fijadas por hash para Buades, Enki Espejos, Mundilite y Chicandbath. `row_left_to_right` se promueve al core con evidencia de tres marcas; `matrix_by_headers` permanece local de Chicandbath. El harness ejecuta sin leer `expected` ni `pairing` y compara después con el oracle EAI-019: cuatro adaptadores, seis fixtures, 21/21 pares, cobertura 1, error 0 y pass rate 1. Veinticinco pruebas del runtime cubren determinismo, ownership, hashes, alcance cerrado, geometría, roles y fallos conservadores; el paquete suma 121 pruebas. No se importó v0.11.0, no se procesó ningún PDF/catálogo real, no se generó un import y no hubo mutaciones live. `EAI-021` pasa a NOW.
 - 2026-09-01 — `EAI-019` completado: paquete fuente `0.10.0` con schema estricto `enki-catalog-regression-suite/v1`, seis fixtures mínimos saneados de Buades, Enki Espejos, Mundilite y Chicandbath y un CSV Woo con cabeceras duplicadas por posición. Siete riesgos de layout producen exactamente 21 parejas geométricas y 21 observaciones `enki-catalog-field-evidence/v1`; el validador comprueba hashes, cajas, pairing, matrices, conteos, roles, QA y ausencia de rutas, PII o credenciales. Diecisiete pruebas incluyen mutaciones negativas de conteo, geometría, QA, hash y cabeceras. Pasan 116 pruebas del paquete, 8 del runtime PDF, 63 de conectores y 13 del plugin Telegram, además de secretos, ZIP reproducible y Compose. Los fixtures contienen únicamente geometría y valores inventados; no hubo import, procesamiento de catálogo real ni mutaciones live. `EAI-020` pasa a NOW.

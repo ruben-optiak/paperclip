@@ -1,6 +1,6 @@
 # Core de extracción y adaptadores de marca
 
-Este runbook gobierna el core de adaptadores `0.2.0`, conservado dentro de `enki-catalog-pipeline` `0.3.0`, el registro `enki-catalog-adapter-registry/v1` y las definiciones `enki-catalog-adapter/v1` de EAI-020.
+Este runbook gobierna el core de adaptadores `0.2.0`, conservado dentro de `enki-catalog-pipeline` `0.5.0`, el registro `enki-catalog-adapter-registry/v1` y las definiciones `enki-catalog-adapter/v1` de EAI-020. El analizador de referencias de producto Sanycces es deliberadamente independiente de este core de emparejamiento de precios.
 
 La frontera es deliberada:
 

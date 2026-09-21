@@ -2,10 +2,10 @@
 set -eu
 
 runtime_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-image="enki-catalog-pipeline:0.3.0"
+image="enki-catalog-pipeline:0.5.0"
 
 if [ "$#" -lt 3 ]; then
-  echo "Usage: $0 INPUT_DIR OUTPUT_DIR preflight|prepare|woo-reconcile|woo-audit [arguments]" >&2
+  echo "Usage: $0 INPUT_DIR OUTPUT_DIR preflight|prepare|woo-reconcile|woo-audit|prepare-product-media|analyze-sanycces-products|prepare-sanycces-pool|build-sanycces-pool-bundles [arguments]" >&2
   exit 2
 fi
 
@@ -15,8 +15,8 @@ command=$3
 shift 3
 
 case "$command" in
-  preflight|prepare|woo-reconcile|woo-audit) ;;
-  *) echo "Command must be preflight, prepare, woo-reconcile or woo-audit" >&2; exit 2 ;;
+  preflight|prepare|woo-reconcile|woo-audit|prepare-product-media|analyze-sanycces-products|prepare-sanycces-pool|build-sanycces-pool-bundles) ;;
+  *) echo "Command must be preflight, prepare, woo-reconcile, woo-audit, prepare-product-media, analyze-sanycces-products, prepare-sanycces-pool or build-sanycces-pool-bundles" >&2; exit 2 ;;
 esac
 
 for path in "$input_dir" "$output_dir"; do

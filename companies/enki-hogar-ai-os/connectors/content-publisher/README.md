@@ -1,16 +1,19 @@
 # Enki content publisher MCP
 
-Governed publishing shim for WordPress, a Facebook Page, and an Instagram
-professional account. Upstream credentials live only in this process. Paperclip
+Governed publishing shim for WordPress, WooCommerce product drafts, a Facebook
+Page, and an Instagram professional account. Upstream credentials live only in this process. Paperclip
 receives a separate MCP bearer and agents receive only a run-scoped governed
 gateway token.
 
 ## Safety model
 
-Two independent gates are mandatory:
+The editorial and product paths have independent connector gates, and every
+write also crosses Paperclip governance:
 
 1. `CONTENT_PUBLISH_WRITE_MODE` defaults to `disabled` inside the connector.
-2. Paperclip keeps the three write tools on **Ask a human first**.
+2. `PRODUCT_PUBLISH_WRITE_MODE` separately defaults to `disabled`; only
+   `woo-drafts` permits a product write.
+3. Paperclip keeps all four write tools on **Ask a human first**.
 
 Supported modes:
 
@@ -20,6 +23,38 @@ Supported modes:
 - `approved`: the reviewed write catalog can execute, still subject to Paperclip
   approval for each exact argument payload.
 
+Product mode `woo-drafts` accepts only one exact product from a mounted,
+hash-pinned `enki-product-draft-bundle/v1`. It checks SKU absence before the
+journal, uploads the reviewed WebP bytes, creates a simple or variable hidden
+`draft` with stock disabled, then reads back the parent and every child.
+Variable children are created `private`; price and stock remain child-owned. A
+partial parent/variation result leaves the journal uncertain for operator
+reconciliation. The connector cannot update, publish or delete a product or
+create taxonomies.
+
+Bundle media may set `gallery=false`. Those files are still uploaded and may be
+referenced by an exact variation, but the connector excludes them from the
+parent gallery and from the expected parent-image readback. This supports a
+finish-specific child image without disrupting the reviewed gallery order. When
+all finish cutouts are approved for the parent gallery, place the designated
+merchandising finish first, the remaining finishes next, and only then
+inspiration, dimensions and finish samples. Do not set a default variation only
+to force its image to appear first.
+
+Before mounting a batch, run the local-only gates:
+
+```sh
+npm run preflight:bundle-batch -- --batch /path/to/batch-manifest.json
+npm run prepare:canary-review -- \
+  --batch /path/to/batch-manifest.json \
+  --product-key exact-product-key
+```
+
+The preflight validates real WebP dimensions and forbidden metadata chunks,
+GTIN checksums, cross-bundle SEO uniqueness and the hash-pinned price policy.
+The canary command creates only a JSON/Markdown review dossier with zero write
+authority; it does not call WordPress or WooCommerce.
+
 Never expose this MCP directly to an agent or the public internet. The host port
 is loopback-only and `/mcp` requires `CONTENT_PUBLISHER_MCP_TOKEN`.
 
@@ -28,6 +63,8 @@ is loopback-only and `/mcp` requires `CONTENT_PUBLISHER_MCP_TOKEN`.
 Read tools:
 
 - `publisher_get_capabilities`
+- `woocommerce_list_product_drafts`
+- `woocommerce_get_product_draft`
 - `wordpress_list_posts`
 - `wordpress_get_article`
 - `facebook_list_page_posts`
@@ -36,12 +73,14 @@ Read tools:
 
 Ask-first write tools:
 
+- `woocommerce_create_product_draft`
 - `wordpress_upsert_post`
 - `facebook_publish_page_post`
 - `instagram_publish_image`
 
-There is no delete, comment, direct-message, account-management, bulk publish,
-WordPress page/plugin, or social moderation tool.
+There is no product update/publish/delete, taxonomy creation, delete, comment,
+direct-message, account-management, bulk publish, WordPress page/plugin, or
+social moderation tool.
 
 ## Idempotency journal
 
@@ -73,8 +112,10 @@ and verified live status (`draft`, `pending`, `future`, `publish`, or
 WordPress uses the core REST API and one revocable Application Password over
 HTTPS. The tool accepts rendered HTML and supports draft, pending, scheduled and
 published posts; categories/tags are IDs or names, with term creation explicit
-and off by default. Media upload is intentionally absent in v0.1.0: use an
-existing `featured_media` ID.
+and off by default. Editorial media upload remains absent: use an existing
+`featured_media` ID. The v0.2.0 product path has a separate Application Password
+used only to upload the bundle's verified WebP files, and separate WooCommerce
+REST credentials used only for product lookup, draft creation and readback.
 
 Facebook v0.1.0 publishes one Page text/link post. Instagram v0.1.0 publishes one
 JPEG from a public HTTPS URL using the media-container then `media_publish`
@@ -88,7 +129,9 @@ instead of a mutable `latest` alias.
 Primary references:
 
 - [WordPress posts REST API](https://developer.wordpress.org/rest-api/reference/posts/)
+- [WordPress media REST API](https://developer.wordpress.org/rest-api/reference/media/)
 - [WordPress Application Password authentication](https://developer.wordpress.org/rest-api/using-the-rest-api/authentication/)
+- [WooCommerce products REST API](https://developer.woocommerce.com/docs/apis/rest-api/v3/products)
 - [Official Meta Instagram API collection](https://www.postman.com/meta/instagram/documentation/6yqw8pt/instagram-api)
 - [Official Meta Facebook API collection](https://www.postman.com/meta/facebook/documentation/r56bjfd/facebook-api)
 

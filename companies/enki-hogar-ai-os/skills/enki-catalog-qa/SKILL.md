@@ -1,6 +1,6 @@
 ---
 name: enki-catalog-qa
-description: Valida datos de catálogo mediante fuentes, normalización, comparación, QA, aprobación y exportación controlada
+description: Valida datos de catálogo y proyecciones de evidencia aprobada mediante fuentes, normalización, comparación, QA, aprobación y exportación controlada
 license: MIT AND LicenseRef-Enki-Hogar-Internal
 ---
 
@@ -22,11 +22,15 @@ Toda ejecución que procese o compare datos de catálogo usa conjuntamente:
 
 Valida primero los JSON contra sus schemas estrictos y después ejecuta `scripts/validate_catalog_contracts.mjs` para comprobar hashes, geometría, lineage, valores, resumen y gates cruzados. Usa `fixtures/catalog-contracts/valid/` como ejemplo saneado y `fixtures/catalog-contracts/invalid/cases.json` como regresión negativa. Un CSV o Markdown suelto puede acompañar el informe para lectura humana, pero no sustituye estos contratos.
 
+Antes de que un agente consulte evidencia de ejecuciones anteriores, valida también [catalog-evidence-publication/v1](references/catalog-evidence-publication-v1.schema.json). Exige aprobación Board de la publicación, run exacto `local_export_ready` y aprobado, campos exactos `approved`, hashes de todos los ficheros, `rawInputsIncluded: false` y `externalWritesBlocked: true`. Nunca montes ni expongas el directorio de fuentes, inputs u outputs completos del run.
+
 Antes de ejecutar un adaptador, replay histórico o auditoría real, exige además que pase la suite [catalog-regression/v1](references/catalog-regression-v1.schema.json) con `scripts/validate_catalog_regression.mjs`. Su manifiesto vive en `fixtures/catalog-regression/v1/manifest.json` y fija por hash seis casos saneados de Buades, Enki Espejos, Mundilite y Chicandbath. El gate cubre tabla, grid, detalle, columnas, varios SKU/precio, acabados y configurador, y proyecta los pares calculados a evidencia de campo v1. Consulta [el ejemplo de regresión](examples/regression-suite.md).
 
 Exige también el registro y las definiciones [catalog-adapter/v1](references/catalog-adapter-v1.schema.json). El runtime `enki-catalog-pipeline` debe seleccionar exactamente un adaptador por marca, snapshot y página, comprobar hashes y producir sus métricas antes de comparar el oracle. Solo `row_left_to_right`, demostrado por tres marcas, pertenece al core; `matrix_by_headers` sigue siendo local de Chicandbath. Un resultado apto para continuar declara cuatro adaptadores, seis fixtures, 21/21 pares, cobertura `1`, error `0` y cero autoridad comercial, Woo o externa. Consulta [el ejemplo de adaptadores](examples/adapter-regression.md).
 
 La comparación con Woo exige el perfil y los resultados [catalog-reconciliation/v1](references/catalog-reconciliation-v1.schema.json). El perfil fija el SHA y las filas del export completo, cada identidad y cada columna por `posición + original + deduplicada`. `woo-reconcile` produce los contratos v1 y únicamente diferencias locales pendientes; `woo-audit` compara exports completos antes/después contra ese change set exacto. El fixture bajo `fixtures/catalog-reconciliation/v1/` demuestra padre/variación, tres grupos de cabeceras duplicadas, precio bruto fiscalmente alineado, SEO/media en la capa padre, idempotencia y detección de deriva fuera de alcance. Consulta [el ejemplo de reconciliación](examples/woo-reconciliation.md).
+
+Para el piloto operativo `ENK-7`, exige mandato Board previo con una sola marca/dominio, máximo 25 entidades y 50 campos, fuente oficial, export Woo completo y fresco, adaptador exacto y un único candidato de pack. El mandato autoriza producir un informe, no un import. Sin cualquiera de esos valores, termina en preflight `BLOCKED` sin procesar fuentes.
 
 ## Reglas
 

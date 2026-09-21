@@ -21,6 +21,11 @@ if [ ! -d "$package_dir/connectors/content-publisher/node_modules" ]; then
   exit 2
 fi
 
+if [ ! -d "$package_dir/connectors/catalog-evidence/node_modules" ]; then
+  echo "Catalogue-evidence connector test dependencies are missing. Run: npm --prefix companies/enki-hogar-ai-os/connectors/catalog-evidence ci --ignore-scripts" >&2
+  exit 2
+fi
+
 if ! command -v uv >/dev/null 2>&1; then
   echo "uv is required for the pinned catalogue-pipeline tests" >&2
   exit 2
@@ -41,6 +46,7 @@ node --check "$package_dir/scripts/product-support/finalize-support-pack.mjs"
 node --check "$package_dir/skills/enki-catalog-qa/scripts/validate_catalog_contracts.mjs"
 node --check "$package_dir/skills/enki-catalog-qa/scripts/validate_catalog_regression.mjs"
 node --check "$package_dir/skills/enki-catalog-qa/scripts/validate_catalog_reconciliation.mjs"
+node --check "$package_dir/skills/enki-product-publishing/scripts/validate_product_draft_bundle.mjs"
 node "$package_dir/skills/enki-catalog-qa/scripts/validate_catalog_regression.mjs" \
   --manifest "$package_dir/skills/enki-catalog-qa/fixtures/catalog-regression/v1/manifest.json"
 node "$package_dir/skills/enki-catalog-qa/scripts/validate_catalog_reconciliation.mjs" \
@@ -58,8 +64,11 @@ PYTHONPATH="$package_dir/scripts/catalog-pipeline/src" PYTHONDONTWRITEBYTECODE=1
   python -m enki_catalog_pipeline adapter-regression \
   --manifest "$package_dir/skills/enki-catalog-qa/fixtures/catalog-regression/v1/manifest.json"
 node --test "$package_dir"/tests/*.test.mjs
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s "$package_dir/scripts/seo/tests" -v
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s "$package_dir/skills/enki-proformas/tests" -v
 npm --prefix "$package_dir/connectors/woocommerce-readonly-mcp" test
 npm --prefix "$package_dir/connectors/catalog-knowledge" test
+npm --prefix "$package_dir/connectors/catalog-evidence" test
 npm --prefix "$package_dir/connectors/content-publisher" test
 pnpm --dir "$repo_dir" --filter @enki-hogar/telegram-gateway check
 "$package_dir/scripts/build-import-zip.sh" "$build_check_dir/first.zip" >/dev/null
@@ -102,6 +111,10 @@ const expected = {
     context: path.join(packageDir, "connectors/catalog-knowledge"),
     dockerfile: "Dockerfile",
   },
+  "enki-catalogue-evidence": {
+    context: packageDir,
+    dockerfile: "connectors/catalog-evidence/Dockerfile",
+  },
   "enki-content-publisher": {
     context: path.join(packageDir, "connectors/content-publisher"),
     dockerfile: "Dockerfile",
@@ -128,11 +141,19 @@ if (Object.prototype.hasOwnProperty.call(catalogMcpEnvironment, "SUPPORT_DB_ADMI
 }
 if (catalogMcpEnvironment.SUPPORT_DB_USER !== "enki_support_reader") throw new Error("Product-support MCP must use the reader role");
 
+const catalogueEvidence = config.services?.["enki-catalogue-evidence"];
+if (catalogueEvidence?.ports?.[0]?.host_ip !== "127.0.0.1" || catalogueEvidence?.ports?.[0]?.target !== 8050) throw new Error("Catalogue-evidence health port must bind only to host loopback");
+const evidenceMount = catalogueEvidence?.volumes?.find((mount) => mount.target === "/data/publication");
+if (!evidenceMount || evidenceMount.read_only !== true) throw new Error("Catalogue-evidence publication must be mounted read-only");
+if (catalogueEvidence?.volumes?.length !== 1) throw new Error("Catalogue-evidence MCP must receive exactly one data mount");
+
 const publisher = config.services?.["enki-content-publisher"];
 if (publisher?.environment?.CONTENT_PUBLISH_WRITE_MODE !== "disabled") throw new Error("Content publisher must default to its disabled kill-switch mode");
+if (publisher?.environment?.PRODUCT_PUBLISH_WRITE_MODE !== "disabled") throw new Error("Product publisher must default to its disabled kill-switch mode");
 if (publisher?.ports?.[0]?.host_ip !== "127.0.0.1" || publisher?.ports?.[0]?.target !== 8040) throw new Error("Content publisher health port must bind only to host loopback");
 if (!publisher?.volumes?.some((mount) => mount.target === "/data" && mount.type === "volume")) throw new Error("Content publisher must persist its idempotency journal in a named volume");
-for (const key of ["WORDPRESS_APP_PASSWORD", "META_GRAPH_ACCESS_TOKEN", "CONTENT_PUBLISHER_MCP_TOKEN"]) {
+if (!publisher?.volumes?.some((mount) => mount.target === "/data/product-draft" && mount.read_only === true)) throw new Error("Product draft bundle must be mounted read-only");
+for (const key of ["WORDPRESS_APP_PASSWORD", "META_GRAPH_ACCESS_TOKEN", "CONTENT_PUBLISHER_MCP_TOKEN", "WOO_PUBLISH_CONSUMER_SECRET", "PRODUCT_MEDIA_APP_PASSWORD"]) {
   if (!Object.prototype.hasOwnProperty.call(publisher?.environment ?? {}, key)) throw new Error(`Content publisher is missing provider isolation for ${key}`);
 }
 

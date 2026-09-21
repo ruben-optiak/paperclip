@@ -56,6 +56,9 @@
     "references/contracts/catalog-reconciliation-v1.schema.json": [
       "skills/enki-catalog-qa/references/catalog-reconciliation-v1.schema.json"
     ],
+    "references/contracts/catalog-evidence-publication-v1.schema.json": [
+      "skills/enki-catalog-qa/references/catalog-evidence-publication-v1.schema.json"
+    ],
     "references/contracts/editorial-brief-v2.schema.json": [
       "skills/enki-editorial-planning/references/editorial-brief-v2.schema.json"
     ],
@@ -70,6 +73,21 @@
     ],
     "references/contracts/product-support-result-v1.schema.json": [
       "skills/enki-product-support/references/product-support-result-v1.schema.json"
+    ],
+    "references/contracts/product-media-profile-v1.schema.json": [
+      "skills/enki-product-publishing/references/product-media-profile-v1.schema.json"
+    ],
+    "references/contracts/product-primary-image-policy-v1.schema.json": [
+      "skills/enki-product-publishing/references/product-primary-image-policy-v1.schema.json"
+    ],
+    "references/contracts/product-draft-bundle-v1.schema.json": [
+      "skills/enki-product-publishing/references/product-draft-bundle-v1.schema.json"
+    ],
+    "references/commerce/product-primary-image-policy.json": [
+      "skills/enki-product-publishing/references/product-primary-image-policy.json"
+    ],
+    "references/commerce/sanycces-discount-policy-v1.json": [
+      "skills/enki-product-publishing/references/sanycces-discount-policy-v1.json"
     ],
     "references/contracts/editorial-workflow-v2.json": [
       "skills/enki-brand-guardian/references/editorial-workflow-v2.json",

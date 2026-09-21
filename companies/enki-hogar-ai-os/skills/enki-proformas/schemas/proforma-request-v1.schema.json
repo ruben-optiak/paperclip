@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "enki-proforma-request/v1",
+  "title": "Enki proforma request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "issueKey", "proformaNumber", "date", "validUntil", "currency", "locale", "customer", "lines", "globalDiscountPercent", "shippingGross", "vatRate", "paymentMethod", "notes"],
+  "properties": {
+    "schema": {"const": "enki-proforma-request/v1"},
+    "issueKey": {"type": "string", "pattern": "^[A-Za-z0-9._-]{1,80}$"},
+    "proformaNumber": {"type": "string", "pattern": "^[A-Za-z0-9._/-]{1,50}$"},
+    "date": {"type": "string", "format": "date"},
+    "validUntil": {"type": "string", "format": "date"},
+    "currency": {"const": "EUR"},
+    "locale": {"const": "es-ES"},
+    "customer": {"type": "object"},
+    "lines": {"type": "array", "minItems": 1, "maxItems": 50},
+    "globalDiscountPercent": {"type": "string"},
+    "shippingGross": {"type": "string"},
+    "vatRate": {"type": "string"},
+    "paymentMethod": {"type": "string"},
+    "notes": {"type": "array", "maxItems": 8, "items": {"type": "string", "maxLength": 240}}
+  }
+}

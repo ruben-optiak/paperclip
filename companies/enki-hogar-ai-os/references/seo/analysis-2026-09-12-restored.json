@@ -1,0 +1,2531 @@
+{
+  "schema": "enki-seo-analysis/v1",
+  "analyzedAt": "2026-09-12T12:33:40.971344+00:00",
+  "snapshotCapturedAt": "2026-09-12T11:56:35.712976+00:00",
+  "origin": "https://www.enkihogar.com",
+  "status": "technical_and_search_observation",
+  "coverage": {
+    "inventoryComplete": false,
+    "sampled": true,
+    "selectedBeforeCap": 60,
+    "pagesRequested": 60,
+    "excludedUnsafeUrls": 0,
+    "logicalRequests": 68,
+    "allSitePagesCrawled": false,
+    "absenceOfInboundLinkProvesOrphan": false
+  },
+  "inventoryUrls": 788,
+  "checkedPages": 60,
+  "findings": [
+    {
+      "id": "d8ea4a1a939b5367",
+      "code": "sitemap_noindex",
+      "url": "https://www.enkihogar.com/manage-profile/",
+      "impact": 5,
+      "confidence": 1,
+      "effort": 2,
+      "score": 2.5,
+      "risk": "high",
+      "evidence": {
+        "inSitemap": true
+      },
+      "acceptance": "Confirm indexing intent; retain deliberate exclusions, resolve only contradictory sitemap membership.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "c8ade0cd5a5ed76a",
+      "code": "sitemap_unreadable",
+      "url": "https://www.enkihogar.com/yith_product_brand-sitemap.xml",
+      "impact": 4,
+      "confidence": 1,
+      "effort": 2,
+      "score": 2.0,
+      "risk": "medium",
+      "evidence": {
+        "error": "robots_unavailable_or_disallowed",
+        "status": null
+      },
+      "acceptance": "Review robots and sitemap scope, then verify the advertised sitemap can be read by its intended crawler.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "50a9f328062cd146",
+      "code": "content_identity_missing",
+      "url": "https://www.enkihogar.com/aviso-legal/",
+      "impact": 3,
+      "confidence": 1,
+      "effort": 2,
+      "score": 1.5,
+      "risk": "medium",
+      "evidence": {
+        "titleLength": 24,
+        "h1Count": 0
+      },
+      "acceptance": "Reviewed template renders a meaningful title and primary heading.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "897e08c7c60a0cb5",
+      "code": "content_identity_missing",
+      "url": "https://www.enkihogar.com/manage-profile/",
+      "impact": 3,
+      "confidence": 1,
+      "effort": 2,
+      "score": 1.5,
+      "risk": "medium",
+      "evidence": {
+        "titleLength": 14,
+        "h1Count": 0
+      },
+      "acceptance": "Reviewed template renders a meaningful title and primary heading.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "0c8053f6bff39e1b",
+      "code": "content_identity_missing",
+      "url": "https://www.enkihogar.com/tienda/",
+      "impact": 3,
+      "confidence": 1,
+      "effort": 2,
+      "score": 1.5,
+      "risk": "medium",
+      "evidence": {
+        "titleLength": 19,
+        "h1Count": 0
+      },
+      "acceptance": "Reviewed template renders a meaningful title and primary heading.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "3e9ada767ab5bb6c",
+      "code": "canonical_missing_or_ambiguous",
+      "url": "https://www.enkihogar.com/accesorios-de-bano-estanterias/",
+      "impact": 2,
+      "confidence": 1,
+      "effort": 2,
+      "score": 1.0,
+      "risk": "high",
+      "evidence": {
+        "count": 0,
+        "unsafe": 0,
+        "noindex": true
+      },
+      "acceptance": "Review page intent and check one safe canonical where appropriate; a noindex page may intentionally omit it.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "f06978580bf86b94",
+      "code": "canonical_missing_or_ambiguous",
+      "url": "https://www.enkihogar.com/manage-profile/",
+      "impact": 2,
+      "confidence": 1,
+      "effort": 2,
+      "score": 1.0,
+      "risk": "high",
+      "evidence": {
+        "count": 0,
+        "unsafe": 0,
+        "noindex": true
+      },
+      "acceptance": "Review page intent and check one safe canonical where appropriate; a noindex page may intentionally omit it.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "6a011139979c0a42",
+      "code": "noindex_observed",
+      "url": "https://www.enkihogar.com/accesorios-de-bano-estanterias/",
+      "impact": 2,
+      "confidence": 1,
+      "effort": 2,
+      "score": 1.0,
+      "risk": "high",
+      "evidence": {
+        "inSitemap": false
+      },
+      "acceptance": "Confirm indexing intent; retain deliberate exclusions, resolve only contradictory sitemap membership.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "85578437fd1e10d3",
+      "code": "duplicate_title",
+      "url": "https://www.enkihogar.com/1-via-kits-de-ducha-empotrados/",
+      "impact": 3,
+      "confidence": 0.8,
+      "effort": 3,
+      "score": 0.8,
+      "risk": "medium",
+      "evidence": {
+        "urls": [
+          "https://www.enkihogar.com/1-via-kits-de-ducha-empotrados/",
+          "https://www.enkihogar.com/1-via/"
+        ]
+      },
+      "acceptance": "Review distinct intent and rendered templates before changing titles.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "96d7f93e6e7a29d4",
+      "code": "duplicate_title",
+      "url": "https://www.enkihogar.com/2-vias-kits-de-ducha-empotrados/",
+      "impact": 3,
+      "confidence": 0.8,
+      "effort": 3,
+      "score": 0.8,
+      "risk": "medium",
+      "evidence": {
+        "urls": [
+          "https://www.enkihogar.com/2-vias-kits-de-ducha-empotrados/",
+          "https://www.enkihogar.com/2-vias-mezclador-monomando-columnas-ducha/",
+          "https://www.enkihogar.com/2-vias/"
+        ]
+      },
+      "acceptance": "Review distinct intent and rendered templates before changing titles.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "0b3e8b09b2a82688",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/1-placa/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "e03377d877aad978",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/1-via-kits-de-ducha-empotrados/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "9a316f5816da1557",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/1-via/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "d49ebe4b52624788",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/2-placas/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "f4b8105021277ed5",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/2-vias-kits-de-ducha-empotrados/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "0bb8e1c83346d668",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/2-vias-mezclador-monomando-columnas-ducha/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "74e34c9d2a6baa73",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/2-vias/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "14fed1422cddc5df",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/accesorios-grifos-de-bano/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "0d81ac9b7492f386",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/asa-banera-33cm-o25/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "6a7a75d827f5c755",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/aviso-legal/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "6c61faa85a9119d7",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/bandeja-portaobjetos-banera-mistral-madera-iroco/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "06649a37978f8304",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/banera-calma-sanycces-blanco-brillo-sanycoat-ral-ncs/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "1029b25c446b74cb",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/banera-calma-sanycces-blanco-brillo/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "d855fbda34914f01",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/banera-cube-sanycess-blanco-brillo/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "fd82950598566d67",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/category/ideas-y-consejos/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "4aa4cca163ace330",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/condiciones-generales-de-compra/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "5abc986f405e0e94",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/conocenos/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "d32f53d02da06634",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/envios-y-devoluciones/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "e28ca2076bcc3fdb",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/estanteria-pared-n1/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "4fd9875717ee4f0b",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/marcas/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "7057352b398e1ad3",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/politica-de-cookies/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "a3bb377d7213e5e0",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/reformistas-profesionales/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    },
+    {
+      "id": "dab0f7efc847baac",
+      "code": "description_missing",
+      "url": "https://www.enkihogar.com/tienda/",
+      "impact": 2,
+      "confidence": 0.7,
+      "effort": 2,
+      "score": 0.7,
+      "risk": "low",
+      "evidence": {},
+      "acceptance": "Review search intent and supply a useful description if warranted; measure separately.",
+      "priorityBasis": "technical_only",
+      "mutationAuthorized": false
+    }
+  ],
+  "traffic": [
+    {
+      "start": "2026-07-01",
+      "end": "2026-07-31",
+      "timezone": "America/Los_Angeles",
+      "returnedPages": 643,
+      "clicks": 263,
+      "impressions": 22076,
+      "ctr": 0.011913390106903425,
+      "position": 12.542303859394824
+    },
+    {
+      "start": "2026-08-01",
+      "end": "2026-08-31",
+      "timezone": "America/Los_Angeles",
+      "returnedPages": 633,
+      "clicks": 244,
+      "impressions": 21332,
+      "ctr": 0.011438214888430527,
+      "position": 14.887657041065092
+    }
+  ],
+  "engagement": [
+    {
+      "start": "2026-07-01",
+      "end": "2026-07-31",
+      "timezone": "Europe/Madrid",
+      "returnedPages": 287,
+      "pageViews": 971,
+      "usability": "directional"
+    },
+    {
+      "start": "2026-08-01",
+      "end": "2026-08-31",
+      "timezone": "Europe/Madrid",
+      "returnedPages": 231,
+      "pageViews": 673,
+      "usability": "directional"
+    }
+  ],
+  "searchOpportunities": [
+    {
+      "url": "https://www.enkihogar.com/kit-ducha-empotrada-monomando-2-vias-rociador-a-pared-serie-toke/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 3,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.9,
+      "latest": {
+        "clicks": 0,
+        "impressions": 576,
+        "position": 8.8
+      },
+      "clicksPerDayDelta": 0.0,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 3,
+      "googleIndexVerdict": "PASS",
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/loop-parte-externa-monomando-ducha-mural-horizontal-2-vias/",
+      "reason": "visibility_drop_review",
+      "impact": 2,
+      "confidence": 0.8,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.8,
+      "latest": {
+        "clicks": 3,
+        "impressions": 122,
+        "position": 5.9
+      },
+      "clicksPerDayDelta": -0.25806451612903225,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 3,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/ducha-empotrada-termostatica-2-vias-rociador-a-pared-kit-termo/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 1,
+        "impressions": 471,
+        "position": 11.2
+      },
+      "clicksPerDayDelta": 0.0,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 2,
+      "googleIndexVerdict": "PASS",
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/toallero-pie-100/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 0,
+        "impressions": 417,
+        "position": 14.4
+      },
+      "clicksPerDayDelta": 0.0,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 1,
+      "googleIndexVerdict": "PASS",
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/mampara-panel-fijo-ducha-single/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 7,
+        "impressions": 415,
+        "position": 16
+      },
+      "clicksPerDayDelta": 0.1935483870967742,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 9,
+      "googleIndexVerdict": "PASS",
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/columna-de-ducha-plane-termostatica-completa-con-repisa/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 5,
+        "impressions": 369,
+        "position": 4.1
+      },
+      "clicksPerDayDelta": -0.06451612903225806,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 4,
+      "googleIndexVerdict": "PASS",
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/sistema-de-filtracion-completo-aquapure/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 2,
+        "impressions": 367,
+        "position": 9.9
+      },
+      "clicksPerDayDelta": 0.03225806451612903,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 1,
+      "googleIndexVerdict": "PASS",
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/inodoros-ras-suelo/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 0,
+        "impressions": 366,
+        "position": 11.7
+      },
+      "clicksPerDayDelta": 0.0,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": null,
+      "googleIndexVerdict": "PASS",
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/lavabo-modena-porcelana-sobre-encimera-460x325x140mm/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 1,
+        "impressions": 308,
+        "position": 5.7
+      },
+      "clicksPerDayDelta": -0.06451612903225806,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 1,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 5,
+        "impressions": 288,
+        "position": 12.4
+      },
+      "clicksPerDayDelta": -0.03225806451612903,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 92,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/grifo-ducha-mezclador-monomando-buades-born/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 3,
+        "impressions": 278,
+        "position": 6.9
+      },
+      "clicksPerDayDelta": 0.0,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 2,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/cm-lineal-encimera-mural-zero-madera-nogal/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 2,
+        "impressions": 267,
+        "position": 4.7
+      },
+      "clicksPerDayDelta": 0.06451612903225806,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 5,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/fregadero-un-seno-o-dos-senos-que-conviene-segun-uso-diario/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 3,
+        "impressions": 234,
+        "position": 7.1
+      },
+      "clicksPerDayDelta": 0.03225806451612903,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": null,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/columna-mono-mando-de-ducha-completa-luka/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 0,
+        "impressions": 225,
+        "position": 5.5
+      },
+      "clicksPerDayDelta": 0.0,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 3,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/grifo-mezclador-monobloc-lavabo-corinto/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 0,
+        "impressions": 190,
+        "position": 8.7
+      },
+      "clicksPerDayDelta": -0.06451612903225806,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 2,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/grifo-mezclador-monobloc-ducha-bronce-con-equipo-heritage/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 0,
+        "impressions": 183,
+        "position": 9.2
+      },
+      "clicksPerDayDelta": -0.03225806451612903,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 2,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/kit-grifo-teleducha-parte-externa-monomando-loop-mural-2-vias/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 8,
+        "impressions": 164,
+        "position": 9.4
+      },
+      "clicksPerDayDelta": -0.03225806451612906,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 12,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/plato-de-ducha-stone-smart-terracota/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 0,
+        "impressions": 157,
+        "position": 4.5
+      },
+      "clicksPerDayDelta": 0.0,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": null,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/grifos-ducha/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 4,
+        "impressions": 155,
+        "position": 17.5
+      },
+      "clicksPerDayDelta": 0.12903225806451613,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 13,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/lavabos-dobles/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 2,
+        "impressions": 152,
+        "position": 12.1
+      },
+      "clicksPerDayDelta": 0.03225806451612903,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 3,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/kit-ducha-empotrada-2-vias-rociador-a-pared-serie-enki/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 3,
+        "impressions": 150,
+        "position": 8.4
+      },
+      "clicksPerDayDelta": -0.06451612903225806,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": null,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/grifo-mezclador-monomando-lavabo-serie-judit/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 2,
+        "impressions": 146,
+        "position": 5.2
+      },
+      "clicksPerDayDelta": 0.06451612903225806,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": null,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/grifo-mezclador-monomando-lavabo-empotrado-serie-enki/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 2,
+        "impressions": 143,
+        "position": 6.9
+      },
+      "clicksPerDayDelta": 0.06451612903225806,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 1,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/pack-conjunto-grifo-monomando-cromado-y-filtro/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 0,
+        "impressions": 142,
+        "position": 7.3
+      },
+      "clicksPerDayDelta": 0.0,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": null,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/grifo-bano-ducha-mezclador-monomando-buades-balear-cromo/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 1,
+        "impressions": 139,
+        "position": 7.6
+      },
+      "clicksPerDayDelta": 0.03225806451612903,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 1,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/fregadero-bajo-encimera-o-sobre-encimera-cual-elegir/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 0,
+        "impressions": 131,
+        "position": 8.7
+      },
+      "clicksPerDayDelta": -0.06451612903225806,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 1,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/lavabo-bol-sanycces-blanco-mate/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 3,
+        "impressions": 128,
+        "position": 4.7
+      },
+      "clicksPerDayDelta": 0.06451612903225806,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 3,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/pack-conjunto-grifo-monomando-cromado-y-filtro-aquapure/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 1,
+        "impressions": 123,
+        "position": 6.9
+      },
+      "clicksPerDayDelta": 0.0,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": null,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/kit-ducha-empotrada-monomando-1-via-rociador-a-pared-serie-toke/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 0,
+        "impressions": 117,
+        "position": 19.7
+      },
+      "clicksPerDayDelta": -0.03225806451612903,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": null,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/mampara-corredera-sanycces-slim/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 2,
+        "impressions": 117,
+        "position": 6.4
+      },
+      "clicksPerDayDelta": 0.06451612903225806,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 3,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/sistema-de-ducha-monomando-karpi-250/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 4,
+        "impressions": 116,
+        "position": 4.6
+      },
+      "clicksPerDayDelta": -0.03225806451612903,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 4,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/grifo-mezclador-monomando-lavabo-empotrado-con-placa-serie-enki/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 2,
+        "impressions": 111,
+        "position": 6.4
+      },
+      "clicksPerDayDelta": -0.0967741935483871,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 1,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/columna-mono-mando-de-ducha-completa-akara-250/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 2,
+        "impressions": 108,
+        "position": 7.8
+      },
+      "clicksPerDayDelta": -0.06451612903225806,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 1,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/kit-ducha-empotrada-2-vias-rociador-a-techo-serie-proa/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 1,
+        "impressions": 106,
+        "position": 7.4
+      },
+      "clicksPerDayDelta": 0.03225806451612903,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 2,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    },
+    {
+      "url": "https://www.enkihogar.com/mezclador-ducha-empotrado-monomando-1-via-buades-vetta/",
+      "reason": "search_intent_and_snippet_review",
+      "impact": 2,
+      "confidence": 0.6,
+      "effort": 2,
+      "risk": "medium",
+      "score": 0.6,
+      "latest": {
+        "clicks": 3,
+        "impressions": 106,
+        "position": 5.4
+      },
+      "clicksPerDayDelta": -0.03225806451612903,
+      "earlierRowMissing": false,
+      "priorityBasis": "observed_gsc",
+      "projectedRevenue": null,
+      "mutationAuthorized": false,
+      "acceptance": "Review intent, indexed canonical and matched-period query evidence; any later change needs a reviewed hypothesis and a new closed-period comparison, not a guaranteed uplift.",
+      "ga4PageViewsDirectional": 2,
+      "googleIndexVerdict": null,
+      "googleCanonical": null
+    }
+  ],
+  "queryOverlapCandidates": [
+    {
+      "querySha256": "09064734b4a92714c5b764b01ac9831f4b2e3bde7bc369b275fbb2484e8916b6",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/columna-de-ducha-termostatica-extensible-cubo/",
+          "clicks": 0,
+          "impressions": 36,
+          "ctr": 0.0,
+          "position": 26.9
+        },
+        {
+          "url": "https://www.enkihogar.com/columna-de-ducha-termostatica-extensible-loop/",
+          "clicks": 0,
+          "impressions": 12,
+          "ctr": 0.0,
+          "position": 25.600000000000005
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "0a5eb5bbc6d05530c737c9731b00078951b02e970b06bdf69b96dae1e66da539",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/ducha-empotrada-termostatica-2-vias-rociador-a-pared-kit-termo/",
+          "clicks": 0,
+          "impressions": 21,
+          "ctr": 0.0,
+          "position": 35.9
+        },
+        {
+          "url": "https://www.enkihogar.com/kit-termo-ducha-empotrada-termostatica-2-vias-rociador-a-techo-serie-toke/",
+          "clicks": 0,
+          "impressions": 25,
+          "ctr": 0.0,
+          "position": 27.6
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "1821cbcc417cc42163852c6e93799e67c31ec735e7ae88a1257920b0d6f21038",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/grifos-lavabo-temporizados/",
+          "clicks": 0,
+          "impressions": 27,
+          "ctr": 0.0,
+          "position": 34.1
+        },
+        {
+          "url": "https://www.enkihogar.com/temporizado/",
+          "clicks": 0,
+          "impressions": 10,
+          "ctr": 0.0,
+          "position": 57.0
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "218c21583e7a0118cfad2d39db25374c5fc474a4fda136a582651a2420797800",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/columna-mono-mando-de-ducha-completa-luka/",
+          "clicks": 0,
+          "impressions": 146,
+          "ctr": 0.0,
+          "position": 5.6
+        },
+        {
+          "url": "https://www.enkihogar.com/sistema-de-ducha-monomando-karpi-250/",
+          "clicks": 0,
+          "impressions": 62,
+          "ctr": 0.0,
+          "position": 5.1
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "43147dff0aa55c462eee5fa8b0da8dbafa0006174c68d09676c51163e09d1264",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/grifo-monomando-exterior-loop-bano-ducha/",
+          "clicks": 0,
+          "impressions": 13,
+          "ctr": 0.0,
+          "position": 4.5
+        },
+        {
+          "url": "https://www.enkihogar.com/kit-grifo-monomando-exterior-cubo-ducha-bano/",
+          "clicks": 0,
+          "impressions": 13,
+          "ctr": 0.0,
+          "position": 11.2
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "468783c31afb7792f467d62f9d7c9ac3b18a6366065bf43dae13f32a55161453",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/kit-ducha-empotrada-monomando-2-vias-rociador-a-pared-serie-toke/",
+          "clicks": 0,
+          "impressions": 33,
+          "ctr": 0.0,
+          "position": 23.3
+        },
+        {
+          "url": "https://www.enkihogar.com/monomando-ducha-mural-horizontal-de-2-vias-con-embellecedero-oval-dedal/",
+          "clicks": 0,
+          "impressions": 10,
+          "ctr": 0.0,
+          "position": 44.6
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "477168c586b4e055ab3cbe89b770fc2e17f3f1e4adea5c664f226afc13073251",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/kit-grifo-teleducha-parte-externa-monomando-loop-mural-2-vias/",
+          "clicks": 0,
+          "impressions": 14,
+          "ctr": 0.0,
+          "position": 13.9
+        },
+        {
+          "url": "https://www.enkihogar.com/parte-externa-grifo-monomando-loop-mural-1-via/",
+          "clicks": 0,
+          "impressions": 15,
+          "ctr": 0.0,
+          "position": 21.7
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "690ef33b846db5c718ebcc50b8ee07d717cd1277b558e18b7295f28d465ebf58",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/aquapure-nox-pack-conjunto-monomando-inox-y-filtro/",
+          "clicks": 0,
+          "impressions": 11,
+          "ctr": 0.0,
+          "position": 6.0
+        },
+        {
+          "url": "https://www.enkihogar.com/pack-conjunto-grifo-monomando-cromado-y-filtro-aquapure/",
+          "clicks": 0,
+          "impressions": 33,
+          "ctr": 0.0,
+          "position": 7.2
+        },
+        {
+          "url": "https://www.enkihogar.com/pack-conjunto-grifo-monomando-cromado-y-filtro/",
+          "clicks": 0,
+          "impressions": 33,
+          "ctr": 0.0,
+          "position": 7.4
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "8d2304adfe0e279f8c039805ed29fdc8e8e31e41fcfd6e35144e9ed064e0bda3",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/inodoros-ras-suelo/",
+          "clicks": 0,
+          "impressions": 34,
+          "ctr": 0.0,
+          "position": 56.9
+        },
+        {
+          "url": "https://www.enkihogar.com/pack-inodoro-a-suelo-arc/",
+          "clicks": 0,
+          "impressions": 22,
+          "ctr": 0.0,
+          "position": 76.8
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "913e07e916d0194852d6b82e402233ce56ab08b5c00eb54791ec8bee7b36813b",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/aquapure-nox-pack-conjunto-monomando-inox-y-filtro/",
+          "clicks": 0,
+          "impressions": 10,
+          "ctr": 0.0,
+          "position": 7.3
+        },
+        {
+          "url": "https://www.enkihogar.com/pack-conjunto-grifo-monomando-cromado-y-filtro-aquapure/",
+          "clicks": 0,
+          "impressions": 44,
+          "ctr": 0.0,
+          "position": 7.3
+        },
+        {
+          "url": "https://www.enkihogar.com/pack-conjunto-grifo-monomando-cromado-y-filtro/",
+          "clicks": 0,
+          "impressions": 46,
+          "ctr": 0.0,
+          "position": 5.7
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "9b890b8e49acc71ee3a3d3e4929e247a13f820648e3e0338d332e264c66494e9",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/plato-de-ducha-stone-smart-antracita/",
+          "clicks": 0,
+          "impressions": 61,
+          "ctr": 0.0,
+          "position": 1.0
+        },
+        {
+          "url": "https://www.enkihogar.com/plato-de-ducha-stone-smart-arena/",
+          "clicks": 0,
+          "impressions": 93,
+          "ctr": 0.0,
+          "position": 1.5
+        },
+        {
+          "url": "https://www.enkihogar.com/plato-de-ducha-stone-smart-beige/",
+          "clicks": 0,
+          "impressions": 89,
+          "ctr": 0.0,
+          "position": 1.4
+        },
+        {
+          "url": "https://www.enkihogar.com/plato-de-ducha-stone-smart-crema/",
+          "clicks": 0,
+          "impressions": 104,
+          "ctr": 0.0,
+          "position": 1.1
+        },
+        {
+          "url": "https://www.enkihogar.com/plato-de-ducha-stone-smart-gris/",
+          "clicks": 0,
+          "impressions": 28,
+          "ctr": 0.0,
+          "position": 1.8
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "9cbc121b731de0b43f1011d90d68f7846a5273b370576cd6f9c3c2678edfbad7",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/columna-de-ducha-monomando-extensible-loop/",
+          "clicks": 0,
+          "impressions": 12,
+          "ctr": 0.0,
+          "position": 49.0
+        },
+        {
+          "url": "https://www.enkihogar.com/columna-monomando-de-ducha-completa/",
+          "clicks": 0,
+          "impressions": 21,
+          "ctr": 0.0,
+          "position": 37.2
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "ae65f5363594df02e3a875b51835f546d5f54fe7793d4bc6123c106610474459",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/ducha-empotrada-termostatica-2-vias-rociador-a-pared-kit-termo/",
+          "clicks": 0,
+          "impressions": 24,
+          "ctr": 0.0,
+          "position": 31.0
+        },
+        {
+          "url": "https://www.enkihogar.com/ducha-empotrada-termotatica-3-vias/",
+          "clicks": 0,
+          "impressions": 21,
+          "ctr": 0.0,
+          "position": 33.0
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "af3f70ea9c28f0c44b0da9a5f64c75bf5ee37ab42ad615894a10afb438b6de64",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/esponjera-gel-recta-n3/",
+          "clicks": 0,
+          "impressions": 10,
+          "ctr": 0.0,
+          "position": 22.3
+        },
+        {
+          "url": "https://www.enkihogar.com/perchas-soportes-esponjeras/",
+          "clicks": 0,
+          "impressions": 45,
+          "ctr": 0.0,
+          "position": 8.8
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "b2f279ed9ee004b1671920becd4bfcffb2ba7a9372e8829188df36a3b5986db2",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/",
+          "clicks": 0,
+          "impressions": 31,
+          "ctr": 0.0,
+          "position": 34.2
+        },
+        {
+          "url": "https://www.enkihogar.com/condiciones-generales-de-compra/",
+          "clicks": 0,
+          "impressions": 25,
+          "ctr": 0.0,
+          "position": 61.2
+        },
+        {
+          "url": "https://www.enkihogar.com/tienda/",
+          "clicks": 0,
+          "impressions": 14,
+          "ctr": 0.0,
+          "position": 45.1
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "b998c09ec01690bd043d3d1b87f5518eaae7737e3978f68879eb31858388f640",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/inodoro-a-ras-de-suelo-o-suspendido-diferencias-reales-antes-de-comprar/",
+          "clicks": 0,
+          "impressions": 46,
+          "ctr": 0.0,
+          "position": 7.7
+        },
+        {
+          "url": "https://www.enkihogar.com/inodoros-ras-suelo/",
+          "clicks": 0,
+          "impressions": 51,
+          "ctr": 0.0,
+          "position": 3.0
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "db5e2d98b6a34a152f647ba641dd6f314403e8b0f3e6046274f4ad2c1276332c",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/griferia-de-pie-para-banera-dedal/",
+          "clicks": 1,
+          "impressions": 10,
+          "ctr": 0.1,
+          "position": 26.3
+        },
+        {
+          "url": "https://www.enkihogar.com/grifo-de-pie-para-banera-loop/",
+          "clicks": 0,
+          "impressions": 10,
+          "ctr": 0.0,
+          "position": 35.1
+        },
+        {
+          "url": "https://www.enkihogar.com/grifo-mezclador-monomando-bano-ducha-de-pie-con-equipo-blanco-360/",
+          "clicks": 0,
+          "impressions": 12,
+          "ctr": 0.0,
+          "position": 31.2
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "defc8bd34718818f6b348cf2da235e6022fc9d13cbdfbfe41fcb194791914c5f",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/columna-de-ducha-plane-termostatica-completa-con-repisa/",
+          "clicks": 0,
+          "impressions": 32,
+          "ctr": 0.0,
+          "position": 4.3
+        },
+        {
+          "url": "https://www.enkihogar.com/columna-mono-mando-de-ducha-completa-akara-250/",
+          "clicks": 0,
+          "impressions": 27,
+          "ctr": 0.0,
+          "position": 8.9
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "df6668f31ebfd1fa800e76c7ab40fd0c378f6ca6f78233422846381ea28ce9a5",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/columna-de-ducha-monomando-extensible-loop/",
+          "clicks": 0,
+          "impressions": 13,
+          "ctr": 0.0,
+          "position": 22.5
+        },
+        {
+          "url": "https://www.enkihogar.com/columna-de-ducha-termostatica-extensible-cubo/",
+          "clicks": 0,
+          "impressions": 12,
+          "ctr": 0.0,
+          "position": 21.2
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "fc34cfae38063c9ae5f4798f7871a4a5e7694ca96ce19d8c02f4e3b922164763",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/columna-de-ducha-plane-termostatica-completa-con-repisa/",
+          "clicks": 1,
+          "impressions": 17,
+          "ctr": 0.058823529411764705,
+          "position": 3.4
+        },
+        {
+          "url": "https://www.enkihogar.com/columna-mono-mando-de-ducha-completa-akara-250/",
+          "clicks": 0,
+          "impressions": 15,
+          "ctr": 0.0,
+          "position": 8.5
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    },
+    {
+      "querySha256": "fec6a5fc81cb643318738866a80a0e66c3114cc01f9da509a11b897bbdcace4f",
+      "pages": [
+        {
+          "url": "https://www.enkihogar.com/columna-monomando-de-ducha-completa-serie-toke/",
+          "clicks": 0,
+          "impressions": 18,
+          "ctr": 0.0,
+          "position": 25.6
+        },
+        {
+          "url": "https://www.enkihogar.com/columna-monomando-de-ducha-completa/",
+          "clicks": 0,
+          "impressions": 19,
+          "ctr": 0.0,
+          "position": 39.0
+        }
+      ],
+      "status": "overlap_candidate",
+      "cannibalizationProven": false,
+      "sourceCoverage": "partial_observed_subset_only"
+    }
+  ],
+  "cannibalizationProven": false,
+  "internalLinks": {
+    "scope": "sample_only",
+    "sampleSources": 60,
+    "inventoryWithoutObservedInbound": 547,
+    "orphansConfirmed": null
+  },
+  "authority": {
+    "externalMutation": false,
+    "editorialDraft": false
+  },
+  "captureScope": {
+    "publicSnapshotSha256": "709fe3c94c51df7349f11b34ac903e4849194e705dc631d4ddfdc427698a5aba",
+    "publicUrls": 789,
+    "match": "exact_url_in_snapshot_inventory_or_sample",
+    "rawQueryTextRetained": false,
+    "privateIdentifiersRetained": false
+  },
+  "queryOverlapCoverage": {
+    "status": "partial",
+    "omittedTruncatedQueryCells": 16,
+    "exhaustive": false,
+    "absenceOfCandidateProvesNoOverlap": false
+  },
+  "inspection": {
+    "status": "available",
+    "capturedAt": "2026-09-12T12:32:13.746Z",
+    "scope": "bounded_technical_and_top_impression_sample",
+    "liveUrlTest": false,
+    "rows": [
+      {
+        "url": "https://www.enkihogar.com/accesorios-de-bano-estanterias/",
+        "capturedAt": "2026-09-12T12:31:41.151Z",
+        "lastCrawlTime": null,
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "NEUTRAL",
+        "coverageState": "URL is unknown to Google",
+        "robotsTxtState": "ROBOTS_TXT_STATE_UNSPECIFIED",
+        "indexingState": "INDEXING_STATE_UNSPECIFIED",
+        "pageFetchState": "PAGE_FETCH_STATE_UNSPECIFIED",
+        "crawledAs": "N/A",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:31:41.151Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/aviso-legal/",
+        "capturedAt": "2026-09-12T12:31:41.113Z",
+        "lastCrawlTime": "2026-07-23T14:54:37Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:31:41.113Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/manage-profile/",
+        "capturedAt": "2026-09-12T12:31:41.234Z",
+        "lastCrawlTime": "2026-08-25T23:10:39Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "NEUTRAL",
+        "coverageState": "Excluded by ‘noindex’ tag",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "BLOCKED_BY_META_TAG",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:31:41.234Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/tienda/",
+        "capturedAt": "2026-09-12T12:31:41.151Z",
+        "lastCrawlTime": "2026-09-11T09:23:57Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:31:41.151Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/1-via-kits-de-ducha-empotrados/",
+        "capturedAt": "2026-09-12T12:31:50.807Z",
+        "lastCrawlTime": "2026-09-05T05:46:54Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:31:50.807Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/1-via/",
+        "capturedAt": "2026-09-12T12:31:50.836Z",
+        "lastCrawlTime": "2026-08-18T22:45:43Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:31:50.836Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/2-vias-kits-de-ducha-empotrados/",
+        "capturedAt": "2026-09-12T12:31:50.745Z",
+        "lastCrawlTime": "2026-08-05T00:17:05Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:31:50.745Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/2-vias-mezclador-monomando-columnas-ducha/",
+        "capturedAt": "2026-09-12T12:31:50.929Z",
+        "lastCrawlTime": "2026-05-19T12:22:01Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:31:50.929Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/2-vias/",
+        "capturedAt": "2026-09-12T12:31:57.363Z",
+        "lastCrawlTime": "2026-08-21T08:51:46Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:31:57.363Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/grifo-wc-bide/",
+        "capturedAt": "2026-09-12T12:32:00.527Z",
+        "lastCrawlTime": "2026-09-03T14:03:44Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:32:00.527Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/kit-ducha-empotrada-monomando-2-vias-rociador-a-pared-serie-toke/",
+        "capturedAt": "2026-09-12T12:32:00.466Z",
+        "lastCrawlTime": "2026-09-10T02:03:36Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:32:00.466Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/ducha-empotrada-termostatica-2-vias-rociador-a-pared-kit-termo/",
+        "capturedAt": "2026-09-12T12:32:00.615Z",
+        "lastCrawlTime": "2026-09-11T22:05:13Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:32:00.615Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/toallero-pie-100/",
+        "capturedAt": "2026-09-12T12:32:04.066Z",
+        "lastCrawlTime": "2026-09-07T16:22:57Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:32:04.065Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/mampara-panel-fijo-ducha-single/",
+        "capturedAt": "2026-09-12T12:32:07.079Z",
+        "lastCrawlTime": "2026-09-11T18:18:53Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:32:07.079Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/muebles-bano-lavabo/",
+        "capturedAt": "2026-09-12T12:32:07.054Z",
+        "lastCrawlTime": "2026-09-12T07:59:59Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:32:07.054Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/columna-de-ducha-plane-termostatica-completa-con-repisa/",
+        "capturedAt": "2026-09-12T12:32:07.273Z",
+        "lastCrawlTime": "2026-09-09T14:52:31Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:32:07.273Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/sistema-de-filtracion-completo-aquapure/",
+        "capturedAt": "2026-09-12T12:32:10.642Z",
+        "lastCrawlTime": "2026-09-11T11:42:29Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:32:10.642Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/inodoros-ras-suelo/",
+        "capturedAt": "2026-09-12T12:32:13.679Z",
+        "lastCrawlTime": "2026-08-29T14:41:41Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:32:13.679Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      },
+      {
+        "url": "https://www.enkihogar.com/grifo-cocina-monomando/",
+        "capturedAt": "2026-09-12T12:32:13.746Z",
+        "lastCrawlTime": "2026-09-07T22:36:36Z",
+        "userCanonical": null,
+        "googleCanonical": null,
+        "canonicalFieldsExposed": false,
+        "verdict": "PASS",
+        "coverageState": "Submitted and indexed",
+        "robotsTxtState": "ALLOWED",
+        "indexingState": "INDEXING_ALLOWED",
+        "pageFetchState": "SUCCESSFUL",
+        "crawledAs": "MOBILE",
+        "evidenceMeta": {
+          "source": "gsc",
+          "fetched_at": "2026-09-12T12:32:13.746Z",
+          "period_start": null,
+          "period_end": null,
+          "timezone": "America/Los_Angeles",
+          "currency": null,
+          "currencies": [],
+          "freshness": "live",
+          "status": "ok",
+          "partial": false,
+          "warnings": [],
+          "contracts": [
+            "enki-evidence-envelope/v1",
+            "enki-seo-pipeline-config/v1"
+          ]
+        }
+      }
+    ]
+  },
+  "sitemaps": {
+    "status": "available",
+    "capturedAt": "2026-09-12T12:31:34.636Z",
+    "evidenceMeta": {
+      "source": "gsc",
+      "fetched_at": "2026-09-12T12:31:34.636Z",
+      "period_start": null,
+      "period_end": null,
+      "timezone": "America/Los_Angeles",
+      "currency": null,
+      "currencies": [],
+      "freshness": "live",
+      "status": "ok",
+      "partial": false,
+      "warnings": [],
+      "contracts": [
+        "enki-evidence-envelope/v1",
+        "enki-seo-pipeline-config/v1"
+      ]
+    },
+    "rows": [
+      {
+        "url": "https://www.enkihogar.com/sitemap_index.xml",
+        "lastSubmitted": "2025-06-30T06:50:08.118Z",
+        "lastDownloaded": "2026-09-02T01:49:53.797Z",
+        "isPending": null,
+        "isSitemapsIndex": null,
+        "warnings": 61,
+        "errors": 0
+      }
+    ]
+  }
+}

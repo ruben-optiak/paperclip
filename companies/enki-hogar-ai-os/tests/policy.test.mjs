@@ -8,7 +8,7 @@ const packageDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 const policy = readFileSync(join(packageDir, "policies", "tool-allowlist.yaml"), "utf8");
 const desired = JSON.parse(readFileSync(join(packageDir, "policies", "desired-state.yaml"), "utf8"));
 
-test("policy quarantines every mutation except the three Board-approved publication tools", () => {
+test("policy quarantines every mutation except the four Board-approved publication tools", () => {
   for (const term of ["mutate", "refund", "budget", "index", "publish", "upload", "delete", "update"]) {
     assert.match(policy, new RegExp(term));
   }
@@ -16,6 +16,7 @@ test("policy quarantines every mutation except the three Board-approved publicat
   assert.match(policy, /deniedPatterns: \[create, update, delete, refund, batch, customer, set, write\]/);
   const publisher = desired.connections.find((connection) => connection.key === "content_publisher");
   assert.deepEqual(publisher?.writeTools, [
+    "woocommerce_create_product_draft",
     "wordpress_upsert_post",
     "facebook_publish_page_post",
     "instagram_publish_image",
@@ -30,7 +31,7 @@ test("policy quarantines every mutation except the three Board-approved publicat
   assert.equal(block?.priority, 1000);
 });
 
-test("Google, Woo and product-support allowlists contain only expected query tools", () => {
+test("Google, Woo, product-support and catalogue-evidence allowlists contain only expected query tools", () => {
   for (const tool of ["woo_sales_summary", "woo_orders_summary", "woo_get_product_structure", "search_search", "run_report", "gsc_search_analytics"]) {
     assert.match(policy, new RegExp(`\\b${tool}:`));
   }
@@ -42,9 +43,23 @@ test("Google, Woo and product-support allowlists contain only expected query too
   const support = desired.connections.find((connection) => connection.key === "product_support_knowledge");
   assert.equal(support?.tools.length, 8);
   assert.equal(support?.tools.every((tool) => /^knowledge_(?:resolve|get|check|list|search|coverage)/.test(tool)), true);
+  const evidence = desired.connections.find((connection) => connection.key === "catalogue_evidence");
+  assert.deepEqual(evidence?.tools, [
+    "catalogue_list_approved_runs",
+    "catalogue_search_field_evidence",
+    "catalogue_get_field_evidence",
+    "catalogue_get_evidence_crop",
+    "catalogue_evidence_coverage",
+  ]);
+  const ecommerce = desired.profiles.find((profile) => profile.agentSlug === "ecommerce-catalogue-manager");
+  assert.equal(evidence.tools.every((tool) => ecommerce.allowedTools.includes(tool)), true);
+  assert.equal(desired.profiles.filter((profile) => profile.agentSlug !== ecommerce.agentSlug).every((profile) => evidence.tools.every((tool) => !profile.allowedTools.includes(tool))), true);
+  const productDraftTools = ["woocommerce_list_product_drafts", "woocommerce_get_product_draft", "woocommerce_create_product_draft"];
+  assert.equal(productDraftTools.every((tool) => ecommerce.allowedTools.includes(tool)), true);
+  assert.equal(desired.profiles.filter((profile) => profile.agentSlug !== ecommerce.agentSlug).every((profile) => productDraftTools.every((tool) => !profile.allowedTools.includes(tool))), true);
 });
 
-test("Customer Experience is zero-PII and cannot reach any order tool", () => {
+test("Customer Experience has no customer/order connector and confines proforma PII to a local file transform", () => {
   const customerProfile = desired.profiles.find((profile) => profile.agentSlug === "customer-experience-manager");
   const wooConnection = desired.connections.find((connection) => connection.key === "woocommerce");
   assert.deepEqual(customerProfile?.allowedTools, [
@@ -60,4 +75,10 @@ test("Customer Experience is zero-PII and cannot reach any order tool", () => {
   ]);
   assert.equal(wooConnection?.tools.some((tool) => /(?:get|lookup).*order|order.*(?:get|lookup)/i.test(tool)), false);
   assert.equal(customerProfile?.allowedTools.some((tool) => /order|customer|refund/i.test(tool)), false);
+  const agent = readFileSync(join(packageDir, "agents", "customer-experience-manager", "AGENTS.md"), "utf8");
+  const skill = readFileSync(join(packageDir, "skills", "enki-proformas", "SKILL.md"), "utf8");
+  assert.match(agent, /única excepción de PII es `enki-proformas`/);
+  assert.match(agent, /nunca en Paperclip, Git, logs, recibos o nombres de fichero/);
+  assert.match(skill, /Después de abrirla, no hagas llamadas de red ni MCP/);
+  assert.match(skill, /WhatsApp y email no están configurados/);
 });

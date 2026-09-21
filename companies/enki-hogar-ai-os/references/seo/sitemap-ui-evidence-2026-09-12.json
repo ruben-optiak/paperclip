@@ -1,0 +1,174 @@
+{
+  "schema": "enki-gsc-sitemap-ui-receipt/v1",
+  "ticket": "EAI-029",
+  "source": "Google Search Console operator-authorized UI",
+  "captureMethod": "Manual transcription of observed native accessibility-tree fields; not an API response or screenshot export",
+  "locale": "es",
+  "property": "sc-domain:enkihogar.com",
+  "authority": {
+    "specificExistingSessionApprovedByUser": true,
+    "scope": "Read only the Enki sitemap index, its child sitemap details and displayed error expansion in Zen",
+    "providerMutations": false,
+    "sitemapSubmission": false,
+    "indexingRequests": false,
+    "liveTests": false,
+    "directProviderApi": false,
+    "newCredentials": false,
+    "agentActivation": false,
+    "otherPropertiesInspected": false,
+    "accountIdentityRetained": false
+  },
+  "previousMcpReceipt": {
+    "file": "seo/sitemap-warning-evidence-2026-09-12.json",
+    "sha256": "d1cce2eac3371283c6f303d1129e0ecd23b50cf036dfdfaa57eb0ba5b9048011",
+    "fetchedAt": "2026-09-12T14:30:55.514Z",
+    "warningsRendered": 60,
+    "errorsRendered": 0,
+    "refreshedDuringUiInspection": false,
+    "warningCountConfirmedByUi": false
+  },
+  "index": {
+    "capturedAt": "2026-09-12T15:58:05.707Z",
+    "url": "https://www.enkihogar.com/sitemap_index.xml",
+    "typeLabel": "Índice de sitemaps",
+    "statusLabel": "Correcto",
+    "detailMessage": "El índice del sitemap se ha procesado correctamente",
+    "submittedDate": "2025-06-30",
+    "lastReadDate": "2026-09-12",
+    "lastReadDatePrecision": "day; no UI time or timezone shown",
+    "discoveredPages": 789,
+    "discoveredVideos": 0,
+    "paginationLabel": "1-7 de 7",
+    "childrenDisplayed": 7,
+    "warningsCountDisplayed": null,
+    "individualWarningMessagesDisplayed": null
+  },
+  "children": [
+    {
+      "url": "https://www.enkihogar.com/category-sitemap.xml",
+      "statusLabel": "Correcto",
+      "lastReadDate": "2026-09-12",
+      "discoveredPages": 1,
+      "discoveredVideos": 0,
+      "detail": {
+        "capturedAt": "2026-09-12T15:59:09.714Z",
+        "message": "El sitemap se ha procesado correctamente",
+        "lastReadLabel": "12/9/26",
+        "discoveredPages": 1,
+        "discoveredVideos": 0,
+        "warningCounterDisplayed": false,
+        "errorPanelDisplayed": false
+      }
+    },
+    {
+      "url": "https://www.enkihogar.com/page-sitemap.xml",
+      "statusLabel": "Correcto",
+      "lastReadDate": "2026-09-12",
+      "discoveredPages": 10,
+      "discoveredVideos": 0,
+      "detail": {
+        "capturedAt": "2026-09-12T15:59:12.000Z",
+        "message": "El sitemap se ha procesado correctamente",
+        "lastReadLabel": "12/9/26",
+        "discoveredPages": 10,
+        "discoveredVideos": 0,
+        "warningCounterDisplayed": false,
+        "errorPanelDisplayed": false
+      }
+    },
+    {
+      "url": "https://www.enkihogar.com/post-sitemap.xml",
+      "statusLabel": "Correcto",
+      "lastReadDate": "2026-09-12",
+      "discoveredPages": 26,
+      "discoveredVideos": 0,
+      "detail": {
+        "capturedAt": "2026-09-12T15:59:33.564Z",
+        "message": "El sitemap se ha procesado correctamente",
+        "lastReadLabel": "12/9/26",
+        "discoveredPages": 26,
+        "discoveredVideos": 0,
+        "warningCounterDisplayed": false,
+        "errorPanelDisplayed": false
+      }
+    },
+    {
+      "url": "https://www.enkihogar.com/product-sitemap.xml",
+      "statusLabel": "Correcto",
+      "lastReadDate": "2026-09-12",
+      "discoveredPages": 606,
+      "discoveredVideos": 0,
+      "detail": {
+        "capturedAt": "2026-09-12T15:58:54.912Z",
+        "message": "El sitemap se ha procesado correctamente",
+        "lastReadLabel": "12/9/26",
+        "discoveredPages": 606,
+        "discoveredVideos": 0,
+        "warningCounterDisplayed": false,
+        "errorPanelDisplayed": false
+      }
+    },
+    {
+      "url": "https://www.enkihogar.com/product_cat-sitemap.xml",
+      "statusLabel": "Correcto",
+      "lastReadDate": "2026-09-12",
+      "discoveredPages": 145,
+      "discoveredVideos": 0,
+      "detail": null
+    },
+    {
+      "url": "https://www.enkihogar.com/wffn_optin-sitemap.xml",
+      "statusLabel": "Correcto",
+      "lastReadDate": "2026-09-12",
+      "discoveredPages": 1,
+      "discoveredVideos": 0,
+      "detail": null
+    },
+    {
+      "url": "https://www.enkihogar.com/yith_product_brand-sitemap.xml",
+      "statusLabel": "No se ha podido obtener",
+      "lastReadDate": null,
+      "discoveredPages": 0,
+      "discoveredVideos": 0,
+      "detail": {
+        "capturedAt": "2026-09-12T15:58:15.161Z",
+        "expandedAt": "2026-09-12T15:58:18.865Z",
+        "message": "No se ha podido leer el sitemap",
+        "lastReadLabel": "N/D",
+        "discoveredPages": 0,
+        "discoveredVideos": 0,
+        "warningCounterDisplayed": false,
+        "errorPanelDisplayed": true,
+        "errorLabel": "Error general de HTTP",
+        "errorInstances": 1,
+        "expandedExplanationParaphrase": "Google could not access the sitemap and suggests checking its location and whether access is blocked.",
+        "specificHttpStatus": null,
+        "affectedPageExamples": null,
+        "errorOccurrenceTimestamp": null,
+        "provenCause": null
+      }
+    }
+  ],
+  "limits": {
+    "rootSuccessDoesNotProveEveryChildSucceeded": true,
+    "discoveredPagesAreNotIndexedPages": true,
+    "sumOfChildPageCountsEqualsRoot": true,
+    "sumEstablishesNoCrossSitemapDuplicates": false,
+    "brandSitemapFailureExplainsSixtyWarnings": null,
+    "robotsRuleProvesCauseOfGoogleHttpError": false,
+    "historicalRobotsObservationRechecked": false,
+    "newPublicHttpProbePerformed": false,
+    "providerRequestsOutsideUi": false
+  },
+  "coverage": {
+    "submittedSitemapsTableRows": 1,
+    "indexChildRows": 7,
+    "childDetailsRead": 5,
+    "errorPanelsExpanded": 1,
+    "remainingDetailUrls": [
+      "https://www.enkihogar.com/product_cat-sitemap.xml",
+      "https://www.enkihogar.com/wffn_optin-sitemap.xml"
+    ],
+    "sharedBrowserPause": "Navigation paused when Zen switched to an unrelated tab; no unrelated page content retained."
+  }
+}

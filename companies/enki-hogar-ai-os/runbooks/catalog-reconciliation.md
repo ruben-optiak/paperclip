@@ -1,6 +1,6 @@
 # Woo catalogue reconciliation
 
-This runbook governs `enki-catalog-pipeline` `0.3.0` and `catalog-reconciliation/v1`. It turns one exact, complete Woo export plus independently evidenced candidates into local review artifacts. It has no Woo credentials, no network and no import generator.
+This runbook governs `enki-catalog-pipeline` `0.5.0` and `catalog-reconciliation/v1`. It turns one exact, complete Woo export plus independently evidenced candidates into local review artifacts. It has no Woo credentials, no network and no import generator.
 
 ## What this solves
 
@@ -54,7 +54,7 @@ The locked result is five files, two entities, five candidate fields, two matche
 
 ```sh
 docker build \
-  --tag enki-catalog-pipeline:0.3.0 \
+  --tag enki-catalog-pipeline:0.5.0 \
   companies/enki-hogar-ai-os/scripts/catalog-pipeline
 
 companies/enki-hogar-ai-os/scripts/catalog-pipeline/run-docker.sh \
@@ -133,4 +133,4 @@ The completed EAI-021 replay is recorded in [`references/replay-receipts/eai-021
 
 The replay is evidence that the reviewed legacy layout can be interpreted; it is not current truth, approval or permission to import.
 
-Do not expand from the bounded replay to all brands or all products. That remains gated by the read-only approved-run evidence connector and a fresh operational task.
+Do not expand from the bounded replay to all brands or all products. The read-only [approved-run evidence connector](catalog-evidence.md) now enforces the publication boundary, but a broad run still requires a fresh operational task and exact source scope.

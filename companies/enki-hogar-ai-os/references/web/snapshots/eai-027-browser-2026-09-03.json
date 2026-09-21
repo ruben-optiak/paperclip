@@ -1,0 +1,64 @@
+{
+  "schema": "enki-public-web-baseline/v1",
+  "observedAt": "2026-09-03T12:21:09.520Z",
+  "configVersion": "1.0.0",
+  "origin": "https://www.enkihogar.com",
+  "environment": {
+    "browser": "system-google-chrome-headless",
+    "viewport": {"width": 1365, "height": 768},
+    "locale": "es-ES",
+    "timezoneId": "Europe/Madrid",
+    "cache": "cold-context-per-run",
+    "networkThrottle": "none",
+    "userAgentRetained": false
+  },
+  "safety": {
+    "allowedMethods": ["GET", "HEAD"],
+    "clicksAllowed": false,
+    "formSubmissionAllowed": false,
+    "cookiesRetained": false,
+    "responseBodiesRetained": false,
+    "screenshotsRetained": false,
+    "blockedMutationRequests": 17
+  },
+  "targets": [
+    {
+      "id": "home", "kind": "home", "path": "/", "finalSameOrigin": true,
+      "signals": {"titlePresent": true, "h1Count": 1, "canonicalPresent": true, "canonicalSameOrigin": true, "noindex": false, "jsonLdCount": 1, "productLinkCount": 0, "purchaseControlCount": 0},
+      "requiredChecks": {"h1": true, "canonical_same_origin": true, "product_links": true, "purchase_control": true},
+      "functionalPassed": true,
+      "metrics": {"status": 200, "ttfbMs": 454.8, "fcpMs": 1652, "lcpMs": 1652, "cls": 0.029335, "loadMs": 1141.2, "encodedBytes": 1518024},
+      "budget": {"checks": {"status2xx": true, "ttfbMs": true, "fcpMs": true, "lcpMs": true, "cls": true, "loadMs": true, "encodedBytes": true}, "passed": true},
+      "blockedMutationRequests": 4
+    },
+    {
+      "id": "category", "kind": "category", "path": "/accesorios-de-bano-estanterias/", "finalSameOrigin": true,
+      "signals": {"titlePresent": true, "h1Count": 1, "canonicalPresent": false, "canonicalSameOrigin": false, "noindex": true, "jsonLdCount": 1, "productLinkCount": 10, "purchaseControlCount": 0},
+      "requiredChecks": {"h1": true, "canonical_same_origin": false, "product_links": true, "purchase_control": true},
+      "functionalPassed": false,
+      "metrics": {"status": 200, "ttfbMs": 2852.7, "fcpMs": 3184, "lcpMs": 3308, "cls": 0.005242, "loadMs": 3352, "encodedBytes": 1300707},
+      "budget": {"checks": {"status2xx": true, "ttfbMs": false, "fcpMs": false, "lcpMs": true, "cls": true, "loadMs": true, "encodedBytes": true}, "passed": false},
+      "blockedMutationRequests": 4
+    },
+    {
+      "id": "product", "kind": "product", "path": "/estanteria-pared-n1/", "finalSameOrigin": true,
+      "signals": {"titlePresent": true, "h1Count": 1, "canonicalPresent": true, "canonicalSameOrigin": true, "noindex": false, "jsonLdCount": 1, "productLinkCount": 24, "purchaseControlCount": 2},
+      "requiredChecks": {"h1": true, "canonical_same_origin": true, "product_links": true, "purchase_control": true},
+      "functionalPassed": true,
+      "metrics": {"status": 200, "ttfbMs": 3361.5, "fcpMs": 3640, "lcpMs": 3812, "cls": 0.008672, "loadMs": 3797.8, "encodedBytes": 1365430},
+      "budget": {"checks": {"status2xx": true, "ttfbMs": false, "fcpMs": false, "lcpMs": true, "cls": true, "loadMs": true, "encodedBytes": true}, "passed": false},
+      "blockedMutationRequests": 5
+    },
+    {
+      "id": "help", "kind": "content", "path": "/ayuda-de-compra/", "finalSameOrigin": true,
+      "signals": {"titlePresent": true, "h1Count": 1, "canonicalPresent": true, "canonicalSameOrigin": true, "noindex": false, "jsonLdCount": 1, "productLinkCount": 0, "purchaseControlCount": 0},
+      "requiredChecks": {"h1": true, "canonical_same_origin": true, "product_links": true, "purchase_control": true},
+      "functionalPassed": true,
+      "metrics": {"status": 200, "ttfbMs": 46.6, "fcpMs": 524, "lcpMs": 524, "cls": 0.025663, "loadMs": 728.1, "encodedBytes": 1227147},
+      "budget": {"checks": {"status2xx": true, "ttfbMs": true, "fcpMs": true, "lcpMs": true, "cls": true, "loadMs": true, "encodedBytes": true}, "passed": true},
+      "blockedMutationRequests": 4
+    }
+  ],
+  "summary": {"functionalPassed": false, "budgetsPassed": false, "lighthouseAudit": "separate_snapshot", "lighthouseClaimAllowed": true},
+  "authority": {"isObservationOnly": true, "isOptimizationAuthority": false, "containsPii": false, "containsCredentials": false}
+}
