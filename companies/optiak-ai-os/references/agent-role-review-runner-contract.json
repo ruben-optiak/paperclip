@@ -1,0 +1,53 @@
+{
+  "schema": "optiak-agent-role-review-runner-contract/v1",
+  "version": "1.0.0",
+  "packageVersion": "0.1.29",
+  "status": "live_regression_passed",
+  "humanConflictOwner": "board",
+  "purpose": "Guarantee one assignment-triggered run per controlled role review and fail before recovery can be mistaken for a passing review.",
+  "sequence": [
+    "issue_created_unassigned",
+    "agent_resumed",
+    "issue_assigned",
+    "assignment_run_started",
+    "canonical_report_and_disposition_persisted",
+    "assignment_run_finished",
+    "result_inspected",
+    "agent_paused"
+  ],
+  "preconditions": {
+    "agentStatus": "paused",
+    "issueAssigneeAgentId": null,
+    "activeRunsForIssue": 0,
+    "oneAgentAtATime": true
+  },
+  "fixtureIssue": {
+    "status": "todo",
+    "priority": "medium",
+    "createdUnassigned": true
+  },
+  "run": {
+    "requiredInvocationSource": "assignment",
+    "requiredTerminalStatus": "succeeded",
+    "exactRunCount": 1,
+    "recoveryRunsAllowed": false,
+    "retriesAllowed": false,
+    "canonicalReportMarker": "ROLE_REVIEW_FINAL",
+    "canonicalReportCount": 1,
+    "reportMustCarryCreatedByRunId": true,
+    "requiredIssueDisposition": "done",
+    "reportAndDispositionMustShareRun": true,
+    "externalWrites": 0
+  },
+  "postconditions": {
+    "activeRunsForIssue": 0,
+    "agentStatus": "paused",
+    "successfulReviewAuthorizesActivation": false,
+    "successfulReviewAuthorizesExternalWrites": false
+  },
+  "failurePolicy": {
+    "automaticRecovery": "deny",
+    "automaticSecondRun": "deny",
+    "operatorAction": "pause_agent_preserve_issue_and_runs_record_failed_review"
+  }
+}

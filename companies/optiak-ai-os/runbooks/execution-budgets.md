@@ -57,3 +57,27 @@ Never put a Board token, agent key, credential, local ID, or real run export in 
 - Do not create a second truth source merely to save tokens. A compact index may point to canonical reports but must preserve provenance and freshness.
 - Reports must state source count, unknowns, and omitted scope. Concision cannot remove safety gates, contradictory evidence, or approval requirements.
 - Do not query usage from inside the working run. Evaluate it after Paperclip persists the final usage record.
+
+## Multi-agent engagement budget
+
+One engineering question has one lead, at most two consulted agents and one
+canonical report. All ten current agents have a distinct lead class.
+Consultation is `delta_only`: pass evidence references, one specific unanswered
+question and its expected evidence delta, not the full upstream transcript.
+Duplicate consultation questions, evidence references or parallel full reports
+fail the routing gate. Engineering Assurance builds an evidence index and
+disposition; it does not commission a second execution of already accepted
+Product, UI, Documentation, Architecture, Engineering, Review, QA or Reliability
+work.
+
+Adding an agent because the issue is broadly “technical” is not a reason. Add a
+specialist only when its role-specific evidence is required by the next gate.
+
+## QA runner resources
+
+The future dedicated QA runner is limited to one concurrent job, 1,200 seconds,
+2 MiB of retained redacted artifacts and zero automatic retries. These are
+resource caps, not activation authority. A timeout keeps partial evidence and
+returns `blocked`; it does not restart with a broader profile. The runner remains
+disconnected until the isolation smoke in `runbooks/qa-source-execution.md`
+passes.

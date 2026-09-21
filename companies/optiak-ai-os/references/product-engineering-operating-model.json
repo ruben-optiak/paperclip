@@ -1,7 +1,7 @@
 {
   "schema": "optiak-product-engineering-operating-model/v1",
-  "version": "1.0.0",
-  "reviewedAt": "2026-09-19",
+  "version": "1.2.0",
+  "reviewedAt": "2026-09-20",
   "status": "offline_defined_no_runtime_authority",
   "humanConflictOwner": "board",
   "principles": {
@@ -9,7 +9,22 @@
     "boardMayAssignSpecialistsDirectly": true,
     "authorMayApproveOwnChange": false,
     "domainOwnershipCreatesEvidenceAuthority": false,
-    "successfulGateAuthorizesRelease": false
+    "successfulGateAuthorizesRelease": false,
+    "exactlyOneLeadPerQuestion": true,
+    "maximumConsultedAgents": 2,
+    "oneCanonicalReportPerDecision": true,
+    "contributorsReturnDeltaOnly": true,
+    "freshAcceptedEvidenceIsReused": true,
+    "consultationsHaveDistinctQuestions": true,
+    "allCurrentAgentsHaveDistinctLeadClasses": true
+  },
+  "engagementModel": {
+    "contract": "skills/optiak-change-control/references/engineering-engagement-contract.json",
+    "defaultPattern": "on_demand_single_lead",
+    "pipelineStagesAreConditional": true,
+    "blanketFanoutAllowed": false,
+    "skipUnneededStagesWithReason": true,
+    "assuranceConsumesEvidenceByReference": true
   },
   "domains": [
     {
@@ -75,16 +90,17 @@
     }
   ],
   "deliveryPipeline": [
-    {"id": "discovery", "owner": "product-prd-lead"},
-    {"id": "product_decision", "owner": "product-prd-lead"},
-    {"id": "prd", "owner": "product-prd-lead"},
-    {"id": "architecture_review", "owner": "principal-platform-architect"},
-    {"id": "domain_implementation", "owner": "senior-platform-engineer"},
-    {"id": "independent_review", "owner": "independent-code-reviewer"},
-    {"id": "qa_ui_docs_validation", "owner": "qa-e2e-validation-engineer"},
-    {"id": "release_readiness", "owner": "engineering-assurance-lead"},
+    {"id": "product_intent_and_prd", "owner": "product-prd-lead", "requiredWhen": "product behavior, priority or acceptance criteria change"},
+    {"id": "architecture_review", "owner": "principal-platform-architect", "requiredWhen": "a structural decision or cross-boundary tradeoff exists"},
+    {"id": "domain_implementation", "owner": "senior-platform-engineer", "requiredWhen": "an approved change or implementation diagnosis is requested"},
+    {"id": "independent_change_review", "owner": "independent-code-reviewer", "requiredWhen": "source or infrastructure code changes"},
+    {"id": "functional_validation", "owner": "qa-e2e-validation-engineer", "requiredWhen": "observable behavior, permissions, regression or evaluation quality changes"},
+    {"id": "ui_quality_review", "owner": "brand-ui-quality-reviewer", "requiredWhen": "a user-facing visual or interaction surface changes"},
+    {"id": "documentation_dx_review", "owner": "documentation-dx-steward", "requiredWhen": "a public claim, example, navigation path or handbook record changes"},
+    {"id": "runtime_reliability_review", "owner": "reliability-incident-engineer", "requiredWhen": "runtime risk, SLO, capacity, rollout or incident learning changes"},
+    {"id": "release_readiness", "owner": "engineering-assurance-lead", "requiredWhen": "the Board is considering advancement or release"},
     {"id": "human_release_decision", "owner": "board"},
-    {"id": "measurement_learning", "owner": "product-prd-lead"}
+    {"id": "measurement_learning", "owner": "product-prd-lead", "requiredWhen": "an approved product outcome has measurable post-change evidence"}
   ],
   "agentCreationGates": [
     "recurring_queue_observed",

@@ -3,7 +3,7 @@ name: Optiak AI OS
 description: Product and engineering assurance operating system for the Optiak AI governance platform
 slug: optiak-ai-os
 schema: agentcompanies/v1
-version: 0.1.26
+version: 0.1.29
 license: LicenseRef-Optiak-Internal
 authors:
   - name: Optiak
@@ -17,6 +17,10 @@ goals:
 ---
 
 Optiak AI OS is the internal product and engineering assurance organization for Optiak. Optiak is an AI gateway and control plane for configuring, routing, protecting, enriching, governing, and observing AI application traffic. It operates at the platform layer: it is not a chatbot, an agent builder, or an end-user application framework.
+
+Version 0.1.29 hardens the controlled ten-agent review into an exact single-run state machine and adds a dedicated disposable QA source runner. Review issues are created unassigned, one paused agent is resumed before assignment, the canonical report and final disposition must be persisted by the same assignment run, and any retry or recovery fails the review. QA receives a non-root, no-network, read-only Docker boundary with fixed profile IDs, source snapshots, capped evidence and controller-confirmed cleanup; it still has no implementation, repository-write, merge, deployment or release authority.
+
+Version 0.1.27 sharpens the boundaries between Architecture, Platform Engineering, Reliability, QA and Engineering Assurance. Every engineering question has one lead, at most two necessary consulted agents and one canonical report; contributors return only new evidence and accepted work is reused by reference. It also defines a dedicated ephemeral QA source runner for three exact repositories and allowlisted static/unit profiles. The runner remains disconnected until its isolation smoke passes and grants no arbitrary shell, repository write, implementation, production or release authority.
 
 Version 0.1.26 converts the Board review of the historical OPT-39 Product run into a read-only advisory quality gate. Strategy or an explicit Board question must drive priority selection; an `updatedAt` sample can support hygiene only, every recommendation requires an exact detail read, and executive output is separated from the machine envelope. The gate limits recommendations and decisions, preserves facts/hypotheses/missing evidence, and records context-efficiency regressions without authorizing a retry, Linear write, agent activation, or implementation.
 

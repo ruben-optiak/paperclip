@@ -4,7 +4,7 @@
   "cases": [
     {
       "id": "roadmap-priority-with-customer-evidence",
-      "requestClass": "product_decision",
+      "requestClass": "product_intent_or_prd",
       "primaryDomain": "4.1",
       "accountable": "product-prd-lead",
       "lead": "product-prd-lead",
@@ -13,7 +13,7 @@
     },
     {
       "id": "ui-inconsistency-against-approved-system",
-      "requestClass": "product_experience_review",
+      "requestClass": "ui_brand_quality",
       "primaryDomain": "4.1",
       "accountable": "product-prd-lead",
       "lead": "brand-ui-quality-reviewer",
@@ -22,7 +22,7 @@
     },
     {
       "id": "gateway-routing-contract-change",
-      "requestClass": "core_platform_change",
+      "requestClass": "architecture_decision",
       "primaryDomain": "4.2",
       "accountable": "engineering-assurance-lead",
       "lead": "principal-platform-architect",
@@ -32,7 +32,7 @@
     },
     {
       "id": "customer-observability-regression",
-      "requestClass": "core_platform_defect",
+      "requestClass": "implementation_diagnosis",
       "primaryDomain": "4.2",
       "accountable": "engineering-assurance-lead",
       "lead": "senior-platform-engineer",
@@ -42,7 +42,7 @@
     },
     {
       "id": "new-enterprise-connector",
-      "requestClass": "integration_design",
+      "requestClass": "architecture_decision",
       "primaryDomain": "4.3",
       "accountable": "engineering-assurance-lead",
       "lead": "principal-platform-architect",
@@ -52,7 +52,7 @@
     },
     {
       "id": "delegated-identity-permission-edge-case",
-      "requestClass": "enterprise_permission_validation",
+      "requestClass": "product_behavior_validation",
       "primaryDomain": "4.3",
       "accountable": "engineering-assurance-lead",
       "lead": "qa-e2e-validation-engineer",
@@ -61,7 +61,7 @@
     },
     {
       "id": "evaluation-quality-regression",
-      "requestClass": "ai_quality",
+      "requestClass": "product_behavior_validation",
       "primaryDomain": "4.4",
       "accountable": "engineering-assurance-lead",
       "lead": "qa-e2e-validation-engineer",
@@ -71,7 +71,7 @@
     },
     {
       "id": "analytics-event-model-change",
-      "requestClass": "data_model_architecture",
+      "requestClass": "architecture_decision",
       "primaryDomain": "4.4",
       "accountable": "engineering-assurance-lead",
       "lead": "principal-platform-architect",
@@ -82,7 +82,7 @@
     },
     {
       "id": "production-latency-capacity-risk",
-      "requestClass": "reliability_capacity",
+      "requestClass": "live_incident_or_slo_risk",
       "primaryDomain": "4.5",
       "accountable": "engineering-assurance-lead",
       "lead": "reliability-incident-engineer",
@@ -91,7 +91,7 @@
     },
     {
       "id": "infrastructure-change-proposal",
-      "requestClass": "infrastructure_architecture",
+      "requestClass": "architecture_decision",
       "primaryDomain": "4.5",
       "accountable": "engineering-assurance-lead",
       "lead": "principal-platform-architect",
@@ -101,20 +101,20 @@
     },
     {
       "id": "testing-standard-change",
-      "requestClass": "handbook_testing_strategy",
+      "requestClass": "documentation_dx_drift",
       "primaryDomain": "4.6",
       "accountable": "engineering-assurance-lead",
-      "lead": "qa-e2e-validation-engineer",
-      "reviewers": ["independent-code-reviewer", "documentation-dx-steward"],
+      "lead": "documentation-dx-steward",
+      "reviewers": ["qa-e2e-validation-engineer", "independent-code-reviewer"],
       "nextGate": "versioned_handbook_review"
     },
     {
       "id": "release-process-change",
-      "requestClass": "handbook_release_process",
+      "requestClass": "documentation_dx_drift",
       "primaryDomain": "4.6",
       "accountable": "engineering-assurance-lead",
-      "lead": "reliability-incident-engineer",
-      "reviewers": ["qa-e2e-validation-engineer", "documentation-dx-steward"],
+      "lead": "documentation-dx-steward",
+      "reviewers": ["reliability-incident-engineer", "independent-code-reviewer"],
       "nextGate": "versioned_handbook_and_board_authority_review"
     }
   ]

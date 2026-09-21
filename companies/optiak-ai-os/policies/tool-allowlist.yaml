@@ -90,6 +90,24 @@ reviewedCapabilities:
     decision: deny
   - capability: repository_issue_or_pr_mutation
     decision: deny
+  - capability: qa_source_checkout_and_execute_profile
+    decision: deny_until_dedicated_runner_smoke
+    conditions:
+      - qa_e2e_validation_engineer_only
+      - repository_exactly_one_of_optiak_optiak_frontend_or_iac_infra
+      - exact_full_commit_sha
+      - named_versioned_profile_no_arbitrary_shell
+      - fresh_ephemeral_workspace
+      - repository_credential_absent_from_test_process
+      - no_production_credentials_or_customer_data
+      - no_docker_socket
+      - bootstrap_egress_allowlisted_then_loopback_only
+      - source_changes_not_persisted
+      - redacted_capped_artifacts_and_cleanup
+  - capability: qa_repository_push_pr_deploy_or_infrastructure_mutation
+    decision: deny
+    conditions:
+      - approval_may_not_override_profile_boundary
   - capability: local_test_health_read
     decision: allow
     conditions:

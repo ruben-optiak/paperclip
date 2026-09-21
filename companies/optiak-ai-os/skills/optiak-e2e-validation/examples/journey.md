@@ -17,3 +17,9 @@ Current result: blocked.
 - Blockers: no approved tenant or browser session is connected, and the local
   Gateway currently fails configuration validation. No write or inference was
   attempted.
+
+Source-only example: for a frontend commit, QA selects
+`frontend_static_unit`, records the full SHA and returns one canonical execution
+report. A Vitest failure is handed to Senior Platform Engineer as reproduction
+evidence. QA does not diagnose the implementation, and a pass does not make the
+release ready.

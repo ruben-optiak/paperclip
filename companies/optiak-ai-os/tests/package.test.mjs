@@ -35,6 +35,21 @@ import {
   evaluateProductAdvisory,
   loadProductAdvisoryContract,
 } from "../skills/optiak-product-triage/scripts/evaluate-product-advisory.mjs";
+import {
+  evaluateEngineeringEngagement,
+  loadEngineeringEngagementContract,
+} from "../skills/optiak-change-control/scripts/evaluate-engineering-engagement.mjs";
+import {
+  evaluateQaSourceExecution,
+  loadQaSourceExecutionContract,
+} from "../skills/optiak-e2e-validation/scripts/evaluate-qa-source-execution.mjs";
+import {
+  evaluateAgentRoleReviewRun,
+  heartbeatRunId,
+  loadAgentRoleReviewRunnerContract,
+  reviewPrompt,
+  roleReviewFixtureTitle,
+} from "../scripts/run-agent-role-review.mjs";
 
 const packageDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -63,6 +78,182 @@ test("every skill ships a CLI-portable offline fixture", () => {
 test("change control fails closed by risk", () => {
   const data = fixture("optiak-change-control", "actions");
   assert.deepEqual(data.cases.map((item) => item.expectedLevel), ["green", "yellow", "orange", "red"]);
+});
+
+test("engineering engagement assigns one lead and rejects duplicate fanout", () => {
+  const contract = loadEngineeringEngagementContract();
+  assert.equal(contract.schema, "optiak-engineering-engagement-contract/v1");
+  assert.equal(contract.version, "1.1.0");
+  assert.equal(contract.globalRules.exactlyOneLead, true);
+  assert.equal(contract.globalRules.maximumConsultedAgents, 2);
+  assert.equal(contract.globalRules.oneCanonicalReport, true);
+  assert.equal(contract.globalRules.contributorsReturnDeltaOnly, true);
+  assert.equal(contract.globalRules.consultationRequiresDistinctQuestionAndDelta, true);
+  assert.equal(contract.globalRules.blanketFanoutAllowed, false);
+  assert.equal(contract.globalRules.parallelFullReportsAllowed, false);
+  assert.equal(Object.keys(contract.roles).length, 10);
+  assert.equal(Object.keys(contract.requestClasses).length, 10);
+  assert.deepEqual(
+    new Set(Object.values(contract.requestClasses).map((item) => item.lead)),
+    new Set(readdirSync(join(packageDir, "agents"))),
+  );
+
+  const data = fixture("optiak-change-control", "engineering-engagements");
+  assert.equal(data.cases.filter((item) => item.expectedVerdict === "routing_ready").length, 10);
+  for (const fixtureCase of data.cases) {
+    const result = evaluateEngineeringEngagement(fixtureCase.evidence);
+    assert.equal(result.verdict, fixtureCase.expectedVerdict, fixtureCase.id);
+    assert.equal(result.doesNotAuthorizeImplementation, true);
+    assert.equal(result.doesNotAuthorizeRelease, true);
+  }
+  const wrong = evaluateEngineeringEngagement(data.cases.find((item) => item.id === "wrong-lead-and-fanout").evidence);
+  assert.ok(wrong.violations.includes("wrong_lead"));
+  assert.ok(wrong.violations.includes("consulted_agent_limit_exceeded"));
+  assert.ok(wrong.violations.includes("single_canonical_output_required"));
+  assert.ok(wrong.violations.includes("blanket_fanout_forbidden"));
+  assert.ok(wrong.violations.includes("parallel_full_reports_forbidden"));
+  assert.ok(wrong.violations.includes("accepted_evidence_must_be_reused"));
+
+  const duplicated = evaluateEngineeringEngagement(data.cases.find((item) => item.id === "duplicate-consultation-work").evidence);
+  assert.ok(duplicated.violations.includes("duplicate_consulted_agent"));
+  assert.ok(duplicated.violations.includes("duplicate_consultation_question"));
+  assert.ok(duplicated.violations.includes("duplicate_consultation_delta"));
+  assert.ok(duplicated.violations.includes("duplicate_evidence_reference"));
+  assert.ok(duplicated.violations.includes("duplicate_exclusion"));
+});
+
+test("the joint role review covers every current agent with one non-overlapping case", () => {
+  const contract = loadEngineeringEngagementContract();
+  const matrix = JSON.parse(readFileSync(
+    join(packageDir, "references", "agent-role-review-matrix.json"),
+    "utf8",
+  ));
+  const agents = new Set(readdirSync(join(packageDir, "agents")));
+  assert.equal(matrix.schema, "optiak-agent-role-review-matrix/v1");
+  assert.equal(matrix.packageVersion, "0.1.29");
+  assert.equal(matrix.evidenceScope, "fixture_only");
+  assert.equal(matrix.runPolicy.oneAgentAtATime, true);
+  assert.equal(matrix.runPolicy.agentStartsAndEndsPaused, true);
+  assert.equal(matrix.runPolicy.issueCreatedUnassigned, true);
+  assert.equal(matrix.runPolicy.agentResumedBeforeAssignment, true);
+  assert.equal(matrix.runPolicy.exactlyOneAssignmentRun, true);
+  assert.equal(matrix.runPolicy.canonicalReportAndDispositionSameRun, true);
+  assert.equal(matrix.runPolicy.automaticRecoveryRuns, 0);
+  assert.equal(matrix.runPolicy.terminalActiveRuns, 0);
+  assert.equal(matrix.runPolicy.externalWrites, 0);
+  assert.equal(matrix.runPolicy.successfulReviewAuthorizesActivation, false);
+  assert.equal(matrix.reviewGates.length, 10);
+  assert.equal(matrix.cases.length, 10);
+  assert.deepEqual(new Set(matrix.cases.map((item) => item.agent)), agents);
+  for (const reviewCase of matrix.cases) {
+    const requestClass = contract.requestClasses[reviewCase.requestClass];
+    assert.equal(requestClass.lead, reviewCase.agent, reviewCase.agent);
+    assert.equal(requestClass.canonicalOutput, reviewCase.canonicalOutput, reviewCase.agent);
+    assert.ok(reviewCase.mustNotDo.length > 0, reviewCase.agent);
+    assert.ok(reviewCase.expectedHandoff, reviewCase.agent);
+  }
+});
+
+test("controlled role review is exactly one assignment run with same-run closure", () => {
+  const contract = loadAgentRoleReviewRunnerContract();
+  assert.equal(contract.schema, "optiak-agent-role-review-runner-contract/v1");
+  assert.equal(contract.packageVersion, "0.1.29");
+  assert.equal(contract.run.exactRunCount, 1);
+  assert.equal(contract.run.recoveryRunsAllowed, false);
+  assert.equal(contract.run.reportAndDispositionMustShareRun, true);
+  assert.equal(contract.failurePolicy.automaticRecovery, "deny");
+  assert.deepEqual(contract.fixtureIssue, {
+    status: "todo",
+    priority: "medium",
+    createdUnassigned: true,
+  });
+
+  const fixtures = JSON.parse(readFileSync(
+    join(packageDir, "references", "fixtures", "agent-role-review-run.json"),
+    "utf8",
+  ));
+  for (const fixtureCase of fixtures.cases) {
+    const result = evaluateAgentRoleReviewRun(fixtureCase.evidence, contract);
+    assert.equal(result.verdict, fixtureCase.expectedVerdict, fixtureCase.id);
+    assert.equal(result.doesNotAuthorizeActivation, true);
+    assert.equal(result.doesNotAuthorizeExternalWrites, true);
+    if (fixtureCase.expectedViolation) {
+      assert.ok(result.violations.includes(fixtureCase.expectedViolation), fixtureCase.id);
+    }
+  }
+});
+
+test("controlled role review fixture titles are suite-scoped", () => {
+  const reviewCase = {agent: "director-optiak"};
+  assert.equal(
+    roleReviewFixtureTitle(reviewCase, "20260921T120000"),
+    "[Role review 20260921T120000] director-optiak",
+  );
+  assert.notEqual(
+    roleReviewFixtureTitle(reviewCase, "20260921T120000"),
+    roleReviewFixtureTitle(reviewCase, "20260921T120001"),
+  );
+});
+
+test("controlled role review prompt survives CLI transport with the write declaration intact", () => {
+  const prompt = reviewPrompt({
+    requestClass: "cross_domain_coordination",
+    scenario: "Fixture scenario.",
+    canonicalOutput: "prioritized_decision_brief",
+    mustNotDo: ["external_write"],
+    expectedHandoff: "one bounded handoff",
+  });
+  assert.match(prompt, /state exactly External writes: 0/);
+  assert.doesNotMatch(prompt, /[`$]/);
+});
+
+test("controlled role review normalizes the live CLI run identifier", () => {
+  assert.equal(heartbeatRunId({runId: "live-run-id"}), "live-run-id");
+  assert.equal(heartbeatRunId({id: "fixture-run-id"}), "fixture-run-id");
+  assert.equal(heartbeatRunId({}), null);
+});
+
+test("QA source execution is profile-only, isolated and evidence-not-authority", () => {
+  const contract = loadQaSourceExecutionContract();
+  assert.equal(contract.schema, "optiak-qa-source-execution-contract/v1");
+  assert.equal(contract.status, "dedicated_runner_synthetic_smoke_passed_real_repositories_pending");
+  assert.equal(contract.executionAgent, "qa-e2e-validation-engineer");
+  assert.deepEqual(contract.checkout.allowedRepositories, [
+    "optiak/optiak",
+    "optiak/optiak-frontend",
+    "optiak/iac-infra",
+  ]);
+  assert.equal(contract.checkout.repositoryCredentialAvailableToTestProcess, false);
+  assert.equal(contract.runtime.sharedPaperclipControlPlaneAllowed, false);
+  assert.equal(contract.runtime.dockerSocketAllowed, false);
+  assert.equal(contract.runtime.productionCredentialsAllowed, false);
+  assert.equal(contract.runtime.sourceChangesMayPersist, false);
+  assert.equal(contract.runtime.implementation, "connectors/qa-source-runner");
+  assert.equal(contract.runtime.rootFilesystem, "read_only");
+  assert.equal(contract.runtime.sourceMount, "read_only");
+  assert.equal(contract.runtime.workspaceMount, "ephemeral_tmpfs");
+  assert.equal(contract.runtime.arbitraryCommandInputAllowed, false);
+  assert.equal(contract.syntheticBoundarySmoke.status, "pass");
+  assert.ok(contract.syntheticBoundarySmoke.didNotProve.includes("real_repository_tests"));
+  assert.deepEqual(Object.keys(contract.profiles), [
+    "backend_static_unit",
+    "frontend_static_unit",
+    "iac_static_validate",
+  ]);
+
+  const data = fixture("optiak-e2e-validation", "source-execution");
+  assert.equal(data.evidenceScope, "fixture_only");
+  for (const fixtureCase of data.cases) {
+    const result = evaluateQaSourceExecution(fixtureCase.evidence);
+    assert.equal(result.verdict, fixtureCase.expectedVerdict, fixtureCase.id);
+    assert.equal(result.doesNotProveRootCause, true);
+    assert.equal(result.doesNotAuthorizeImplementation, true);
+    assert.equal(result.doesNotAuthorizeRelease, true);
+  }
+  const unsafe = evaluateQaSourceExecution(data.cases.find((item) => item.id === "shared-control-plane-blocked").evidence);
+  assert.ok(unsafe.safetyBlockers.includes("shared_control_plane_forbidden"));
+  assert.ok(unsafe.safetyBlockers.includes("repository_credential_exposed"));
+  assert.ok(unsafe.safetyBlockers.includes("docker_socket_forbidden"));
 });
 
 test("PR fixture requires independent changes", () => {
@@ -282,7 +473,7 @@ function materializePromotionEvidence(contract, promotionFixture, fixtureCase) {
 test("AI OS promotion contract is provider-neutral, staged, and advice-only", () => {
   const contract = loadPromotionContract();
   assert.equal(contract.schema, "optiak-ai-os-promotion-contract/v1");
-  assert.equal(contract.packageVersion, "0.1.26");
+  assert.equal(contract.packageVersion, "0.1.29");
   assert.equal(contract.status, "offline_defined_not_deployed");
   assert.equal(contract.providerPolicy.infrastructureProvider, "undecided");
   assert.equal(contract.environmentPolicy.directLocalToProduction, "deny");
@@ -920,6 +1111,14 @@ test("execution budget distinguishes enforced money and time gates from token re
   assert.match(policy, /reviewMaximumUncachedInputTokens: 40000/);
   assert.match(policy, /overReviewMaximum: efficiency_regression/);
   assert.match(policy, /automaticRetryAllowed: false/);
+  assert.match(policy, /maximumLeadAgents: 1/);
+  assert.match(policy, /maximumConsultedAgents: 2/);
+  assert.match(policy, /maximumCanonicalReports: 1/);
+  assert.match(policy, /consultedMode: delta_only/);
+  assert.match(policy, /automaticFanout: false/);
+  assert.match(policy, /maximumJobSeconds: 1200/);
+  assert.match(policy, /maximumArtifactBytes: 2097152/);
+  assert.match(policy, /liveRunnerConnected: false/);
 });
 
 test("run baseline keeps cumulative, cached, and uncached usage mathematically separate", () => {
@@ -1011,6 +1210,15 @@ test("Product and Engineering domains map to the existing organization without a
   assert.equal(model.schema, "optiak-product-engineering-operating-model/v1");
   assert.equal(model.status, "offline_defined_no_runtime_authority");
   assert.equal(model.principles.oneAgentPerDomainRequired, false);
+  assert.equal(model.principles.exactlyOneLeadPerQuestion, true);
+  assert.equal(model.principles.maximumConsultedAgents, 2);
+  assert.equal(model.principles.oneCanonicalReportPerDecision, true);
+  assert.equal(model.principles.contributorsReturnDeltaOnly, true);
+  assert.equal(model.principles.consultationsHaveDistinctQuestions, true);
+  assert.equal(model.principles.allCurrentAgentsHaveDistinctLeadClasses, true);
+  assert.equal(model.engagementModel.defaultPattern, "on_demand_single_lead");
+  assert.equal(model.engagementModel.blanketFanoutAllowed, false);
+  assert.equal(model.engagementModel.assuranceConsumesEvidenceByReference, true);
   assert.deepEqual(model.domains.map((domain) => domain.id), ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6"]);
   for (const domain of model.domains) {
     assert.ok(agentSlugs.has(domain.accountable), `${domain.id} has an unknown accountable owner`);
@@ -1034,20 +1242,21 @@ test("feature delivery keeps independent review and the release decision human",
   assert.deepEqual(
     model.deliveryPipeline.map((stage) => stage.id),
     [
-      "discovery",
-      "product_decision",
-      "prd",
+      "product_intent_and_prd",
       "architecture_review",
       "domain_implementation",
-      "independent_review",
-      "qa_ui_docs_validation",
+      "independent_change_review",
+      "functional_validation",
+      "ui_quality_review",
+      "documentation_dx_review",
+      "runtime_reliability_review",
       "release_readiness",
       "human_release_decision",
       "measurement_learning",
     ],
   );
   assert.equal(
-    model.deliveryPipeline.find((stage) => stage.id === "independent_review").owner,
+    model.deliveryPipeline.find((stage) => stage.id === "independent_change_review").owner,
     "independent-code-reviewer",
   );
   assert.equal(
@@ -1069,6 +1278,7 @@ test("routing fixtures cover all domains and never self-review an authored imple
   ));
   const agentSlugs = new Set(readdirSync(join(packageDir, "agents")));
   const domains = new Map(model.domains.map((domain) => [domain.id, domain]));
+  const engagement = loadEngineeringEngagementContract();
 
   assert.equal(routing.evidenceScope, "fixture_only");
   assert.equal(routing.cases.length, 12);
@@ -1078,6 +1288,8 @@ test("routing fixtures cover all domains and never self-review an authored imple
   );
   for (const fixtureCase of routing.cases) {
     assert.equal(fixtureCase.accountable, domains.get(fixtureCase.primaryDomain).accountable);
+    assert.ok(engagement.requestClasses[fixtureCase.requestClass], `${fixtureCase.id} has unknown request class`);
+    assert.equal(fixtureCase.lead, engagement.requestClasses[fixtureCase.requestClass].lead, fixtureCase.id);
     assert.ok(agentSlugs.has(fixtureCase.lead));
     assert.ok(fixtureCase.nextGate);
     if (fixtureCase.implementationAuthor) {

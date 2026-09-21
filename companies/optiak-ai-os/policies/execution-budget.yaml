@@ -1,5 +1,5 @@
 schema: optiak-execution-budget/v1
-version: 0.1.2
+version: 0.1.4
 status: provisional_fixture_phase
 currency: USD
 company:
@@ -92,9 +92,28 @@ controls:
     overReviewMaximum: efficiency_regression
     automaticRetryAllowed: false
     nativeEnforcement: false
+  engineeringEngagement:
+    maximumLeadAgents: 1
+    maximumConsultedAgents: 2
+    maximumCanonicalReports: 1
+    maximumParallelFullReports: 0
+    consultedMode: delta_only
+    distinctQuestionAndExpectedDeltaRequired: true
+    duplicateEvidenceReferencesAllowed: false
+    automaticFanout: false
+  qaSourceExecution:
+    maximumConcurrentJobs: 1
+    maximumJobSeconds: 1200
+    maximumArtifactBytes: 2097152
+    automaticRetries: 0
+    cleanupRequired: true
+    liveRunnerConnected: false
 operatorRules:
   - Never infer zero cost from an unpriced run.
   - Treat token thresholds as post-run review gates until Paperclip supports an in-flight token cap.
   - At a daily-cap warning, finish already-started work and do not queue discretionary work.
   - A timeout or hard stop must leave the issue recoverable; it does not authorize a duplicate final report.
   - Review these provisional values after ten priced production-like runs or thirty calendar days, whichever comes first.
+  - A specialist handoff reuses accepted evidence by reference; it does not reset context budgets or justify a second full report.
+  - A consultation without a distinct narrower question and expected evidence delta is not scheduled.
+  - QA source-execution limits are runtime-resource gates, not permission to connect or activate a runner.

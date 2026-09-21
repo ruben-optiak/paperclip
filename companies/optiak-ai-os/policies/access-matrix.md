@@ -11,7 +11,7 @@ This is versioned desired state, not proof of live Paperclip bindings. Apply pro
 | Senior Platform Engineer | task-linked specs, ADRs, handbook, runbooks | read | assigned task | branch proposal later | isolated workspace later | approved sandbox later | approved sandbox later | read | read-only diagnosis |
 | Independent Reviewer | task-linked specs, ADRs, handbook | read | acceptance criteria | immutable read/review for the three approved repositories only | exact-revision read for approved repos only | read after approval | read | read | read |
 | Reliability Engineer | architecture, handbook, runbooks, postmortems | runbooks | incident work | deploy/revision read | read | health/read | read | read/alert | read-only diagnosis |
-| QA Engineer | task-linked specs, ADRs, test/release standards, runbooks | read | acceptance criteria | revision/check read | no source write | health only now; synthetic later | approved sandbox later | test/read | no test access |
+| QA Engineer | task-linked specs, ADRs, test/release standards, runbooks | read | acceptance criteria | revision/check read | exact-revision profile execution pending dedicated runner; no source write | source static/unit pending runner; synthetic later | approved sandbox later | test/read | no test access |
 | Brand/UI Reviewer | relevant specs, discovery, brand/design/UX | read | linked intent | preview/status | no source write | browser read later | browser read later | no | no |
 | Documentation/DX | relevant specs, architecture, handbook, docs/DX | read | linked intent | docs diff review | docs read later | read after approval | read | no | no |
 
@@ -23,13 +23,23 @@ analyze and draft from approved read sources but may not receive an isolated
 implementation workspace or create repository changes until the Board resumes
 `OAI-011` and `OAI-042`.
 
-The portable local target in v0.1.26 defaults to credential-free reachability.
+The portable local target in v0.1.29 defaults to credential-free reachability.
 No role receives an authenticated browser session, application credential, or
 synthetic write until every environment-contract gate passes. Production test
 access is denied; future production observability reads are a separate policy.
 Local inference is deliberately deferred to a deployed inference environment
 and is not required for offline package, policy, or observability-contract
 validation.
+
+QA has a separate source-execution contract for the three approved repositories.
+It permits only named static/unit profiles at a full commit SHA inside a fresh
+dedicated runner. The live runner is not connected yet, so the desired grant is
+currently denied rather than silently falling back to the Paperclip container
+or a developer checkout. Repository credentials must disappear before tests
+execute; production credentials, customer data, arbitrary shell, Docker socket,
+push, PR creation, deployment and Terraform plan/apply/destroy/state remain
+denied. This capability produces test evidence only and never grants Senior
+Engineering an implementation workspace.
 
 Observability access is desired state, not a live grant. Reliability receives
 bounded aggregate analytics first; one exact trace is ask-first. Raw events,

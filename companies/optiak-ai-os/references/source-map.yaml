@@ -1,5 +1,5 @@
 schema: optiak-source-map/v1
-reviewedAt: "2026-09-19"
+reviewedAt: "2026-09-20"
 policy:
   liveDocsRemainCanonical: true
   wholeSiteSnapshotsAllowed: false
@@ -8,6 +8,9 @@ policy:
   productAdvisoryQualityRef: skills/optiak-product-triage/references/product-advisory-contract.json
   repositoryAuthorityRef: skills/optiak-pr-review/references/repository-authority.yaml
   testEnvironmentAuthorityRef: skills/optiak-e2e-validation/references/test-environment-contract.json
+  qaSourceExecutionAuthorityRef: skills/optiak-e2e-validation/references/qa-source-execution-contract.json
+  engineeringEngagementAuthorityRef: skills/optiak-change-control/references/engineering-engagement-contract.json
+  agentRoleReviewMatrixRef: references/agent-role-review-matrix.json
   observabilityAuthorityRef: skills/optiak-incident-triage/references/observability-source-contract.json
   promotionAuthorityRef: skills/optiak-release-readiness/references/ai-os-promotion-contract.json
   architectureAuthorityRef: skills/optiak-architecture-review/references/architecture-authority-map.json

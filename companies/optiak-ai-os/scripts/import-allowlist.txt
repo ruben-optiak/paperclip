@@ -19,6 +19,7 @@ scripts/evaluate-execution-workspace.mjs
 scripts/evaluate-promotion-readiness.mjs
 scripts/evaluate-prd-readiness.mjs
 scripts/evaluate-postmortem.mjs
+scripts/run-agent-role-review.mjs
 scripts/import-allowlist.txt
 scripts/local-instance.sh
 scripts/linear-preflight.mjs

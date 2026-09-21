@@ -53,7 +53,7 @@ To stop Optiak without touching Enki:
 ## Import
 
 1. Import preview the exact ZIP.
-2. Verify ten agents, fifteen skills, six projects, twenty-one tasks, and four disabled routines.
+2. Verify ten agents, sixteen skills, six projects, twenty-one tasks, and four disabled routines.
 3. Confirm one root (`director-optiak`) and the expected reporting tree.
 4. Apply with agents and routines paused.
 5. Configure no connection during the import itself.
@@ -136,7 +136,14 @@ catalog reads exactly `3 Allowed / 0 Ask first / 42 Off`. Keep all agents paused
 until a dedicated restricted identity or enforcing proxy and an exact approved
 root registry pass the content smoke.
 
-`0.1.26` keeps the mandatory read-only parity check after preview/apply and before
+`0.1.28` updates all ten agent instruction contracts and the shared
+`optiak-change-control` engagement contract. On an existing company, preview
+replacement of the ten canonical agents and sixteen installed skills. Create no
+agent, company, project, issue, task or routine. The preview must show zero
+collisions resolved by rename. Keep every agent and routine paused; importing
+the review matrix does not run its ten cases or authorize activation.
+
+`0.1.28` keeps the mandatory read-only parity check after preview/apply and before
 any agent resume. Export the live agent list through the authenticated Board CLI
 and stream it to the checker; do not put an API key on the command line or save
 the raw snapshot in Git:
@@ -177,4 +184,14 @@ result blocks activation. If cleanup fails, revoke the key named
 
 The same release defines, but does not configure, isolated implementation
 workspaces. Follow `runbooks/execution-workspaces.md` when `OAI-042` is resumed.
-Importing `0.1.26` must not create a repository workspace, branch, sandbox environment or persistent credential.
+Importing `0.1.28` must not create a repository workspace, branch, sandbox environment or persistent credential. It also must not create or activate the dedicated QA runner: the package imports its contract and profiles only.
+
+`0.1.29` adds two operator-side tools without activating any agent or routine.
+`scripts/run-agent-role-review.mjs` is dry-run by default and enforces the
+unassigned→resume→assign→single-run→inspect→pause sequence when explicitly
+executed. `connectors/qa-source-runner/` is a separately built disposable Docker
+runner; importing the company does not build its image, start a container,
+stage a repository or run tests. Build and synthetic-smoke it only through
+`runbooks/qa-source-execution.md`. Preview replacement of the ten canonical
+agents and sixteen installed skills, with no company, project, issue, task,
+routine, connection, credential or environment creation.

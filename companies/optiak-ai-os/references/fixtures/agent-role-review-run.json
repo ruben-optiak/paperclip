@@ -1,0 +1,138 @@
+{
+  "schema": "optiak-agent-role-review-run-fixtures/v1",
+  "evidenceScope": "fixture_only",
+  "cases": [
+    {
+      "id": "single-run-pass",
+      "expectedVerdict": "pass",
+      "evidence": {
+        "schema": "optiak-agent-role-review-run-evidence/v1",
+        "evidenceScope": "fixture_only",
+        "agent": "documentation-dx-steward",
+        "agentStatusBefore": "paused",
+        "issueAssigneeAtCreation": null,
+        "events": [
+          "issue_created_unassigned",
+          "agent_resumed",
+          "issue_assigned",
+          "assignment_run_started",
+          "canonical_report_and_disposition_persisted",
+          "assignment_run_finished",
+          "result_inspected",
+          "agent_paused"
+        ],
+        "runs": [
+          {"id": "run-pass", "invocationSource": "assignment", "status": "succeeded", "retryOfRunId": null}
+        ],
+        "comments": [
+          {"body": "ROLE_REVIEW_FINAL", "createdByRunId": "run-pass", "authorAgentMatches": true, "externalWritesDeclared": 0}
+        ],
+        "issueStatus": "done",
+        "activeRunCount": 0,
+        "recoveryRunCount": 0,
+        "externalWrites": 0,
+        "agentStatusAfter": "paused"
+      }
+    },
+    {
+      "id": "assigned-while-paused",
+      "expectedVerdict": "fail",
+      "expectedViolation": "required_sequence_mismatch",
+      "evidence": {
+        "schema": "optiak-agent-role-review-run-evidence/v1",
+        "evidenceScope": "fixture_only",
+        "agent": "director-optiak",
+        "agentStatusBefore": "paused",
+        "issueAssigneeAtCreation": "director-optiak",
+        "events": [
+          "issue_created_unassigned",
+          "issue_assigned",
+          "agent_resumed",
+          "assignment_run_started",
+          "canonical_report_and_disposition_persisted",
+          "assignment_run_finished",
+          "result_inspected",
+          "agent_paused"
+        ],
+        "runs": [
+          {"id": "run-order", "invocationSource": "assignment", "status": "succeeded", "retryOfRunId": null}
+        ],
+        "comments": [
+          {"body": "ROLE_REVIEW_FINAL", "createdByRunId": "run-order", "authorAgentMatches": true, "externalWritesDeclared": 0}
+        ],
+        "issueStatus": "done",
+        "activeRunCount": 0,
+        "recoveryRunCount": 0,
+        "externalWrites": 0,
+        "agentStatusAfter": "paused"
+      }
+    },
+    {
+      "id": "report-without-disposition",
+      "expectedVerdict": "fail",
+      "expectedViolation": "final_disposition_missing",
+      "evidence": {
+        "schema": "optiak-agent-role-review-run-evidence/v1",
+        "evidenceScope": "fixture_only",
+        "agent": "documentation-dx-steward",
+        "agentStatusBefore": "paused",
+        "issueAssigneeAtCreation": null,
+        "events": [
+          "issue_created_unassigned",
+          "agent_resumed",
+          "issue_assigned",
+          "assignment_run_started",
+          "canonical_report_and_disposition_persisted",
+          "assignment_run_finished",
+          "result_inspected",
+          "agent_paused"
+        ],
+        "runs": [
+          {"id": "run-open", "invocationSource": "assignment", "status": "succeeded", "retryOfRunId": null}
+        ],
+        "comments": [
+          {"body": "ROLE_REVIEW_FINAL", "createdByRunId": "run-open", "authorAgentMatches": true, "externalWritesDeclared": 0}
+        ],
+        "issueStatus": "in_progress",
+        "activeRunCount": 0,
+        "recoveryRunCount": 0,
+        "externalWrites": 0,
+        "agentStatusAfter": "paused"
+      }
+    },
+    {
+      "id": "recovery-run-is-failure",
+      "expectedVerdict": "fail",
+      "expectedViolation": "exactly_one_run_required",
+      "evidence": {
+        "schema": "optiak-agent-role-review-run-evidence/v1",
+        "evidenceScope": "fixture_only",
+        "agent": "director-optiak",
+        "agentStatusBefore": "paused",
+        "issueAssigneeAtCreation": null,
+        "events": [
+          "issue_created_unassigned",
+          "agent_resumed",
+          "issue_assigned",
+          "assignment_run_started",
+          "canonical_report_and_disposition_persisted",
+          "assignment_run_finished",
+          "result_inspected",
+          "agent_paused"
+        ],
+        "runs": [
+          {"id": "run-first", "invocationSource": "assignment", "status": "failed", "retryOfRunId": null},
+          {"id": "run-recovery", "invocationSource": "recovery", "status": "succeeded", "retryOfRunId": "run-first"}
+        ],
+        "comments": [
+          {"body": "ROLE_REVIEW_FINAL", "createdByRunId": "run-recovery", "authorAgentMatches": true, "externalWritesDeclared": 0}
+        ],
+        "issueStatus": "done",
+        "activeRunCount": 0,
+        "recoveryRunCount": 1,
+        "externalWrites": 0,
+        "agentStatusAfter": "paused"
+      }
+    }
+  ]
+}

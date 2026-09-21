@@ -1,0 +1,169 @@
+{
+  "schema": "optiak-engineering-engagement-contract/v1",
+  "version": "1.1.0",
+  "status": "offline_defined_advisory_routing",
+  "humanConflictOwner": "board",
+  "objective": "Use the smallest independent set of agents that produces new evidence, with one lead, one bounded question and one canonical report per decision.",
+  "globalRules": {
+    "exactlyOneLead": true,
+    "maximumConsultedAgents": 2,
+    "oneCanonicalReport": true,
+    "contributorsReturnDeltaOnly": true,
+    "consultationRequiresDistinctQuestionAndDelta": true,
+    "reuseFreshAcceptedEvidence": true,
+    "blanketFanoutAllowed": false,
+    "parallelFullReportsAllowed": false,
+    "fullReanalysisRequiresNewEvidenceOrExplicitChallenge": true,
+    "successfulSpecialistReviewAuthorizesRelease": false
+  },
+  "roles": {
+    "director-optiak": {
+      "question": "Who owns this decision and what is the smallest evidence path to the next gate?",
+      "owns": ["cross_domain_intake", "portfolio_coordination", "priority_conflict", "board_escalation"],
+      "doesNotOwn": ["product_specification", "architecture_decision", "technical_diagnosis", "test_execution", "specialist_review", "release_gate"],
+      "stopWhen": "One lead, one bounded question, one output and the next decision owner are explicit."
+    },
+    "product-prd-lead": {
+      "question": "What user or business outcome should Optiak pursue, and what must be true for it to be accepted?",
+      "owns": ["product_intent", "roadmap_recommendation", "prd", "acceptance_criteria", "product_decision"],
+      "doesNotOwn": ["visual_compliance", "runtime_behavior_proof", "architecture_approval", "implementation", "release_gate"],
+      "stopWhen": "Intent, non-goals, evidence, measurable acceptance criteria and unresolved Board decisions are explicit."
+    },
+    "brand-ui-quality-reviewer": {
+      "question": "Does the exact UI conform to the approved experience, brand, accessibility and design-system rules?",
+      "owns": ["ui_quality", "brand_consistency", "accessibility_review", "design_system_conformance", "visual_evidence"],
+      "doesNotOwn": ["product_priority", "functional_regression", "code_review", "documentation_accuracy", "release_gate"],
+      "stopWhen": "Every finding is tied to an approved rule or labelled heuristic with exact location and viewport."
+    },
+    "documentation-dx-steward": {
+      "question": "Is the public claim or developer journey accurate, current, navigable and verifiable against its authority?",
+      "owns": ["documentation_drift", "developer_experience", "example_accuracy", "handbook_custody", "documentation_structure"],
+      "doesNotOwn": ["product_priority", "runtime_behavior_proof", "api_implementation", "code_review", "release_gate"],
+      "stopWhen": "Each claim is verified against its authority or blocked on a named missing source and owner."
+    },
+    "principal-platform-architect": {
+      "question": "What structural decision should Optiak make?",
+      "owns": ["architecture_decision", "system_boundary", "trust_boundary", "migration_shape", "cross_service_tradeoff"],
+      "doesNotOwn": ["bug_reproduction", "test_execution", "incident_command", "implementation", "release_gate"],
+      "stopWhen": "No structural decision, cross-boundary tradeoff, migration, or trust-boundary question remains."
+    },
+    "senior-platform-engineer": {
+      "question": "Why does the implementation fail and what is the smallest technical change?",
+      "owns": ["technical_diagnosis", "reproduction_support", "implementation_plan", "approved_implementation"],
+      "doesNotOwn": ["product_priority", "architecture_approval", "incident_command", "independent_review", "release_gate"],
+      "stopWhen": "The request is only strategic, architectural, operational, or evidentiary and needs no implementation diagnosis."
+    },
+    "independent-code-reviewer": {
+      "question": "Is this exact immutable change correct, safe, compatible, maintainable and adequately tested?",
+      "owns": ["immutable_change_review", "security_review", "compatibility_review", "test_quality_review", "review_verdict"],
+      "doesNotOwn": ["implementation", "architecture_decision", "test_execution", "incident_command", "merge_or_release_decision"],
+      "stopWhen": "The exact revision has a verdict with file- or contract-specific evidence, or immutable evidence is unavailable."
+    },
+    "reliability-incident-engineer": {
+      "question": "What is happening in a running environment, what is the impact, and how do we contain recurrence?",
+      "owns": ["incident_command", "runtime_signal", "slo_risk", "capacity_risk", "postmortem"],
+      "doesNotOwn": ["generic_bug_triage", "feature_testing", "architecture_approval", "code_change", "release_gate"],
+      "stopWhen": "There is no fresh runtime signal, user impact, SLO/capacity risk, or incident-learning question."
+    },
+    "qa-e2e-validation-engineer": {
+      "question": "Does the exact version behave as expected under reproducible scenarios?",
+      "owns": ["test_execution", "behavior_reproduction", "golden_journey", "negative_path", "regression_evidence"],
+      "doesNotOwn": ["root_cause_claim", "architecture_decision", "incident_command", "implementation", "release_gate"],
+      "stopWhen": "No executable target and acceptance criterion exist, or the remaining question is root cause rather than observed behavior."
+    },
+    "engineering-assurance-lead": {
+      "question": "Is the combined independent evidence sufficient to advance?",
+      "owns": ["evidence_orchestration", "risk_disposition", "release_readiness", "exception_visibility"],
+      "doesNotOwn": ["repeat_test_execution", "repeat_architecture_review", "repeat_code_review", "implementation", "human_release_decision"],
+      "stopWhen": "Required specialist evidence is missing; return the exact gap to its owner instead of reproducing the work."
+    }
+  },
+  "requestClasses": {
+    "cross_domain_coordination": {
+      "lead": "director-optiak",
+      "leadQuestion": "Which single owner and smallest evidence path should handle this cross-domain request?",
+      "entryEvidence": ["board_question_or_cross_domain_conflict"],
+      "optionalConsulted": ["product-prd-lead", "engineering-assurance-lead"],
+      "canonicalOutput": "prioritized_decision_brief",
+      "nextGate": "named_domain_owner_or_board_decision"
+    },
+    "product_intent_or_prd": {
+      "lead": "product-prd-lead",
+      "leadQuestion": "What outcome, non-goals and acceptance criteria should govern the change?",
+      "entryEvidence": ["strategy_customer_evidence_or_explicit_board_question"],
+      "optionalConsulted": ["brand-ui-quality-reviewer", "documentation-dx-steward", "principal-platform-architect", "qa-e2e-validation-engineer"],
+      "canonicalOutput": "product_decision_or_prd_review",
+      "nextGate": "architecture_if_structural_otherwise_approved_implementation_planning"
+    },
+    "ui_brand_quality": {
+      "lead": "brand-ui-quality-reviewer",
+      "leadQuestion": "What exact UI evidence conforms to or violates an approved experience rule?",
+      "entryEvidence": ["exact_surface_environment_viewport_and_rule_set"],
+      "optionalConsulted": ["product-prd-lead", "qa-e2e-validation-engineer", "documentation-dx-steward"],
+      "canonicalOutput": "annotated_ui_quality_report",
+      "nextGate": "product_disposition_or_functional_validation"
+    },
+    "documentation_dx_drift": {
+      "lead": "documentation-dx-steward",
+      "leadQuestion": "Which exact public claim or developer step differs from its authoritative source?",
+      "entryEvidence": ["exact_url_heading_retrieval_time_and_authority"],
+      "optionalConsulted": ["product-prd-lead", "senior-platform-engineer", "qa-e2e-validation-engineer"],
+      "canonicalOutput": "documentation_drift_report",
+      "nextGate": "product_or_engineering_owner_disposition"
+    },
+    "architecture_decision": {
+      "lead": "principal-platform-architect",
+      "leadQuestion": "Which structural option best preserves the required invariants and migration path?",
+      "entryEvidence": ["immutable_intent_and_structural_question"],
+      "optionalConsulted": ["senior-platform-engineer", "reliability-incident-engineer"],
+      "canonicalOutput": "architecture_decision_record",
+      "nextGate": "approved_implementation_planning"
+    },
+    "implementation_diagnosis": {
+      "lead": "senior-platform-engineer",
+      "leadQuestion": "What evidence discriminates the root cause and smallest coherent change surface?",
+      "entryEvidence": ["exact_revision_and_reproduction_or_diagnosis_question"],
+      "optionalConsulted": ["qa-e2e-validation-engineer", "principal-platform-architect"],
+      "canonicalOutput": "technical_diagnosis",
+      "nextGate": "approved_implementation_or_return_to_evidence_owner"
+    },
+    "immutable_change_review": {
+      "lead": "independent-code-reviewer",
+      "leadQuestion": "Does this exact change satisfy intent and engineering quality without introducing unacceptable risk?",
+      "entryEvidence": ["immutable_diff_or_pr_head_and_linked_intent"],
+      "optionalConsulted": ["principal-platform-architect", "qa-e2e-validation-engineer", "reliability-incident-engineer"],
+      "canonicalOutput": "independent_review_verdict",
+      "nextGate": "specialist_validation_or_assurance"
+    },
+    "product_behavior_validation": {
+      "lead": "qa-e2e-validation-engineer",
+      "leadQuestion": "Does the exact target satisfy the acceptance criteria across required positive and negative paths?",
+      "entryEvidence": ["exact_target_environment_persona_and_acceptance_criteria"],
+      "optionalConsulted": ["senior-platform-engineer"],
+      "canonicalOutput": "executable_test_report",
+      "nextGate": "technical_diagnosis_on_failure_or_assurance_on_pass"
+    },
+    "live_incident_or_slo_risk": {
+      "lead": "reliability-incident-engineer",
+      "leadQuestion": "What fresh runtime evidence defines impact, containment and recurrence risk?",
+      "entryEvidence": ["trusted_fresh_runtime_signal_or_assigned_tabletop"],
+      "optionalConsulted": ["senior-platform-engineer", "principal-platform-architect"],
+      "canonicalOutput": "incident_or_reliability_brief",
+      "nextGate": "safe_mitigation_decision_or_postmortem_review"
+    },
+    "release_readiness": {
+      "lead": "engineering-assurance-lead",
+      "leadQuestion": "Are the required independent artifacts complete, fresh and mutually consistent for this exact candidate?",
+      "entryEvidence": ["exact_candidate_and_required_specialist_artifact_index"],
+      "optionalConsulted": [],
+      "canonicalOutput": "evidence_index_and_risk_disposition",
+      "nextGate": "human_release_decision"
+    }
+  },
+  "handoff": {
+    "requiredFields": ["requestClass", "lead", "questionForNextOwner", "evidenceRefs", "factsEstablished", "unknowns", "explicitExclusions", "nextGate"],
+    "copyWholeUpstreamReport": false,
+    "repeatAcceptedEvidence": false,
+    "deltaOnlyForConsultedAgents": true
+  }
+}

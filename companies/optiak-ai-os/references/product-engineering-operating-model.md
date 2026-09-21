@@ -10,6 +10,8 @@ This document is the human-readable contract for Optiak Product & Engineering. I
 - One agent may cover several domains temporarily, but every temporary assignment and capability gap must remain visible.
 - No role may approve its own authored change. A successful review or test is evidence for a human decision, never merge, deployment, production-change, or spend authority.
 - Current-state claims require the exact authority named in `source-map.yaml`; a domain owner does not create evidence by title alone.
+- Every question has exactly one lead, at most two necessary consulted agents and one canonical report. Consulted agents return only new evidence or a role-specific delta.
+- Reuse fresh accepted evidence by reference. Do not ask each specialist to repeat discovery, summarize the same source set or produce parallel conclusions.
 
 ## Domain ownership
 
@@ -26,39 +28,54 @@ This document is the human-readable contract for Optiak Product & Engineering. I
 
 The six domains describe Product & Engineering only. Strategy, Finance, GRC, Marketing & Brand, Sales, and HR remain future company functions. Security engineering belongs in 4.5 for engineering delivery; company-wide legal, regulatory, risk, and compliance governance would be a separate GRC function when created.
 
-## Feature delivery pipeline
+## Conditional feature delivery pipeline
 
 ```text
-Discovery and evidence
-  -> Product decision
-  -> Immutable PRD and acceptance criteria
-  -> Architecture review
-  -> Domain implementation
-  -> Independent code/contract review
-  -> QA, E2E, UI and documentation validation
-  -> Release-readiness evidence
+Product intent and PRD, when required
+  -> Architecture review, when structural
+  -> Domain implementation, when approved
+  -> Independent change review, when code changed
+  -> Functional QA, when behavior changed
+  -> UI quality, when a UI surface changed
+  -> Documentation/DX, when a public claim changed
+  -> Reliability, when runtime or rollout risk changed
+  -> Release-readiness evidence, when advancement is requested
   -> Human release decision
-  -> Measurement and learning
+  -> Measurement and learning, when fresh outcome evidence exists
 ```
 
 Every handoff must name the exact revision or object, evidence scope, owner, unresolved decisions, and next gate. A downstream stage may return work to an earlier owner; it must not silently redefine product intent or waive a missing gate.
 
+The diagram describes possible gates, not a requirement to invoke every agent.
+Each gate has its own lead request class. Skip Product when intent and acceptance
+criteria are unchanged; skip Architecture when no structural decision exists;
+skip Senior Engineering when no implementation diagnosis/change exists; skip
+Review when no immutable change exists; engage QA, Brand/UI, Documentation/DX,
+or Reliability only for their distinct affected evidence; engage Engineering
+Assurance only when combined evidence must be judged for advancement. Record why
+a material gate is skipped.
+
+The detailed role and deduplication rules live in
+`skills/optiak-change-control/references/engineering-engagement-contract.json`.
+
 ### Minimum handoffs
 
-1. Product hands an immutable PRD revision and measurable acceptance criteria to Architecture.
-2. Architecture hands an explicit decision, invariants, risks, migration and rollback expectations to the implementation owner.
+1. Product hands an immutable intent/PRD revision and measurable acceptance criteria to the next required gate; Architecture is not mandatory when no structural question exists.
+2. Architecture hands an explicit decision, invariants, risks, migration and rollback expectations to the implementation owner when engaged.
 3. Implementation hands an immutable diff or PR revision plus focused verification to an independent reviewer.
-4. Independent review hands a verdict and unresolved findings to QA; approval does not merge.
-5. QA, Brand/UI, and Documentation provide evidence for the affected surfaces, including exclusions and blocked cases.
-6. Engineering Assurance assembles release-readiness evidence. Only the Board may authorize release or another governed action.
-7. Product and Engineering compare measured outcomes with the original decision and create follow-up work without rewriting history.
+4. Independent review hands one verdict and unresolved findings to the affected specialist gates; approval does not merge.
+5. QA, Brand/UI, Documentation/DX and Reliability each provide only their distinct affected evidence, including exclusions and blocked cases. They do not restate each other's reports.
+6. Engineering Assurance indexes those artifacts and identifies gaps without rerunning them. Only the Board may authorize release or another governed action.
+7. Product and Engineering compare fresh measured outcomes with the original decision and create follow-up work without rewriting history.
 
 ## Intake and routing
 
 - The Director classifies the request by desired decision, affected domain, evidence authority, urgency, environment, and risk.
+- The Director or Engineering Assurance selects one of the ten request classes, one lead question and one canonical output before assigning specialists. Each consultation must have a different narrower question and expected evidence delta. Blanket fanout is invalid.
 - Product & PRD Lead owns questions about why, for whom, priority, outcome, acceptance criteria, and public product intent.
 - Engineering Assurance Lead owns how work crosses technical domains, which gates apply, and whether evidence is sufficient for a Board decision.
-- The domain's responsible specialist performs the work; the accountable owner resolves cross-domain coordination.
+- The domain's responsible specialist performs the work; the accountable owner resolves cross-domain coordination without producing a parallel specialist report.
+- Engineering Assurance consumes Architecture, Review, QA and Reliability artifacts by reference. It identifies missing gates and risk; it does not rerun their work.
 - `fixtures/product-engineering-routing.json` is the regression set. A routing case is valid only when every named agent exists, one accountable owner is explicit, and authored technical changes have a different independent reviewer.
 
 ## When to create another agent

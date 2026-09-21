@@ -40,6 +40,10 @@ The organization works through six durable domains without creating one agent pe
 
 See `references/product-engineering-operating-model.md` for scope, decision rights, the feature-delivery pipeline, handoffs, and evidence-based hiring gates. `references/system-repository-register.yaml` keeps systems and approved repositories distinct from live connection proof. `references/engineering-handbook-index.md` assigns chapter custody without inventing handbook content that has not yet been connected.
 
+Use `references/agent-role-review-matrix.md` to review the ten roles together.
+It defines one controlled case and the same ten quality gates per agent while
+still running them one at a time and returning each agent to `paused`.
+
 ## Organization
 
 | Agent | Reports to | Primary responsibility |
@@ -57,11 +61,18 @@ See `references/product-engineering-operating-model.md` for scope, decision righ
 
 The Board may assign work directly to any specialist. Reporting lines define accountability and handoff ownership; they do not prevent collaboration.
 
+Engineering engagement is on-demand rather than an automatic all-agent
+pipeline. Each of the ten agents has one distinct lead request class. Every
+question has exactly one lead, at most two consulted specialists and one
+canonical output. Each consultation carries a different narrower question and
+expected evidence delta, and downstream gates reuse fresh accepted reports by
+reference.
+
 ## Operating workflows
 
 ### Feature and PRD
 
-`idea → product intent → architecture → implementation → independent review → QA/UI/docs → release evidence → Board decision`
+`idea → product intent/PRD when needed → conditional architecture/implementation/review → affected functional/UI/docs/reliability gates only → release evidence → Board decision`
 
 ### Pull request
 
@@ -77,7 +88,34 @@ The Board may assign work directly to any specialist. Reporting lines define acc
 
 “Always on” means event-driven alerts and bounded routines. Agents must not burn budget by polling unmanaged processes or claim on-call coverage when no signal source is connected.
 
-## Safety state in v0.1.26
+## Safety state in v0.1.29
+
+- All ten agents have one distinct lead request class, canonical output,
+  exclusions and stop condition. Every consultation must name a different
+  narrower question and evidence delta. The engagement evaluator rejects wrong
+  leads, duplicate consultations, duplicate evidence, blanket fanout, parallel
+  full reports and repeated accepted evidence.
+- Functional QA, Brand/UI, Documentation/DX and Reliability are separate
+  conditional gates. None acts as a generic second review, and Engineering
+  Assurance indexes their accepted artifacts instead of recreating them.
+- The controlled role-review harness is an exact fail-closed state machine:
+  create unassigned, resume one agent, assign, accept exactly one assignment
+  run, persist `ROLE_REVIEW_FINAL` and `done` in that run, inspect, then pause.
+  A recovery run is negative evidence and never repairs the same review.
+
+- Architecture owns structural decisions; Senior Engineering owns diagnosis and
+  approved implementation; Reliability owns fresh runtime/incident questions;
+  QA owns executable behavior evidence; Engineering Assurance owns the combined
+  risk gate. The shared engagement evaluator rejects wrong leads, blanket
+  fanout, duplicated reports and repeated accepted evidence.
+- QA source execution is defined for exact commits of `optiak/optiak`,
+  `optiak/optiak-frontend` and `optiak/iac-infra`. Profiles expose fixed argv
+  steps for backend static/unit, frontend static/unit and IaC static validation;
+  they do not expose arbitrary shell. The reference Docker runner is non-root,
+  read-only, no-network, receives a read-only tracked-file snapshot, writes only
+  to tmpfs, exposes no repository/production credential or Docker socket, and
+  is removed by its host controller. A synthetic boundary smoke does not prove
+  any real repository or authorize implementation.
 
 - A read-only post-import doctor compares all ten live agents with
   `.paperclip.yaml` and fails on adapter, model, arguments, managed-MCP,
@@ -222,7 +260,7 @@ npm ci --prefix companies/optiak-ai-os/connectors/linear-ticket-publisher --igno
 Build a deterministic import archive outside the package:
 
 ```sh
-./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.26.zip
+./companies/optiak-ai-os/scripts/build-import-zip.sh /tmp/optiak-ai-os-v0.1.29.zip
 ```
 
 ## Getting started
@@ -256,6 +294,7 @@ See `runbooks/local-setup.md`, `runbooks/test-environment.md`,
 `runbooks/execution-budgets.md`, `runbooks/connections.md`,
 `runbooks/linear-ticket-publishing.md`,
 `runbooks/product-advisory-review.md`,
+`runbooks/qa-source-execution.md`,
 `runbooks/observability-and-oncall.md`, `runbooks/security.md`,
 `runbooks/sandbox-migration.md`, and `runbooks/smoke-test.md` before import.
 

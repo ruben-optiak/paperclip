@@ -1,5 +1,5 @@
 schema: optiak-desired-state/v1
-version: 0.1.26
+version: 0.1.29
 instance:
   isolation: separate_from_enki
   database: separate
@@ -50,8 +50,20 @@ executionBoundary:
 operatingModel:
   state: offline_defined_no_runtime_authority
   contract: references/product-engineering-operating-model.json
+  engagementContract: skills/optiak-change-control/references/engineering-engagement-contract.json
+  engagementEvaluator: skills/optiak-change-control/scripts/evaluate-engineering-engagement.mjs
+  jointReviewMatrix: references/agent-role-review-matrix.json
   domainsExpected: 6
+  leadRequestClassesExpected: 10
+  distinctLeadAgentsExpected: 10
   oneAgentPerDomainRequired: false
+  exactlyOneLeadPerQuestion: true
+  maximumConsultedAgents: 2
+  oneCanonicalReportPerDecision: true
+  contributorsReturnDeltaOnly: true
+  consultationRequiresDistinctQuestionAndDelta: true
+  parallelFullReports: deny
+  blanketFanout: deny
   orgChartChanged: false
   dataPlatformAiQuality:
     staffingStatus: temporary_coverage_explicit_gap
@@ -231,6 +243,21 @@ promotion:
   stageDecisionOwner: board
   evaluatorMayExecute: false
 qualityContracts:
+  qaSourceExecution:
+    state: dedicated_runner_synthetic_smoke_passed_real_repositories_pending
+    contract: skills/optiak-e2e-validation/references/qa-source-execution-contract.json
+    evaluator: skills/optiak-e2e-validation/scripts/evaluate-qa-source-execution.mjs
+    runner: connectors/qa-source-runner
+    image: optiak-qa-source-runner:0.1.29
+    executionAgent: qa-e2e-validation-engineer
+    repositoriesExpected: 3
+    arbitraryShell: deny
+    sharedControlPlaneExecution: deny
+    repositoryAndProductionCredentialsInRunner: deny
+    dockerSocket: deny
+    repositoryWrites: deny
+    implementationAuthority: deny
+    releaseAuthority: deny
   executionWorkspaces:
     state: live_lifecycle_proved_execution_boundary_blocked
     contract: references/execution-workspace-contract.json
@@ -280,6 +307,7 @@ qualityContracts:
     state: offline_defined_no_runtime_authority
     contract: references/product-engineering-operating-model.json
     routingFixture: references/fixtures/product-engineering-routing.json
+    engagementContract: skills/optiak-change-control/references/engineering-engagement-contract.json
     systemRepositoryRegister: references/system-repository-register.yaml
     handbookIndex: references/engineering-handbook-index.md
   architectureAuthority:

@@ -1,0 +1,9 @@
+**/.git
+**/.env
+**/.runtime-secrets
+**/node_modules
+**/.venv
+**/dist
+**/source-snapshots
+**/*.zip
+**/*.zip.sha256

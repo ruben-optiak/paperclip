@@ -98,6 +98,10 @@ const requiredFiles = [
   "references/quality-model.md",
   "references/product-engineering-operating-model.md",
   "references/product-engineering-operating-model.json",
+  "references/agent-role-review-matrix.md",
+  "references/agent-role-review-matrix.json",
+  "references/agent-role-review-runner-contract.json",
+  "references/fixtures/agent-role-review-run.json",
   "references/system-repository-register.yaml",
   "references/engineering-handbook-index.md",
   "references/execution-workspace-contract.json",
@@ -112,6 +116,7 @@ const requiredFiles = [
   "runbooks/connections.md",
   "runbooks/execution-budgets.md",
   "runbooks/execution-workspaces.md",
+  "runbooks/qa-source-execution.md",
   "runbooks/sandbox-migration.md",
   "runbooks/security.md",
   "runbooks/smoke-test.md",
@@ -125,7 +130,12 @@ const requiredFiles = [
   "scripts/evaluate-promotion-readiness.mjs",
   "scripts/evaluate-prd-readiness.mjs",
   "scripts/evaluate-postmortem.mjs",
+  "scripts/run-agent-role-review.mjs",
   "skills/optiak-product-triage/scripts/evaluate-product-advisory.mjs",
+  "skills/optiak-change-control/references/engineering-engagement-contract.json",
+  "skills/optiak-change-control/scripts/evaluate-engineering-engagement.mjs",
+  "skills/optiak-e2e-validation/references/qa-source-execution-contract.json",
+  "skills/optiak-e2e-validation/scripts/evaluate-qa-source-execution.mjs",
   "scripts/import-allowlist.txt",
   "scripts/local-instance.sh",
   "scripts/probe-test-environment.mjs",
@@ -150,6 +160,14 @@ const requiredFiles = [
   "connectors/linear-ticket-publisher/Dockerfile",
   "connectors/linear-ticket-publisher/migrations/001_init.sql",
   "connectors/linear-ticket-publisher/fixtures/valid-batch.json",
+  "connectors/qa-source-runner/README.md",
+  "connectors/qa-source-runner/Dockerfile",
+  "connectors/qa-source-runner/Dockerfile.dockerignore",
+  "connectors/qa-source-runner/package.json",
+  "connectors/qa-source-runner/src/controller.mjs",
+  "connectors/qa-source-runner/src/runner.mjs",
+  "connectors/qa-source-runner/src/stage-source.mjs",
+  "connectors/qa-source-runner/test/runner.test.mjs",
   "runtime/docker-compose.linear-ticket-publisher.yml",
   "scripts/probe-linear-privacy-core.mjs",
   "skills/optiak-durable-completion/references/contracts/result-envelope-v1.schema.json",
@@ -189,7 +207,7 @@ for (const path of allFiles.filter((candidate) => candidate.endsWith(".json"))) 
 const company = frontmatter(join(packageDir, "COMPANY.md"));
 if (company.schema !== "agentcompanies/v1") fail("COMPANY.md must declare agentcompanies/v1");
 if (company.slug !== "optiak-ai-os") fail("Unexpected company slug");
-if (company.version !== "0.1.26") fail("Unexpected company version");
+if (company.version !== "0.1.29") fail("Unexpected company version");
 if (company.license !== "LicenseRef-Optiak-Internal") fail("Unexpected company license");
 
 const agentFiles = allFiles.filter((path) => path.endsWith(`${sep}AGENTS.md`) && path.includes(`${sep}agents${sep}`));
@@ -356,6 +374,17 @@ for (const marker of [
   "reviewMaximumUncachedInputTokens: 40000",
   "overReviewMaximum: efficiency_regression",
   "automaticRetryAllowed: false",
+  "maximumLeadAgents: 1",
+  "maximumConsultedAgents: 2",
+  "maximumCanonicalReports: 1",
+  "maximumParallelFullReports: 0",
+  "consultedMode: delta_only",
+  "distinctQuestionAndExpectedDeltaRequired: true",
+  "duplicateEvidenceReferencesAllowed: false",
+  "automaticFanout: false",
+  "maximumJobSeconds: 1200",
+  "maximumArtifactBytes: 2097152",
+  "liveRunnerConnected: false",
 ]) {
   if (!executionBudget.includes(marker)) fail(`Execution-budget marker missing: ${marker}`);
 }
@@ -442,6 +471,15 @@ for (const marker of ["defaultDecision: quarantine", "productionMutation: deny",
   if (!allowlist.includes(marker)) fail(`Tool policy marker missing: ${marker}`);
 }
 for (const marker of [
+  "capability: qa_source_checkout_and_execute_profile",
+  "decision: deny_until_dedicated_runner_smoke",
+  "named_versioned_profile_no_arbitrary_shell",
+  "repository_credential_absent_from_test_process",
+  "capability: qa_repository_push_pr_deploy_or_infrastructure_mutation",
+]) {
+  if (!allowlist.includes(marker)) fail(`QA source-execution allowlist marker missing: ${marker}`);
+}
+for (const marker of [
   "capability: product_backlog_issue_create_exact",
   "decision: ask_first_after_separate_connector_smoke",
   "exact_tool_optiak_linear_create_issue_batch",
@@ -473,6 +511,8 @@ for (const marker of [
   "systemRepositoryRegisterRef: references/system-repository-register.yaml",
   "engineeringHandbookIndexRef: references/engineering-handbook-index.md",
   "notionKnowledgeAuthorityRef: skills/optiak-notion-knowledge/references/notion-authority.yaml",
+  "qaSourceExecutionAuthorityRef: skills/optiak-e2e-validation/references/qa-source-execution-contract.json",
+  "engineeringEngagementAuthorityRef: skills/optiak-change-control/references/engineering-engagement-contract.json",
 ]) {
   if (!sourceMap.includes(marker)) fail(`Source-map authority reference missing: ${marker}`);
 }
@@ -640,6 +680,138 @@ for (const marker of [
 ]) {
   if (!productAdvisoryRunbook.includes(marker)) fail(`Product-advisory runbook marker missing: ${marker}`);
 }
+const engagementContract = JSON.parse(readFileSync(
+  join(packageDir, "skills", "optiak-change-control", "references", "engineering-engagement-contract.json"),
+  "utf8",
+));
+if (engagementContract.schema !== "optiak-engineering-engagement-contract/v1"
+  || engagementContract.status !== "offline_defined_advisory_routing"
+  || engagementContract.globalRules?.exactlyOneLead !== true
+  || engagementContract.globalRules?.maximumConsultedAgents !== 2
+  || engagementContract.globalRules?.oneCanonicalReport !== true
+  || engagementContract.globalRules?.contributorsReturnDeltaOnly !== true
+  || engagementContract.globalRules?.consultationRequiresDistinctQuestionAndDelta !== true
+  || engagementContract.globalRules?.blanketFanoutAllowed !== false
+  || engagementContract.globalRules?.parallelFullReportsAllowed !== false
+  || Object.keys(engagementContract.roles ?? {}).length !== 10
+  || Object.keys(engagementContract.requestClasses ?? {}).length !== 10) {
+  fail("Engineering-engagement contract drift");
+}
+const expectedEngagementLeads = new Set([
+  "director-optiak",
+  "product-prd-lead",
+  "brand-ui-quality-reviewer",
+  "documentation-dx-steward",
+  "principal-platform-architect",
+  "senior-platform-engineer",
+  "independent-code-reviewer",
+  "reliability-incident-engineer",
+  "qa-e2e-validation-engineer",
+  "engineering-assurance-lead",
+]);
+if (JSON.stringify([...new Set(Object.keys(engagementContract.roles ?? {}))].sort())
+    !== JSON.stringify([...expectedEngagementLeads].sort())
+  || new Set(Object.values(engagementContract.requestClasses).map((item) => item.lead)).size !== 10
+  || [...Object.values(engagementContract.requestClasses)].some((item) => !expectedEngagementLeads.has(item.lead))) {
+  fail("Every current agent must have one distinct approved lead request class");
+}
+for (const [requestClass, definition] of Object.entries(engagementContract.requestClasses)) {
+  if (!definition.leadQuestion || !definition.canonicalOutput || !definition.nextGate
+    || !(definition.entryEvidence?.length > 0)
+    || definition.optionalConsulted?.includes(definition.lead)
+    || definition.optionalConsulted?.some((agent) => !expectedEngagementLeads.has(agent))) {
+    fail(`Incomplete or invalid engineering request class: ${requestClass}`);
+  }
+}
+const agentRoleReviewMatrix = JSON.parse(readFileSync(
+  join(packageDir, "references", "agent-role-review-matrix.json"),
+  "utf8",
+));
+if (agentRoleReviewMatrix.schema !== "optiak-agent-role-review-matrix/v1"
+  || agentRoleReviewMatrix.packageVersion !== company.version
+  || agentRoleReviewMatrix.status !== "controlled_runs_completed_runner_hardened_live_regression_passed"
+  || agentRoleReviewMatrix.evidenceScope !== "fixture_only"
+  || agentRoleReviewMatrix.runPolicy?.oneAgentAtATime !== true
+  || agentRoleReviewMatrix.runPolicy?.agentStartsAndEndsPaused !== true
+  || agentRoleReviewMatrix.runPolicy?.issueCreatedUnassigned !== true
+  || agentRoleReviewMatrix.runPolicy?.agentResumedBeforeAssignment !== true
+  || agentRoleReviewMatrix.runPolicy?.exactlyOneAssignmentRun !== true
+  || agentRoleReviewMatrix.runPolicy?.canonicalReportAndDispositionSameRun !== true
+  || agentRoleReviewMatrix.runPolicy?.automaticRecoveryRuns !== 0
+  || agentRoleReviewMatrix.runPolicy?.terminalActiveRuns !== 0
+  || agentRoleReviewMatrix.runPolicy?.externalWrites !== 0
+  || agentRoleReviewMatrix.runPolicy?.successfulReviewAuthorizesActivation !== false
+  || agentRoleReviewMatrix.reviewGates?.length !== 10
+  || agentRoleReviewMatrix.cases?.length !== 10) {
+  fail("Ten-agent role-review matrix drift");
+}
+const reviewedRoleAgents = new Set();
+for (const reviewCase of agentRoleReviewMatrix.cases ?? []) {
+  const requestClass = engagementContract.requestClasses?.[reviewCase.requestClass];
+  if (!agents.has(reviewCase.agent)
+    || reviewedRoleAgents.has(reviewCase.agent)
+    || requestClass?.lead !== reviewCase.agent
+    || requestClass?.canonicalOutput !== reviewCase.canonicalOutput
+    || !(reviewCase.mustNotDo?.length > 0)
+    || !reviewCase.expectedHandoff) {
+    fail(`Invalid role-review case for ${reviewCase.agent ?? "unknown"}`);
+  }
+  reviewedRoleAgents.add(reviewCase.agent);
+}
+if (reviewedRoleAgents.size !== agents.size) fail("Role-review matrix must cover every canonical agent once");
+const roleReviewRunnerContract = JSON.parse(readFileSync(
+  join(packageDir, "references", "agent-role-review-runner-contract.json"),
+  "utf8",
+));
+if (roleReviewRunnerContract.schema !== "optiak-agent-role-review-runner-contract/v1"
+  || roleReviewRunnerContract.packageVersion !== company.version
+  || roleReviewRunnerContract.status !== "live_regression_passed"
+  || JSON.stringify(roleReviewRunnerContract.sequence) !== JSON.stringify([
+    "issue_created_unassigned",
+    "agent_resumed",
+    "issue_assigned",
+    "assignment_run_started",
+    "canonical_report_and_disposition_persisted",
+    "assignment_run_finished",
+    "result_inspected",
+    "agent_paused",
+  ])
+  || roleReviewRunnerContract.run?.exactRunCount !== 1
+  || roleReviewRunnerContract.run?.recoveryRunsAllowed !== false
+  || roleReviewRunnerContract.run?.reportAndDispositionMustShareRun !== true
+  || roleReviewRunnerContract.postconditions?.activeRunsForIssue !== 0
+  || roleReviewRunnerContract.postconditions?.agentStatus !== "paused") {
+  fail("Controlled role-review runner contract drift");
+}
+const qaExecutionContract = JSON.parse(readFileSync(
+  join(packageDir, "skills", "optiak-e2e-validation", "references", "qa-source-execution-contract.json"),
+  "utf8",
+));
+if (qaExecutionContract.schema !== "optiak-qa-source-execution-contract/v1"
+  || qaExecutionContract.status !== "dedicated_runner_synthetic_smoke_passed_real_repositories_pending"
+  || qaExecutionContract.executionAgent !== "qa-e2e-validation-engineer"
+  || qaExecutionContract.checkout?.allowedRepositories?.length !== 3
+  || qaExecutionContract.checkout?.repositoryCredentialAvailableToTestProcess !== false
+  || qaExecutionContract.runtime?.sharedPaperclipControlPlaneAllowed !== false
+  || qaExecutionContract.runtime?.dockerSocketAllowed !== false
+  || qaExecutionContract.runtime?.productionCredentialsAllowed !== false
+  || qaExecutionContract.runtime?.sourceChangesMayPersist !== false
+  || qaExecutionContract.runtime?.implementation !== "connectors/qa-source-runner"
+  || qaExecutionContract.runtime?.rootFilesystem !== "read_only"
+  || qaExecutionContract.runtime?.sourceMount !== "read_only"
+  || qaExecutionContract.runtime?.workspaceMount !== "ephemeral_tmpfs"
+  || qaExecutionContract.runtime?.arbitraryCommandInputAllowed !== false
+  || qaExecutionContract.syntheticBoundarySmoke?.status !== "pass"
+  || qaExecutionContract.syntheticBoundarySmoke?.proved?.length !== 7
+  || qaExecutionContract.syntheticBoundarySmoke?.didNotProve?.length !== 4
+  || Object.keys(qaExecutionContract.profiles ?? {}).length !== 3
+  || qaExecutionContract.stages?.production !== "denied") {
+  fail("QA source-execution contract drift");
+}
+const iacQaProfile = qaExecutionContract.profiles.iac_static_validate;
+for (const forbidden of ["plan", "apply", "destroy", "refresh", "state", "output", "console"]) {
+  if (!iacQaProfile?.forbiddenSteps?.includes(forbidden)) fail(`QA IaC profile must forbid ${forbidden}`);
+}
 const repositoryAuthority = readFileSync(
   join(packageDir, "skills", "optiak-pr-review", "references", "repository-authority.yaml"),
   "utf8",
@@ -746,7 +918,7 @@ for (const marker of [
 }
 const desiredState = readFileSync(join(packageDir, "policies", "desired-state.yaml"), "utf8");
 for (const marker of [
-  "version: 0.1.26",
+  "version: 0.1.29",
   "connectionMethod: generic_mcp_custom_headers",
   "quarantineNewEntries: true",
   "missingOwnerAndRepoDuringDiscovery: require_approval",
@@ -772,6 +944,21 @@ for (const marker of [
   "linearWrites: deny",
   "codeChangesByAgents: deny",
   "automaticRetryAfterQualityFailure: deny",
+  "engagementEvaluator: skills/optiak-change-control/scripts/evaluate-engineering-engagement.mjs",
+  "jointReviewMatrix: references/agent-role-review-matrix.json",
+  "leadRequestClassesExpected: 10",
+  "distinctLeadAgentsExpected: 10",
+  "consultationRequiresDistinctQuestionAndDelta: true",
+  "parallelFullReports: deny",
+  "state: dedicated_runner_synthetic_smoke_passed_real_repositories_pending",
+  "exactlyOneLeadPerQuestion: true",
+  "maximumConsultedAgents: 2",
+  "blanketFanout: deny",
+  "evaluator: skills/optiak-e2e-validation/scripts/evaluate-qa-source-execution.mjs",
+  "runner: connectors/qa-source-runner",
+  "image: optiak-qa-source-runner:0.1.29",
+  "sharedControlPlaneExecution: deny",
+  "arbitraryShell: deny",
 ]) {
   if (!desiredState.includes(marker)) fail(`GitHub desired-state marker missing: ${marker}`);
 }
@@ -1298,7 +1485,17 @@ if (operatingModel.principles?.oneAgentPerDomainRequired !== false
   || operatingModel.principles?.boardMayAssignSpecialistsDirectly !== true
   || operatingModel.principles?.authorMayApproveOwnChange !== false
   || operatingModel.principles?.domainOwnershipCreatesEvidenceAuthority !== false
-  || operatingModel.principles?.successfulGateAuthorizesRelease !== false) {
+  || operatingModel.principles?.successfulGateAuthorizesRelease !== false
+  || operatingModel.principles?.exactlyOneLeadPerQuestion !== true
+  || operatingModel.principles?.maximumConsultedAgents !== 2
+  || operatingModel.principles?.oneCanonicalReportPerDecision !== true
+  || operatingModel.principles?.contributorsReturnDeltaOnly !== true
+  || operatingModel.principles?.freshAcceptedEvidenceIsReused !== true
+  || operatingModel.principles?.consultationsHaveDistinctQuestions !== true
+  || operatingModel.principles?.allCurrentAgentsHaveDistinctLeadClasses !== true
+  || operatingModel.engagementModel?.defaultPattern !== "on_demand_single_lead"
+  || operatingModel.engagementModel?.blanketFanoutAllowed !== false
+  || operatingModel.engagementModel?.assuranceConsumesEvidenceByReference !== true) {
   fail("Product & Engineering operating-model principles drift");
 }
 const expectedDomainIds = ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6"];
@@ -1322,13 +1519,14 @@ if (dataQualityDomain?.staffingStatus !== "temporary_coverage_explicit_gap"
   fail("Data Platform & AI Quality must remain an explicit temporary-coverage staffing gap");
 }
 const expectedPipeline = [
-  "discovery",
-  "product_decision",
-  "prd",
+  "product_intent_and_prd",
   "architecture_review",
   "domain_implementation",
-  "independent_review",
-  "qa_ui_docs_validation",
+  "independent_change_review",
+  "functional_validation",
+  "ui_quality_review",
+  "documentation_dx_review",
+  "runtime_reliability_review",
   "release_readiness",
   "human_release_decision",
   "measurement_learning",
@@ -1342,7 +1540,7 @@ for (const stage of operatingModel.deliveryPipeline ?? []) {
     fail(`Unknown delivery-pipeline owner ${stage.owner} for ${stage.id}`);
   }
 }
-if (operatingModel.deliveryPipeline?.find((stage) => stage.id === "independent_review")?.owner
+if (operatingModel.deliveryPipeline?.find((stage) => stage.id === "independent_change_review")?.owner
     !== "independent-code-reviewer"
   || operatingModel.deliveryPipeline?.find((stage) => stage.id === "human_release_decision")?.owner
     !== "board") {
@@ -1375,6 +1573,10 @@ for (const fixtureCase of routingFixture.cases ?? []) {
   }
   if (fixtureCase.accountable !== domain.accountable) {
     fail(`Routing accountability drift for ${fixtureCase.id}`);
+  }
+  const requestClass = engagementContract.requestClasses?.[fixtureCase.requestClass];
+  if (!requestClass || requestClass.lead !== fixtureCase.lead) {
+    fail(`Routing request-class lead drift for ${fixtureCase.id}`);
   }
   for (const agentSlug of [
     fixtureCase.accountable,
@@ -1520,7 +1722,7 @@ if (workspaceContract.runtimeBoundaryPolicy?.required !== "dedicated_agent_execu
   fail("Execution-workspace runtime boundary or sanitized live finding drift");
 }
 const targetBoundary = compatibility.targetExecutionBoundary;
-if (compatibility.packageVersion !== "0.1.26"
+if (compatibility.packageVersion !== "0.1.29"
   || targetBoundary?.providerKind !== "sandbox_provider"
   || targetBoundary?.providerKey !== "daytona"
   || targetBoundary?.pluginPackage !== "@paperclipai/plugin-daytona"

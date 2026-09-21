@@ -13,11 +13,17 @@ node --check "$package_dir/scripts/evaluate-execution-workspace.mjs"
 node --check "$package_dir/scripts/evaluate-promotion-readiness.mjs"
 node --check "$package_dir/scripts/evaluate-prd-readiness.mjs"
 node --check "$package_dir/scripts/evaluate-postmortem.mjs"
+node --check "$package_dir/scripts/run-agent-role-review.mjs"
 node --check "$package_dir/skills/optiak-product-triage/scripts/evaluate-product-advisory.mjs"
+node --check "$package_dir/skills/optiak-change-control/scripts/evaluate-engineering-engagement.mjs"
+node --check "$package_dir/skills/optiak-e2e-validation/scripts/evaluate-qa-source-execution.mjs"
 node --check "$package_dir/scripts/probe-test-environment.mjs"
 node --check "$package_dir/scripts/linear-preflight.mjs"
 node --check "$package_dir/connectors/linear-privacy/projection.mjs"
 for file in "$package_dir"/connectors/linear-ticket-publisher/src/*.mjs; do
+  node --check "$file"
+done
+for file in "$package_dir"/connectors/qa-source-runner/src/*.mjs; do
   node --check "$file"
 done
 node --check "$package_dir/scripts/probe-linear-privacy-core.mjs"
@@ -30,6 +36,7 @@ node "$package_dir/scripts/probe-test-environment.mjs"
 "$package_dir/scripts/scan-secrets.sh"
 node --test "$package_dir"/tests/*.test.mjs
 (cd "$package_dir/connectors/linear-ticket-publisher" && npm test)
+(cd "$package_dir/connectors/qa-source-runner" && npm test)
 
 "$package_dir/scripts/build-import-zip.sh" "$build_dir/first.zip" >/dev/null
 "$package_dir/scripts/build-import-zip.sh" "$build_dir/second.zip" >/dev/null

@@ -10,6 +10,16 @@ Load `references/test-environment-contract.json` and
 is the safety boundary; the matrix is test scope, not evidence that any case
 passed.
 
+For source-backed static and unit validation, also load
+`references/qa-source-execution-contract.json`. Use only a dedicated ephemeral
+QA runner, one allowlisted repository at one full commit SHA, and one named
+profile. The runner receives no repository credential, production credential,
+customer data or Docker socket. It may write dependencies and test output only
+inside the disposable workspace. Never accept arbitrary shell commands, a
+shared developer checkout or the Paperclip control-plane container as the
+runner. Until the dedicated runner passes its live smoke, return
+`blocked_on_runtime_safety` rather than claim tests ran.
+
 Require target environment, immutable version, persona, permissions,
 viewport/client, fixture identity, mutation allowance, cleanup owner, and
 acceptance criteria. Re-probe the target immediately before every run. A saved
@@ -40,6 +50,12 @@ For each journey cover as applicable:
 
 Return one result per case: `pass`, `fail`, `blocked`, or `not_tested`. Evidence includes timestamp, exact steps, expected/observed, redacted artifacts, severity, reproducibility, cleanup result, and next owner.
 
+QA owns observed behavior and reproducibility, not root-cause or release
+authority. A failing source suite is valid evidence: hand the minimal failing
+case to Senior Platform Engineer without speculating about the fix. A passing
+suite is consumed by Engineering Assurance by reference; Assurance must not
+repeat the run.
+
 For a connected synthetic run:
 
 1. Inventory exact synthetic objects before the first mutation.
@@ -57,5 +73,7 @@ mutate or probe production. Prove production denial through policy and exact
 host checks only.
 
 See [example](examples/journey.md), `references/fixtures/journey.md`,
+`references/fixtures/source-execution.md`,
+`references/qa-source-execution-contract.json`,
 `references/test-environment-contract.json`, and
 `references/golden-journey-matrix.json`.

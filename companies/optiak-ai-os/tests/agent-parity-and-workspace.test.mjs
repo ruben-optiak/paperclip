@@ -174,7 +174,7 @@ test("execution workspace contract is isolated, branch-only and requires a dedic
 test("sandbox migration remains deferred with Daytona disabled and no implementation authority", () => {
   const compatibility = json("runtime/compatibility.lock.json");
   const boundary = compatibility.targetExecutionBoundary;
-  assert.equal(compatibility.packageVersion, "0.1.26");
+  assert.equal(compatibility.packageVersion, "0.1.29");
   assert.equal(boundary.providerKind, "sandbox_provider");
   assert.equal(boundary.providerKey, "daytona");
   assert.equal(boundary.pluginManifestVersion, "0.1.7");
