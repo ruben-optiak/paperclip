@@ -1,0 +1,48 @@
+{
+  "schema": "optiak-agent-live-parity-policy/v1",
+  "status": "versioned_read_only_post_import_gate",
+  "expectedSource": ".paperclip.yaml",
+  "agentIdentityField": "name",
+  "requireNoUnlistedAgents": true,
+  "comparedFields": [
+    "status",
+    "role",
+    "budgetMonthlyCents",
+    "adapterType",
+    "adapterConfig.engine",
+    "adapterConfig.model",
+    "adapterConfig.timeoutSec",
+    "adapterConfig.dangerouslyBypassApprovalsAndSandbox",
+    "adapterConfig.extraArgs",
+    "adapterConfig.instructionsBundleMode",
+    "runtimeConfig.managedMcpOnly",
+    "runtimeConfig.heartbeat.enabled",
+    "runtimeConfig.heartbeat.maxConcurrentRuns",
+    "runtimeConfig.heartbeat.maxDailyRuns",
+    "runtimeConfig.heartbeat.maxDailyCostCents",
+    "permissions.canCreateAgents"
+  ],
+  "ignoredLiveFields": [
+    "id",
+    "companyId",
+    "reportsTo",
+    "instructionsFilePath",
+    "instructionsRootPath",
+    "paperclipSkillSync",
+    "createdAt",
+    "updatedAt",
+    "pausedAt",
+    "lastHeartbeatAt",
+    "spentMonthlyCents",
+    "metadata"
+  ],
+  "failurePolicy": {
+    "mismatch": "fail",
+    "missingAgent": "fail",
+    "unlistedAgent": "fail",
+    "automaticRepair": false,
+    "automaticActivation": false,
+    "remediationOwner": "board"
+  },
+  "knownEffectiveAuthorityWarnings": []
+}

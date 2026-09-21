@@ -1,0 +1,13 @@
+services:
+  paperclip:
+    environment:
+      # Scopes auth cookies and instance files away from Enki's default instance.
+      PAPERCLIP_INSTANCE_ID: "${OPTIAK_PAPERCLIP_INSTANCE_ID:-optiak}"
+      # The container listens on 3100 while the host publishes 3200. Auto mode
+      # keeps Better Auth request-derived on localhost instead of rewriting the
+      # advertised loopback URL to the container's internal port.
+      PAPERCLIP_AUTH_BASE_URL_MODE: "auto"
+      BETTER_AUTH_TRUSTED_ORIGINS: "${PAPERCLIP_PUBLIC_URL:-http://localhost:3200}"
+      # Agents and the managed MCP execute inside this container. They must use
+      # the container listener, not the host-published port used by the browser.
+      PAPERCLIP_API_URL: "http://localhost:3100"

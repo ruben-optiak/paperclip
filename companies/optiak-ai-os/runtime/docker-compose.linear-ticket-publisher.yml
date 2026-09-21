@@ -1,0 +1,54 @@
+services:
+  linear-ticket-publisher:
+    build:
+      context: ../companies/optiak-ai-os/connectors/linear-ticket-publisher
+    restart: unless-stopped
+    init: true
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      LINEAR_TICKET_PUBLISHER_WRITE_MODE: "${OPTIAK_LINEAR_TICKET_PUBLISHER_WRITE_MODE:-disabled}"
+      LINEAR_TICKET_PUBLISHER_HOST: "0.0.0.0"
+      LINEAR_TICKET_PUBLISHER_PORT: "8788"
+      LINEAR_TICKET_PUBLISHER_JOURNAL_PATH: "/data/journal.sqlite"
+      LINEAR_TEAM_ID_FILE: "/run/secrets/linear_team_id"
+      LINEAR_OAUTH_CLIENT_ID_FILE: "/run/secrets/linear_oauth_client_id"
+      LINEAR_OAUTH_CLIENT_SECRET_FILE: "/run/secrets/linear_oauth_client_secret"
+      LINEAR_TICKET_PUBLISHER_MCP_TOKEN_FILE: "/run/secrets/linear_mcp_token"
+    expose:
+      - "8788"
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m
+    volumes:
+      - optiak_linear_ticket_publisher_data:/data
+    secrets:
+      - linear_team_id
+      - linear_oauth_client_id
+      - linear_oauth_client_secret
+      - linear_mcp_token
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:8788/health').then(r=>{if(!r.ok)process.exit(1)})
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  optiak_linear_ticket_publisher_data:
+
+secrets:
+  linear_team_id:
+    file: ../companies/optiak-ai-os/.runtime-secrets/linear-ticket-publisher/linear-team-id
+  linear_oauth_client_id:
+    file: ../companies/optiak-ai-os/.runtime-secrets/linear-ticket-publisher/oauth-client-id
+  linear_oauth_client_secret:
+    file: ../companies/optiak-ai-os/.runtime-secrets/linear-ticket-publisher/oauth-client-secret
+  linear_mcp_token:
+    file: ../companies/optiak-ai-os/.runtime-secrets/linear-ticket-publisher/mcp-token

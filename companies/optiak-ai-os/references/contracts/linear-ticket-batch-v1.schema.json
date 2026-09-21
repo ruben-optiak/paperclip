@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "optiak-linear-ticket-batch/v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "source", "tickets"],
+  "properties": {
+    "schema": { "const": "optiak-linear-ticket-batch/v1" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "revisionSha256"],
+      "properties": {
+        "ref": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "revisionSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+      }
+    },
+    "tickets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "title", "problem", "desiredOutcome", "acceptanceCriteria", "nonGoals", "dependencies", "evidenceRefs", "priority"],
+        "properties": {
+          "key": { "type": "string", "pattern": "^[a-z0-9](?:[a-z0-9-]{0,62}[a-z0-9])?$" },
+          "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+          "problem": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "desiredOutcome": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "acceptanceCriteria": { "type": "array", "minItems": 1, "maxItems": 10, "items": { "type": "string", "minLength": 1, "maxLength": 280 } },
+          "nonGoals": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "type": "string", "minLength": 1, "maxLength": 280 } },
+          "dependencies": { "type": "array", "maxItems": 8, "items": { "type": "string", "minLength": 1, "maxLength": 180 } },
+          "evidenceRefs": { "type": "array", "minItems": 1, "maxItems": 8, "items": { "type": "string", "minLength": 1, "maxLength": 220 } },
+          "priority": { "enum": ["no_priority", "urgent", "high", "normal", "low"] }
+        }
+      }
+    }
+  },
+  "x-optiak-invariants": {
+    "canonicalArgumentBytesMaximum": 3900,
+    "uniqueTicketKeys": true,
+    "uniqueTicketTitlesCaseInsensitive": true,
+    "personalDataAllowed": false,
+    "credentialMaterialAllowed": false,
+    "teamKey": "OPT"
+  }
+}

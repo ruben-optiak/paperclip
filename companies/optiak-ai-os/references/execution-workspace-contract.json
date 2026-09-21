@@ -1,0 +1,93 @@
+{
+  "schema": "optiak-execution-workspace-contract/v1",
+  "status": "live_lifecycle_proved_execution_boundary_blocked",
+  "humanConflictOwner": "board",
+  "implementationAgent": "senior-platform-engineer",
+  "reviewAgent": "independent-code-reviewer",
+  "globalPolicy": {
+    "defaultDecision": "deny",
+    "oneWorkspacePerIssue": true,
+    "paperclipOwnsLifecycle": true,
+    "sharedCheckoutAllowed": false,
+    "nestedWorktreeAllowed": false,
+    "branchSwitchAllowed": false,
+    "branchRenameAllowed": false,
+    "automaticMergeAllowed": false,
+    "automaticDeployAllowed": false,
+    "productionCredentialsAllowed": false,
+    "reviewerWriteAccessAllowed": false,
+    "sharedControlPlanePrivilegeRelaxationAllowed": false,
+    "successfulSmokeAuthorizesImplementation": false
+  },
+  "workspacePolicy": {
+    "enabled": true,
+    "defaultMode": "isolated_workspace",
+    "allowIssueOverride": false,
+    "strategy": {
+      "type": "git_worktree",
+      "baseRef": "origin/main",
+      "branchTemplate": "{{issue.identifier}}-{{slug}}"
+    },
+    "runtimeServicesInitiallyConfigured": false,
+    "additionalNetworkEgressInitiallyConfigured": false,
+    "cleanupPolicy": "paperclip_owned_after_terminal_delivery_evidence"
+  },
+  "runtimeBoundaryPolicy": {
+    "required": "dedicated_agent_execution_boundary",
+    "sharedControlPlaneAllowed": false,
+    "requiredSandboxBackend": "bubblewrap",
+    "gitMetadataAccess": "read_only",
+    "currentLiveStatus": "blocked_by_shared_control_plane_legacy_landlock",
+    "controlPlaneSecurityRelaxationAllowed": false
+  },
+  "sanitizedLiveFinding": {
+    "recordedAt": "2026-09-20",
+    "repository": "optiak/optiak-frontend",
+    "workspaceLifecycle": "pass",
+    "agentGitInspection": "blocked",
+    "workspaceCleanAtClose": true,
+    "commitsAheadAtClose": 0,
+    "workspaceArchivedByPaperclip": true,
+    "blocker": "legacy_read_only_sandbox_denies_worktree_git_metadata",
+    "diagnosticBoundaryProbe": "bubblewrap_read_pass_write_denied_no_artifact",
+    "diagnosticProbeAuthorizesLiveExecution": false
+  },
+  "repositories": [
+    {
+      "slug": "optiak/optiak",
+      "repoUrl": "https://github.com/optiak/optiak.git",
+      "baseRef": "origin/main",
+      "domains": ["4.2", "4.3", "4.4", "4.5"]
+    },
+    {
+      "slug": "optiak/optiak-frontend",
+      "repoUrl": "https://github.com/optiak/optiak-frontend.git",
+      "baseRef": "origin/main",
+      "domains": ["4.1", "4.2"]
+    },
+    {
+      "slug": "optiak/iac-infra",
+      "repoUrl": "https://github.com/optiak/iac-infra.git",
+      "baseRef": "origin/main",
+      "domains": ["4.5", "4.6"],
+      "authorityLimit": "source_declares_intent_not_applied_state"
+    }
+  ],
+  "requiredEvidence": [
+    "exact_registered_repository",
+    "exact_base_revision",
+    "paperclip_owned_execution_workspace",
+    "isolated_workspace_mode",
+    "git_worktree_strategy",
+    "issue_scoped_branch",
+    "clean_initial_worktree",
+    "no_shared_checkout",
+    "no_nested_worktree",
+    "no_merge_or_deploy",
+    "reviewer_access_remains_separate_and_read_only",
+    "dedicated_execution_boundary",
+    "bubblewrap_sandbox",
+    "agent_can_read_git_metadata",
+    "shared_control_plane_not_relaxed"
+  ]
+}

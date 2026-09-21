@@ -1,0 +1,12 @@
+{
+  "name": "@optiak/qa-source-runner",
+  "version": "0.1.29",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=24.14.1"
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "schema": "optiak-prd-readiness-contract/v1",
+  "contractVersion": "1.0.0",
+  "reviewedAt": "2026-09-03",
+  "status": "offline_defined_no_product_decision_implied",
+  "humanConflictOwner": "board",
+  "verdicts": ["ready_for_architecture", "changes_required", "blocked_on_evidence"],
+  "evidenceScopes": ["fixture_only", "versioned_internal", "connected_live"],
+  "globalPolicy": {
+    "exactPrdRevisionRequired": true,
+    "missingEvidence": "blocked_on_evidence",
+    "failedRequirement": "changes_required",
+    "publicDocsOrBacklogCreateProductIntent": false,
+    "readyVerdictAuthorizesImplementation": false,
+    "reviewerMayResolveBoardDecision": false,
+    "notApplicableRequiresEvidenceAndRationale": true
+  },
+  "evaluationOrder": [
+    "validate_exact_contract_and_complete_gate_set",
+    "blocked_on_any_missing_gate",
+    "changes_required_on_any_failed_gate",
+    "ready_for_architecture_only_when_every_gate_passes_or_has_allowed_evidenced_not_applicable"
+  ],
+  "gates": [
+    {
+      "id": "immutable_prd_revision",
+      "owner": "product-prd-lead",
+      "reviewer": "principal-platform-architect",
+      "notApplicableAllowed": false,
+      "evidence": ["exact_prd_revision", "canonical_location_or_artifact"]
+    },
+    {
+      "id": "problem_and_evidence",
+      "owner": "product-prd-lead",
+      "reviewer": "director-optiak",
+      "notApplicableAllowed": false,
+      "evidence": ["problem_statement", "bounded_source_refs", "assumptions_separated"]
+    },
+    {
+      "id": "persona_outcome_and_value",
+      "owner": "product-prd-lead",
+      "reviewer": "director-optiak",
+      "notApplicableAllowed": false,
+      "evidence": ["target_persona", "desired_outcome", "value_hypothesis"]
+    },
+    {
+      "id": "platform_boundary_and_non_goals",
+      "owner": "product-prd-lead",
+      "reviewer": "principal-platform-architect",
+      "notApplicableAllowed": false,
+      "evidence": ["platform_layer_fit", "explicit_non_goals", "application_layer_exclusions"]
+    },
+    {
+      "id": "functional_scope_and_acceptance",
+      "owner": "product-prd-lead",
+      "reviewer": "qa-e2e-validation-engineer",
+      "notApplicableAllowed": false,
+      "evidence": ["functional_behavior", "measurable_acceptance_criteria", "explicit_exclusions"]
+    },
+    {
+      "id": "roles_permissions_and_tenancy",
+      "owner": "principal-platform-architect",
+      "reviewer": "engineering-assurance-lead",
+      "notApplicableAllowed": false,
+      "evidence": ["actor_matrix", "tenant_boundary", "authorization_denials"]
+    },
+    {
+      "id": "lifecycle_errors_and_recovery",
+      "owner": "qa-e2e-validation-engineer",
+      "reviewer": "reliability-incident-engineer",
+      "notApplicableAllowed": false,
+      "evidence": ["lifecycle_states", "error_empty_loading_behavior", "recovery_and_idempotency"]
+    },
+    {
+      "id": "api_contract_and_compatibility",
+      "owner": "principal-platform-architect",
+      "reviewer": "qa-e2e-validation-engineer",
+      "notApplicableAllowed": true,
+      "evidence": ["affected_endpoints_or_explicit_no_api_impact", "compatibility_and_versioning"]
+    },
+    {
+      "id": "ui_states_brand_and_accessibility",
+      "owner": "brand-ui-quality-reviewer",
+      "reviewer": "qa-e2e-validation-engineer",
+      "notApplicableAllowed": true,
+      "evidence": ["affected_surfaces_or_explicit_no_ui_impact", "states_responsiveness_accessibility"]
+    },
+    {
+      "id": "documentation_and_support_impact",
+      "owner": "documentation-dx-steward",
+      "reviewer": "product-prd-lead",
+      "notApplicableAllowed": true,
+      "evidence": ["affected_docs_support_or_explicit_no_impact", "terminology_and_migration_message"]
+    },
+    {
+      "id": "security_privacy_and_abuse",
+      "owner": "engineering-assurance-lead",
+      "reviewer": "principal-platform-architect",
+      "notApplicableAllowed": false,
+      "evidence": ["trust_and_secret_boundaries", "privacy_data_classification", "abuse_and_audit_behavior"]
+    },
+    {
+      "id": "observability_and_operability",
+      "owner": "reliability-incident-engineer",
+      "reviewer": "engineering-assurance-lead",
+      "notApplicableAllowed": false,
+      "evidence": ["success_and_failure_signals", "support_diagnostics", "slo_or_explicit_measurement_gap"]
+    },
+    {
+      "id": "dependencies_migration_and_data_repair",
+      "owner": "principal-platform-architect",
+      "reviewer": "senior-platform-engineer",
+      "notApplicableAllowed": true,
+      "evidence": ["dependency_inventory", "migration_repair_or_evidenced_no_migration"]
+    },
+    {
+      "id": "rollout_rollback_and_release",
+      "owner": "engineering-assurance-lead",
+      "reviewer": "reliability-incident-engineer",
+      "notApplicableAllowed": false,
+      "evidence": ["rollout_sequence", "abort_signals", "rollback_owner_and_path"]
+    },
+    {
+      "id": "measurement_and_learning",
+      "owner": "product-prd-lead",
+      "reviewer": "reliability-incident-engineer",
+      "notApplicableAllowed": false,
+      "evidence": ["baseline", "target_metric", "evaluation_window", "decision_after_measurement"]
+    },
+    {
+      "id": "open_decisions_dependencies_and_owners",
+      "owner": "product-prd-lead",
+      "reviewer": "director-optiak",
+      "notApplicableAllowed": false,
+      "evidence": ["unresolved_decisions", "named_owner_per_decision", "dependency_and_due_state"]
+    }
+  ],
+  "handoff": {
+    "ready_for_architecture": "principal-platform-architect",
+    "changes_required": "product-prd-lead",
+    "blocked_on_evidence": "owner_of_first_missing_gate",
+    "implementationStart": "separate_approved_issue_only"
+  }
+}

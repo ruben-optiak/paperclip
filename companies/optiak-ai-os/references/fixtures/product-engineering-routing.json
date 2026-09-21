@@ -1,0 +1,121 @@
+{
+  "schema": "optiak-product-engineering-routing-fixture/v1",
+  "evidenceScope": "fixture_only",
+  "cases": [
+    {
+      "id": "roadmap-priority-with-customer-evidence",
+      "requestClass": "product_intent_or_prd",
+      "primaryDomain": "4.1",
+      "accountable": "product-prd-lead",
+      "lead": "product-prd-lead",
+      "reviewers": ["qa-e2e-validation-engineer"],
+      "nextGate": "immutable_prd_and_acceptance_criteria"
+    },
+    {
+      "id": "ui-inconsistency-against-approved-system",
+      "requestClass": "ui_brand_quality",
+      "primaryDomain": "4.1",
+      "accountable": "product-prd-lead",
+      "lead": "brand-ui-quality-reviewer",
+      "reviewers": ["qa-e2e-validation-engineer"],
+      "nextGate": "evidence_backed_product_disposition"
+    },
+    {
+      "id": "gateway-routing-contract-change",
+      "requestClass": "architecture_decision",
+      "primaryDomain": "4.2",
+      "accountable": "engineering-assurance-lead",
+      "lead": "principal-platform-architect",
+      "implementationAuthor": "senior-platform-engineer",
+      "reviewers": ["independent-code-reviewer", "qa-e2e-validation-engineer"],
+      "nextGate": "architecture_then_immutable_pr_review"
+    },
+    {
+      "id": "customer-observability-regression",
+      "requestClass": "implementation_diagnosis",
+      "primaryDomain": "4.2",
+      "accountable": "engineering-assurance-lead",
+      "lead": "senior-platform-engineer",
+      "implementationAuthor": "senior-platform-engineer",
+      "reviewers": ["independent-code-reviewer", "qa-e2e-validation-engineer"],
+      "nextGate": "reproduction_and_regression_evidence"
+    },
+    {
+      "id": "new-enterprise-connector",
+      "requestClass": "architecture_decision",
+      "primaryDomain": "4.3",
+      "accountable": "engineering-assurance-lead",
+      "lead": "principal-platform-architect",
+      "implementationAuthor": "senior-platform-engineer",
+      "reviewers": ["independent-code-reviewer", "qa-e2e-validation-engineer"],
+      "nextGate": "permission_lifecycle_and_failure_contract"
+    },
+    {
+      "id": "delegated-identity-permission-edge-case",
+      "requestClass": "product_behavior_validation",
+      "primaryDomain": "4.3",
+      "accountable": "engineering-assurance-lead",
+      "lead": "qa-e2e-validation-engineer",
+      "reviewers": ["principal-platform-architect", "independent-code-reviewer"],
+      "nextGate": "reproducible_cross_tenant_and_least_privilege_evidence"
+    },
+    {
+      "id": "evaluation-quality-regression",
+      "requestClass": "product_behavior_validation",
+      "primaryDomain": "4.4",
+      "accountable": "engineering-assurance-lead",
+      "lead": "qa-e2e-validation-engineer",
+      "reviewers": ["principal-platform-architect", "independent-code-reviewer"],
+      "staffingGap": true,
+      "nextGate": "versioned_eval_dataset_metric_and_threshold"
+    },
+    {
+      "id": "analytics-event-model-change",
+      "requestClass": "architecture_decision",
+      "primaryDomain": "4.4",
+      "accountable": "engineering-assurance-lead",
+      "lead": "principal-platform-architect",
+      "implementationAuthor": "senior-platform-engineer",
+      "reviewers": ["independent-code-reviewer", "qa-e2e-validation-engineer"],
+      "staffingGap": true,
+      "nextGate": "schema_compatibility_lineage_and_quality_evidence"
+    },
+    {
+      "id": "production-latency-capacity-risk",
+      "requestClass": "live_incident_or_slo_risk",
+      "primaryDomain": "4.5",
+      "accountable": "engineering-assurance-lead",
+      "lead": "reliability-incident-engineer",
+      "reviewers": ["principal-platform-architect", "qa-e2e-validation-engineer"],
+      "nextGate": "fresh_runtime_evidence_and_reversible_mitigation"
+    },
+    {
+      "id": "infrastructure-change-proposal",
+      "requestClass": "architecture_decision",
+      "primaryDomain": "4.5",
+      "accountable": "engineering-assurance-lead",
+      "lead": "principal-platform-architect",
+      "implementationAuthor": "senior-platform-engineer",
+      "reviewers": ["independent-code-reviewer", "reliability-incident-engineer"],
+      "nextGate": "board_approved_change_control_and_rollback"
+    },
+    {
+      "id": "testing-standard-change",
+      "requestClass": "documentation_dx_drift",
+      "primaryDomain": "4.6",
+      "accountable": "engineering-assurance-lead",
+      "lead": "documentation-dx-steward",
+      "reviewers": ["qa-e2e-validation-engineer", "independent-code-reviewer"],
+      "nextGate": "versioned_handbook_review"
+    },
+    {
+      "id": "release-process-change",
+      "requestClass": "documentation_dx_drift",
+      "primaryDomain": "4.6",
+      "accountable": "engineering-assurance-lead",
+      "lead": "documentation-dx-steward",
+      "reviewers": ["reliability-incident-engineer", "independent-code-reviewer"],
+      "nextGate": "versioned_handbook_and_board_authority_review"
+    }
+  ]
+}

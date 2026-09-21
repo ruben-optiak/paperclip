@@ -1,0 +1,265 @@
+{
+  "schema": "optiak-test-environment-contract/v1",
+  "contractVersion": "1.1.0",
+  "recordedAt": "2026-09-02T22:24:55Z",
+  "humanConflictOwner": "board",
+  "defaultDecision": "deny",
+  "evidenceSemantics": {
+    "fixture": "Portable synthetic evidence; never proof of current product behavior.",
+    "localDevelopment": "Ephemeral developer evidence tied to exact source revisions; never staging or release evidence.",
+    "staging": "Release-candidate evidence only after the exact target, tenant, personas, browser session, API credential, budget, and cleanup path are approved.",
+    "production": "Read and mutation testing are denied in this contract. Public documentation remains governed separately by the source map."
+  },
+  "targets": {
+    "fixture": {
+      "classification": "offline_fixture",
+      "authorizationState": "approved",
+      "externalEffects": false
+    },
+    "localDevelopment": {
+      "classification": "non_production_candidate",
+      "authorizationState": "read_only_reachability_observed_writes_denied",
+      "mustProbeBeforeEveryRun": true,
+      "maySupportReleaseClaim": false,
+      "sourceRevisions": [
+        {
+          "repository": "optiak/optiak",
+          "revision": "87ca4876cb89b4aa03e505079e80c921ffac9001",
+          "observedBranch": "feat/track-session-id"
+        },
+        {
+          "repository": "optiak/optiak-frontend",
+          "revision": "b44db112e4fe08c836e23d8d4362109660b968d8",
+          "observedBranch": "main"
+        }
+      ],
+      "endpoints": [
+        {
+          "id": "control-plane-ui",
+          "url": "http://localhost:3000",
+          "method": "GET",
+          "expectedHttpStatuses": [
+            200
+          ],
+          "readinessGate": "ui_reachability",
+          "observed": {
+            "result": "reachable",
+            "httpStatus": 200
+          }
+        },
+        {
+          "id": "public-docs-local",
+          "url": "http://localhost:3001",
+          "method": "GET",
+          "expectedHttpStatuses": [
+            200,
+            307
+          ],
+          "readinessGate": "optional_local_docs",
+          "observed": {
+            "result": "reachable_redirect",
+            "httpStatus": 307
+          }
+        },
+        {
+          "id": "admin-health",
+          "url": "http://localhost:8081/health",
+          "method": "GET",
+          "expectedHttpStatuses": [
+            200
+          ],
+          "readinessGate": "control_plane_api",
+          "observed": {
+            "result": "reachable",
+            "httpStatus": 200
+          }
+        },
+        {
+          "id": "gateway-health",
+          "url": "http://localhost:8080/health",
+          "method": "GET",
+          "expectedHttpStatuses": [
+            200
+          ],
+          "readinessGate": "inference_api",
+          "observed": {
+            "result": "reachable_after_local_config_repair",
+            "httpStatus": 200
+          }
+        },
+        {
+          "id": "mcp-health",
+          "url": "http://localhost:8082/health",
+          "method": "GET",
+          "expectedHttpStatuses": [
+            200
+          ],
+          "readinessGate": "agent_tooling",
+          "observed": {
+            "result": "reachable",
+            "httpStatus": 200
+          }
+        }
+      ],
+      "browser": {
+        "state": "disconnected",
+        "allowedWhileDisconnected": [
+          "unauthenticated_http_reachability"
+        ],
+        "deniedWhileDisconnected": [
+          "visual_claims",
+          "authenticated_journeys",
+          "interactive_mutations"
+        ]
+      },
+      "tenant": {
+        "state": "unclassified",
+        "dataClassification": "unknown",
+        "writes": "deny_until_dedicated_synthetic_tenant_and_disposable_data_are_confirmed"
+      }
+    },
+    "staging": {
+      "classification": "staging_candidate",
+      "authorizationState": "disconnected",
+      "gatewayCandidate": "https://api.stg.optiak.dev/v1",
+      "controlPlaneUrl": null,
+      "tenant": null,
+      "personasProvisioned": false,
+      "browserSessionConnected": false,
+      "applicationApiCredentialBound": false,
+      "writes": "deny"
+    },
+    "production": {
+      "classification": "production",
+      "authorizationState": "deny",
+      "knownGateway": "https://api.optiak.dev/v1",
+      "unknownOptiakHosts": "deny",
+      "networkRequests": "deny",
+      "mutations": "deny",
+      "denialProof": "Policy and host checks only; never probe production to demonstrate denial.",
+      "publicDocumentationException": [
+        "https://docs.optiak.dev"
+      ]
+    }
+  },
+  "personas": [
+    {
+      "id": "anonymous",
+      "state": "available_without_session",
+      "scope": "public entry and sign-in boundary only"
+    },
+    {
+      "id": "synthetic_organization_admin",
+      "state": "not_provisioned",
+      "scope": "one dedicated test tenant only"
+    },
+    {
+      "id": "synthetic_organization_member",
+      "state": "not_provisioned",
+      "scope": "permission-denial cases in the same test tenant"
+    },
+    {
+      "id": "synthetic_outsider",
+      "state": "not_provisioned",
+      "scope": "cross-tenant denial only; no access to the primary synthetic tenant"
+    },
+    {
+      "id": "synthetic_application_client",
+      "state": "not_provisioned",
+      "scope": "one generated application credential held only by the API connector"
+    }
+  ],
+  "syntheticData": {
+    "requiredPrefixTemplate": "e2e-<issue>-<run-sequence>-",
+    "requiredMarker": "synthetic-test-only",
+    "configuredCredentialLifetimeHours": 168,
+    "credentialLifetimeReason": "Seven days is the minimum expiration offered by the current Optiak UI; expiration is a backstop and does not replace terminal revocation.",
+    "revokeEveryCredentialAtRunEnd": true,
+    "inventoryBeforeAndAfter": true,
+    "cleanupOwner": "qa-e2e-validation-engineer",
+    "manualFallbackOwner": "board",
+    "applicationRetention": {
+      "default": "delete_exact_run_scoped_application",
+      "boardApprovedReusableFixture": "retain_allowed",
+      "retainedFixtureRequirements": [
+        "the Board explicitly approved retaining the exact application",
+        "the application remains dedicated to synthetic local testing",
+        "no active application credential remains after a run",
+        "run-scoped settings and unowned residue are removed",
+        "the expected retained fixture is named in the inventory reconciliation"
+      ]
+    },
+    "cleanupOrder": [
+      "revoke every generated application credential",
+      "verify one bounded post-revocation denial",
+      "remove run-scoped settings and unowned residue from the synthetic application",
+      "delete only exact run-scoped objects unless the Board approved the application as a reusable fixture",
+      "compare the post-run inventory with the expected baseline including any explicitly retained fixture",
+      "record any residue as a blocker with exact owner"
+    ],
+    "completionRequiresCleanup": true
+  },
+  "providerBudget": {
+    "authorizationState": "proposed_pending_board_approval",
+    "currency": "USD",
+    "maximumProviderSpendPerSmoke": 1,
+    "maximumInferenceRequests": 12,
+    "plannedPositiveInferenceRequests": 4,
+    "maximumOutputTokensPerRequest": 128,
+    "automaticRetries": 0,
+    "stopWhenCostCannotBeObserved": true,
+    "applicationBudgetAloneIsNotAHardStop": true
+  },
+  "mutationPolicy": {
+    "green": [
+      "credential-free GET of an approved loopback health endpoint",
+      "credential-free GET of the approved loopback public entry page",
+      "offline fixture processing"
+    ],
+    "yellow": [
+      "authenticated read inside the dedicated synthetic tenant",
+      "create or update an exactly prefixed synthetic application",
+      "create and revoke one synthetic application credential",
+      "bounded inference through that credential",
+      "delete an exactly prefixed synthetic object during cleanup"
+    ],
+    "orange": [
+      "provider credential administration",
+      "tenant or member lifecycle changes",
+      "role changes",
+      "organization governance changes",
+      "data-source or external-tool connections",
+      "budget or billing configuration changes"
+    ],
+    "red": [
+      "any production request",
+      "any non-synthetic mutation",
+      "deleting or exporting unknown data",
+      "disabling audit or safety controls",
+      "broad credential, customer, or organization access"
+    ]
+  },
+  "readinessGates": [
+    "exact target classification and immutable source revisions are recorded",
+    "all required health probes pass immediately before the run",
+    "a browser is connected to the exact approved control-plane host",
+    "the tenant is dedicated, synthetic, and confirmed free of customer data",
+    "admin, member, outsider, and application-client personas are independently scoped",
+    "the provider budget is approved and enforced outside application visibility-only budgeting",
+    "secrets remain inside their browser or API connector",
+    "the pre-run inventory and cleanup owner are recorded",
+    "production host denial is effective before any authenticated step",
+    "newly discovered tools remain quarantined"
+  ],
+  "abortConditions": [
+    "resolved host is not the exact approved host",
+    "environment identity or source revision changes during the run",
+    "gateway, admin, or authentication health fails",
+    "tenant contains unknown or non-synthetic data",
+    "a credential appears in output, logs, screenshots, prompts, or issue text",
+    "provider cost is unavailable or the request or spend cap is reached",
+    "a write target lacks the exact run prefix and synthetic marker",
+    "cleanup cannot be verified",
+    "a connector exposes a new or write-capable tool outside the reviewed catalog"
+  ]
+}

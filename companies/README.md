@@ -8,7 +8,7 @@ runbooks sin mezclar sus dominios.
 Paquetes:
 
 - `companies/enki-hogar-ai-os/`: Enki Hogar.
-- `companies/optiak-ai-os/`: Optiak, pendiente de crear.
+- `companies/optiak-ai-os/`: Optiak Product & Engineering Assurance.
 
 Las credenciales, los `.env` reales, la base de datos y el estado de cada
 instancia no se guardan en Git.

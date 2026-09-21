@@ -1,0 +1,153 @@
+schema: optiak-repository-authority/v1
+approvedAt: "2026-09-02"
+approvedBy: board
+humanConflictOwner: board
+lastAmendedAt: "2026-09-19"
+
+provider:
+  name: GitHub
+  organization: optiak
+
+connection:
+  state: authorized_pending_operator_credential
+  transport: mcp_remote
+  providerHosted: true
+  endpoint: https://api.githubcopilot.com/mcp/readonly
+  authentication: fine_grained_personal_access_token
+  credentialPortableName: OPTIAK_GIT_REVIEW_CREDENTIAL
+  maximumCredentialLifetimeDays: 30
+  installedFor:
+    - independent-code-reviewer
+  readOnlyMode: true
+  toolsets:
+    - repos
+    - pull_requests
+    - actions
+  readonlyHeader: X-MCP-Readonly
+  readonlyHeaderValue: "true"
+  toolsetsHeader: X-MCP-Toolsets
+  toolsetsHeaderValue: repos,pull_requests,actions
+  writeToolsAllowed: false
+  newlyDiscoveredTools: quarantine
+
+repositoryAllowlist:
+  defaultDecision: deny
+  repositories:
+    - slug: optiak/optiak
+      authorityFor:
+        - backend_and_control_plane_source
+        - api_implementation_at_exact_revision
+        - pull_requests_and_checks_at_exact_head_sha
+    - slug: optiak/optiak-frontend
+      authorityFor:
+        - frontend_source
+        - user_interface_implementation_at_exact_revision
+        - pull_requests_and_checks_at_exact_head_sha
+    - slug: optiak/iac-infra
+      authorityFor:
+        - infrastructure_as_code_source
+        - declared_cloud_and_environment_configuration_at_exact_revision
+        - pull_requests_and_checks_at_exact_head_sha
+  explicitlyOutOfScope:
+    - optiak/optiak-tests
+    - every_unlisted_infrastructure_repository
+    - machine_learning_repositories
+    - experimental_repositories
+    - every_unlisted_repository
+
+credentialPermissions:
+  repositoryAccess: only_selected_repositories
+  repository:
+    actions: read
+    commit_statuses: read
+    contents: read
+    metadata: read
+    pull_requests: read
+  organization: none
+  account: none
+  explicitlyDenied:
+    - administration
+    - deployments
+    - environments
+    - packages
+    - repository_hooks
+    - secrets
+    - workflows
+    - every_write_permission
+  initialCredentialLimitations:
+    - fine_grained_pat_does_not_support_checks_api
+    - check_runs_may_be_unavailable
+  futureProductionCredential: dedicated_github_app
+
+authorities:
+  sourceImplementation:
+    authority: exact_allowlisted_repository_commit
+    unavailableBehavior: blocked_on_source_evidence
+  pullRequestReviewObject:
+    authority: exact_pull_request_head_sha
+    unavailableBehavior: blocked_on_immutable_revision
+  checks:
+    authority: available_actions_runs_and_commit_statuses_for_exact_head_sha
+    initialCheckRunsApi: unavailable_with_fine_grained_pat
+    unavailableBehavior: blocked_on_evidence_when_required_ci_result_is_only_a_check_run
+  productIntent:
+    authority: linear_team_OPT_and_exact_board_accepted_prd_revision
+    unavailableBehavior: blocked_on_intent
+  deployedState:
+    authority: future_release_and_deployment_evidence
+    unavailableBehavior: do_not_treat_merge_as_deployed
+  infrastructureRuntimeState:
+    authority: future_cloud_inventory_and_applied_revision_evidence
+    unavailableBehavior: do_not_treat_iac_source_or_plan_as_applied
+
+conflictRules:
+  - topic: source_behavior
+    winner: exact_allowlisted_repository_commit
+    rule: PR descriptions, Linear, and public docs are claims rather than source proof.
+  - topic: feature_scope_and_acceptance
+    winner: exact_board_accepted_prd_revision
+    rule: Source code cannot invent or expand accepted product intent.
+  - topic: review_revision
+    winner: exact_pull_request_head_sha
+    rule: Re-resolve the head before verdict and block if it changed during review.
+  - topic: check_state
+    winner: available_ci_status_evidence_for_exact_head_sha
+    rule: Evidence for another revision cannot support the verdict, and an unavailable Check Run cannot be inferred as passing.
+  - topic: deployed_or_released_state
+    winner: release_and_deployment_evidence
+    rule: An open, approved, or merged pull request is not proof of deployment.
+  - topic: applied_infrastructure_state
+    winner: cloud_inventory_and_applied_revision_evidence
+    rule: IaC source, a pull request, a plan, or a merge is not proof of applied cloud state.
+
+revisionAndFreshness:
+  resolveHeadAtStart: true
+  recheckHeadBeforeVerdict: true
+  headChangedBehavior: blocked_on_stale_revision
+  maximumAgeMinutesForCurrentChecks: 5
+  requiredEvidence:
+    - repository_slug
+    - pull_request_number_or_url
+    - base_sha
+    - head_sha
+    - retrieved_at
+    - connection_health
+    - check_summary_for_head_sha
+  staleBehavior: label_stale_and_do_not_issue_current_verdict
+  unavailableBehavior: state_source_unavailable_and_name_unblock_owner
+
+retention:
+  cloneWholeOrganization: false
+  bulkExport: false
+  persistOnly:
+    - repository_slug
+    - canonical_urls
+    - pull_request_number
+    - base_sha
+    - head_sha
+    - bounded_check_summary
+    - bounded_review_findings
+    - retrieved_at
+  persistFileContentsOnlyWhen:
+    - exact_file_is_required_for_current_review
+    - output_is_a_local_draft_or_audited_issue_result

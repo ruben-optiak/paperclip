@@ -1,0 +1,241 @@
+{
+  "schema": "optiak-ai-os-promotion-contract/v1",
+  "contractVersion": "1.0.0",
+  "packageVersion": "0.1.29",
+  "reviewedAt": "2026-09-03",
+  "status": "offline_defined_not_deployed",
+  "humanConflictOwner": "board",
+  "scope": {
+    "subject": "optiak_ai_os_paperclip_instance",
+    "purpose": "Promote the portable Optiak AI OS package and its Paperclip control plane safely.",
+    "excluded": [
+      "releasing_the_optiak_product",
+      "deploying_optiak_gateway_admin_mcp_frontend_or_docs",
+      "choosing_an_infrastructure_provider",
+      "creating_infrastructure_or_credentials",
+      "authorizing_agent_or_routine_activation"
+    ]
+  },
+  "environmentPolicy": {
+    "authoring": "local",
+    "requiredValidationEnvironment": "preproduction",
+    "finalEnvironment": "production",
+    "directLocalToProduction": "deny",
+    "localEvidenceMaySupportProductionReadiness": false,
+    "requiredEvidenceScopes": {
+      "preproduction": "connected_non_production",
+      "production": "production"
+    },
+    "productionTestMutations": "deny",
+    "productionAgentAccess": "read_only_source_scoped_after_individual_approval"
+  },
+  "providerPolicy": {
+    "infrastructureProvider": "undecided",
+    "portableRequirementsOnly": true,
+    "paperclipChannel": "stable_or_explicitly_board_approved_beta",
+    "mutableImageTagIsEvidence": false,
+    "requiredImageIdentity": "immutable_registry_digest",
+    "downgrade": "restore_from_compatible_backup_not_in_place"
+  },
+  "candidate": {
+    "requiredFields": [
+      "package_git_commit",
+      "package_zip_sha256",
+      "paperclip_version",
+      "paperclip_image_digest",
+      "database_migration_revision",
+      "configuration_fingerprint"
+    ],
+    "sameCandidateRequiredAcrossPreproductionAndProduction": true,
+    "configurationFingerprintExcludesSecretValues": true,
+    "configurationFingerprintIncludes": [
+      "deployment_mode_and_public_origin",
+      "database_storage_and_secret_provider_kinds",
+      "company_package_version",
+      "connection_and_policy_identifiers_without_credentials",
+      "agent_and_routine_paused_state"
+    ]
+  },
+  "stageOrder": [
+    "paused_import",
+    "limited_agent_activation",
+    "routine_activation"
+  ],
+  "verdicts": [
+    "deny_direct_local_to_production",
+    "not_ready",
+    "blocked_on_evidence",
+    "ready_for_board_decision"
+  ],
+  "evidenceSemantics": {
+    "readyForBoardDecision": "All required evidence gates passed for the exact candidate and requested stage. This is advice, not authorization or execution.",
+    "blockedOnEvidence": "At least one required gate is absent or explicitly missing.",
+    "notReady": "At least one required gate failed.",
+    "local": "Package authoring and deterministic validation only; never deployment, restore, inference, or release evidence.",
+    "fixtureOnly": "Exercises evaluator branches only and can never yield operational promotion readiness.",
+    "preproduction": "Mandatory target for restore rehearsal, connected smokes, selected-agent runs, and rollback proof.",
+    "production": "Paused import first. Each agent and routine requires a later exact Board decision and its own prerequisites."
+  },
+  "completeBackupSet": [
+    "logical_database_dump_including_migration_and_plugin_schemas",
+    "object_or_local_disk_attachments_and_artifacts",
+    "registered_project_and_execution_workspace_data_required_for_recovery",
+    "secret_provider_metadata_and_the_separately_protected_master_key_or_provider_bootstrap",
+    "redacted_instance_configuration",
+    "company_export_without_secret_values",
+    "checksums_retention_and_restore_instructions"
+  ],
+  "gates": [
+    {
+      "id": "package_source_committed",
+      "minimumStage": "paused_import",
+      "environments": ["preproduction", "production"],
+      "evidence": ["clean_or_explicitly_scoped_git_state", "exact_package_git_commit"]
+    },
+    {
+      "id": "package_checks_pass",
+      "minimumStage": "paused_import",
+      "environments": ["preproduction", "production"],
+      "evidence": ["package_validation", "secret_scan", "fixture_tests", "deterministic_archive_test"]
+    },
+    {
+      "id": "package_archive_reproducible",
+      "minimumStage": "paused_import",
+      "environments": ["preproduction", "production"],
+      "evidence": ["exact_zip_sha256", "second_build_byte_comparison"]
+    },
+    {
+      "id": "paperclip_image_pinned",
+      "minimumStage": "paused_import",
+      "environments": ["preproduction", "production"],
+      "evidence": ["paperclip_version", "immutable_registry_digest", "release_channel_or_approval"]
+    },
+    {
+      "id": "target_instance_isolated",
+      "minimumStage": "paused_import",
+      "environments": ["preproduction", "production"],
+      "evidence": ["unique_instance_identity", "separate_database_storage_secret_store_and_auth_namespace", "no_enki_runtime_reuse"]
+    },
+    {
+      "id": "authenticated_tls_origin",
+      "minimumStage": "paused_import",
+      "environments": ["preproduction", "production"],
+      "evidence": ["authenticated_deployment_mode", "single_canonical_https_origin", "trusted_origin_and_callback_check"]
+    },
+    {
+      "id": "persistent_data_backends_ready",
+      "minimumStage": "paused_import",
+      "environments": ["preproduction", "production"],
+      "evidence": ["persistent_postgresql", "durable_artifact_storage", "healthy_secret_provider", "strict_secret_references"]
+    },
+    {
+      "id": "complete_backup_set_ready",
+      "minimumStage": "paused_import",
+      "environments": ["preproduction", "production"],
+      "evidence": ["database_storage_workspace_secret_configuration_and_company_export_inventory", "checksums_and_retention"]
+    },
+    {
+      "id": "restore_rehearsal_passed",
+      "minimumStage": "paused_import",
+      "environments": ["preproduction", "production"],
+      "evidence": ["restore_to_disposable_isolated_target", "migration_journal_current", "admin_company_artifact_and_secret_health_checks"]
+    },
+    {
+      "id": "import_preview_collision_free",
+      "minimumStage": "paused_import",
+      "environments": ["preproduction", "production"],
+      "evidence": ["exact_zip_preview", "expected_entity_counts", "explicit_collision_strategy", "agents_and_routines_selected_paused"]
+    },
+    {
+      "id": "rollback_plan_candidate_specific",
+      "minimumStage": "paused_import",
+      "environments": ["preproduction", "production"],
+      "evidence": ["abort_signals", "rollback_owner", "last_known_good_candidate", "restore_steps", "decision_deadline"]
+    },
+    {
+      "id": "import_applied_paused",
+      "minimumStage": "limited_agent_activation",
+      "environments": ["preproduction", "production"],
+      "evidence": ["post_import_reconciliation", "ten_agents_paused", "four_routine_triggers_disabled", "no_unexpected_connections_or_secrets"]
+    },
+    {
+      "id": "control_plane_smoke_passed",
+      "minimumStage": "limited_agent_activation",
+      "environments": ["preproduction", "production"],
+      "evidence": ["health_and_authenticated_login", "database_persistence", "artifact_roundtrip", "audit_write", "backup_freshness"]
+    },
+    {
+      "id": "selected_agent_prerequisites_passed",
+      "minimumStage": "limited_agent_activation",
+      "environments": ["preproduction", "production"],
+      "evidence": ["exact_agent_list", "codex_runtime_health", "source_specific_connection_smokes", "budgets_and_permissions_effective"]
+    },
+    {
+      "id": "selected_agents_manual_smoke_passed",
+      "minimumStage": "limited_agent_activation",
+      "environments": ["preproduction", "production"],
+      "evidence": ["one_agent_at_a_time", "bounded_fixture_then_connected_run", "durable_result", "agent_returned_to_paused"]
+    },
+    {
+      "id": "routines_remain_disabled",
+      "minimumStage": "limited_agent_activation",
+      "environments": ["preproduction", "production"],
+      "evidence": ["all_trigger_counts_zero", "no_background_pollers", "no_pending_unowned_run"]
+    },
+    {
+      "id": "rollback_rehearsal_passed",
+      "minimumStage": "limited_agent_activation",
+      "environments": ["preproduction", "production"],
+      "evidence": ["preproduction_rollback_or_restore_exercise", "recovery_time_recorded", "data_and_secret_health_reverified"]
+    },
+    {
+      "id": "routine_dependencies_passed",
+      "minimumStage": "routine_activation",
+      "environments": ["preproduction", "production"],
+      "evidence": ["exact_routine_and_source_dependencies", "manual_run_passed", "deduplication_and_budget_behavior"]
+    },
+    {
+      "id": "routine_activation_scope_ready",
+      "minimumStage": "routine_activation",
+      "environments": ["preproduction", "production"],
+      "evidence": ["one_exact_trigger", "timezone_and_schedule", "owner_and_disable_path", "next_run_observation_plan"]
+    },
+    {
+      "id": "same_candidate_passed_preproduction",
+      "minimumStage": "paused_import",
+      "environments": ["production"],
+      "evidence": ["matching_candidate_fingerprint", "preproduction_gate_report", "no_unreviewed_rebuild"]
+    },
+    {
+      "id": "preproduction_soak_complete",
+      "minimumStage": "paused_import",
+      "environments": ["production"],
+      "evidence": ["declared_soak_window", "incident_and_regression_summary", "open_risk_disposition"]
+    },
+    {
+      "id": "production_prechange_backup_fresh",
+      "minimumStage": "paused_import",
+      "environments": ["production"],
+      "evidence": ["fresh_complete_backup_set", "independent_restore_location", "checksum_verification"]
+    }
+  ],
+  "abortConditions": [
+    "candidate_identity_changes_after_review",
+    "target_or_public_origin_is_ambiguous",
+    "backup_or_restore_evidence_is_missing_stale_or_failed",
+    "database_migration_revision_is_ahead_of_the_selected_paperclip_image",
+    "import_preview_has_unexplained_collisions_or_enables_execution",
+    "secret_value_appears_in_package_evidence_logs_or_comments",
+    "an_agent_or_routine_starts_outside_the_exact_approved_scope",
+    "audit_storage_or_budget_enforcement_is_unhealthy",
+    "rollback_owner_or_last_known_good_candidate_is_unavailable"
+  ],
+  "executionPolicy": {
+    "evaluatorMayDeploy": false,
+    "agentMayDeploy": false,
+    "agentMayRollback": false,
+    "agentMayActivateAgentOrRoutine": false,
+    "boardDecisionRequiredForEveryStage": true,
+    "successfulEvaluation": "ready_for_board_decision_only"
+  }
+}

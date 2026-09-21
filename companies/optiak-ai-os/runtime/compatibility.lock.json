@@ -1,0 +1,87 @@
+{
+  "schema": "optiak-runtime-compatibility/v1",
+  "packageVersion": "0.1.29",
+  "recordedAt": "2026-09-20",
+  "environment": "local_quickstart_docker_desktop",
+  "paperclip": {
+    "runtime": "shared_control_plane_and_agent_process_container",
+    "image": "locally_built_unpinned",
+    "dockerEngine": "29.5.3",
+    "containerSecurityProfile": "docker_builtin_seccomp"
+  },
+  "codex": {
+    "adapter": "codex_local",
+    "cliVersion": "0.154.0",
+    "permissionProfile": "optiak-review-network",
+    "approvalPolicy": "never",
+    "filesystemPolicy": "read-only",
+    "networkAccess": true,
+    "dangerouslyBypassApprovalsAndSandbox": false,
+    "currentBackend": "legacy_landlock",
+    "currentBackendStatus": "verified_read_only_fallback_git_metadata_blocked",
+    "expectedLegacyFlagOccurrences": 10,
+    "targetBackend": "bubblewrap",
+    "targetBackendStatus": "blocked",
+    "targetBlocker": "docker_builtin_seccomp_denies_the_user_namespace_required_by_bubblewrap"
+  },
+  "observedProbe": {
+    "legacyReadExitCode": 0,
+    "legacyWriteExitCode": 2,
+    "legacyWriteArtifact": "absent",
+    "legacyGitMetadataReadExitCode": 128,
+    "legacyGitMetadataErrorClass": "worktree_git_metadata_permission_denied",
+    "modernReadExitCode": 1,
+    "modernErrorClass": "user_namespace_unavailable"
+  },
+  "diagnosticDedicatedBoundaryProbe": {
+    "evidenceScope": "disposable_diagnostic_not_paperclip_connected",
+    "controlPlaneDataMounted": false,
+    "controlPlaneSecretsMounted": false,
+    "repositoryMount": "read_only",
+    "sandboxBackend": "bubblewrap",
+    "readExitCode": 0,
+    "writeExitCode": 1,
+    "writeArtifact": "absent",
+    "authorizesMigration": false
+  },
+  "targetExecutionBoundary": {
+    "providerKind": "sandbox_provider",
+    "providerKey": "daytona",
+    "pluginPackage": "@paperclipai/plugin-daytona",
+    "pluginManifestVersion": "0.1.7",
+    "migrationDecision": "deferred_read_only_phase",
+    "livePluginState": "disabled",
+    "environmentManagementEnabled": false,
+    "savedEnvironmentState": "not_created",
+    "initialAdapter": "codex_local",
+    "initialAgent": "senior-platform-engineer",
+    "initialAgentCount": 1,
+    "nativeRunnerEnabled": false,
+    "providerCredentialStorage": "paperclip_environment_secret_store",
+    "providerCredentialMayEnterGit": false,
+    "controlPlaneSecurityRelaxed": false,
+    "authorizesAgentActivation": false,
+    "authorizesImplementationWorkspace": false
+  },
+  "controlPlaneContainerProhibitions": [
+    "privileged",
+    "CAP_SYS_ADMIN",
+    "seccomp_unconfined",
+    "apparmor_unconfined",
+    "danger_full_access"
+  ],
+  "migrationGates": [
+    "run_agents_in_a_dedicated_execution_boundary_separate_from_the_paperclip_control_plane",
+    "bubblewrap_read_probe_exits_zero_in_that_boundary",
+    "bubblewrap_read_only_profile_denies_a_write_and_leaves_no_artifact",
+    "network_and_managed_mcp_paths_are_explicitly_scoped_and_tested",
+    "paperclip_approval_denial_and_approved_once_paths_both_pass",
+    "all_ten_agents_run_without_the_legacy_warning_and_return_to_paused"
+  ],
+  "references": [
+    "https://learn.chatgpt.com/codex/permissions",
+    "https://learn.chatgpt.com/codex/sandboxing",
+    "https://learn.chatgpt.com/codex/agent-approvals-security",
+    "https://github.com/openai/codex/blob/main/.devcontainer/README.md"
+  ]
+}

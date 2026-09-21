@@ -1,0 +1,36 @@
+{
+  "schema": "optiak-local-skill-provenance/v1",
+  "recordedAt": "2026-09-19",
+  "owner": "Optiak",
+  "license": "LicenseRef-Optiak-Internal",
+  "machineLocalPathsExported": false,
+  "sources": [
+    {
+      "id": "frontend-skill",
+      "sourceName": "frontend-skill",
+      "sourceFile": "SKILL.md",
+      "sha256": "d367b2d22825d74c169475507e7ff109b81c1e9c20b2de3421fb19fcfbe3329b",
+      "usage": "adapted",
+      "target": "skills/optiak-frontend-implementation",
+      "vendoredScripts": false
+    },
+    {
+      "id": "review-pr-against-main",
+      "sourceName": "review-pr-against-main",
+      "sourceFile": "SKILL.md",
+      "sha256": "f58faefcf349727c3e083aa114d4d2cb35c8cde5a77d0c4ebb1a156bbfbc1f92",
+      "usage": "adapted",
+      "target": "skills/optiak-pr-review",
+      "vendoredScripts": false
+    },
+    {
+      "id": "review-pr-against-main-rubric",
+      "sourceName": "review-pr-against-main",
+      "sourceFile": "references/review-rubric.md",
+      "sha256": "8ac3b5273167e082497e8dd942fc7228438ae06d306c760382eadefc1258a14d",
+      "usage": "adapted",
+      "target": "skills/optiak-pr-review/references/review-rubric.md",
+      "vendoredScripts": false
+    }
+  ]
+}

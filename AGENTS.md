@@ -182,6 +182,18 @@ If anything cannot be run, explicitly report what was not run and why.
 - Agent access uses bearer API keys (`agent_api_keys`), hashed at rest
 - Agent keys must not access other companies
 
+The fork's opt-in Optiak/Linear response boundary is documented in
+`doc/connections/OPTIAK-LINEAR-PRIVACY.md`. Keep it disabled by default and scoped
+to the operator's exact company/connection binding. Project before normalization,
+elicitation and result persistence; never let approvals or historical replay
+bypass it. Its metadata-only output is not semantic Product-review context.
+Sample receipts in `tool_call_events` serialize on the owning heartbeat row:
+one team read, two distinct five-item groups and three distinct details from
+that run's accepted sample. Never reclaim an unsettled receipt or reset budgets
+in memory after restart. Keep receipts for active runs and retain the failure
+latch. Update the projection, durable sample/heartbeat sink tests and rollout
+limitations together; a synthetic pass is not live activation authority.
+
 When adding endpoints:
 
 - apply company access checks

@@ -1,0 +1,60 @@
+{
+  "schema": "optiak-agent-live-parity-fixture/v1",
+  "evidenceScope": "fixture_only",
+  "base": "synthetic_snapshot_derived_from_versioned_package",
+  "cases": [
+    {
+      "id": "healthy-import",
+      "mutations": [],
+      "expectedVerdict": "pass"
+    },
+    {
+      "id": "adapter-replaced-with-process",
+      "mutations": [
+        {
+          "agent": "qa-e2e-validation-engineer",
+          "path": "adapterType",
+          "value": "process"
+        }
+      ],
+      "expectedVerdict": "drift",
+      "expectedField": "adapterType"
+    },
+    {
+      "id": "agent-unexpectedly-active",
+      "mutations": [
+        {
+          "agent": "senior-platform-engineer",
+          "path": "status",
+          "value": "active"
+        }
+      ],
+      "expectedVerdict": "drift",
+      "expectedField": "status"
+    },
+    {
+      "id": "managed-mcp-disabled",
+      "mutations": [
+        {
+          "agent": "director-optiak",
+          "path": "runtimeConfig.managedMcpOnly",
+          "value": false
+        }
+      ],
+      "expectedVerdict": "drift",
+      "expectedField": "runtimeConfig.managedMcpOnly"
+    },
+    {
+      "id": "missing-agent",
+      "removeAgent": "documentation-dx-steward",
+      "expectedVerdict": "drift",
+      "expectedCode": "missing_live_agent"
+    },
+    {
+      "id": "unlisted-agent",
+      "appendAgent": "unexpected-agent",
+      "expectedVerdict": "drift",
+      "expectedCode": "unlisted_live_agent"
+    }
+  ]
+}

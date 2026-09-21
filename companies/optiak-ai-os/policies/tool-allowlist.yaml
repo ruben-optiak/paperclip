@@ -1,0 +1,189 @@
+schema: optiak-tool-allowlist/v1
+defaultDecision: quarantine
+policy:
+  productionMutation: deny
+  merge: deny
+  deploy: deny
+  rollback: deny
+  secretAdministration: deny
+  infrastructureMutation: deny
+  customerData: deny
+reviewedCapabilities:
+  - capability: notion_product_engineering_knowledge_read
+    decision: allow_after_oauth_catalog_policy_and_exact_root_smoke
+    conditions:
+      - official_notion_hosted_mcp
+      - oauth_dcr_pkce
+      - oauth_inherits_authorizing_user_access
+      - exact_ids_only_no_global_search
+      - agent_root_match_from_versioned_authority_map
+      - dedicated_restricted_identity_or_enforcing_proxy_before_activation
+      - exact_reviewed_read_tools_only
+      - bounded_reads_no_whole_workspace_export
+      - record_canonical_id_last_edited_and_retrieval_time
+      - newly_discovered_tools_quarantined
+  - capability: notion_workspace_mutation
+    decision: deny
+    conditions:
+      - no_create
+      - no_update
+      - no_comment
+      - no_move_duplicate_archive_or_delete
+      - no_export_permission_integration_user_admin_or_bulk_action
+      - approval_may_not_override
+      - no_trust_rule
+  - capability: public_docs_read
+    decision: allow
+    conditions:
+      - record_url_and_retrieval_time
+      - no_whole_site_snapshot
+  - capability: product_backlog_read
+    decision: allow_after_connection_smoke
+    conditions:
+      - official_linear_readonly_endpoint
+      - workspace_optiak
+      - team_OPT
+      - product_prd_lead_only_initially
+      - live_query_with_retrieval_time
+      - bounded_item_reads_no_bulk_export
+  - capability: product_backlog_issue_create_exact
+    decision: ask_first_after_separate_connector_smoke
+    conditions:
+      - separate_linear_oauth_app_with_read_and_issues_create_only
+      - provider_team_access_exactly_OPT
+      - product_prd_lead_only
+      - exact_tool_optiak_linear_create_issue_batch
+      - maximum_five_unassigned_issues
+      - complete_signed_arguments_at_most_3900_bytes
+      - immutable_prd_revision_and_stable_ticket_keys
+      - paperclip_exact_action_approval_every_call
+      - connector_write_kill_switch_enabled
+      - durable_idempotency_and_uncertainty_journal
+      - no_automatic_retry_after_mutation_attempt
+      - no_trust_rule
+  - capability: product_backlog_mutation
+    decision: deny
+    conditions:
+      - no_create_outside_exact_governed_capability
+      - no_update
+      - no_comment
+      - no_assignment
+      - no_archive_or_delete
+      - no_admin
+  - capability: local_fixture_read_write
+    decision: allow
+    conditions:
+      - package_scoped
+      - no_secrets
+      - no_external_effect
+  - capability: immutable_pr_read
+    decision: allow_after_connection_smoke
+    conditions:
+      - official_github_remote_mcp_readonly_endpoint
+      - repository_exactly_one_of_optiak_optiak_frontend_or_iac_infra
+      - independent_code_reviewer_only_initially
+      - exact_head_sha_resolved_and_rechecked
+      - checks_match_exact_head_sha
+      - bounded_reads_no_bulk_export
+      - newly_discovered_tools_quarantined
+  - capability: repository_branch_write
+    decision: deny
+  - capability: repository_issue_or_pr_mutation
+    decision: deny
+  - capability: qa_source_checkout_and_execute_profile
+    decision: deny_until_dedicated_runner_smoke
+    conditions:
+      - qa_e2e_validation_engineer_only
+      - repository_exactly_one_of_optiak_optiak_frontend_or_iac_infra
+      - exact_full_commit_sha
+      - named_versioned_profile_no_arbitrary_shell
+      - fresh_ephemeral_workspace
+      - repository_credential_absent_from_test_process
+      - no_production_credentials_or_customer_data
+      - no_docker_socket
+      - bootstrap_egress_allowlisted_then_loopback_only
+      - source_changes_not_persisted
+      - redacted_capped_artifacts_and_cleanup
+  - capability: qa_repository_push_pr_deploy_or_infrastructure_mutation
+    decision: deny
+    conditions:
+      - approval_may_not_override_profile_boundary
+  - capability: local_test_health_read
+    decision: allow
+    conditions:
+      - exact_loopback_url_from_test_environment_contract
+      - credential_free_get_only
+      - probe_before_every_run
+      - no_browser_or_release_claim
+  - capability: local_browser_read
+    decision: pending_browser_and_target_approval
+    conditions:
+      - exact_approved_control_plane_host
+      - dedicated_synthetic_persona
+      - tenant_data_classification_confirmed
+      - no_visual_claim_from_http_reachability
+  - capability: local_synthetic_write
+    decision: deny_pending_all_readiness_gates_and_exact_approval
+    conditions:
+      - exact_run_prefix_and_synthetic_marker
+      - pre_and_post_inventory
+      - provider_spend_and_request_cap_enforced
+      - cleanup_owner_and_manual_fallback
+      - production_host_denial
+  - capability: staging_browser_read
+    decision: pending_connection
+  - capability: staging_synthetic_write
+    decision: pending_connection_and_approval
+  - capability: observability_read
+    decision: allow_after_connection_smoke
+    conditions:
+      - follow_versioned_observability_source_contract
+      - reliability_incident_engineer_only_initially
+      - aggregate_analytics_first
+      - exact_environment_service_and_tenant_scope
+      - initial_query_window_15_minutes
+      - fresh_signal_with_observed_and_retrieved_times
+      - redaction_canary_passed
+      - immutable_deployment_revision_correlated
+      - bounded_reads_no_bulk_export
+      - newly_discovered_tools_quarantined
+  - capability: exact_trace_read
+    decision: ask_first_after_connection_smoke
+    conditions:
+      - exact_request_or_trace_id
+      - maximum_one_trace_per_approval
+      - metadata_allowlist_and_redaction
+      - no_prompt_response_tool_payload_or_customer_content
+  - capability: raw_events_read
+    decision: deny
+  - capability: application_logs_read
+    decision: deny_pending_structured_redaction_contract
+  - capability: sentry_session_replay_read
+    decision: deny
+  - capability: signed_alert_ingest
+    decision: pending_connection_and_tabletop
+    conditions:
+      - signature_and_replay_protection
+      - versioned_event_schema
+      - deduplicate_before_wake
+      - acknowledgement_owner_and_checkpoint
+      - invalid_and_stale_events_rejected
+  - capability: production_test_read
+    decision: deny
+  - capability: production_observability_read
+    decision: pending_connection_tabletop_and_board_approval
+  - capability: promotion_evidence_read
+    decision: allow
+    conditions:
+      - exact_candidate_fingerprint
+      - redacted_metadata_only
+      - no_secret_values
+      - no_infrastructure_or_deployment_mutation
+  - capability: promotion_readiness_evaluate
+    decision: allow
+    conditions:
+      - offline_deterministic_evaluator
+      - output_is_advice_not_authority
+      - ready_means_ready_for_board_decision_only
+  - capability: promotion_deploy_import_restore_or_activate
+    decision: deny

@@ -1,0 +1,198 @@
+{
+  "schema": "optiak-linear-catalog-baseline/v1",
+  "reviewedAt": "2026-09-12",
+  "endpoint": "https://mcp.linear.app/mcp/readonly",
+  "defaultDecision": "deny",
+  "tools": [
+    {
+      "toolName": "extract_images",
+      "versionHash": "abc7bafb036aa2af973be45660a48cbb825f0a14434da15c52d4704534570b67",
+      "schemaHash": "e5b84d781f9e6b7bf4a91b67caeca908767c2c8a7c2fe3ae8869b680c1a7207c"
+    },
+    {
+      "toolName": "get_agent_skill",
+      "versionHash": "f8759462fb3e4c3be6a70df06f7d72fcc9d2dddbaae63186e79db9c820c28201",
+      "schemaHash": "eb1cf8aff3ac3e2bc513e1d4586f412059cb20bd66a0fcdd363e575aac568662"
+    },
+    {
+      "toolName": "get_attachment",
+      "versionHash": "48cad17c75b57c71607c109ae2d06efd58c832d9e712aed727bba009f7de25fe",
+      "schemaHash": "f61f81f0ea991e924851852d48d8b86049a8fb941dd22923ea5d44974b715157"
+    },
+    {
+      "toolName": "get_diff",
+      "versionHash": "323ea093d14e6b39fb9c1a4e2e2a340e5f31c845b59232f946878b7e61c8874d",
+      "schemaHash": "199900065cc1f05470a21c62c8dccec90425b29f71e0261ed3d2777f11cc82a3"
+    },
+    {
+      "toolName": "get_diff_threads",
+      "versionHash": "caad5cfa4212bb38fb47ff8b51d8356a1cdd96fbd93986c24773d0334982be05",
+      "schemaHash": "cf33e9b8cef104d6c413810ce5679e052d8f844e258e3cd4d36f7c5ad886354b"
+    },
+    {
+      "toolName": "get_document",
+      "versionHash": "55e91b476b0ea4a53afc4381d18f700ebc3e0cb8eb220ab7fb0b88b5e4d4274a",
+      "schemaHash": "009583fdd2c6a03774d73516ac59c3386e8fb8cd075c234f037997e98aaa47c8"
+    },
+    {
+      "toolName": "get_initiative",
+      "versionHash": "141ba205b49a4c9a6f33e343c0912cd37fe194da02692a08e5d7e353a5a554b6",
+      "schemaHash": "394eff14900d10e50ff8db2a1dc52ad263910d25fde70420a11f4f0b9d6624a8"
+    },
+    {
+      "toolName": "get_issue",
+      "versionHash": "556f931917694c574da869ab2f555e7ebe86b32425fbf9cefda67489a72d56ec",
+      "schemaHash": "95fd30e15674c16086ee6309c81dcb27b0fd2bd8e59e80c7e568d4871eba642f"
+    },
+    {
+      "toolName": "get_issue_status",
+      "versionHash": "64e76f8603adda2dbca67a47a616491a6cd9c16dfef849f43511c7db30a638a5",
+      "schemaHash": "8395b8f0adf71fbcf17c71fd7d715bcaca029f4bd3468f5eb780bd3d9b5dc0db"
+    },
+    {
+      "toolName": "get_milestone",
+      "versionHash": "5df04bf6a14ffe53aa5ca188d991b612674dcea6c05fedcb7cbb0a7450ac9bde",
+      "schemaHash": "e87e13b33a7c3119250a264a0899cca8a51f89470b05d8c5752270b0761ffe38"
+    },
+    {
+      "toolName": "get_project",
+      "versionHash": "c7caadc76dd6815fa1fe4d1d07fdfb30c76dd603a3498bdc9e285d75d459af81",
+      "schemaHash": "e956bf212bad59a4351cd248699c4a64b6bdd26e66614049698459e706ea5de4"
+    },
+    {
+      "toolName": "get_release",
+      "versionHash": "274ec6276b19385a24cc632e5d1a07d2052282b50e7c1acce12545158659c49e",
+      "schemaHash": "28c4773f81eface8faca7ca1e65d895239817f53ea1649c3db19b2f593dd3638"
+    },
+    {
+      "toolName": "get_release_note",
+      "versionHash": "bcd7c4b1ab59df240898ddaf94fa34a8d82936a0ee8c2c9dedd6e858e440d783",
+      "schemaHash": "66faaae67f57520766d949cbf104626c6829fe1b6f9da8f9c4290ddd5a509916"
+    },
+    {
+      "toolName": "get_status_updates",
+      "versionHash": "7eeabad788e64dc0d4f9312b097df92ebbf3c486a44378024625c0485caede68",
+      "schemaHash": "c140ed6a80b5d588289217fb942832a231cd5dfd54f8ab3f2c5a0679242059d7"
+    },
+    {
+      "toolName": "get_team",
+      "versionHash": "2b1375a10b5918c8fec9a97590c2d58a9bf3c174c3f50fb27cfacaa4a49a8759",
+      "schemaHash": "8a97142b31220fea9ef7de2bd189a57ff550aeddc0fcc19313f7505baabdf732"
+    },
+    {
+      "toolName": "get_template",
+      "versionHash": "98b08b8d576601204aa94bd9d38946af737f7483bc9fb518e2f8c6d55e213158",
+      "schemaHash": "187ae394f08a0b5d4db4402878be2292cf708bbecdf886ca0cb6eb8de0b39687"
+    },
+    {
+      "toolName": "get_user",
+      "versionHash": "ad2a43b26e23da291edc7bd6a95e7d1a06a2af9d85af5613115515e4b2e7108d",
+      "schemaHash": "3cd0c09b42b39a3c48e9e425c4866cc3c4fc13c0d6e3e58d6ba5f9a66625632a"
+    },
+    {
+      "toolName": "get_workspace",
+      "versionHash": "9e75cb118b8ec36e22e496117b3c98f4af8bfb593a123d3c651ca8448d77cfd2",
+      "schemaHash": "efddc7bd8bbcef73a14eb1ace1ffdaec81e518ef1e13c1e9271d0b8acb694a49"
+    },
+    {
+      "toolName": "list_agent_skills",
+      "versionHash": "0d89eb6eb7ee5ebb96bde81ab52bccf561b8c9307487f4a0a89b8869dc40b82b",
+      "schemaHash": "b84f5baa0736643b432f9c42607bd01945b0a310febbd3a99a59684f5d9e8892"
+    },
+    {
+      "toolName": "list_comments",
+      "versionHash": "721baa39958e1cbdb8601d81b7583f9c4a97e3e075a3885bfed3c82e18a62aef",
+      "schemaHash": "1728cd48259af09dd3e251bae9721f1db19c5c578a1c84b877734dd14b5f01ef"
+    },
+    {
+      "toolName": "list_cycles",
+      "versionHash": "1299383e027d77c73d83a4baccd93b0df8557195e514741bdb172c72a6ee17cd",
+      "schemaHash": "f0d67277baae9511070342738e8213fbec8f9a46b47c844581204403e49ccf71"
+    },
+    {
+      "toolName": "list_diffs",
+      "versionHash": "338fe423bdf89a7a95e6d5d10f74fac26dddd59fbd00955addde7652fc3536d3",
+      "schemaHash": "6e79d05dfc53b7304818c57bbd5419390c8e22a77b348b10079020b78ec2853b"
+    },
+    {
+      "toolName": "list_documents",
+      "versionHash": "d27e629b2a4209cf7cbb8c82d76d7afc6e982bab73a1ac402c1fb4ddb71314a7",
+      "schemaHash": "56ed0a72a2f4ec02e8e2195095dd299b4789a346ef769bd84b48ebfc7d78b98a"
+    },
+    {
+      "toolName": "list_initiative_labels",
+      "versionHash": "3b96ddf0104f2036b0ce958a54693af07246c856288c7bd222ed0c3104c07c49",
+      "schemaHash": "743515bcfe05b7713ac66f90859cd065781dc639945e015be6b082e165686061"
+    },
+    {
+      "toolName": "list_initiatives",
+      "versionHash": "e2379e809ad6f117aa260d0839590523e0b982a71e8efae31ff79a5b1dacafa3",
+      "schemaHash": "b07491af8c9b69be9b0366d6d4989712c9b34a726baf8569f72a74963702728b"
+    },
+    {
+      "toolName": "list_issue_labels",
+      "versionHash": "6a6e0551f8c27bfa5194946c90791ce25575239f80430a7945dd4cce57a3955d",
+      "schemaHash": "772d3e61d4094a5476a77bca9d491c6b2099a6d1d5b7d4121f06fbf2953777d7"
+    },
+    {
+      "toolName": "list_issue_statuses",
+      "versionHash": "b67148fc05035c13f0f3d3c17667c23fd0de3484e7b802020e7df046bfd8b98f",
+      "schemaHash": "02f189e950d36c0ceeb4f2efc1a4801832573b462fbe79621725f09058d12637"
+    },
+    {
+      "toolName": "list_issues",
+      "versionHash": "c05095d1c5b46b69ea6d246b8b04d447912ab54748bb680c025450b138f42ea2",
+      "schemaHash": "57a555c1c20f6a7e7e4536dcb58cb5734f96264fd3e64eae0835ecce7e3cccee"
+    },
+    {
+      "toolName": "list_milestones",
+      "versionHash": "9af167b69368e71035bdbb561f7484c7299d3b301cad188600733a5ac48f5251",
+      "schemaHash": "218538db7a92fe937278a7c446a0c35b8cac3893f85c518bf3afaea514cb2ed1"
+    },
+    {
+      "toolName": "list_project_labels",
+      "versionHash": "e8c31f0bae529a9458cdbc0ddd6eb9719f0d51e609aec4014196bc958d59f7b6",
+      "schemaHash": "743515bcfe05b7713ac66f90859cd065781dc639945e015be6b082e165686061"
+    },
+    {
+      "toolName": "list_projects",
+      "versionHash": "1f1a1f970dfcd8b86a8928092a561edf53c613f2785cc6961de913d1b3bf1464",
+      "schemaHash": "af28131e516791f4c3006c6fa5aaa59619bb7667e5bd6be662cd53f2d83a4480"
+    },
+    {
+      "toolName": "list_release_notes",
+      "versionHash": "8fcfbd4fac0231a1c6f71577d6074cbdb4022f6bed59c6d1256feaa82e415a17",
+      "schemaHash": "dd39902be496df4fc40aa4348e33c1f142df6fcd13ec74517305b67d77e49de2"
+    },
+    {
+      "toolName": "list_release_pipelines",
+      "versionHash": "efe380f8203bda6d0330a95c3132108495331f025ccdd7f4b23ab3f4b3467627",
+      "schemaHash": "349d3bad16b37a422c5d89449dd6262886cc33dda75ff9dfe920ad45473235ae"
+    },
+    {
+      "toolName": "list_releases",
+      "versionHash": "78684f05ad622c8132f362903643372aa9ab0042b9681a951a1e76fe85d7ae97",
+      "schemaHash": "c70d8d876ea05bf7f2228c93267ded7bc5c57f86351f6372227a28349432fa3c"
+    },
+    {
+      "toolName": "list_teams",
+      "versionHash": "58544caa5df96d4d70c3b7dd3e0d96d6eb603338ff05b877ab1320d1ba22047a",
+      "schemaHash": "8d349206a3d1f1f7bd46434df813e81c4a12803a8b60060238d8d72edffbc992"
+    },
+    {
+      "toolName": "list_templates",
+      "versionHash": "76330d1dc5f0596522105123b0da3c95e2659c6115fe9744ae3f1537acc11534",
+      "schemaHash": "44ab45c668ee8e3a24c24765c6fea55955fd18598bbf39aa44ef39a88c70b55c"
+    },
+    {
+      "toolName": "list_users",
+      "versionHash": "7af9cce306267981d9791b3f4b94006a1fa63dca0cfda984b80c6298a4a57a55",
+      "schemaHash": "51a23d65cad5bd9c6a3d960c1f81f78bc762876514c73bb933f4965093082f25"
+    },
+    {
+      "toolName": "search_documentation",
+      "versionHash": "7ca728d17d48f3e45ad7d764e3a733f3cc66eab7356ac69566df1a5f978e6d53",
+      "schemaHash": "eae8d55e7de1fb310d1c15eed32fe2b2f7132a1c5f90307297c5fdbed8c70bd0"
+    }
+  ]
+}

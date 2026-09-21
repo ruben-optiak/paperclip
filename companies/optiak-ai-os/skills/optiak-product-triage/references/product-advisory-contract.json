@@ -1,0 +1,101 @@
+{
+  "schema": "optiak-product-advisory-contract/v1",
+  "status": "offline_defined_read_only_advisory",
+  "sourceReview": {
+    "paperclipIssue": "OPT-39",
+    "observedAt": "2026-09-12T12:37:34.172Z",
+    "boardReviewedAt": "2026-09-20",
+    "historicalEvidenceOnly": true
+  },
+  "authority": {
+    "strategyRequiredForPriorityRecommendation": true,
+    "acceptedStrategyStates": [
+      "explicit_board_decision",
+      "approved_current_intent"
+    ],
+    "linearUpdatedAtProvesPriority": false,
+    "listResultSupportsSemanticRecommendation": false,
+    "ticketDescriptionProvesImplementation": false,
+    "ticketStatusProvesRelease": false
+  },
+  "selection": {
+    "maximumItemsListed": 10,
+    "maximumItemsReadInDetail": 3,
+    "maximumProviderCalls": 6,
+    "updatedAtOnlyAllowedFor": [
+      "freshness_scan",
+      "backlog_hygiene_scan"
+    ],
+    "updatedAtOnlyDeniedFor": [
+      "priority_ranking",
+      "roadmap_sequence",
+      "strategy_recommendation"
+    ],
+    "preferredDimensions": [
+      "approved_goal_or_initiative",
+      "dependency_or_blocker_chain",
+      "explicit_board_question",
+      "risk_or_quality_signal"
+    ]
+  },
+  "recommendations": {
+    "maximum": 3,
+    "detailReadRequired": true,
+    "strategyReferenceRequiredForPriorityChange": true,
+    "acceptanceCriteriaStatus": "draft_questions_until_prd_authority",
+    "requiredFields": [
+      "sourceId",
+      "sourceUrl",
+      "observedState",
+      "proposal",
+      "reason",
+      "confidence",
+      "missingEvidence",
+      "nextOwner"
+    ]
+  },
+  "humanOutput": {
+    "maximumWords": 700,
+    "maximumExecutiveSummaryLines": 5,
+    "maximumBoardDecisions": 3,
+    "requiredSections": [
+      "executive_summary",
+      "observed_facts",
+      "hypotheses",
+      "missing_evidence",
+      "recommendations",
+      "board_decisions"
+    ],
+    "machineEnvelope": "separate_from_human_report",
+    "historicalDataMustCarryObservedAt": true
+  },
+  "efficiency": {
+    "uncachedInputTokens": {
+      "targetMaximum": 25000,
+      "reviewMaximum": 40000
+    },
+    "outputTokens": {
+      "targetMaximum": 4000,
+      "reviewMaximum": 6000
+    },
+    "durationSeconds": {
+      "targetMaximum": 180,
+      "reviewMaximum": 240
+    },
+    "automaticRetryAllowed": false,
+    "overReviewMaximum": "efficiency_regression"
+  },
+  "permissions": {
+    "externalWrites": false,
+    "linearWrites": false,
+    "codeChanges": false,
+    "agentDelegation": false,
+    "implementationAuthorization": false
+  },
+  "verdicts": [
+    "ready_for_board_review",
+    "blocked_on_strategy",
+    "changes_required",
+    "efficiency_regression"
+  ]
+}

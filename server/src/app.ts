@@ -104,6 +104,7 @@ import { createPluginJobScheduler } from "./services/plugin-job-scheduler.js";
 import { pluginJobStore } from "./services/plugin-job-store.js";
 import { createPluginToolDispatcher } from "./services/plugin-tool-dispatcher.js";
 import { createToolGatewayService } from "./services/tool-gateway.js";
+import { parseOptiakLinearPrivacyBinding } from "./services/optiak-linear-privacy.js";
 import { toolAccessService } from "./services/tool-access.js";
 import { heartbeatService } from "./services/heartbeat.js";
 import { pluginLifecycleManager } from "./services/plugin-lifecycle.js";
@@ -575,6 +576,7 @@ export async function createApp(
     trustedLocalStdioRuntimeHost,
   });
   const toolGateway = createToolGatewayService(db, {
+    optiakLinearPrivacy: parseOptiakLinearPrivacyBinding(process.env.PAPERCLIP_OPTIAK_LINEAR_PRIVACY),
     pluginToolDispatcher: toolDispatcher,
     deploymentMode: opts.deploymentMode,
     deploymentExposure: opts.deploymentExposure,

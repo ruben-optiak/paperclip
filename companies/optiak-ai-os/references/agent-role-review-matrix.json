@@ -1,0 +1,117 @@
+{
+  "schema": "optiak-agent-role-review-matrix/v1",
+  "version": "1.1.0",
+  "packageVersion": "0.1.29",
+  "status": "controlled_runs_completed_runner_hardened_live_regression_passed",
+  "evidenceScope": "fixture_only",
+  "humanReviewOwner": "board",
+  "runnerContract": "references/agent-role-review-runner-contract.json",
+  "runPolicy": {
+    "oneAgentAtATime": true,
+    "agentStartsAndEndsPaused": true,
+    "issueCreatedUnassigned": true,
+    "agentResumedBeforeAssignment": true,
+    "exactlyOneAssignmentRun": true,
+    "canonicalReportAndDispositionSameRun": true,
+    "automaticRecoveryRuns": 0,
+    "terminalActiveRuns": 0,
+    "externalWrites": 0,
+    "connectedSourcesRequiredOnlyWhenCurrentStateIsClaimed": true,
+    "fixtureResultProvesLiveCapability": false,
+    "successfulReviewAuthorizesActivation": false
+  },
+  "reviewGates": [
+    "correct_lead_class",
+    "bounded_lead_question",
+    "canonical_output_only",
+    "evidence_and_freshness_explicit",
+    "explicit_exclusions",
+    "no_parallel_full_report",
+    "distinct_delta_handoff",
+    "no_authority_overreach",
+    "stop_condition_respected",
+    "context_and_output_proportionate"
+  ],
+  "cases": [
+    {
+      "agent": "director-optiak",
+      "requestClass": "cross_domain_coordination",
+      "scenario": "Route a conflict between an approved Product outcome and a reported runtime risk.",
+      "canonicalOutput": "prioritized_decision_brief",
+      "mustNotDo": ["produce_product_prd", "diagnose_runtime", "issue_release_gate"],
+      "expectedHandoff": "one named domain lead or one bounded Board decision"
+    },
+    {
+      "agent": "product-prd-lead",
+      "requestClass": "product_intent_or_prd",
+      "scenario": "Review a bounded feature proposal against an approved strategy fixture and measurable acceptance criteria.",
+      "canonicalOutput": "product_decision_or_prd_review",
+      "mustNotDo": ["approve_architecture", "review_code", "claim_runtime_behavior"],
+      "expectedHandoff": "Architecture only if structural, otherwise approved implementation planning"
+    },
+    {
+      "agent": "brand-ui-quality-reviewer",
+      "requestClass": "ui_brand_quality",
+      "scenario": "Review one exact synthetic UI surface at named viewports against an approved design-rule fixture.",
+      "canonicalOutput": "annotated_ui_quality_report",
+      "mustNotDo": ["reprioritize_product", "claim_functional_pass", "review_source_code"],
+      "expectedHandoff": "Product for ambiguity or QA for a functional defect"
+    },
+    {
+      "agent": "documentation-dx-steward",
+      "requestClass": "documentation_dx_drift",
+      "scenario": "Compare one exact documentation claim and example with an immutable API-contract fixture.",
+      "canonicalOutput": "documentation_drift_report",
+      "mustNotDo": ["infer_runtime_behavior", "publish_docs", "issue_code_verdict"],
+      "expectedHandoff": "Product or Engineering owner for the mismatched claim"
+    },
+    {
+      "agent": "principal-platform-architect",
+      "requestClass": "architecture_decision",
+      "scenario": "Choose a trust boundary from an immutable PRD with explicit migration and rollback constraints.",
+      "canonicalOutput": "architecture_decision_record",
+      "mustNotDo": ["implement_change", "rerun_qa", "approve_release"],
+      "expectedHandoff": "Senior Platform Engineer with invariants and migration constraints"
+    },
+    {
+      "agent": "senior-platform-engineer",
+      "requestClass": "implementation_diagnosis",
+      "scenario": "Diagnose a supplied reproducible failure and identify the smallest discriminating test and change surface.",
+      "canonicalOutput": "technical_diagnosis",
+      "mustNotDo": ["repeat_full_qa_suite", "approve_own_change", "claim_code_changed_without_workspace"],
+      "expectedHandoff": "approved implementation task or return to the missing-evidence owner"
+    },
+    {
+      "agent": "independent-code-reviewer",
+      "requestClass": "immutable_change_review",
+      "scenario": "Review one synthetic immutable diff against linked intent and supplied verification evidence.",
+      "canonicalOutput": "independent_review_verdict",
+      "mustNotDo": ["modify_change", "rerun_complete_qa", "merge_or_release"],
+      "expectedHandoff": "affected specialist validation or Engineering Assurance"
+    },
+    {
+      "agent": "qa-e2e-validation-engineer",
+      "requestClass": "product_behavior_validation",
+      "scenario": "Execute a fixture-defined positive and negative behavior matrix for one exact synthetic target.",
+      "canonicalOutput": "executable_test_report",
+      "mustNotDo": ["claim_root_cause", "decide_architecture", "approve_release"],
+      "expectedHandoff": "Senior Platform Engineer on failure or Engineering Assurance on pass"
+    },
+    {
+      "agent": "reliability-incident-engineer",
+      "requestClass": "live_incident_or_slo_risk",
+      "scenario": "Triage an explicitly labelled tabletop signal with impact, freshness and containment evidence.",
+      "canonicalOutput": "incident_or_reliability_brief",
+      "mustNotDo": ["treat_tabletop_as_live", "implement_fix", "declare_release_ready"],
+      "expectedHandoff": "safe mitigation decision or postmortem review"
+    },
+    {
+      "agent": "engineering-assurance-lead",
+      "requestClass": "release_readiness",
+      "scenario": "Evaluate a synthetic exact candidate from already accepted Product, Review, QA and risk artifacts.",
+      "canonicalOutput": "evidence_index_and_risk_disposition",
+      "mustNotDo": ["repeat_specialist_work", "waive_missing_gate", "make_human_release_decision"],
+      "expectedHandoff": "Board decision or exact missing artifact owner"
+    }
+  ]
+}

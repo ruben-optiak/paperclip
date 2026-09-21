@@ -1,0 +1,86 @@
+schema: optiak-system-repository-register/v1
+status: offline_inventory_not_connection_proof
+reviewedAt: "2026-09-19"
+humanConflictOwner: board
+policy:
+  unlistedRepository: deny
+  repositoryEntryCreatesAccess: false
+  publicDocumentationProvesImplementation: false
+  sourceRevisionProvesDeployment: false
+systems:
+  - id: product-control-plane
+    domains:
+      - "4.1"
+      - "4.2"
+    accountable: engineering-assurance-lead
+    productOwner: product-prd-lead
+    implementationAuthority: repository_revision_when_connected
+    runtimeAuthority: deployed_revision_and_observability_when_connected
+  - id: gateway-and-openai-compatible-apis
+    domains:
+      - "4.2"
+    accountable: engineering-assurance-lead
+    architectureOwner: principal-platform-architect
+    implementationAuthority: repository_revision_when_connected
+    runtimeAuthority: deployed_revision_and_request_evidence_when_connected
+  - id: integrations-and-enterprise-boundaries
+    domains:
+      - "4.3"
+    accountable: engineering-assurance-lead
+    architectureOwner: principal-platform-architect
+    implementationAuthority: repository_revision_when_connected
+    runtimeAuthority: exact_connection_and_permission_evidence_when_connected
+  - id: data-and-ai-quality
+    domains:
+      - "4.4"
+    accountable: engineering-assurance-lead
+    staffingStatus: temporary_coverage_explicit_gap
+    implementationAuthority: unknown_until_repository_and_contract_connected
+    runtimeAuthority: unknown_until_pipeline_eval_and_observability_sources_connected
+  - id: infrastructure-and-reliability
+    domains:
+      - "4.5"
+    accountable: engineering-assurance-lead
+    operationalOwner: reliability-incident-engineer
+    implementationAuthority: optiak_iac_infra_exact_revision_when_connected
+    runtimeAuthority: unknown_until_observability_and_deployment_sources_are_connected
+  - id: engineering-handbook
+    domains:
+      - "4.6"
+    accountable: engineering-assurance-lead
+    custodian: documentation-dx-steward
+    authority: approved_versioned_chapter_source_when_connected
+repositories:
+  - slug: optiak/optiak
+    status: authorized_pending_connection
+    defaultAccess: deny
+    approvedAccess: exact_revision_read_only_for_independent_reviewer
+    likelyDomains:
+      - "4.2"
+      - "4.3"
+      - "4.4"
+      - "4.5"
+    pathOwnership: unknown_until_connected
+  - slug: optiak/optiak-frontend
+    status: authorized_pending_connection
+    defaultAccess: deny
+    approvedAccess: exact_revision_read_only_for_independent_reviewer
+    likelyDomains:
+      - "4.1"
+      - "4.2"
+    pathOwnership: unknown_until_connected
+  - slug: optiak/iac-infra
+    status: authorized_pending_connection
+    defaultAccess: deny
+    approvedAccess: exact_revision_read_only_for_independent_reviewer
+    likelyDomains:
+      - "4.5"
+      - "4.6"
+    authorityLimit: declared_infrastructure_intent_not_applied_state
+    pathOwnership: unknown_until_connected
+unknowns:
+  - other_infrastructure_repositories
+  - data_pipeline_repository
+  - machine_learning_pipeline_repository
+  - documentation_source_repository
+  - codeowners_and_team_path_ownership

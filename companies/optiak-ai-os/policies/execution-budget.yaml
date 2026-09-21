@@ -1,0 +1,119 @@
+schema: optiak-execution-budget/v1
+version: 0.1.4
+status: provisional_fixture_phase
+currency: USD
+company:
+  monthlyBilledCents: 15000
+  warnPercent: 80
+  hardStopPercent: 100
+  application: manual_after_import
+agents:
+  director-optiak:
+    monthlyBilledCents: 1500
+    maxDailyRuns: 4
+    maxDailyCostCents: 200
+  engineering-assurance-lead:
+    monthlyBilledCents: 1300
+    maxDailyRuns: 6
+    maxDailyCostCents: 150
+  product-prd-lead:
+    monthlyBilledCents: 1200
+    maxDailyRuns: 6
+    maxDailyCostCents: 150
+  principal-platform-architect:
+    monthlyBilledCents: 1000
+    maxDailyRuns: 6
+    maxDailyCostCents: 100
+  senior-platform-engineer:
+    monthlyBilledCents: 1100
+    maxDailyRuns: 6
+    maxDailyCostCents: 100
+  independent-code-reviewer:
+    monthlyBilledCents: 900
+    maxDailyRuns: 6
+    maxDailyCostCents: 100
+  reliability-incident-engineer:
+    monthlyBilledCents: 1100
+    maxDailyRuns: 8
+    maxDailyCostCents: 150
+  qa-e2e-validation-engineer:
+    monthlyBilledCents: 900
+    maxDailyRuns: 8
+    maxDailyCostCents: 100
+  brand-ui-quality-reviewer:
+    monthlyBilledCents: 500
+    maxDailyRuns: 6
+    maxDailyCostCents: 75
+  documentation-dx-steward:
+    monthlyBilledCents: 500
+    maxDailyRuns: 6
+    maxDailyCostCents: 75
+controls:
+  monthlyBilledCost:
+    source: cost_events.costCents
+    warnPercent: 80
+    hardStopPercent: 100
+    nativeEnforcement: true
+    unpricedBehavior: no_false_cost_signal
+  dailyRuns:
+    source: heartbeat_runs.startedAt_utc_day
+    warnPercent: 80
+    hardStopPercent: 100
+    nativeHardStop: true
+    nativeWarning: false
+  dailyBilledCost:
+    source: cost_events.costCents_utc_day
+    warnPercent: 80
+    hardStopPercent: 100
+    nativeHardStop: true
+    nativeWarning: false
+  runDuration:
+    timeoutSeconds: 300
+    warnSeconds: 240
+    nativeHardStop: true
+    nativeWarning: false
+  tokenReview:
+    basis: uncached_input_tokens
+    formula: raw_input_tokens_minus_cached_input_tokens
+    standardRunCapacity: 50000
+    synthesisRunCapacity: 60000
+    warnPercent: 80
+    actionAt100: stop_context_expansion_and_finish_or_block
+    nativeEnforcement: false
+    rawInputTokensAre: cumulative_usage_not_prompt_size
+  productAdvisoryReview:
+    contract: skills/optiak-product-triage/references/product-advisory-contract.json
+    targetUncachedInputTokens: 25000
+    reviewMaximumUncachedInputTokens: 40000
+    targetOutputTokens: 4000
+    reviewMaximumOutputTokens: 6000
+    targetDurationSeconds: 180
+    reviewMaximumDurationSeconds: 240
+    overReviewMaximum: efficiency_regression
+    automaticRetryAllowed: false
+    nativeEnforcement: false
+  engineeringEngagement:
+    maximumLeadAgents: 1
+    maximumConsultedAgents: 2
+    maximumCanonicalReports: 1
+    maximumParallelFullReports: 0
+    consultedMode: delta_only
+    distinctQuestionAndExpectedDeltaRequired: true
+    duplicateEvidenceReferencesAllowed: false
+    automaticFanout: false
+  qaSourceExecution:
+    maximumConcurrentJobs: 1
+    maximumJobSeconds: 1200
+    maximumArtifactBytes: 2097152
+    automaticRetries: 0
+    cleanupRequired: true
+    liveRunnerConnected: false
+operatorRules:
+  - Never infer zero cost from an unpriced run.
+  - Treat token thresholds as post-run review gates until Paperclip supports an in-flight token cap.
+  - At a daily-cap warning, finish already-started work and do not queue discretionary work.
+  - A timeout or hard stop must leave the issue recoverable; it does not authorize a duplicate final report.
+  - Review these provisional values after ten priced production-like runs or thirty calendar days, whichever comes first.
+  - A specialist handoff reuses accepted evidence by reference; it does not reset context budgets or justify a second full report.
+  - A consultation without a distinct narrower question and expected evidence delta is not scheduled.
+  - QA source-execution limits are runtime-resource gates, not permission to connect or activate a runner.

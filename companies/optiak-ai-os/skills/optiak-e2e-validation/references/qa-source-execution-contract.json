@@ -1,0 +1,114 @@
+{
+  "schema": "optiak-qa-source-execution-contract/v1",
+  "version": "1.1.0",
+  "status": "dedicated_runner_synthetic_smoke_passed_real_repositories_pending",
+  "humanConflictOwner": "board",
+  "executionAgent": "qa-e2e-validation-engineer",
+  "purpose": "Create reproducible test evidence from an exact source revision without granting implementation, repository write, deployment, cloud or production authority.",
+  "checkout": {
+    "allowedRepositories": ["optiak/optiak", "optiak/optiak-frontend", "optiak/iac-infra"],
+    "exactFullRevisionRequired": true,
+    "branchOnlyRefAllowed": false,
+    "freshEphemeralWorkspaceRequired": true,
+    "sharedDeveloperCheckoutAllowed": false,
+    "repositoryCredentialAvailableToTestProcess": false,
+    "pushCredentialAllowed": false,
+    "remoteWriteAllowed": false
+  },
+  "runtime": {
+    "requiredBoundary": "dedicated_ephemeral_qa_runner",
+    "implementation": "connectors/qa-source-runner",
+    "controller": "connectors/qa-source-runner/src/controller.mjs",
+    "image": "optiak-qa-source-runner:0.1.29",
+    "containerUser": "65532:65532",
+    "rootFilesystem": "read_only",
+    "sourceMount": "read_only",
+    "workspaceMount": "ephemeral_tmpfs",
+    "sharedPaperclipControlPlaneAllowed": false,
+    "dockerSocketAllowed": false,
+    "productionCredentialsAllowed": false,
+    "customerDataAllowed": false,
+    "maximumConcurrentJobs": 1,
+    "maximumJobSeconds": 1200,
+    "maximumArtifactBytes": 2097152,
+    "cleanupRequired": true,
+    "workspaceWrites": "build_dependencies_test_outputs_only",
+    "sourceChangesMayPersist": false,
+    "arbitraryCommandInputAllowed": false
+  },
+  "syntheticBoundarySmoke": {
+    "status": "pass",
+    "proved": [
+      "disposable_container",
+      "read_only_source",
+      "no_network",
+      "no_docker_socket",
+      "fixed_profile",
+      "toolchains_available",
+      "controller_cleanup"
+    ],
+    "didNotProve": [
+      "real_repository_checkout",
+      "real_repository_tests",
+      "dependency_bootstrap",
+      "release_readiness"
+    ]
+  },
+  "network": {
+    "checkoutAndBootstrap": "allowlisted_github_and_package_registries_only",
+    "testExecutionDefault": "loopback_only",
+    "productionHosts": "deny",
+    "cloudMetadata": "deny",
+    "arbitraryOutboundRequests": "deny"
+  },
+  "profiles": {
+    "backend_static_unit": {
+      "repository": "optiak/optiak",
+      "environment": {"OPTIAK_ENV": "test"},
+      "steps": [
+        {"id": "uv_sync_frozen", "argv": ["uv", "sync", "--frozen", "--offline"]},
+        {"id": "format_check", "argv": ["make", "format-check"]},
+        {"id": "lint_check", "argv": ["make", "lint-check"]},
+        {"id": "import_check", "argv": ["make", "import-check"]},
+        {"id": "unit_tests", "argv": ["make", "tests-unit"]}
+      ]
+    },
+    "frontend_static_unit": {
+      "repository": "optiak/optiak-frontend",
+      "toolchain": {"node": "24.14.1", "pnpm": "10.33.0"},
+      "steps": [
+        {"id": "pnpm_install_frozen", "argv": ["pnpm", "install", "--frozen-lockfile", "--offline"]},
+        {"id": "lint", "argv": ["pnpm", "run", "lint"]},
+        {"id": "unit_tests", "argv": ["pnpm", "exec", "vitest", "run"]},
+        {"id": "docs_check", "argv": ["pnpm", "run", "docs:check"]},
+        {"id": "typecheck", "argv": ["pnpm", "exec", "nuxi", "typecheck"]}
+      ]
+    },
+    "iac_static_validate": {
+      "repository": "optiak/iac-infra",
+      "requiredInput": "exact_stack_path",
+      "allowedStackPrefixes": ["environments/", "auth0/environments/", "grafana/environments/"],
+      "steps": [
+        {"id": "fmt_check", "argv": ["terraform", "fmt", "-check", "-recursive"]},
+        {"id": "init_without_backend", "argvTemplate": ["terraform", "-chdir={{stack}}", "init", "-backend=false", "-lockfile=readonly"]},
+        {"id": "validate", "argvTemplate": ["terraform", "-chdir={{stack}}", "validate"]}
+      ],
+      "forbiddenSteps": ["plan", "apply", "destroy", "refresh", "state", "output", "console"]
+    }
+  },
+  "stages": {
+    "source_static_and_unit": "runner_boundary_smoke_passed_pending_exact_repository_execution",
+    "local_service_integration": "blocked_pending_synthetic_service_harness",
+    "browser_e2e": "blocked_pending_exact_target_personas_and_browser_session",
+    "deployed_non_production": "blocked_pending_explicit_board_authorization",
+    "production": "denied"
+  },
+  "evidence": {
+    "requiredFields": ["repository", "revision", "profile", "stepResults", "startedAt", "completedAt", "cleanup", "externalWrites"],
+    "testFailureIsValidEvidence": true,
+    "testPassAuthorizesRelease": false,
+    "testFailureProvesRootCause": false,
+    "fixtureProvesRuntime": false,
+    "syntheticContainerSmokeProves": "boundary_only_not_repository_or_test_readiness"
+  }
+}

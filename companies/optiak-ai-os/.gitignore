@@ -1,0 +1,8 @@
+.env
+.runtime-secrets/
+.paperclip-sdk/
+dist/
+node_modules/
+source-snapshots/
+*.zip
+*.zip.sha256

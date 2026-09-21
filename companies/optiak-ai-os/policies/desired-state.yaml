@@ -1,0 +1,348 @@
+schema: optiak-desired-state/v1
+version: 0.1.29
+instance:
+  isolation: separate_from_enki
+  database: separate
+  persistentStorage: separate
+  secretStore: separate
+agents:
+  expected: 10
+  importedPaused: true
+  heartbeatSchedulesEnabled: false
+  liveParity:
+    state: versioned_read_only_post_import_gate
+    policy: policies/agent-live-parity.json
+    checker: scripts/check-live-agent-parity.mjs
+    automaticRepair: false
+    automaticActivation: false
+    knownEffectiveAuthorityGap: none
+  directorAuthority:
+    state: portable_non_legacy_root_live_proof_required
+    role: general
+    reportsTo: null
+    canCreateAgents: false
+    requiredGrant: tasks:assign
+    forbiddenGrant: agents:create
+    policy: policies/director-authority.json
+    proof: scripts/prove-director-authority.mjs
+routines:
+  expected: 4
+  importedPaused: true
+executionBoundary:
+  state: deferred_read_only_phase
+  providerKind: sandbox_provider
+  providerKey: daytona
+  pluginPackage: "@paperclipai/plugin-daytona"
+  pluginManifestVersion: 0.1.7
+  pluginInstalled: true
+  pluginEnabled: false
+  environmentManagementEnabled: false
+  savedEnvironmentExists: false
+  initialAdapter: codex_local
+  initialAgent: senior-platform-engineer
+  initialAgentCount: 1
+  nativeRunnerEnabled: false
+  sharedControlPlaneSecurityRelaxation: deny
+  providerCredentialStorage: paperclip_environment_secret_store
+  providerCredentialInGit: deny
+  activationBeforeLiveMigrationGate: deny
+  implementationWorkspaceAssignment: deny_until_board_resumes_oai_011
+operatingModel:
+  state: offline_defined_no_runtime_authority
+  contract: references/product-engineering-operating-model.json
+  engagementContract: skills/optiak-change-control/references/engineering-engagement-contract.json
+  engagementEvaluator: skills/optiak-change-control/scripts/evaluate-engineering-engagement.mjs
+  jointReviewMatrix: references/agent-role-review-matrix.json
+  domainsExpected: 6
+  leadRequestClassesExpected: 10
+  distinctLeadAgentsExpected: 10
+  oneAgentPerDomainRequired: false
+  exactlyOneLeadPerQuestion: true
+  maximumConsultedAgents: 2
+  oneCanonicalReportPerDecision: true
+  contributorsReturnDeltaOnly: true
+  consultationRequiresDistinctQuestionAndDelta: true
+  parallelFullReports: deny
+  blanketFanout: deny
+  orgChartChanged: false
+  dataPlatformAiQuality:
+    staffingStatus: temporary_coverage_explicit_gap
+    accountable: engineering-assurance-lead
+    architectureOwner: principal-platform-architect
+    validationOwner: qa-e2e-validation-engineer
+  agentCreationRequiresAllVersionedGates: true
+  successfulGateAuthorizesRelease: false
+advisoryPhase:
+  state: read_only_refinement
+  productQualityContract: skills/optiak-product-triage/references/product-advisory-contract.json
+  productQualityEvaluator: skills/optiak-product-triage/scripts/evaluate-product-advisory.mjs
+  strategyRequiredForPriorityRecommendation: true
+  detailReadRequiredForRecommendation: true
+  machineEnvelopeSeparatedFromBoardMemo: true
+  linearWrites: deny
+  codeChangesByAgents: deny
+  automaticRetryAfterQualityFailure: deny
+budgets:
+  companyMonthlyBilledCents: 15000
+  agentMonthlyBilledCentsTotal: 10000
+  warnPercent: 80
+  hardStopPercent: 100
+  monetaryEnforcementRequiresPricedEvents: true
+  dailyRunCapsPortable: true
+  timeoutSeconds: 300
+connections:
+  notionKnowledge:
+    state: connected_policy_smoke_passed_root_registry_pending
+    provider: Notion
+    endpoint: https://mcp.notion.com/mcp
+    authentication: oauth_dcr_pkce
+    desiredPolicy: policies/notion-readonly.yaml
+    authority: skills/optiak-notion-knowledge/references/notion-authority.yaml
+    initialInstallTargets:
+      - director-optiak
+      - engineering-assurance-lead
+      - product-prd-lead
+      - principal-platform-architect
+      - senior-platform-engineer
+      - independent-code-reviewer
+      - reliability-incident-engineer
+      - qa-e2e-validation-engineer
+      - brand-ui-quality-reviewer
+      - documentation-dx-steward
+    oauthScope: authorizing_user_workspace_access
+    consentPageSelectionAvailable: false
+    hardRootBoundary: pending_dedicated_identity_or_enforcing_proxy
+    exactRootRegistry: pending_outside_git
+    observedEffectiveProfile:
+      allowed: 3
+      askFirst: 0
+      off: 42
+    defaultAction: deny
+    quarantineNewEntries: true
+    writes: deny
+  linearResponseProjection:
+    state: offline_candidate_runtime_not_applied
+    mode: metadata_only
+    semanticReviewAvailable: false
+    implementation: connectors/linear-privacy/projection.mjs
+    integrationGate: explicit_boundary_and_data_contract_decision
+  publicDocs:
+    state: public_read_only
+  roadmapBacklog:
+    state: authorized_pending_oauth
+    provider: Linear
+    endpoint: https://mcp.linear.app/mcp/readonly
+    workspace: optiak
+    team: OPT
+    initialInstallTargets:
+      - product-prd-lead
+    writes: deny
+  linearTicketPublisher:
+    state: offline_connector_ready_not_installed
+    provider: Linear GraphQL API
+    team: OPT
+    implementation: connectors/linear-ticket-publisher
+    desiredPolicy: policies/linear-ticket-publisher.yaml
+    installTargets:
+      - product-prd-lead
+    toolCount: 1
+    writeModeDefault: disabled
+    everyCallRequiresExactBoardApproval: true
+    trustRules: deny
+    automaticRetryAfterMutationAttempt: deny
+  gitProvider:
+    state: local_smoke_passed_instance_state_not_portable
+    provider: GitHub
+    endpoint: https://api.githubcopilot.com/mcp/readonly
+    authentication: fine_grained_personal_access_token
+    connectionMethod: generic_mcp_custom_headers
+    requiredHeaders:
+      - Authorization
+      - X-MCP-Readonly
+      - X-MCP-Toolsets
+    toolsets:
+      - repos
+      - pull_requests
+      - actions
+    initialInstallTargets:
+      - independent-code-reviewer
+    defaultAction: deny
+    quarantineNewEntries: true
+    enabledReadTools:
+      - actions_get
+      - actions_list
+      - get_commit
+      - get_file_contents
+      - get_job_logs
+      - get_latest_release
+      - get_release_by_tag
+      - get_tag
+      - list_branches
+      - list_commits
+      - list_pull_requests
+      - list_releases
+      - list_tags
+      - pull_request_read
+    disabledBroadTools:
+      - list_repository_collaborators
+      - search_code
+      - search_commits
+      - search_pull_requests
+      - search_repositories
+    policyChain:
+      missingOwnerAndRepoDuringDiscovery: require_approval
+      exactApprovedRepository: allow_for_independent_reviewer
+      fallback: deny
+    writes: deny
+  repositories:
+    state: local_smoke_passed_instance_state_not_portable
+    default: deny
+    allow:
+      - optiak/optiak
+      - optiak/optiak-frontend
+      - optiak/iac-infra
+  localTestUiApi:
+    state: observed_reachability_only
+    classification: non_production_candidate
+    contract: skills/optiak-e2e-validation/references/test-environment-contract.json
+    ui: reachable_http_only
+    admin: healthy
+    gateway: blocked_configuration_validation
+    mcp: healthy_with_restart_history
+    browser: disconnected
+    tenant: unclassified
+    writes: deny
+    inference: deliberately_deferred_until_deployed_environment
+    applicationCredential:
+      configuredExpirationHours: 168
+      revokeAtRunEnd: true
+    reusableSyntheticApplication:
+      retention: require_explicit_board_approval
+      activeCredentialsAfterRun: 0
+  stagingBrowserApi:
+    state: disconnected
+  observabilityAlerts:
+    state: offline_contract_defined_connection_disconnected
+    contract: skills/optiak-incident-triage/references/observability-source-contract.json
+    automaticOncallCoverage: false
+    aggregateAnalyticsFirst: true
+    rawEvents: deny
+    applicationLogs: deny_pending_structured_redaction_contract
+    sessionReplay: deny
+  production:
+    state: disconnected
+promotion:
+  state: offline_contract_defined_not_deployed
+  contract: skills/optiak-release-readiness/references/ai-os-promotion-contract.json
+  infrastructureProvider: undecided
+  directLocalToProduction: deny
+  requiredValidationEnvironment: preproduction
+  sameImmutableCandidateAcrossEnvironments: true
+  importAgentsPaused: true
+  importRoutineTriggersDisabled: true
+  stageDecisionOwner: board
+  evaluatorMayExecute: false
+qualityContracts:
+  qaSourceExecution:
+    state: dedicated_runner_synthetic_smoke_passed_real_repositories_pending
+    contract: skills/optiak-e2e-validation/references/qa-source-execution-contract.json
+    evaluator: skills/optiak-e2e-validation/scripts/evaluate-qa-source-execution.mjs
+    runner: connectors/qa-source-runner
+    image: optiak-qa-source-runner:0.1.29
+    executionAgent: qa-e2e-validation-engineer
+    repositoriesExpected: 3
+    arbitraryShell: deny
+    sharedControlPlaneExecution: deny
+    repositoryAndProductionCredentialsInRunner: deny
+    dockerSocket: deny
+    repositoryWrites: deny
+    implementationAuthority: deny
+    releaseAuthority: deny
+  executionWorkspaces:
+    state: live_lifecycle_proved_execution_boundary_blocked
+    contract: references/execution-workspace-contract.json
+    evaluator: scripts/evaluate-execution-workspace.mjs
+    implementationAgent: senior-platform-engineer
+    repositoriesExpected: 3
+    requiresPaperclipManagedIsolatedWorkspace: true
+    requiresDedicatedExecutionBoundary: true
+    requiresBubblewrap: true
+    agentGitMetadataRead: blocked_in_shared_control_plane
+    controlPlanePrivilegeExpansion: deny
+    sharedCheckout: deny
+    merge: deny
+    deploy: deny
+  notionKnowledge:
+    state: live_capability_smoke_passed_content_scope_pending
+    contract: skills/optiak-notion-knowledge/references/notion-authority.yaml
+    desiredPolicy: policies/notion-readonly.yaml
+    allTenAgentsCarrySkill: true
+    liveNotionRemainsCanonical: true
+    wholeWorkspaceExport: deny
+    writes: deny
+  frontendImplementation:
+    state: offline_skill_versioned_workspace_not_connected
+    contract: skills/optiak-frontend-implementation/SKILL.md
+    repository: optiak/optiak-frontend
+    requiresPaperclipManagedIsolatedWorkspace: true
+    skillMayCreateOrManageWorktrees: false
+    externalWrites: deny
+  pullRequestReview:
+    state: live_read_only_remote_workspace_mode_not_configured
+    contract: skills/optiak-pr-review/SKILL.md
+    rubric: skills/optiak-pr-review/references/review-rubric.md
+    remoteMcpMode: true
+    paperclipExecutionWorkspaceMode: conditional
+    skillMayCreateOrManageWorktrees: false
+    repositoryWrites: deny
+  linearTicketPublishing:
+    state: offline_connector_ready_not_installed
+    contract: references/contracts/linear-ticket-batch-v1.schema.json
+    skill: skills/optiak-linear-ticket-publishing/SKILL.md
+    desiredPolicy: policies/linear-ticket-publisher.yaml
+    importMayActivate: false
+    everyCallRequiresExactBoardApproval: true
+    uncertainOutcomeRequiresOperatorReconciliation: true
+  productEngineeringOperatingModel:
+    state: offline_defined_no_runtime_authority
+    contract: references/product-engineering-operating-model.json
+    routingFixture: references/fixtures/product-engineering-routing.json
+    engagementContract: skills/optiak-change-control/references/engineering-engagement-contract.json
+    systemRepositoryRegister: references/system-repository-register.yaml
+    handbookIndex: references/engineering-handbook-index.md
+  architectureAuthority:
+    state: offline_defined_sources_not_assumed_connected
+    contract: skills/optiak-architecture-review/references/architecture-authority-map.json
+  documentationAuthority:
+    state: offline_defined_live_pages_remain_canonical
+    contract: skills/optiak-docs-drift/references/documentation-authority-map.json
+    wholeSiteSnapshots: deny
+    publication: deny
+  prdReadiness:
+    state: offline_evaluator_ready
+    contract: skills/optiak-prd-review/references/prd-readiness-contract.json
+    evaluator: scripts/evaluate-prd-readiness.mjs
+    readyVerdictAuthorizesImplementation: false
+  postmortem:
+    state: offline_evaluator_ready
+    contract: skills/optiak-incident-triage/references/postmortem-contract.json
+    evaluator: scripts/evaluate-postmortem.mjs
+    evaluatorMayExecuteCorrectiveAction: false
+autonomy:
+  localFixturesAndDrafts: allow
+  localCredentialFreeHealthReads: exact_loopback_only
+  localAuthenticatedJourneys: deny_pending_contract_gates
+  externalReads: source_scoped
+  linearIssueCreation: deny_until_separate_connection_smoke_kill_switch_and_exact_board_approval
+  sandboxWrites: require_approval
+  mergesDeploysRollbacks: deny
+  productionMutation: deny
+  secretAdministration: deny
+sandbox:
+  currentBackend: legacy_landlock
+  targetBackend: bubblewrap
+  migrationStatus: blocked
+  controlPlanePrivilegeExpansion: deny
+  dedicatedExecutionBoundary: required
+  executionWorkspaceLiveState: lifecycle_proved_agent_git_inspection_blocked
+  compatibilityLock: runtime/compatibility.lock.json
