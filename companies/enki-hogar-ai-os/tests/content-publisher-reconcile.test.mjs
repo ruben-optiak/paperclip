@@ -137,8 +137,8 @@ test("apply verifies the catalog before granting exact profile access and enabli
     runtimeEvaluator: () => ({ok: true, findings: []}),
   });
   assert.equal(result.ok, true, JSON.stringify(result.findings));
-  assert.equal(result.summary.catalogTools, 9);
-  assert.equal(result.summary.profilesUpdated, 3);
+  assert.equal(result.summary.catalogTools, 12);
+  assert.equal(result.summary.profilesUpdated, 4);
   assert.equal(result.summary.providerWritesEnabled, false);
 
   const connection = state.connections.find((candidate) => candidate.id === "publisher-connection-id");
@@ -152,7 +152,7 @@ test("apply verifies the catalog before granting exact profile access and enabli
   assert.equal(entriesByProfile["enki.growth.read-only"], 9);
   assert.equal(entriesByProfile["enki.technology.diagnostics"], 1);
   assert.equal(entriesByProfile["enki.finance-bi.read-only"], 0);
-  assert.equal(entriesByProfile["enki.ecommerce-catalogue.read-only"], 0);
+  assert.equal(entriesByProfile["enki.ecommerce-catalogue.read-only"], 3);
   assert.equal(entriesByProfile["enki.customer-experience.read-only"], 0);
 
   const connectionCreateIndex = calls.findIndex((call) => call.method === "POST" && call.path.endsWith("/tools/connections"));

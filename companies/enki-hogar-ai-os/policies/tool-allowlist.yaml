@@ -59,12 +59,15 @@ connectors:
   content_publisher:
     allowed:
       publisher_get_capabilities: read
+      woocommerce_list_product_drafts: read
+      woocommerce_get_product_draft: read
       wordpress_list_posts: read
       wordpress_get_article: read
       facebook_list_page_posts: read
       instagram_list_media: read
       instagram_get_publishing_limit: read
     askFirst:
+      woocommerce_create_product_draft: write
       wordpress_upsert_post: write
       facebook_publish_page_post: write
       instagram_publish_image: write

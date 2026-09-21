@@ -25,7 +25,7 @@ test("health is non-sensitive and MCP requires the connector bearer", async (con
 
   const health = await fetch(`${baseUrl}/health`);
   assert.equal(health.status, 200);
-  assert.deepEqual(await health.json(), {status: "ok", service: "enki-content-publisher-mcp", version: "0.1.0"});
+  assert.deepEqual(await health.json(), {status: "ok", service: "enki-content-publisher-mcp", version: "0.2.0"});
   assert.equal((await fetch(`${baseUrl}/mcp`, {method: "POST"})).status, 401);
 
   const initialized = await fetch(`${baseUrl}/mcp`, {

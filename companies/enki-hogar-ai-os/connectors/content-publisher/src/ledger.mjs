@@ -55,7 +55,7 @@ export class PublicationLedger {
     return run;
   }
 
-  async execute({provider, operation, idempotencyKey, request}, effect) {
+  async execute({provider, operation, idempotencyKey, request}, effect, {preflight = null} = {}) {
     return this.serial(async () => {
       const ledger = await this.load();
       const key = journalKey(provider, operation, idempotencyKey);
@@ -66,6 +66,8 @@ export class PublicationLedger {
         if (existing.state === "succeeded") return {...existing.result, idempotent_replay: true};
         throw new Error("Previous publication outcome is uncertain; reconcile the operator journal before retrying");
       }
+
+      if (preflight) await preflight();
 
       const startedAt = this.now().toISOString();
       ledger.entries[key] = {

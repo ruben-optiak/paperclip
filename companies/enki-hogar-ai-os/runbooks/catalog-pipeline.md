@@ -4,7 +4,7 @@ This runbook covers the first reproducible stage of the catalogue workflow:
 
 `official snapshot → per-page raster → geometric inventory`
 
-It deliberately stops before product extraction, normalization, comparison, QA, approval and export. See [catalogue QA](../skills/enki-catalog-qa/SKILL.md) and [product-support operations](catalog-knowledge.md) for those separate boundaries.
+Generic PDF preparation deliberately stops before product extraction, normalization, comparison, QA, approval and export. The snapshot-specific `analyze-sanycces-products` command is a separate local observation path: it accepts only the exact reviewed 2026 faucet PDF and exact complete Woo export pinned by its adapter. The separate `prepare-product-media` command only transforms one already selected, rights-confirmed image using an explicit reviewed profile; it does not select products or authorize publishing. See [catalogue QA](../skills/enki-catalog-qa/SKILL.md) and [product-support operations](catalog-knowledge.md) for those separate boundaries.
 
 ## 1. Prepare external storage
 
@@ -21,7 +21,7 @@ The existing Enki operating workspace may be used as input only while it remains
 
 ```sh
 docker build \
-  --tag enki-catalog-pipeline:0.3.0 \
+  --tag enki-catalog-pipeline:0.5.0 \
   companies/enki-hogar-ai-os/scripts/catalog-pipeline
 ```
 
@@ -74,3 +74,38 @@ These are preparation artifacts, not approval. `EAI-018` defines the strict run,
 ## Production portability
 
 Production uses the same tagged source and later an independently verified OCI digest. Mount production object storage or an isolated working volume at the same `/input:ro` and `/output` boundaries. If the exact approved source and result artifacts are retained with matching checksums, they can be promoted without re-extracting; if either input, runtime or rule version changes, create a new run and repeat QA.
+
+## Reviewed Sanycces product analysis
+
+Place the pinned Sanycces PDF and complete Woo CSV together in the read-only
+input directory, then run:
+
+```sh
+companies/enki-hogar-ai-os/scripts/catalog-pipeline/run-docker.sh \
+  /path/outside/git/sanycces-input \
+  /path/outside/git/sanycces-results \
+  analyze-sanycces-products \
+  --pdf GRIFERIA_N_2026-SP.pdf \
+  --woo Productos-Export-2026-September-19-1740.csv \
+  --run-id sanycces-griferia-2026-review \
+  --render-evidence \
+  --evidence-dpi 144 \
+  --image-rights-confirmed
+```
+
+Require `valid: true`, 50/50 matrix pages with headers and references, zero
+`needs_review`, and matching artifact hashes. Review `product-group-review.csv`
+before the 927-reference detail. For this exact snapshot the PDF is catalogue
+inventory truth and Woo is the current-store snapshot. The public manufacturer
+website may enrich a record or resolve a specific ambiguity, but absence online
+does not invalidate a PDF item. A group is not automatically a Woo parent, and no
+output from this command can generate an import or draft.
+
+The Pool gate must remain `verified`: 27 visual index cards reconcile to 28 PDF
+inventory groups, comprising 20 base product candidates, four kits and four
+components; two additional references are compatibility-only mentions. The ten
+Pool matrix pages are a page count, not a product count. Visual evidence adds all
+264 split logical pages, 22 contact sheets and a hash-addressed inventory of the
+original embedded JPEGs. The reviewed vertical image mapping applies only to the
+ten Pool technical/matrix pairs with exact cardinality. Every image proposal stays
+`needs_review`, and low-resolution PDF assets must not be upscaled into final media.

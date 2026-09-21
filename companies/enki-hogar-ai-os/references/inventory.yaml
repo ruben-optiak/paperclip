@@ -418,6 +418,46 @@
       "license": "LicenseRef-Enki-Hogar-Internal",
       "purpose": "Sanitized public HTTP, XML, robots and root-index receipt for the brand sitemap without raw bodies",
       "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/product-media-profile-v1.schema.json",
+      "targetSha256": "072c0b1bfa845682506364c1839d48005f8a87f038a0a688b5a631ffbc3750ca",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Deterministic rights-gated WebP transformation profile for reviewed product media",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/product-primary-image-policy-v1.schema.json",
+      "targetSha256": "4407e66a3f8a497be850c0e6a24d8ee7aa4fd806c06f609e0da89f0d9dbfd42e",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Strict contract for deterministic white-background primary product framing",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "contracts/product-draft-bundle-v1.schema.json",
+      "targetSha256": "4edc430c75b4e1031675a546dbd75c7b291a9da40f863ed519c25eb454bea010",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Bounded evidence-backed handoff for exact approved simple or variable WooCommerce product drafts",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "commerce/sanycces-discount-policy-v1.json",
+      "targetSha256": "eaf848abd763cbca255a1ae83017cb45dfe52d1b5fbecba0c0b4ea265df097df",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Approved Sanycces net-PVP discount tiers proven against the frozen published catalogue",
+      "sensitivity": "enki_internal"
+    },
+    {
+      "target": "commerce/product-primary-image-policy.json",
+      "targetSha256": "97346dd74e6efabca59e999bdcd6bfdeae4d5cff5686ee30ff337443ec980129",
+      "origin": "package-authored",
+      "license": "LicenseRef-Enki-Hogar-Internal",
+      "purpose": "Approved exact-geometry framing policy for white-background ecommerce product heroes",
+      "sensitivity": "enki_internal"
     }
   ]
 }

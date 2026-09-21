@@ -1,0 +1,27 @@
+{
+  "schema": "enki-primary-product-image-policy/v1",
+  "policyKey": "enki-white-background-product-primary",
+  "version": "1.0.0",
+  "output": {
+    "format": "webp",
+    "width": 1000,
+    "height": 1000,
+    "background": "#FFFFFF",
+    "quality": 92,
+    "method": 6,
+    "stripMetadata": true
+  },
+  "contentDetection": {
+    "whiteThreshold": 10,
+    "paddingRatio": 0.06,
+    "targetContentFill": 0.78
+  },
+  "sourceClasses": {
+    "official": {
+      "maxUpscale": 2.0
+    },
+    "pdf-derived": {
+      "maxUpscale": 1.75
+    }
+  }
+}

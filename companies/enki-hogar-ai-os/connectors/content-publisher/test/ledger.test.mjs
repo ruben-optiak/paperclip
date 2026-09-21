@@ -60,3 +60,18 @@ test("applied reconciliation requires and preserves the verified live status", a
   assert.equal(replay.status, "draft");
   assert.equal(replay.idempotent_replay, true);
 });
+
+test("preflight runs after replay detection and before an inflight journal entry", async (context) => {
+  const ledger = await fixture(context);
+  let preflights = 0;
+  const input = {provider: "woocommerce", operation: "create_product_draft", idempotencyKey: "ENK-200:product:1", request: {product_key: "fixture"}};
+  const first = await ledger.execute(input, async () => ({external_id: "44", status: "draft"}), {
+    preflight: async () => { preflights += 1; },
+  });
+  const replay = await ledger.execute(input, async () => { throw new Error("must not execute"); }, {
+    preflight: async () => { preflights += 1; },
+  });
+  assert.equal(first.idempotent_replay, false);
+  assert.equal(replay.idempotent_replay, true);
+  assert.equal(preflights, 1);
+});

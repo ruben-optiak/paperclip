@@ -22,6 +22,15 @@ function healthyRuntime(desired) {
   const companyId = "company-fixture";
   const agents = desired.profiles.map((profile) => {
     const id = `agent-${profile.agentSlug}`;
+    const runtimeOverride = desired.agentRuntimeOverrides?.[profile.agentSlug] ?? {};
+    const expectedRuntime = {...desired.agentRuntime, ...runtimeOverride};
+    const permissionArgs = expectedRuntime.permissionProfileExtends === null
+      ? [
+          `permissions.${expectedRuntime.permissionProfile}.filesystem.\":minimal\"=\"${expectedRuntime.filesystemRules[":minimal"]}\"`,
+          `permissions.${expectedRuntime.permissionProfile}.filesystem.\":workspace_roots\".\".\"=\"${expectedRuntime.filesystemRules[":workspace_roots"]["."]}\"`,
+          `permissions.${expectedRuntime.permissionProfile}.filesystem.\":workspace_roots\".\".runtime-private/proformas\"=\"${expectedRuntime.filesystemRules[":workspace_roots"][".runtime-private/proformas"]}\"`,
+        ]
+      : [`permissions.${expectedRuntime.permissionProfile}.extends=\"${expectedRuntime.permissionProfileExtends}\"`];
     return {
       id,
       slug: profile.agentSlug,
@@ -36,11 +45,10 @@ function healthyRuntime(desired) {
           "-c",
           "approval_policy=\"never\"",
           "-c",
-          "default_permissions=\"enki-readonly-network\"",
+          `default_permissions=\"${expectedRuntime.permissionProfile}\"`,
+          ...permissionArgs.flatMap((entry) => ["-c", entry]),
           "-c",
-          "permissions.enki-readonly-network.extends=\":read-only\"",
-          "-c",
-          "permissions.enki-readonly-network.network.enabled=true",
+          `permissions.${expectedRuntime.permissionProfile}.network.enabled=${String(expectedRuntime.networkAccess)}`,
           "-c",
           "features.use_legacy_landlock=true",
         ],
@@ -159,7 +167,10 @@ test("Compose binds host health ports to loopback and never injects upstream cre
 test("every Codex permission profile argument remains a YAML string", () => {
   const extension = readFileSync(join(packageDir, ".paperclip.yaml"), "utf8");
   const quotedReadOnlyArgs = extension.match(/- "permissions\.enki-readonly-network\.extends=\\":read-only\\""/g) ?? [];
-  assert.equal(quotedReadOnlyArgs.length, 6);
+  assert.equal(quotedReadOnlyArgs.length, 5);
+  assert.match(extension, /- "permissions\.enki-proforma-output\.filesystem\.\\":minimal\\"=\\"read\\""/);
+  assert.match(extension, /- "permissions\.enki-proforma-output\.filesystem\.\\":workspace_roots\\"\.\\"\.\\"=\\"read\\""/);
+  assert.match(extension, /- "permissions\.enki-proforma-output\.filesystem\.\\":workspace_roots\\"\.\\"\.runtime-private\/proformas\\"=\\"write\\""/);
 });
 
 test("Google proxy hides unapproved GA4 growth and launches GSC through the mounted OAuth client", () => {
@@ -193,6 +204,7 @@ test("every imported skill is self-contained and its reference mirrors match can
     "enki-brand-guardian",
     "enki-catalog-qa",
     "enki-product-support",
+    "enki-proformas",
     "enki-change-control",
     "enki-customer-care",
     "enki-daily-brief",
@@ -274,7 +286,7 @@ test("compatibility lock records verified facts and leaves unverified digests pe
   assert.match(compose, /pgvector\/pgvector:0\.8\.6-pg17-bookworm@sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f/);
 });
 
-test("runtime drift gate accepts the exact zero-PII, per-agent managed-home state", () => {
+test("runtime drift gate accepts the exact PII-bounded, per-agent managed-home state", () => {
   const desired = readJsonYaml("policies/desired-state.yaml");
   const report = evaluateRuntimeDrift(desired, healthyRuntime(desired));
   assert.equal(report.ok, true, JSON.stringify(report.findings));
@@ -293,6 +305,10 @@ test("runtime drift gate rejects catalog growth, customer-level access, and shar
   runtime.agents[1].adapterConfig.env.CODEX_HOME = runtime.agents[0].adapterConfig.env.CODEX_HOME;
   runtime.agents[0].runtimeConfig.managedMcpOnly = false;
   runtime.agents[0].adapterConfig.extraArgs = runtime.agents[0].adapterConfig.extraArgs.slice(0, -2);
+  const customerExperience = runtime.agents.find((agent) => agent.slug === "customer-experience-manager");
+  customerExperience.adapterConfig.extraArgs = customerExperience.adapterConfig.extraArgs.filter(
+    (entry) => !entry.includes(".runtime-private/proformas"),
+  );
   runtime.agents[2].budgetMonthlyCents = 0;
   runtime.company.budgetMonthlyCents = 0;
   runtime.effectiveProfiles[runtime.agents.at(-1).id].allowedToolNames.push("woo_customer_lookup");
@@ -320,6 +336,7 @@ test("runtime drift gate rejects catalog growth, customer-level access, and shar
   assert.ok(codes.has("agent_codex_home_drift") || codes.has("agent_codex_home_shared"));
   assert.ok(codes.has("agent_managed_mcp_only_drift"));
   assert.ok(codes.has("agent_sandbox_backend_drift"));
+  assert.ok(codes.has("agent_sandbox_drift"));
   assert.ok(codes.has("profile_tools_overbroad"));
   assert.ok(codes.has("agent_budget_not_positive"));
   assert.ok(codes.has("company_budget_not_positive"));

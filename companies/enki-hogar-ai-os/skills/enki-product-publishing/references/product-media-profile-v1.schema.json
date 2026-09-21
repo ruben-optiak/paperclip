@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:enki:product-media-profile:v1",
+  "title": "Enki product media profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "profileKey", "version", "source", "output"],
+  "properties": {
+    "schema": {"const": "enki-product-media-profile/v1"},
+    "profileKey": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allowedMimeTypes", "minimumWidth", "minimumHeight", "rightsConfirmationRequired"],
+      "properties": {
+        "allowedMimeTypes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"enum": ["image/jpeg", "image/png", "image/webp"]}
+        },
+        "minimumWidth": {"type": "integer", "minimum": 1, "maximum": 10000},
+        "minimumHeight": {"type": "integer", "minimum": 1, "maximum": 10000},
+        "rightsConfirmationRequired": {"const": true}
+      }
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["format", "width", "height", "fit", "background", "quality", "method", "allowUpscale", "stripMetadata"],
+      "properties": {
+        "format": {"const": "webp"},
+        "width": {"type": "integer", "minimum": 256, "maximum": 2400},
+        "height": {"type": "integer", "minimum": 256, "maximum": 2400},
+        "fit": {"const": "contain"},
+        "background": {
+          "oneOf": [
+            {"const": "transparent"},
+            {"type": "string", "pattern": "^#[0-9A-F]{6}$"}
+          ]
+        },
+        "quality": {"type": "integer", "minimum": 1, "maximum": 100},
+        "method": {"type": "integer", "minimum": 0, "maximum": 6},
+        "allowUpscale": {"const": false},
+        "stripMetadata": {"const": true}
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 [project]
 name = "enki-catalog-pipeline"
-version = "0.3.0"
-description = "Reproducible, credential-free catalogue extraction and positional Woo reconciliation runtime for Enki Hogar"
+version = "0.5.0"
+description = "Reproducible, credential-free catalogue extraction, product analysis, Woo reconciliation and media runtime for Enki Hogar"
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "pdfplumber==0.11.10",

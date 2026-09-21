@@ -1,0 +1,14 @@
+{
+  "schema": "enki-proforma-company-config/v1",
+  "demoMode": true,
+  "legalName": "GRUPO ENKI O.E. — DEMOSTRACIÓN",
+  "taxId": "X0000000X",
+  "addressLines": ["Dirección fiscal de demostración", "00000 Ciudad, Provincia"],
+  "email": "hola@example.invalid",
+  "phone": "+34 900 000 000",
+  "website": "www.example.invalid",
+  "bankName": "Banco de demostración",
+  "iban": "ES00 0000 0000 0000 0000 0000",
+  "privacyText": "RESPONSABLE DE DEMOSTRACIÓN, como responsable del tratamiento, trata los datos personales proporcionados para facilitar la información, los productos o los servicios solicitados, así como para realizar la facturación y las gestiones administrativas y comerciales pertinentes. Los datos se conservarán únicamente durante el tiempo necesario para la finalidad del tratamiento o durante los plazos legales aplicables. No se comunicarán a terceros salvo obligación legal. La persona interesada puede ejercer sus derechos de acceso, rectificación, portabilidad, supresión, limitación y oposición mediante los canales indicados por el responsable, así como presentar una reclamación ante la autoridad de control competente. Texto exclusivamente ficticio y sin validez comercial.",
+  "logoPath": null
+}

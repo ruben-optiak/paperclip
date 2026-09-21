@@ -51,7 +51,7 @@ def fixture(key: str) -> tuple[dict, str]:
 class AdapterRegistryTests(unittest.TestCase):
     def test_registry_loads_exactly_four_hashed_snapshot_adapters(self) -> None:
         catalog = load_adapter_catalog()
-        self.assertEqual(PIPELINE_VERSION, "0.3.0")
+        self.assertEqual(PIPELINE_VERSION, "0.5.0")
         self.assertEqual(ADAPTER_CORE_VERSION, "0.2.0")
         self.assertEqual(len(catalog.adapters), 4)
         self.assertEqual(

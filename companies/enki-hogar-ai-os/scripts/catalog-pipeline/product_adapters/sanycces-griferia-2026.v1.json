@@ -1,0 +1,178 @@
+{
+  "schema": "enki-product-catalog-adapter/v1",
+  "version": "1.0.0",
+  "adapterKey": "sanycces-griferia-2026",
+  "brandSlug": "sanycces",
+  "implementation": "sanycces_finish_matrix_v1",
+  "reviewedAt": "2026-09-19",
+  "source": {
+    "catalogEdition": "GRIFERIA_N_2026-SP",
+    "pdfSha256": "65b51d42c3d09f893fa909fb17ce93d01934dfdde3ad7ee4195543627d93f285",
+    "pdfSizeBytes": 72854401,
+    "physicalPageCount": 133,
+    "logicalPageCount": 264,
+    "firstPrintedPage": 2,
+    "lastPrintedPage": 263
+  },
+  "wooSnapshot": {
+    "sha256": "d17beb10f05664e264b01c7b514a68267cae626842fcd3fd09531ad0d3201d95",
+    "sizeBytes": 6706220,
+    "dataRows": 1647,
+    "columns": 470,
+    "encoding": "utf-8-sig",
+    "delimiter": ",",
+    "headerBindings": [
+      {"key": "id", "position": 0, "header": "ID"},
+      {"key": "title", "position": 1, "header": "Title"},
+      {"key": "parentId", "position": 7, "header": "Parent Product ID"},
+      {"key": "sku", "position": 8, "header": "Sku"},
+      {"key": "globalUniqueId", "position": 9, "header": "Global Unique Id"},
+      {"key": "price", "position": 10, "header": "Price"},
+      {"key": "regularPrice", "position": 11, "header": "Regular Price"},
+      {"key": "stockStatus", "position": 13, "header": "Stock Status"},
+      {"key": "finish", "position": 23, "header": "Attribute Value (pa_acabado)"},
+      {"key": "series", "position": 303, "header": "Attribute Value (pa_seriessanycess)"},
+      {"key": "productType", "position": 347, "header": "Product Type"},
+      {"key": "brand", "position": 357, "header": "Marcas de productos"},
+      {"key": "categories", "position": 358, "header": "Categorías del producto"},
+      {"key": "status", "position": 362, "header": "Status"},
+      {"key": "slug", "position": 368, "header": "Slug"},
+      {"key": "imageGallery", "position": 399, "header": "Product Image Gallery"},
+      {"key": "seoTitle", "position": 436, "header": "_yoast_wpseo_title"},
+      {"key": "seoDescription", "position": 437, "header": "_yoast_wpseo_metadesc"},
+      {"key": "seoFocusKeyword", "position": 438, "header": "_yoast_wpseo_focuskw"},
+      {"key": "sourceRefs", "position": 450, "header": "_enki_source_refs"},
+      {"key": "sourcePage", "position": 453, "header": "_enki_source_page"},
+      {"key": "originalPdfSku", "position": 459, "header": "_enki_original_pdf_sku"},
+      {"key": "imageFilename", "position": 460, "header": "Image Filename"}
+    ],
+    "duplicateHeaders": {
+      "Featured": [355, 379],
+      "Title": [1, 351],
+      "URL": [350, 356]
+    }
+  },
+  "logicalPages": {
+    "model": "single-cover_then_left-right-spreads_then_single-back-cover",
+    "sections": [
+      {"key": "intro", "first": 2, "last": 15},
+      {"key": "dedal", "first": 16, "last": 69},
+      {"key": "pool", "first": 70, "last": 145},
+      {"key": "loop", "first": 146, "last": 205},
+      {"key": "cubo", "first": 206, "last": 251},
+      {"key": "accessories", "first": 252, "last": 261},
+      {"key": "info", "first": 262, "last": 263}
+    ],
+    "indexPages": [48, 49, 50, 51, 122, 123, 124, 125, 166, 167, 168, 169, 170, 171, 224, 225, 226, 227, 256, 257],
+    "matrixPairs": [
+      {"section": "dedal", "technicalFirst": 52, "technicalLast": 68, "step": 2, "matrixOffset": 1},
+      {"section": "pool", "technicalFirst": 126, "technicalLast": 144, "step": 2, "matrixOffset": 1},
+      {"section": "loop", "technicalFirst": 172, "technicalLast": 204, "step": 2, "matrixOffset": 1},
+      {"section": "cubo", "technicalFirst": 228, "technicalLast": 250, "step": 2, "matrixOffset": 1},
+      {"section": "accessories", "technicalFirst": 258, "technicalLast": 260, "step": 2, "matrixOffset": 1}
+    ]
+  },
+  "rules": {
+    "referencePattern": "^(?=[A-Z0-9]*[0-9])[A-Z][A-Z0-9]{4,23}$",
+    "finishCodes": ["CR", "BM", "MG", "RM", "NB", "BG", "RG"],
+    "allowedVariantTails": ["", "K", "KS", "S"],
+    "columnTolerancePoints": 42,
+    "headerTopTolerancePoints": 2.5,
+    "unqualifiedReferences": {
+      "ACCLV001": "sellable_candidate",
+      "ACCLV003": "sellable_candidate",
+      "ME1000": "component",
+      "ME2000": "component",
+      "MEN000": "component",
+      "MEN000SS": "component",
+      "MH2000": "component",
+      "MH2000SS": "component",
+      "RAC00012SS": "component",
+      "TE3000": "component",
+      "TEHV000": "component",
+      "TH2000": "component",
+      "TH2000SS": "component",
+      "TH5000": "component"
+    },
+    "contextOnlyReferences": {
+      "BNCA006": "compatibility_reference",
+      "ROC006": "compatibility_reference"
+    },
+    "extractOnlyReviewedMatrixPages": true,
+    "regexAloneIsEvidence": false,
+    "pageParityAloneIsEvidence": false
+  },
+  "resolvedExceptions": [
+    {"reference": "MEN000SS", "printedPage": 129, "resolution": "component", "evidence": "named sanybox inox concealed body below the wall-mounted basin mixer matrix"},
+    {"reference": "RAC00012SS", "printedPage": 133, "resolution": "component", "evidence": "named sanybox inox 1/2 connection"},
+    {"reference": "BNCA006", "printedPage": 133, "resolution": "context_reference", "evidence": "appears only in the compatibility note for RAC00012SS; sellable rows use finished SKUs"},
+    {"reference": "ROC006", "printedPage": 133, "resolution": "context_reference", "evidence": "appears only in the compatibility note for RAC00012SS"},
+    {"reference": "MH2000SS", "printedPage": 135, "resolution": "component", "evidence": "named sanybox inox concealed body below the horizontal shower mixer matrix"},
+    {"reference": "TH2000SS", "printedPage": 139, "resolution": "component", "evidence": "named sanybox inox concealed body below the thermostatic mixer matrix"},
+    {"reference": "TH2000", "printedPages": [183, 191], "resolution": "component", "evidence": "named sanybox concealed body and required companion part"},
+    {"reference": "TEHV000", "printedPage": 199, "resolution": "component", "evidence": "named sanybox concealed body below the multiposition thermostatic mixer matrix"}
+  ],
+  "officialSource": {
+    "domain": "sanycces.es",
+    "productSitemap": "https://sanycces.es/wp-sitemap-posts-producto-1.xml",
+    "wordpressRestBase": "https://sanycces.es/wp-json/wp/v2/producto",
+    "networkUse": "optional_bounded_read_only_enrichment_never_catalog_inventory_authority"
+  },
+  "mediaEvidence": {
+    "source": "official_pdf_embedded_raster",
+    "minimumLongSidePixels": 1200,
+    "extractionPolicy": "extract_original_dct_jpeg_without_resampling",
+    "approvalState": "needs_review",
+    "finalMediaEligible": false,
+    "reviewedSectionMappingExpectations": {
+      "pool": {
+        "technicalMatrixPairs": 10,
+        "equalCardinalityPairs": 10,
+        "cardinalityMismatchPairs": 0,
+        "candidateImages": 28,
+        "mappedCandidates": 28,
+        "unmappedCandidates": 0
+      }
+    }
+  },
+  "fixture": {
+    "path": "skills/enki-product-publishing/fixtures/sanycces-catalog-matrices-v1.json",
+    "sha256": "29b31a572efbb6cfdf47868da07a14f86758af3113a35d5da1206d10cedca298"
+  },
+  "qualityGate": {
+    "expectedFixtureCases": 7,
+    "minimumCasePassRate": 1,
+    "maximumFalsePositiveCount": 0,
+    "requiresExactSourceHash": true,
+    "requiresExactWooHash": true,
+    "requiresEveryMatrixPageToContainHeadersAndReferences": true,
+    "reviewedSectionExpectations": {
+      "pool": {
+        "indexCards": 27,
+        "matrixPages": 10,
+        "matrixObservations": 56,
+        "uniqueReferences": 54,
+        "totalGroups": 30,
+        "catalogInventoryGroups": 28,
+        "productCandidateGroups": 24,
+        "sellableBaseGroups": 20,
+        "kitGroups": 4,
+        "componentGroups": 4,
+        "contextOnlyGroups": 2,
+        "needsReviewGroups": 0
+      }
+    }
+  },
+  "authority": {
+    "outputMode": "local_observation_only",
+    "isCatalogInventoryTruth": true,
+    "catalogInventorySource": "official_pdf",
+    "websiteMayDefineCatalogInventory": false,
+    "websiteUse": "optional_enrichment_or_ambiguity_resolution_only",
+    "isLiveCommercialTruth": false,
+    "isConfirmedNewProductList": false,
+    "isExternalMutationAuthority": false,
+    "canGenerateWooImport": false,
+    "canPublishProducts": false
+  }
+}

@@ -251,61 +251,73 @@ export function evaluateRuntimeDrift(desired, runtime) {
     for (const {expected, agent} of expectedAgents) {
       if (!agent) continue;
       const basePath = `agents.${expected.agentSlug}`;
+      const runtimeOverride = object(object(desired.agentRuntimeOverrides)[expected.agentSlug]);
+      const expectedRuntime = {...desiredRuntime, ...runtimeOverride};
       const {adapterConfig, runtimeConfig, heartbeat, env} = runtimeShape(agent);
-      if (agent.adapterType !== desiredRuntime.adapterType) {
-        findings.push(finding("agent_adapter_drift", `${basePath}.adapterType`, desiredRuntime.adapterType, agent.adapterType ?? null, `${expected.agentSlug} has an unexpected adapter`));
+      if (agent.adapterType !== expectedRuntime.adapterType) {
+        findings.push(finding("agent_adapter_drift", `${basePath}.adapterType`, expectedRuntime.adapterType, agent.adapterType ?? null, `${expected.agentSlug} has an unexpected adapter`));
       }
       for (const [key, desiredKey] of [["engine", "engine"], ["model", "model"], ["dangerouslyBypassApprovalsAndSandbox", "dangerouslyBypassApprovalsAndSandbox"]]) {
-        if (adapterConfig[key] !== desiredRuntime[desiredKey]) {
-          findings.push(finding("agent_adapter_config_drift", `${basePath}.adapterConfig.${key}`, desiredRuntime[desiredKey] ?? null, adapterConfig[key] ?? null, `${expected.agentSlug} has unexpected ${key}`));
+        if (adapterConfig[key] !== expectedRuntime[desiredKey]) {
+          findings.push(finding("agent_adapter_config_drift", `${basePath}.adapterConfig.${key}`, expectedRuntime[desiredKey] ?? null, adapterConfig[key] ?? null, `${expected.agentSlug} has unexpected ${key}`));
         }
       }
       const skipGitRepoCheckCount = array(adapterConfig.extraArgs).filter((entry) => entry === "--skip-git-repo-check").length;
-      if (desiredRuntime.skipGitRepoCheck === true && skipGitRepoCheckCount !== 1) {
+      if (expectedRuntime.skipGitRepoCheck === true && skipGitRepoCheckCount !== 1) {
         findings.push(finding("agent_git_trust_drift", `${basePath}.adapterConfig.extraArgs.skipGitRepoCheck`, 1, skipGitRepoCheckCount, `${expected.agentSlug} must explicitly allow its generated non-git workspace exactly once`));
       }
-      const permissionProfileArg = `default_permissions=\"${desiredRuntime.permissionProfile}\"`;
-      const permissionProfileExtendsArg = `permissions.${desiredRuntime.permissionProfile}.extends=\"${desiredRuntime.permissionProfileExtends}\"`;
+      const permissionProfileArg = `default_permissions=\"${expectedRuntime.permissionProfile}\"`;
+      const permissionProfileExtendsArg = expectedRuntime.permissionProfileExtends === null
+        ? null
+        : `permissions.${expectedRuntime.permissionProfile}.extends=\"${expectedRuntime.permissionProfileExtends}\"`;
       const hasLegacySandboxFlag = array(adapterConfig.extraArgs).includes("--sandbox");
+      const filesystemRules = object(expectedRuntime.filesystemRules);
+      const workspaceRules = object(filesystemRules[":workspace_roots"]);
+      const expectedFilesystemArgs = expectedRuntime.permissionProfileExtends === null ? [
+        `permissions.${expectedRuntime.permissionProfile}.filesystem.\":minimal\"=\"${filesystemRules[":minimal"]}\"`,
+        `permissions.${expectedRuntime.permissionProfile}.filesystem.\":workspace_roots\".\".\"=\"${workspaceRules["."]}\"`,
+        `permissions.${expectedRuntime.permissionProfile}.filesystem.\":workspace_roots\".\".runtime-private/proformas\"=\"${workspaceRules[".runtime-private/proformas"]}\"`,
+      ] : [];
       if (
         hasLegacySandboxFlag
         || !hasConfigArg(adapterConfig.extraArgs, permissionProfileArg)
-        || !hasConfigArg(adapterConfig.extraArgs, permissionProfileExtendsArg)
+        || (permissionProfileExtendsArg !== null && !hasConfigArg(adapterConfig.extraArgs, permissionProfileExtendsArg))
+        || expectedFilesystemArgs.some((entry) => !hasConfigArg(adapterConfig.extraArgs, entry))
       ) {
         findings.push(finding(
           "agent_sandbox_drift",
           `${basePath}.adapterConfig.extraArgs.sandbox`,
-          {mode: desiredRuntime.sandbox, permissionProfile: desiredRuntime.permissionProfile},
+          {mode: expectedRuntime.sandbox, permissionProfile: expectedRuntime.permissionProfile},
           "missing_different_or_mixed_with_legacy_flag",
-          `${expected.agentSlug} does not enforce the expected read-only permission profile`,
+          `${expected.agentSlug} does not enforce the expected permission profile`,
         ));
       }
-      const approvalArg = `approval_policy=\"${desiredRuntime.approvalPolicy}\"`;
-      if (!hasConfigArg(adapterConfig.extraArgs, approvalArg) && !hasConfigArg(adapterConfig.extraArgs, `approval_policy=${desiredRuntime.approvalPolicy}`)) {
-        findings.push(finding("agent_approval_policy_drift", `${basePath}.adapterConfig.extraArgs.approvalPolicy`, desiredRuntime.approvalPolicy, "missing_or_different", `${expected.agentSlug} does not enforce the expected approval policy`));
+      const approvalArg = `approval_policy=\"${expectedRuntime.approvalPolicy}\"`;
+      if (!hasConfigArg(adapterConfig.extraArgs, approvalArg) && !hasConfigArg(adapterConfig.extraArgs, `approval_policy=${expectedRuntime.approvalPolicy}`)) {
+        findings.push(finding("agent_approval_policy_drift", `${basePath}.adapterConfig.extraArgs.approvalPolicy`, expectedRuntime.approvalPolicy, "missing_or_different", `${expected.agentSlug} does not enforce the expected approval policy`));
       }
-      const networkArg = `permissions.${desiredRuntime.permissionProfile}.network.enabled=${String(desiredRuntime.networkAccess)}`;
+      const networkArg = `permissions.${expectedRuntime.permissionProfile}.network.enabled=${String(expectedRuntime.networkAccess)}`;
       if (!hasConfigArg(adapterConfig.extraArgs, networkArg)) {
-        findings.push(finding("agent_network_policy_drift", `${basePath}.adapterConfig.extraArgs.networkAccess`, desiredRuntime.networkAccess, "missing_or_different", `${expected.agentSlug} does not enforce the expected sandbox network policy`));
+        findings.push(finding("agent_network_policy_drift", `${basePath}.adapterConfig.extraArgs.networkAccess`, expectedRuntime.networkAccess, "missing_or_different", `${expected.agentSlug} does not enforce the expected sandbox network policy`));
       }
-      const legacyLandlockArg = `features.use_legacy_landlock=${String(desiredRuntime.useLegacyLandlock)}`;
+      const legacyLandlockArg = `features.use_legacy_landlock=${String(expectedRuntime.useLegacyLandlock)}`;
       if (!hasConfigArg(adapterConfig.extraArgs, legacyLandlockArg)) {
-        findings.push(finding("agent_sandbox_backend_drift", `${basePath}.adapterConfig.extraArgs.useLegacyLandlock`, desiredRuntime.useLegacyLandlock, "missing_or_different", `${expected.agentSlug} does not use the Docker-compatible Landlock sandbox backend`));
+        findings.push(finding("agent_sandbox_backend_drift", `${basePath}.adapterConfig.extraArgs.useLegacyLandlock`, expectedRuntime.useLegacyLandlock, "missing_or_different", `${expected.agentSlug} does not use the Docker-compatible Landlock sandbox backend`));
       }
-      if (heartbeat.enabled !== desiredRuntime.heartbeatEnabled || heartbeat.maxConcurrentRuns !== desiredRuntime.maxConcurrentRuns) {
+      if (heartbeat.enabled !== expectedRuntime.heartbeatEnabled || heartbeat.maxConcurrentRuns !== expectedRuntime.maxConcurrentRuns) {
         findings.push(finding(
           "agent_heartbeat_drift",
           `${basePath}.runtimeConfig.heartbeat`,
-          {enabled: desiredRuntime.heartbeatEnabled, maxConcurrentRuns: desiredRuntime.maxConcurrentRuns},
+          {enabled: expectedRuntime.heartbeatEnabled, maxConcurrentRuns: expectedRuntime.maxConcurrentRuns},
           {enabled: heartbeat.enabled ?? null, maxConcurrentRuns: heartbeat.maxConcurrentRuns ?? null},
           `${expected.agentSlug} has unexpected heartbeat settings`,
         ));
       }
-      if (runtimeConfig.managedMcpOnly !== desiredRuntime.managedMcpOnly) {
-        findings.push(finding("agent_managed_mcp_only_drift", `${basePath}.runtimeConfig.managedMcpOnly`, desiredRuntime.managedMcpOnly, runtimeConfig.managedMcpOnly ?? null, `${expected.agentSlug} does not require Paperclip-managed MCP delivery`));
+      if (runtimeConfig.managedMcpOnly !== expectedRuntime.managedMcpOnly) {
+        findings.push(finding("agent_managed_mcp_only_drift", `${basePath}.runtimeConfig.managedMcpOnly`, expectedRuntime.managedMcpOnly, runtimeConfig.managedMcpOnly ?? null, `${expected.agentSlug} does not require Paperclip-managed MCP delivery`));
       }
 
-      if (desiredRuntime.requireUniqueManagedCodexHome === true) {
+      if (expectedRuntime.requireUniqueManagedCodexHome === true) {
         const codexHome = plainEnvValue(env.CODEX_HOME);
         const companyId = typeof runtime.companyId === "string" ? runtime.companyId : null;
         const expectedSuffix = companyId ? `/companies/${companyId}/agents/${agent.id}/codex-home` : null;
@@ -320,7 +332,7 @@ export function evaluateRuntimeDrift(desired, runtime) {
           managedHomes.set(normalizedHome, expected.agentSlug);
         }
       }
-      if (desiredRuntime.requireEmptyOpenAiApiKey === true && plainEnvValue(env.OPENAI_API_KEY) !== "") {
+      if (expectedRuntime.requireEmptyOpenAiApiKey === true && plainEnvValue(env.OPENAI_API_KEY) !== "") {
         findings.push(finding("agent_openai_key_binding_drift", `${basePath}.adapterConfig.env.OPENAI_API_KEY`, "empty plain value", "nonempty_or_nonplain_binding", `${expected.agentSlug} may inherit or bind an API key instead of using managed Codex auth`));
       }
     }

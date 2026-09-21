@@ -1,0 +1,16 @@
+---
+slug: prepare-sanycces-webp-media
+name: Preparar imágenes WebP de Sanycces
+assignee: ecommerce-catalogue-manager
+project: organic-growth-catalogue-quality
+---
+
+The Board/operator confirmed on 2026-09-19 that Enki has permission to reuse and transform official Sanycces images. Capture that authorization as a durable issue attachment. The PDF-first run extracts 164 original JPEG occurrences (145 unique hashes) from the reviewed technical pages without resampling. Pool contributes 28 original JPEG candidates and the restricted Pool pattern proposes 28 image↔group mappings across ten exact technical/matrix pairs. Every Pool source is below the reviewed 1,200 px long-side threshold, so none is final media automatically. The export has a direct image filename on all 212 top-level products; 932 of 1,435 variations lack a direct filename and may inherit parent media, so they are not automatically missing images.
+
+For the approved canary, review the PDF-extracted candidates first and keep product imagery separate from technical drawings. Preserve PDF SHA, printed page, placement box, source-pixel dimensions and original image hash. Reject undersized files as final media and never treat a higher-DPI page render as extra source resolution. Where better media is needed, download only allowlisted official-domain assets as enrichment, preserving URL and hash. Strip metadata, avoid upscaling and render the locked square WebP profile. Prepare Spanish alt text that identifies product and finish without keyword stuffing. Define parent gallery order and variation-specific overrides only where the asset actually depicts that finish.
+
+Acceptance requires durable rights evidence, exact source/media manifests, deterministic byte hashes, visual QA, alt-text review, parent/variation assignment and zero unsupported origins. Upload and draft creation remain behind the product kill switch and exact Board approval; live publication is out of scope.
+
+The 2026-09-20 Pool preparation also found 22 official Sanycces product PNGs at 1,200×900 px and converted them under the locked candidate profile to deterministic 1,000×1,000 WebP files without upscaling or retained metadata. Those 22 assets cover 24 PDF inventory records because the two wall-basin images are shared by the reviewed 14 cm and 18 cm configurations. The four PDF kit records have no standalone official product page or dedicated hero image; their component assets are recorded, but a kit-specific hero remains a blocking review item. Treat these outputs as prepared candidates, not approved Woo media.
+
+For Pool variable products, audit the official product gallery for a dedicated NB and RM product render and bind each verified finish asset to the matching Woo variation so the gallery changes on selection. The PDF matrix swatches are evidence of finish availability, not substitutes for a full product render. Also extract a legible, product-specific technical-dimensions crop from the reviewed PDF page and add it to the parent gallery as a shared image. Acceptance requires visual QA at storefront size, deterministic WebP hashes, Spanish alt text, exact variation/image bindings and readback proving that no sibling product, wrong finish or neighbouring technical row was included.

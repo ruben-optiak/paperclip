@@ -149,11 +149,15 @@ agents:
           - -c
           - approval_policy="never"
           - -c
-          - default_permissions="enki-readonly-network"
+          - default_permissions="enki-proforma-output"
           - -c
-          - "permissions.enki-readonly-network.extends=\":read-only\""
+          - "permissions.enki-proforma-output.filesystem.\":minimal\"=\"read\""
           - -c
-          - permissions.enki-readonly-network.network.enabled=true
+          - "permissions.enki-proforma-output.filesystem.\":workspace_roots\".\".\"=\"read\""
+          - -c
+          - "permissions.enki-proforma-output.filesystem.\":workspace_roots\".\".runtime-private/proformas\"=\"write\""
+          - -c
+          - permissions.enki-proforma-output.network.enabled=true
           - -c
           - features.use_legacy_landlock=true
     runtime:
@@ -168,6 +172,51 @@ tasks:
     status: backlog
     priority: high
   weekly-operating-review:
+    status: backlog
+    priority: high
+  normalize-sanycces-brand-taxonomy:
+    status: backlog
+    priority: high
+  complete-sanycces-seo-metadata:
+    status: backlog
+    priority: high
+  rebuild-sanycces-series-taxonomy:
+    status: backlog
+    priority: high
+  record-sanycces-source-provenance:
+    status: backlog
+    priority: medium
+  audit-sanycces-product-identifiers:
+    status: backlog
+    priority: high
+  normalize-sanycces-finish-taxonomy:
+    status: backlog
+    priority: high
+  review-sanycces-visibility-stock-policy:
+    status: backlog
+    priority: high
+  harden-sanycces-export-contract:
+    status: backlog
+    priority: medium
+  verify-sanycces-official-crosswalk:
+    status: backlog
+    priority: high
+  complete-sanycces-rm-variations:
+    status: backlog
+    priority: high
+  triage-sanycces-sellable-gaps:
+    status: backlog
+    priority: high
+  classify-sanycces-kits-components:
+    status: backlog
+    priority: medium
+  support-sanycces-variable-drafts:
+    status: backlog
+    priority: high
+  prepare-sanycces-webp-media:
+    status: backlog
+    priority: high
+  obtain-sanycces-priced-tariff:
     status: backlog
     priority: high
 routines:

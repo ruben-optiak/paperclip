@@ -1,0 +1,101 @@
+{
+  "schema": "enki-product-draft-bundle/v1",
+  "bundleKey": "fixture-brand-demo-2026-09-19",
+  "version": "1.0.0",
+  "createdAt": "2026-09-19T12:00:00Z",
+  "sourceSnapshot": {
+    "brandSlug": "fixture-brand",
+    "catalog": {
+      "logicalName": "catalogo-oficial-fixture.pdf",
+      "capturedAt": "2026-09-18T10:00:00Z",
+      "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    "wooExport": {
+      "logicalName": "woocommerce-products-complete.csv",
+      "capturedAt": "2026-09-19T08:00:00Z",
+      "sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    },
+    "officialDomains": ["manufacturer.example.invalid"],
+    "webPages": [
+      {
+        "url": "https://manufacturer.example.invalid/products/demo-60",
+        "capturedAt": "2026-09-19T09:00:00Z",
+        "sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    ]
+  },
+  "mediaProfile": {
+    "profileKey": "enki-square-candidate",
+    "sha256": "61684e9586cd0b821267f790cde69137093fca633320134a41a9f4b7ab06ada0"
+  },
+  "review": {
+    "status": "ready_for_board_review",
+    "externalMutationAuthority": "paperclip_exact_approval_only",
+    "brandGuardian": "PASS",
+    "catalogueQa": "PASS"
+  },
+  "products": [
+    {
+      "productKey": "fixture-demo-60",
+      "type": "simple",
+      "status": "draft",
+      "name": "Lavabo Demo 60 de Fixture Brand",
+      "slug": "lavabo-demo-60-fixture-brand",
+      "sku": "FIX-DEMO-60",
+      "manufacturerReference": "DEMO-60",
+      "gtin": "12345670",
+      "descriptionHtml": "<p>Contenido comercial original de fixture respaldado por evidencia saneada.</p><h2>Características</h2><ul><li>Formato de demostración</li></ul>",
+      "shortDescriptionHtml": "<p>Producto ficticio para validar el flujo de borradores.</p>",
+      "categories": [12],
+      "tags": [31],
+      "attributes": [
+        {"id": 4, "options": ["Blanco"], "visible": true, "variation": false}
+      ],
+      "images": [
+        {
+          "path": "media/fixture-demo-60-01.webp",
+          "sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "width": 1000,
+          "height": 1000,
+          "alt": "Lavabo Demo 60 de Fixture Brand",
+          "position": 0,
+          "sourceUrl": "https://manufacturer.example.invalid/media/demo-60.jpg",
+          "rightsConfirmed": true
+        }
+      ],
+      "seo": {
+        "provider": "yoast",
+        "title": "Lavabo Demo 60 Fixture Brand | Enki Hogar",
+        "description": "Ficha ficticia para validar contenido, datos técnicos, imágenes WebP y metadatos SEO antes de crear un borrador WooCommerce.",
+        "focusKeyword": "lavabo demo 60"
+      },
+      "commerce": {
+        "regularPrice": "399.00",
+        "priceEvidenceKey": "fixture-price-demo-60",
+        "manageStock": false,
+        "stockStatus": "outofstock"
+      },
+      "evidence": [
+        {
+          "field": "identity.manufacturerReference",
+          "evidenceKey": "fixture-ref-demo-60",
+          "sourceSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "confidence": "high"
+        },
+        {
+          "field": "commerce.regularPrice",
+          "evidenceKey": "fixture-price-demo-60",
+          "sourceSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "confidence": "high"
+        },
+        {
+          "field": "content.description",
+          "evidenceKey": "fixture-web-demo-60",
+          "sourceSha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "sourceUrl": "https://manufacturer.example.invalid/products/demo-60",
+          "confidence": "medium"
+        }
+      ]
+    }
+  ]
+}

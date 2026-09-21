@@ -1,7 +1,7 @@
 {
   "schema": "enki-runtime-compatibility/v1",
-  "packageVersion": "0.15.0",
-  "recordedAt": "2026-09-12",
+  "packageVersion": "0.17.0",
+  "recordedAt": "2026-09-19",
   "agentCompaniesSchema": "agentcompanies/v1",
   "paperclipBundleSchemaVersion": 7,
   "paperclip": {
@@ -54,7 +54,7 @@
     "uvImageDigest": "sha256:0664f9b563fb559314ae82b9d87cd34d503f98a96d8cd9b37fd9d9cfe76d5ede",
     "uvImageStatus": "verified_registry_oci_index_2026-08-29",
     "catalogPipeline": {
-      "version": "0.3.0",
+      "version": "0.5.0",
       "python": "3.12",
       "renderer": "pdfium",
       "extractor": "pdfplumber",
@@ -76,6 +76,10 @@
         "catalogChangeSet": "enki-catalog-change-set/v1",
         "catalogReconciliation": "enki-catalog-reconciliation/v1",
         "catalogEvidencePublication": "enki-catalog-evidence-publication/v1",
+        "productMediaProfile": "enki-product-media-profile/v1",
+        "primaryProductImagePolicy": "enki-primary-product-image-policy/v1",
+        "productDraftBundle": "enki-product-draft-bundle/v1",
+        "sanyccesProductAnalysis": "enki-sanycces-product-catalog-analysis/v1",
         "jsonSchema": "2020-12-strict",
         "semanticValidator": "enki-catalog-qa/scripts/validate_catalog_contracts.mjs",
         "reconciliationFixtureValidator": "enki-catalog-qa/scripts/validate_catalog_reconciliation.mjs",
@@ -129,6 +133,33 @@
           "isCurrentCommercialTruth": false
         },
         "status": "verified_with_sanitized_exports_and_bounded_historical_layout_replay"
+      },
+      "productCatalogAnalysis": {
+        "version": "1.0.0",
+        "adapterSchema": "enki-product-catalog-adapter/v1",
+        "adapterKey": "sanycces-griferia-2026",
+        "adapterSha256": "fde491d29dfaa75b4b1890cdd15bb415cdf45a100f401f0ca5c1a3d0a916ac0f",
+        "fixtureSha256": "29b31a572efbb6cfdf47868da07a14f86758af3113a35d5da1206d10cedca298",
+        "sourcePdfSha256": "65b51d42c3d09f893fa909fb17ce93d01934dfdde3ad7ee4195543627d93f285",
+        "wooSnapshotSha256": "d17beb10f05664e264b01c7b514a68267cae626842fcd3fd09531ad0d3201d95",
+        "physicalPages": 133,
+        "logicalPages": 264,
+        "matrixPages": 50,
+        "matrixObservations": 1024,
+        "uniqueReferences": 927,
+        "catalogReferenceGroups": 225,
+        "needsReview": 0,
+        "catalogInventorySource": "official_pdf",
+        "websiteMayDefineCatalogInventory": false,
+        "poolIndexCards": 27,
+        "poolCatalogInventoryGroups": 28,
+        "poolProductCandidateGroups": 24,
+        "poolComponentGroups": 4,
+        "poolMappedImageCandidates": 28,
+        "poolTechnicalMatrixPairs": 10,
+        "canConfirmNewProducts": false,
+        "canGenerateWooImport": false,
+        "status": "verified_pdf_inventory_with_pool_visual_and_media_gates"
       }
     }
   },
@@ -187,16 +218,19 @@
       "dependencyStatus": "verified_from_package_and_lock"
     },
     "contentPublisher": {
-      "version": "0.1.0",
+      "version": "0.2.0",
       "imageDigest": null,
       "imageStatus": "pending_release_build_and_digest_verification",
       "mcpSdk": "1.30.0",
       "zod": "4.4.3",
-      "providers": ["wordpress-rest", "facebook-graph", "instagram-graph"],
+      "providers": ["wordpress-rest", "woocommerce-rest", "facebook-graph", "instagram-graph"],
       "writeModes": ["disabled", "wordpress-drafts", "approved"],
+      "productWriteModes": ["disabled", "woo-drafts"],
+      "productDraftBundle": "enki-product-draft-bundle/v1",
+      "toolCount": 12,
       "dependencyStatus": "verified_from_package_and_lock",
-      "localQuickstartStatus": "verified_healthy_with_exact_nine_tool_catalog_and_zero_drift_2026-08-31",
-      "controlPlaneStatus": "verified_three_writes_require_board_approval_while_connector_write_mode_disabled",
+      "localQuickstartStatus": "pending_new_twelve_tool_catalog_canary",
+      "controlPlaneStatus": "versioned_four_writes_require_board_approval_with_independent_product_kill_switch",
       "providerConfigurationStatus": "intentionally_unconfigured_pending_separate_canaries"
     }
   },

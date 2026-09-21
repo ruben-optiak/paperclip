@@ -1,12 +1,14 @@
 {
   "name": "@enki-hogar/content-publisher-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "license": "MIT",
   "type": "module",
   "engines": {"node": ">=24.11.0"},
   "scripts": {
     "start": "node src/main.mjs",
+    "preflight:bundle-batch": "node scripts/preflight-bundle-batch.mjs",
+    "prepare:canary-review": "node scripts/prepare-canary-review.mjs",
     "test": "node --test test/*.test.mjs"
   },
   "dependencies": {

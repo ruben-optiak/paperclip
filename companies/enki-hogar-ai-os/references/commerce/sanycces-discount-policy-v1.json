@@ -1,0 +1,51 @@
+{
+  "schema": "enki-discount-policy/v1",
+  "policyKey": "sanycces-pvp-tier-2026-v1",
+  "brandSlug": "sanycces",
+  "status": "approved_for_new_product_candidates",
+  "approvedAt": "2026-09-20",
+  "basis": {
+    "field": "officialPvpExVat",
+    "currency": "EUR",
+    "vatPercent": "21.00",
+    "calculationOrder": [
+      "regularGross = roundHalfUp(officialPvpExVat * 1.21, 2)",
+      "saleGross = roundHalfUp(regularGross * (1 - discountPercent / 100), 2)"
+    ]
+  },
+  "tiers": [
+    {"minimumInclusive": "0.00", "maximumExclusive": "25.00", "discountPercent": "5.00"},
+    {"minimumInclusive": "25.00", "maximumExclusive": "50.00", "discountPercent": "7.50"},
+    {"minimumInclusive": "50.00", "maximumExclusive": "100.00", "discountPercent": "10.00"},
+    {"minimumInclusive": "100.00", "maximumExclusive": "250.00", "discountPercent": "15.00"},
+    {"minimumInclusive": "250.00", "maximumExclusive": "500.00", "discountPercent": "17.50"},
+    {"minimumInclusive": "500.00", "maximumExclusive": null, "discountPercent": "20.00"}
+  ],
+  "evidence": {
+    "wooExport": {
+      "logicalName": "Productos-Export-2026-September-19-1740.csv",
+      "sha256": "d17beb10f05664e264b01c7b514a68267cae626842fcd3fd09531ad0d3201d95"
+    },
+    "officialTariff": {
+      "logicalName": "PVP_NACIONAL_2026.xlsx",
+      "sha256": "7d5b13c4213ac53e849994a651c8d4f23e532d8f86e60990d3bd4982785b67d8"
+    },
+    "publishedSellableSkuRows": 1217,
+    "exactPolicyMatches": 1217,
+    "policyMismatches": 0,
+    "observedTargetDiscountCounts": {
+      "5.00": 4,
+      "7.50": 22,
+      "10.00": 78,
+      "15.00": 161,
+      "17.50": 270,
+      "20.00": 682
+    },
+    "boundaryNote": "The frozen published catalogue proves all six tiers and the 25, 250 and 500 EUR lower boundaries. The exact 50 and 100 EUR price points are absent, so their inclusive lower-bound convention is fixed by the approved contiguous policy rather than a direct boundary observation."
+  },
+  "governance": {
+    "scope": "New Sanycces product and variation candidates backed by the official tariff",
+    "externalMutationAuthority": false,
+    "overrideRule": "A different discount requires a newer reviewed policy revision and exact human approval."
+  }
+}

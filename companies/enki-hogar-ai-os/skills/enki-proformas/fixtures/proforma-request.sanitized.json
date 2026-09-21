@@ -1,0 +1,68 @@
+{
+  "schema": "enki-proforma-request/v1",
+  "issueKey": "DEMO-001",
+  "proformaNumber": "DEMO-2026-0001",
+  "date": "2026-09-21",
+  "validUntil": "2026-10-05",
+  "currency": "EUR",
+  "locale": "es-ES",
+  "customer": {
+    "billing": {
+      "name": "Cliente de Demostración S.L.",
+      "taxId": "B00000000",
+      "addressLines": ["Calle Ejemplo 1", "00000 Ciudad, Provincia"],
+      "email": "compras@example.invalid",
+      "phone": "+34 600 000 000"
+    },
+    "shippingSameAsBilling": false,
+    "shipping": {
+      "name": "Obra de Demostración",
+      "addressLines": ["Avenida de Muestra 2", "00000 Ciudad, Provincia"],
+      "phone": "+34 600 000 001"
+    }
+  },
+  "lines": [
+    {
+      "sku": "DEMO-GRIFO-001",
+      "variationId": "demo-metal-raw",
+      "productName": "Grifo monomando de lavabo — Serie Demo",
+      "variationName": "Metal Raw",
+      "quantity": 2,
+      "unitPriceGross": "199.00",
+      "lineDiscountPercent": "0.00"
+    },
+    {
+      "sku": "DEMO-ACCESORIO-002",
+      "productName": "Accesorio de baño — Serie Demo",
+      "quantity": 1,
+      "unitPriceGross": "79.00",
+      "lineDiscountPercent": "5.00"
+    },
+    {
+      "sku": "DEMO-DUCHA-003",
+      "productName": "Ducha de mano - Serie Demo",
+      "quantity": 1,
+      "unitPriceGross": "49.00",
+      "lineDiscountPercent": "0.00"
+    },
+    {
+      "sku": "DEMO-ROCIADOR-004",
+      "productName": "Rociador de ducha - Serie Demo",
+      "quantity": 1,
+      "unitPriceGross": "129.00",
+      "lineDiscountPercent": "10.00"
+    },
+    {
+      "sku": "DEMO-SOPORTE-005",
+      "productName": "Soporte mural - Serie Demo",
+      "quantity": 2,
+      "unitPriceGross": "35.00",
+      "lineDiscountPercent": "0.00"
+    }
+  ],
+  "globalDiscountPercent": "10.00",
+  "shippingGross": "12.10",
+  "vatRate": "21.00",
+  "paymentMethod": "Transferencia bancaria",
+  "notes": ["Plazo orientativo sujeto a confirmación de disponibilidad."]
+}

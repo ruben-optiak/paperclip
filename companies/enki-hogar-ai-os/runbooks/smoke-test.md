@@ -10,7 +10,7 @@ Run with all schedules paused and record evidence without secrets or PII.
 6. Google: Ads search, GA4 report, and GSC analytics query run with explicit periods. The observed GA4 catalog contains exactly six approved tools and excludes `list_google_ads_links`; any reappearance is quarantined because its upstream response contains an email field. Do not use production-changing queries.
 7. Brief and learning: manually run complete, partial, stale, and outage brief fixtures plus feedback/retrospective fixtures. Missing or historical data remains visibly labelled; a draft canary starts no clock, insufficient volume stays inconclusive, and no lesson is promoted without Board plus a regression test.
 8. Publishing offline: WordPress `render` and legacy `sync --dry-run` work without credentials; legacy `sync` without dry-run fails.
-9. Publishing connector: with its kill switch `disabled`, `publisher_get_capabilities` reports all unconfigured providers without IDs or secrets; the remaining reads, including `wordpress_get_article`, either return bounded provider data or a clear `not configured` result, and all three write tools fail before any provider call. Verify the observed catalog is exactly nine tools and the three writes are classified write/non-destructive/idempotent. Simulate all three policy decisions through `/tools/policy/test` and require `decision=require_approval` without creating an action request.
+9. Publishing connector: with both kill switches `disabled`, `publisher_get_capabilities` reports all unconfigured providers without IDs or secrets; the remaining reads, including `wordpress_get_article` and the two mounted product-bundle reads, either return bounded data or a clear `not configured` result, and all four write tools fail before mutation. Verify the observed catalog is exactly twelve tools and the four writes are classified write/non-destructive/idempotent. Simulate all four policy decisions through `/tools/policy/test` and require `decision=require_approval` without creating an action request.
 10. Governed draft canary: only after the previous gate passes, set `wordpress-drafts`, restart only `enki-content-publisher`, and request one synthetic uniquely slugged WordPress `draft` through Growth. Paperclip must show an exact-argument Board approval; rejection performs no write, approval creates one draft, and replay with the same key returns the same result without a second post. Verify the result against WordPress, then immediately run `scripts/disable-local-publishing.mjs --env-file /path/to/untracked-enki.env` and recreate only `enki-content-publisher`. Delete the synthetic draft manually in WordPress after recording sanitized evidence. Keep Facebook and Instagram blocked until their own production canary is explicitly approved.
 11. Agents: Board can assign work directly to each specialist and the reporting tree still has one Director root.
 12. Gateways: there are exactly six active agent-scoped gateways, each uses its matching default-deny profile, every connection has zero installs, and there is no active `gateway_client` token. A tools-list decision matrix must equal each profile's allowlist.
@@ -26,12 +26,12 @@ For terminal smoke evidence, write the Board verification before the agent moves
 
 ## Customer Experience zero-PII smoke
 
-The v0.15.0 Customer Experience gate is **deny**, not ask-first. Use a completely
+The v0.17.0 Customer Experience support gate is **deny**, not ask-first. Use a completely
 synthetic case to verify classification and a clearly labelled unsent draft.
 Then verify from Board that:
 
 - the WooCommerce catalog contains no exact-order or customer lookup tool;
-- the Customer Experience profile exposes only the two reviewed Woo product tools plus the eight read-only technical-support tools assigned in desired state;
+- the Customer Experience profile exposes only the two reviewed Woo product tools plus the seven read-only technical-support tools assigned in desired state;
 - a test call to an existing order capability resolves to `off` with
   `deny_default`, no origin result and no approval request.
 
@@ -42,16 +42,30 @@ future version decision. Agents must use the MCP tools injected by Codex and
 must never send `PAPERCLIP_API_KEY` directly to `/api/tool-gateway/*`; that key
 identifies the agent but is not the short-lived named-gateway bearer.
 
+## Customer Experience proforma smoke
+
+Use only `skills/enki-proformas/fixtures/`, never real customer data:
+
+1. Run the four unit tests and require them to pass.
+2. Print the request SHA-256, generate the canonically named draft PDF and its receipt, and render every page.
+3. Confirm the draft is A4, visibly marked `BORRADOR — NO ENVIAR`, uses the exact two fixture references, and shows subtotal, both discount levels, shipping, base, included VAT and total.
+4. Search the receipt and prove that fixture name, tax ID, email, phone and address are absent; require `externalWrites: 0` and `messageSent: false`.
+5. Confirm final mode rejects both the demo company config and a mismatched approval hash.
+6. Confirm no WhatsApp/email tool, credential or path was added.
+
+Do not upload a real PII-bearing PDF to a Paperclip issue. The production PDF remains in the Customer Experience private workspace.
+
 ## Per-agent isolation evidence
 
 Before activating an agent, assign it a synthetic local-only task and retain only PASS/FAIL evidence:
 
 - its workspace path and managed `CODEX_HOME` are different from those of the other five agents;
-- write probes against its own workspace, Paperclip's managed scratch path, the packaged Enki definition, and a sibling agent workspace are denied and leave no file behind;
-- it can persist a synthetic draft only through the assigned Paperclip issue/work-product path, without an external publication;
+- for five agents, write probes against their own workspace, Paperclip's managed scratch path, the packaged Enki definition, and a sibling agent workspace are denied and leave no file behind;
+- for Customer Experience, writes succeed only below `.runtime-private/proformas/`; probes against the rest of its workspace, the packaged Enki definition, managed scratch, and sibling workspaces are denied and leave no file behind;
+- Customer Experience can render a synthetic proforma and its PII-free receipt inside `.runtime-private/proformas/`; all other agents persist deliverables only through their assigned Paperclip issue/work-product path;
 - its environment contains no `WOO_*`, `GOOGLE_*`, `*_MCP_TOKEN`, connector bearer, ADC or OAuth token binding; Quickstart may carry an `OPENAI_API_KEY` placeholder, which must be unset or empty (test emptiness without printing the value);
 - it can reach `PAPERCLIP_API_URL`, use its governed MCP gateway, and complete a trivial Codex-authenticated run.
-- its run log shows `default_permissions="enki-readonly-network"` and `features.use_legacy_landlock=true`, with no Bubblewrap namespace failure; filesystem access remains read-only while the governed API/MCP path works.
+- each non-Customer-Experience run log shows `default_permissions="enki-readonly-network"`; Customer Experience shows `default_permissions="enki-proforma-output"` plus the exact `.runtime-private/proformas/` write rule. Every run shows `features.use_legacy_landlock=true` and no Bubblewrap namespace failure.
 - its run log materializes assigned skills below the run-owned temporary `HOME/.agents/skills`, the agent can read the selected `SKILL.md`, and no skill path advertised to the agent points into the credential-bearing managed `CODEX_HOME`;
 - its generated managed MCP block contains `default_tools_approval_mode = "approve"` and `http_headers`, never the ignored legacy `headers` key; the gateway audit must still show every permitted call as `profile_allows_tool` followed by `tool_completed`.
 

@@ -1,7 +1,7 @@
 {
   "schema": "enki-runtime-desired-state/v1",
   "companySlug": "enki-hogar-ai-os",
-  "packageVersion": "0.15.0",
+  "packageVersion": "0.17.0",
   "mode": "governed-publishing",
   "rejectUnexpectedActiveConnections": true,
   "rejectUnexpectedAgents": true,
@@ -69,6 +69,21 @@
     "managedMcpOnly": true,
     "requireUniqueManagedCodexHome": true,
     "requireEmptyOpenAiApiKey": true
+  },
+  "agentRuntimeOverrides": {
+    "customer-experience-manager": {
+      "sandbox": "scoped-proforma-write",
+      "permissionProfile": "enki-proforma-output",
+      "permissionProfileExtends": null,
+      "filesystemRules": {
+        ":minimal": "read",
+        ":workspace_roots": {
+          ".": "read",
+          ".runtime-private/proformas": "write"
+        }
+      },
+      "networkAccess": true
+    }
   },
   "connections": [
     {
@@ -182,6 +197,9 @@
       "quarantineNewEntries": true,
       "tools": [
         "publisher_get_capabilities",
+        "woocommerce_list_product_drafts",
+        "woocommerce_get_product_draft",
+        "woocommerce_create_product_draft",
         "wordpress_list_posts",
         "wordpress_get_article",
         "wordpress_upsert_post",
@@ -192,6 +210,7 @@
         "instagram_publish_image"
       ],
       "writeTools": [
+        "woocommerce_create_product_draft",
         "wordpress_upsert_post",
         "facebook_publish_page_post",
         "instagram_publish_image"
@@ -318,7 +337,10 @@
         "catalogue_search_field_evidence",
         "catalogue_get_field_evidence",
         "catalogue_get_evidence_crop",
-        "catalogue_evidence_coverage"
+        "catalogue_evidence_coverage",
+        "woocommerce_list_product_drafts",
+        "woocommerce_get_product_draft",
+        "woocommerce_create_product_draft"
       ]
     },
     {
@@ -380,6 +402,7 @@
       "priority": 100,
       "enabled": true,
       "requiredToolNames": [
+        "woocommerce_create_product_draft",
         "wordpress_upsert_post",
         "facebook_publish_page_post",
         "instagram_publish_image"

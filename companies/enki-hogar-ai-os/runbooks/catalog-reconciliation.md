@@ -1,6 +1,6 @@
 # Woo catalogue reconciliation
 
-This runbook governs `enki-catalog-pipeline` `0.3.0` and `catalog-reconciliation/v1`. It turns one exact, complete Woo export plus independently evidenced candidates into local review artifacts. It has no Woo credentials, no network and no import generator.
+This runbook governs `enki-catalog-pipeline` `0.5.0` and `catalog-reconciliation/v1`. It turns one exact, complete Woo export plus independently evidenced candidates into local review artifacts. It has no Woo credentials, no network and no import generator.
 
 ## What this solves
 
@@ -54,7 +54,7 @@ The locked result is five files, two entities, five candidate fields, two matche
 
 ```sh
 docker build \
-  --tag enki-catalog-pipeline:0.3.0 \
+  --tag enki-catalog-pipeline:0.5.0 \
   companies/enki-hogar-ai-os/scripts/catalog-pipeline
 
 companies/enki-hogar-ai-os/scripts/catalog-pipeline/run-docker.sh \

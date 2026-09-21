@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "enki-proforma-company-config/v1",
+  "title": "Enki proforma company config v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "demoMode", "legalName", "taxId", "addressLines", "email", "phone", "website", "bankName", "iban", "privacyText", "logoPath"],
+  "properties": {
+    "schema": {"const": "enki-proforma-company-config/v1"},
+    "demoMode": {"type": "boolean"},
+    "legalName": {"type": "string", "minLength": 1, "maxLength": 120},
+    "taxId": {"type": "string", "maxLength": 40},
+    "addressLines": {"type": "array", "minItems": 1, "maxItems": 4, "items": {"type": "string", "maxLength": 120}},
+    "email": {"type": "string", "maxLength": 120},
+    "phone": {"type": "string", "maxLength": 40},
+    "website": {"type": "string", "maxLength": 120},
+    "bankName": {"type": "string", "maxLength": 120},
+    "iban": {"type": "string", "maxLength": 50},
+    "privacyText": {"type": "string", "minLength": 1, "maxLength": 1600},
+    "logoPath": {"type": ["string", "null"]}
+  }
+}
