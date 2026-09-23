@@ -24,6 +24,12 @@ del conector gobernado.
    `content-review` para esa revisión exacta antes de solicitar publicación.
 6. Congela hipótesis, baseline, limitaciones y checkpoints en `publication-retrospective`; el reloj empieza únicamente con el timestamp live del proveedor.
 
+## Productos etiquetados
+
+- Si una publicación visual se centra en un producto real, prepara el vínculo a su ficha exacta del catálogo. Comprueba en WooCommerce y en el catálogo la identidad, variante/acabado, imagen, URL, precio y disponibilidad; nunca sustituyas por un producto o acabado parecido.
+- Registra en `content-draft` y `content-review` el producto y variante Woo, el ID de catálogo Meta si existe, la URL de la ficha y la imagen o slide donde irá la etiqueta. La aprobación humana debe cubrir ese mapeo exacto.
+- Etiqueta el producto al publicar solo si el canal y el conector gobernado exponen esa capacidad y verifica el resultado live. Si la API no admite etiquetas o falla, no uses Graph directa ni declares el post etiquetado: deja en Paperclip la URL del post y el producto como `pendiente_etiqueta_manual`, pide al operador completarlo y verifica desde otra cuenta. Si la etiqueta es esencial para la campaña, solicita aprobación específica antes de publicar sin ella.
+
 ## Publicación
 
 - Facebook v0.1: un post de texto y enlace opcional mediante
