@@ -205,15 +205,19 @@
         "wordpress_upsert_post",
         "facebook_list_page_posts",
         "facebook_publish_page_post",
+        "facebook_publish_multi_photo",
         "instagram_list_media",
         "instagram_get_publishing_limit",
-        "instagram_publish_image"
+        "instagram_publish_image",
+        "instagram_publish_carousel"
       ],
       "writeTools": [
         "woocommerce_create_product_draft",
         "wordpress_upsert_post",
         "facebook_publish_page_post",
-        "instagram_publish_image"
+        "facebook_publish_multi_photo",
+        "instagram_publish_image",
+        "instagram_publish_carousel"
       ]
     },
     {
@@ -308,9 +312,11 @@
         "wordpress_upsert_post",
         "facebook_list_page_posts",
         "facebook_publish_page_post",
+        "facebook_publish_multi_photo",
         "instagram_list_media",
         "instagram_get_publishing_limit",
-        "instagram_publish_image"
+        "instagram_publish_image",
+        "instagram_publish_carousel"
       ]
     },
     {
@@ -405,7 +411,9 @@
         "woocommerce_create_product_draft",
         "wordpress_upsert_post",
         "facebook_publish_page_post",
-        "instagram_publish_image"
+        "facebook_publish_multi_photo",
+        "instagram_publish_image",
+        "instagram_publish_carousel"
       ]
     },
     {

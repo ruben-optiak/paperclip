@@ -13,7 +13,7 @@ write also crosses Paperclip governance:
 1. `CONTENT_PUBLISH_WRITE_MODE` defaults to `disabled` inside the connector.
 2. `PRODUCT_PUBLISH_WRITE_MODE` separately defaults to `disabled`; only
    `woo-drafts` permits a product write.
-3. Paperclip keeps all four write tools on **Ask a human first**.
+3. Paperclip keeps all six write tools on **Ask a human first**.
 
 Supported modes:
 
@@ -76,7 +76,9 @@ Ask-first write tools:
 - `woocommerce_create_product_draft`
 - `wordpress_upsert_post`
 - `facebook_publish_page_post`
+- `facebook_publish_multi_photo`
 - `instagram_publish_image`
+- `instagram_publish_carousel`
 
 There is no product update/publish/delete, taxonomy creation, delete, comment,
 direct-message, account-management, bulk publish, WordPress page/plugin, or
@@ -117,9 +119,13 @@ and off by default. Editorial media upload remains absent: use an existing
 used only to upload the bundle's verified WebP files, and separate WooCommerce
 REST credentials used only for product lookup, draft creation and readback.
 
-Facebook v0.1.0 publishes one Page text/link post. Instagram v0.1.0 publishes one
-JPEG from a public HTTPS URL using the media-container then `media_publish`
-flow. The reviewed route is Instagram API with Facebook Login: a Meta Business
+Facebook publishes one Page text/link post or one 2–10-image multi-photo post
+using unpublished Page photos and `attached_media`. Instagram publishes one
+JPEG or one 2–10-image carousel from public HTTPS JPEG URLs. Each carousel
+item and the parent must finish processing before `media_publish`. Meta fetches
+the source images; the connector does not upload or transform them. An
+interrupted multi-step operation leaves the journal uncertain and requires
+operator reconciliation before any retry. The reviewed route is Instagram API with Facebook Login: a Meta Business
 app, Page, linked professional Instagram account and Page access token with
 `pages_show_list`, `pages_read_engagement`, `pages_manage_posts`,
 `instagram_basic`, and `instagram_content_publish`. Do not grant messaging or
@@ -134,6 +140,8 @@ Primary references:
 - [WooCommerce products REST API](https://developer.woocommerce.com/docs/apis/rest-api/v3/products)
 - [Official Meta Instagram API collection](https://www.postman.com/meta/instagram/documentation/6yqw8pt/instagram-api)
 - [Official Meta Facebook API collection](https://www.postman.com/meta/facebook/documentation/r56bjfd/facebook-api)
+- [Meta Page Photos reference](https://developers.facebook.com/docs/graph-api/reference/page/photos/)
+- [Meta Instagram content publishing](https://developers.facebook.com/docs/instagram-platform/content-publishing/)
 
 ## Development
 

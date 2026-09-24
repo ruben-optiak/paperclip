@@ -27,13 +27,60 @@ test("publishes the exact reviewed read and ask-first write catalog", () => {
     "wordpress_upsert_post",
     "facebook_list_page_posts",
     "facebook_publish_page_post",
+    "facebook_publish_multi_photo",
     "instagram_list_media",
     "instagram_get_publishing_limit",
     "instagram_publish_image",
+    "instagram_publish_carousel",
   ]);
   const writes = tools.filter((tool) => tool.annotations.readOnlyHint === false);
-  assert.deepEqual(writes.map((tool) => tool.name), ["woocommerce_create_product_draft", "wordpress_upsert_post", "facebook_publish_page_post", "instagram_publish_image"]);
+  assert.deepEqual(writes.map((tool) => tool.name), ["woocommerce_create_product_draft", "wordpress_upsert_post", "facebook_publish_page_post", "facebook_publish_multi_photo", "instagram_publish_image", "instagram_publish_carousel"]);
   assert.equal(writes.every((tool) => tool.annotations.idempotentHint === true && tool.annotations.destructiveHint === false), true);
+});
+
+test("carousel tools enforce the kill switch and exact image bounds before touching Meta", async () => {
+  let calls = 0;
+  const tools = definitions({meta: {publishFacebookMultiPhoto: async () => { calls += 1; }, publishInstagramCarousel: async () => { calls += 1; }}});
+  const facebook = tools.find((entry) => entry.name === "facebook_publish_multi_photo");
+  const instagram = tools.find((entry) => entry.name === "instagram_publish_carousel");
+  const image = {image_url: "https://shop.example.invalid/mirror.jpg"};
+  const denied = await facebook.execute({idempotency_key: "ENK-72:facebook:1", message: "Mirrors", images: [image, image]});
+  assert.equal(denied.isError, true);
+  assert.match(denied.content[0].text, /kill switch/);
+  const invalid = await instagram.execute({idempotency_key: "ENK-72:instagram:1", caption: "Mirrors", images: [{...image, alt_text: "Mirror"}]});
+  assert.equal(invalid.isError, true);
+  assert.match(invalid.content[0].text, />=2 items/);
+  const webp = await instagram.execute({idempotency_key: "ENK-72:instagram:2", caption: "Mirrors", images: [
+    {image_url: "https://shop.example.invalid/one.webp", alt_text: "One"},
+    {image_url: "https://shop.example.invalid/two.jpg", alt_text: "Two"},
+  ]});
+  assert.equal(webp.isError, true);
+  assert.match(webp.content[0].text, /JPEG URL/);
+  assert.equal(calls, 0);
+});
+
+test("approved carousel calls preserve reviewed order and arguments in separate journals", async () => {
+  const journal = [];
+  const calls = [];
+  const tools = definitions({
+    config: {writeMode: "approved", meta: {facebookPageId: "page-1", instagramUserId: "ig-1"}},
+    meta: {
+      publishFacebookMultiPhoto: async (input) => { calls.push(input); return {external_id: "fb-1"}; },
+      publishInstagramCarousel: async (input) => { calls.push(input); return {external_id: "ig-1"}; },
+    },
+    ledger: {execute: async (input, effect) => { journal.push(input); return effect(); }},
+  });
+  const images = ["one", "two"].map((name) => ({image_url: `https://shop.example.invalid/${name}.jpg`, alt_text: name}));
+  const fb = await tools.find((entry) => entry.name === "facebook_publish_multi_photo").execute({
+    idempotency_key: "ENK-72:facebook:1", message: "Mirrors", images: images.map(({image_url}) => ({image_url})),
+  });
+  const ig = await tools.find((entry) => entry.name === "instagram_publish_carousel").execute({
+    idempotency_key: "ENK-72:instagram:1", caption: "Mirrors", images,
+  });
+  assert.equal(fb.isError, undefined);
+  assert.equal(ig.isError, undefined);
+  assert.deepEqual(journal.map((entry) => [entry.provider, entry.operation]), [["facebook", "publish_multi_photo"], ["instagram", "publish_carousel"]]);
+  assert.deepEqual(calls[1].images, images);
 });
 
 test("product kill switch rejects a draft before reading the bundle", async () => {

@@ -149,7 +149,7 @@ revision. Any content or media change creates a new bundle hash and approval.
 Mount only that bundle directory at `/data/product-draft:ro`. Configure dedicated
 revocable WooCommerce REST credentials and a dedicated WordPress Application
 Password for product media. Keep both connector write modes disabled while
-reconciling the exact twelve-tool catalog and confirming Ecommerce alone has the
+reconciling the exact fourteen-tool catalog and confirming Ecommerce alone has the
 three product-draft tools.
 
 First call the two read tools and compare the returned bundle hash. Then enable

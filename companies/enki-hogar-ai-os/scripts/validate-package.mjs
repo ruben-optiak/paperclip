@@ -411,9 +411,9 @@ if (compatibility.connectors?.productSupportKnowledge?.agentDatabaseRoleStatus !
 if (compatibility.connectors?.catalogueEvidence?.version !== "0.1.0") fail("Compatibility lock must pin catalogue-evidence connector 0.1.0");
 if (compatibility.connectors?.catalogueEvidence?.mcpSdk !== "1.30.0" || compatibility.connectors?.catalogueEvidence?.ajv !== "8.18.0" || compatibility.connectors?.catalogueEvidence?.ajvFormats !== "3.0.1" || compatibility.connectors?.catalogueEvidence?.zod !== "4.4.3") fail("Compatibility lock must pin catalogue-evidence dependencies");
 if (compatibility.connectors?.catalogueEvidence?.publicationSchema !== "enki-catalog-evidence-publication/v1" || compatibility.connectors?.catalogueEvidence?.toolCount !== 5 || compatibility.connectors?.catalogueEvidence?.mountMode !== "approved_projection_read_only" || compatibility.connectors?.catalogueEvidence?.rawInputsAccessible !== false) fail("Catalogue-evidence compatibility boundary drift");
-if (compatibility.connectors?.contentPublisher?.version !== "0.2.0") fail("Compatibility lock must pin content publisher connector 0.2.0");
+if (compatibility.connectors?.contentPublisher?.version !== "0.3.0") fail("Compatibility lock must pin content publisher connector 0.3.0");
 if (compatibility.connectors?.contentPublisher?.mcpSdk !== "1.30.0" || compatibility.connectors?.contentPublisher?.zod !== "4.4.3") fail("Compatibility lock must pin content publisher dependencies");
-if (compatibility.connectors?.contentPublisher?.toolCount !== 12 || compatibility.connectors?.contentPublisher?.productDraftBundle !== "enki-product-draft-bundle/v1") fail("Content publisher product-draft compatibility boundary drift");
+if (compatibility.connectors?.contentPublisher?.toolCount !== 14 || compatibility.connectors?.contentPublisher?.productDraftBundle !== "enki-product-draft-bundle/v1") fail("Content publisher product-draft compatibility boundary drift");
 if (compatibility.paperclip?.upstreamBaseCommit !== "35fca95626a04f5a7ec42cf95989c3d779a1687e") fail("Compatibility lock must identify the reviewed Paperclip base commit");
 if (compatibility.codex?.managedMcpDefaultToolsApprovalMode !== "approve") fail("Compatibility lock must delegate managed MCP dispatch approval to the Paperclip gateway");
 if (!String(compatibility.codex?.managedMcpApprovalModeStatus || "").includes("verified")) fail("Managed MCP approval mode must carry verified runtime evidence");
@@ -560,7 +560,7 @@ for (const tool of ["woo_sales_summary", "woo_orders_summary", "woo_get_product"
 }
 
 const publisherPackage = jsonYaml("connectors/content-publisher/package.json");
-if (publisherPackage.name !== "@enki-hogar/content-publisher-mcp" || publisherPackage.version !== "0.2.0") fail("Unexpected content publisher connector package identity");
+if (publisherPackage.name !== "@enki-hogar/content-publisher-mcp" || publisherPackage.version !== "0.3.0") fail("Unexpected content publisher connector package identity");
 if (publisherPackage.dependencies?.["@modelcontextprotocol/sdk"] !== "1.30.0" || publisherPackage.dependencies?.zod !== "4.4.3") fail("Content publisher connector dependencies must be exactly pinned");
 const publisherPackageLock = jsonYaml("connectors/content-publisher/package-lock.json");
 if (publisherPackageLock.packages?.["node_modules/@modelcontextprotocol/sdk"]?.version !== "1.30.0" || publisherPackageLock.packages?.["node_modules/zod"]?.version !== "4.4.3") fail("Content publisher connector lock must preserve reviewed dependency versions");
@@ -574,19 +574,23 @@ const expectedPublisherTools = [
   "wordpress_upsert_post",
   "facebook_list_page_posts",
   "facebook_publish_page_post",
+  "facebook_publish_multi_photo",
   "instagram_list_media",
   "instagram_get_publishing_limit",
   "instagram_publish_image",
+  "instagram_publish_carousel",
 ];
 const expectedPublisherWriteTools = [
   "woocommerce_create_product_draft",
   "wordpress_upsert_post",
   "facebook_publish_page_post",
+  "facebook_publish_multi_photo",
   "instagram_publish_image",
+  "instagram_publish_carousel",
 ];
 const publisherTools = readFileSync(join(packageDir, "connectors", "content-publisher", "src", "tools.mjs"), "utf8");
 for (const tool of expectedPublisherTools) if (!publisherTools.includes(`\"${tool}\"`)) fail(`Content publisher connector is missing reviewed tool: ${tool}`);
-for (const forbidden of ["delete", "comment", "direct_message", "refund", "upload_media", "publish_reel", "publish_story", "publish_carousel"]) if (publisherTools.includes(`\"${forbidden}`)) fail(`Content publisher MCP must not expose unsupported operation: ${forbidden}`);
+for (const forbidden of ["delete", "comment", "direct_message", "refund", "upload_media", "publish_reel", "publish_story"]) if (publisherTools.includes(`\"${forbidden}`)) fail(`Content publisher MCP must not expose unsupported operation: ${forbidden}`);
 if (!/readOnlyHint:\s*readOnly/.test(publisherTools) || !/idempotentHint:\s*idempotent/.test(publisherTools) || !/destructiveHint:\s*false/.test(publisherTools)) fail("Content publisher tools must declare reviewed MCP risk annotations");
 if (!/assertProductWriteAllowed\(config\)/.test(publisherTools) || !/assertWriteAllowed\(config,\s*"wordpress"/.test(publisherTools) || !/assertWriteAllowed\(config,\s*"facebook"/.test(publisherTools) || !/assertWriteAllowed\(config,\s*"instagram"/.test(publisherTools)) fail("Every content publisher write path must enforce its connector kill switch");
 if ((publisherTools.match(/idempotency_key:/g) || []).length !== expectedPublisherWriteTools.length) fail("Every content publisher write tool must require exactly one idempotency key");
@@ -707,8 +711,8 @@ if (desiredCatalogConnection?.endpoint !== "http://enki-product-support-knowledg
 const desiredCatalogueEvidenceConnection = desired.connections?.find((connection) => connection.key === "catalogue_evidence");
 if (desiredCatalogueEvidenceConnection?.endpoint !== "http://enki-catalogue-evidence:8050/mcp" || [...(desiredCatalogueEvidenceConnection?.tools || [])].sort().join(",") !== [...expectedCatalogueEvidenceTools].sort().join(",")) fail("Desired catalogue-evidence connection must expose the exact reviewed five-tool catalog");
 const desiredPublisherConnection = desired.connections?.find((connection) => connection.key === "content_publisher");
-if (desiredPublisherConnection?.endpoint !== "http://enki-content-publisher:8040/mcp" || [...(desiredPublisherConnection?.tools || [])].sort().join(",") !== [...expectedPublisherTools].sort().join(",")) fail("Desired content publisher connection must expose the exact reviewed twelve-tool catalog");
-if ([...(desiredPublisherConnection?.writeTools || [])].sort().join(",") !== [...expectedPublisherWriteTools].sort().join(",")) fail("Desired content publisher connection must identify exactly the four governed write tools");
+if (desiredPublisherConnection?.endpoint !== "http://enki-content-publisher:8040/mcp" || [...(desiredPublisherConnection?.tools || [])].sort().join(",") !== [...expectedPublisherTools].sort().join(",")) fail("Desired content publisher connection must expose the exact reviewed fourteen-tool catalog");
+if ([...(desiredPublisherConnection?.writeTools || [])].sort().join(",") !== [...expectedPublisherWriteTools].sort().join(",")) fail("Desired content publisher connection must identify exactly the six governed write tools");
 if (desiredPublisherConnection?.quarantineNewEntries !== true) fail("Desired content publisher connection must quarantine newly discovered or changed tools");
 const desiredToolNames = new Set((desired.connections || []).flatMap((connection) => connection.tools || []));
 const analyticsProxy = jsonYaml("connectors/google-mcps/config/analytics-proxy.json");
@@ -764,7 +768,7 @@ for (const gateway of desired.gateways || []) {
 }
 if (gatewayAgents.size !== agents.size || gatewayProfiles.size !== desiredProfilesByKey.size) fail("Desired gateways must cover every Enki agent and profile exactly once");
 const approvalPolicy = desired.policies?.find((policy) => policy.name === "Enki require Board approval for publishing") || {};
-if (approvalPolicy.policyType !== "require_approval" || approvalPolicy.priority !== 100 || approvalPolicy.enabled !== true || [...(approvalPolicy.requiredToolNames || [])].sort().join(",") !== [...expectedPublisherWriteTools].sort().join(",")) fail("Desired state must require Board approval for the exact four publication tools before the global block");
+if (approvalPolicy.policyType !== "require_approval" || approvalPolicy.priority !== 100 || approvalPolicy.enabled !== true || [...(approvalPolicy.requiredToolNames || [])].sort().join(",") !== [...expectedPublisherWriteTools].sort().join(",")) fail("Desired state must require Board approval for the exact six publication tools before the global block");
 const blockPolicy = desired.policies?.find((policy) => policy.name === "Enki block write and destructive tools") || {};
 if (blockPolicy.name !== "Enki block write and destructive tools" || blockPolicy.policyType !== "block" || blockPolicy.priority !== 1000 || blockPolicy.enabled !== true || [...(blockPolicy.requiredRiskLevels || [])].sort().join(",") !== "destructive,write") fail("Desired state must contain the exact global write/destructive block policy");
 const desiredRuntime = desired.agentRuntime || {};

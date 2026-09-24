@@ -4,10 +4,16 @@ import {assertProductWriteAllowed, assertWriteAllowed} from "./config.mjs";
 
 const idempotencyKey = z.string().trim().min(8).max(128).regex(/^[A-Za-z0-9._:-]+$/, "Use letters, digits, dot, colon, underscore, or hyphen");
 const httpsUrl = z.string().url().refine((value) => new URL(value).protocol === "https:", "Use an HTTPS URL");
+const jpegUrl = httpsUrl.refine((value) => /\.jpe?g$/i.test(new URL(value).pathname), "Use a public JPEG URL ending in .jpg or .jpeg");
 const term = z.union([z.number().int().positive(), z.string().trim().min(1).max(100)]);
 const wordpressStatus = z.enum(["draft", "pending", "future", "publish"]);
 const sha256 = z.string().regex(/^[0-9a-f]{64}$/);
 const slug = z.string().trim().min(1).max(200).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+const carouselImages = z.array(z.object({
+  image_url: jpegUrl,
+  alt_text: z.string().trim().min(1).max(1_000),
+}).strict()).min(2).max(10);
+const facebookImages = z.array(z.object({image_url: httpsUrl}).strict()).min(2).max(10);
 
 function result(value) {
   return {content: [{type: "text", text: JSON.stringify(value, null, 2)}]};
@@ -348,6 +354,25 @@ export function createToolDefinitions({config, wordpress, meta, productBundle, p
         }, () => client.publishFacebookPost(input));
       },
     ),
+    writeTool(
+      "facebook_publish_multi_photo",
+      "Publish one Facebook Page multi-photo post from 2–10 public HTTPS images. Paperclip must require human approval for every call.",
+      z.object({
+        idempotency_key: idempotencyKey,
+        message: z.string().trim().min(1).max(63_206),
+        images: facebookImages,
+      }).strict(),
+      async (input) => {
+        assertWriteAllowed(config, "facebook");
+        const client = requireClient(meta, "Meta");
+        return ledger.execute({
+          provider: "facebook",
+          operation: "publish_multi_photo",
+          idempotencyKey: input.idempotency_key,
+          request: input,
+        }, () => client.publishFacebookMultiPhoto(input));
+      },
+    ),
     readTool(
       "instagram_list_media",
       "List bounded media published by the configured Instagram professional account for editorial memory.",
@@ -378,6 +403,25 @@ export function createToolDefinitions({config, wordpress, meta, productBundle, p
           idempotencyKey: input.idempotency_key,
           request: input,
         }, () => client.publishInstagramImage(input));
+      },
+    ),
+    writeTool(
+      "instagram_publish_carousel",
+      "Publish one Instagram carousel from 2–10 public HTTPS JPEG images. Paperclip must require human approval for every call.",
+      z.object({
+        idempotency_key: idempotencyKey,
+        caption: z.string().trim().min(1).max(2_200),
+        images: carouselImages,
+      }).strict(),
+      async (input) => {
+        assertWriteAllowed(config, "instagram");
+        const client = requireClient(meta, "Meta");
+        return ledger.execute({
+          provider: "instagram",
+          operation: "publish_carousel",
+          idempotencyKey: input.idempotency_key,
+          request: input,
+        }, () => client.publishInstagramCarousel(input));
       },
     ),
   ];

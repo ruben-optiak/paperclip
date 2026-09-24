@@ -137,7 +137,7 @@ test("apply verifies the catalog before granting exact profile access and enabli
     runtimeEvaluator: () => ({ok: true, findings: []}),
   });
   assert.equal(result.ok, true, JSON.stringify(result.findings));
-  assert.equal(result.summary.catalogTools, 12);
+  assert.equal(result.summary.catalogTools, 14);
   assert.equal(result.summary.profilesUpdated, 4);
   assert.equal(result.summary.providerWritesEnabled, false);
 
@@ -149,7 +149,7 @@ test("apply verifies the catalog before granting exact profile access and enabli
 
   const entriesByProfile = Object.fromEntries(state.profiles.map((profile) => [profile.profileKey, profile.entries.length]));
   assert.equal(entriesByProfile["enki.director.read-only"], 6);
-  assert.equal(entriesByProfile["enki.growth.read-only"], 9);
+  assert.equal(entriesByProfile["enki.growth.read-only"], 11);
   assert.equal(entriesByProfile["enki.technology.diagnostics"], 1);
   assert.equal(entriesByProfile["enki.finance-bi.read-only"], 0);
   assert.equal(entriesByProfile["enki.ecommerce-catalogue.read-only"], 3);

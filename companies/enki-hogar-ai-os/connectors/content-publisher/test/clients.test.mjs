@@ -162,6 +162,88 @@ test("Meta sends its access token only as a bearer and supports Facebook and Ins
   assert.equal(calls.every((entry) => !entry.url.includes("EA-secret-token-value")), true);
 });
 
+test("Meta publishes Facebook multi-photo posts from unpublished photo IDs in reviewed order", async () => {
+  const calls = [];
+  const client = new MetaClient({
+    graphApiVersion: "v24.0",
+    graphBaseUrl: "https://graph.facebook.example.invalid",
+    instagramGraphBaseUrl: "https://graph.facebook.example.invalid",
+    accessToken: "EA-secret-token-value",
+    facebookPageId: "page-1",
+    instagramUserId: null,
+  }, {fetch: async (url, options) => {
+    calls.push({url: new URL(url), options});
+    if (url.pathname.endsWith("/photos")) return response(200, {id: `photo-${calls.length}`});
+    if (url.pathname.endsWith("/feed")) return response(200, {id: "page-1_post-1"});
+    return response(500, {});
+  }});
+  const result = await client.publishFacebookMultiPhoto({message: "Mirrors", images: [
+    {image_url: "https://shop.example.invalid/one.jpg"},
+    {image_url: "https://shop.example.invalid/two.jpg"},
+  ]});
+  assert.equal(result.external_id, "page-1_post-1");
+  assert.deepEqual(result.photo_ids, ["photo-1", "photo-2"]);
+  assert.deepEqual(calls.map((call) => call.url.pathname), ["/v24.0/page-1/photos", "/v24.0/page-1/photos", "/v24.0/page-1/feed"]);
+  assert.equal(new URLSearchParams(calls[0].options.body).get("published"), "false");
+  const post = new URLSearchParams(calls[2].options.body);
+  assert.equal(post.get("message"), "Mirrors");
+  assert.equal(post.get("attached_media[0]"), JSON.stringify({media_fbid: "photo-1"}));
+  assert.equal(post.get("attached_media[1]"), JSON.stringify({media_fbid: "photo-2"}));
+  assert.equal(calls.every((call) => call.options.headers.authorization === "Bearer EA-secret-token-value" && !call.url.href.includes("EA-secret-token-value")), true);
+});
+
+test("Meta publishes an Instagram carousel only after all media containers are ready", async () => {
+  const calls = [];
+  const client = new MetaClient({
+    graphApiVersion: "v24.0",
+    graphBaseUrl: "https://graph.facebook.example.invalid",
+    instagramGraphBaseUrl: "https://graph.facebook.example.invalid",
+    accessToken: "EA-secret-token-value",
+    facebookPageId: null,
+    instagramUserId: "ig-1",
+  }, {fetch: async (url, options) => {
+    calls.push({url: new URL(url), options});
+    if (options.method === "GET") return response(200, {status_code: "FINISHED"});
+    if (url.pathname.endsWith("/media_publish")) return response(200, {id: "ig-media-1"});
+    if (url.pathname.endsWith("/media")) return response(200, {id: `container-${calls.filter((call) => call.url.pathname.endsWith("/media")).length}`});
+    return response(500, {});
+  }});
+  const result = await client.publishInstagramCarousel({caption: "Mirrors", images: [
+    {image_url: "https://shop.example.invalid/one.jpg", alt_text: "Mirror one"},
+    {image_url: "https://shop.example.invalid/two.jpg", alt_text: "Mirror two"},
+  ]});
+  assert.equal(result.external_id, "ig-media-1");
+  assert.deepEqual(result.child_container_ids, ["container-1", "container-2"]);
+  assert.equal(calls.filter((call) => call.options.method === "GET").length, 3);
+  const mediaPosts = calls.filter((call) => call.options.method === "POST" && call.url.pathname.endsWith("/media"));
+  assert.equal(new URLSearchParams(mediaPosts[0].options.body).get("is_carousel_item"), "true");
+  assert.equal(new URLSearchParams(mediaPosts[2].options.body).get("media_type"), "CAROUSEL");
+  assert.equal(new URLSearchParams(mediaPosts[2].options.body).get("children"), "container-1,container-2");
+  assert.equal(new URLSearchParams(calls.at(-1).options.body).get("creation_id"), "container-3");
+  assert.equal(calls.every((call) => call.options.headers.authorization === "Bearer EA-secret-token-value" && !call.url.href.includes("EA-secret-token-value")), true);
+});
+
+test("Meta never publishes an Instagram carousel when a media container fails", async () => {
+  let publishCalls = 0;
+  const client = new MetaClient({
+    graphApiVersion: "v24.0",
+    graphBaseUrl: "https://graph.facebook.example.invalid",
+    instagramGraphBaseUrl: "https://graph.facebook.example.invalid",
+    accessToken: "EA-secret-token-value",
+    facebookPageId: null,
+    instagramUserId: "ig-1",
+  }, {fetch: async (url) => {
+    if (url.pathname.endsWith("/media_publish")) publishCalls += 1;
+    if (url.pathname.endsWith("/media")) return response(200, {id: "container-1"});
+    return response(200, {status_code: "ERROR"});
+  }});
+  await assert.rejects(() => client.publishInstagramCarousel({caption: "Mirrors", images: [
+    {image_url: "https://shop.example.invalid/one.jpg", alt_text: "Mirror one"},
+    {image_url: "https://shop.example.invalid/two.jpg", alt_text: "Mirror two"},
+  ]}), /could not process/);
+  assert.equal(publishCalls, 0);
+});
+
 test("Meta provider errors do not expose configured account IDs or response bodies", async () => {
   const client = new MetaClient({
     graphApiVersion: "v24.0",

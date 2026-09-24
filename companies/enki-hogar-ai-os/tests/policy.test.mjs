@@ -8,7 +8,7 @@ const packageDir = join(dirname(fileURLToPath(import.meta.url)), "..");
 const policy = readFileSync(join(packageDir, "policies", "tool-allowlist.yaml"), "utf8");
 const desired = JSON.parse(readFileSync(join(packageDir, "policies", "desired-state.yaml"), "utf8"));
 
-test("policy quarantines every mutation except the four Board-approved publication tools", () => {
+test("policy quarantines every mutation except the six Board-approved publication tools", () => {
   for (const term of ["mutate", "refund", "budget", "index", "publish", "upload", "delete", "update"]) {
     assert.match(policy, new RegExp(term));
   }
@@ -19,7 +19,9 @@ test("policy quarantines every mutation except the four Board-approved publicati
     "woocommerce_create_product_draft",
     "wordpress_upsert_post",
     "facebook_publish_page_post",
+    "facebook_publish_multi_photo",
     "instagram_publish_image",
+    "instagram_publish_carousel",
   ]);
   assert.equal(publisher?.quarantineNewEntries, true);
   const approval = desired.policies.find((candidate) => candidate.name === "Enki require Board approval for publishing");

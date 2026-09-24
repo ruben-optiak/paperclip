@@ -25,7 +25,7 @@ test("health is non-sensitive and MCP requires the connector bearer", async (con
 
   const health = await fetch(`${baseUrl}/health`);
   assert.equal(health.status, 200);
-  assert.deepEqual(await health.json(), {status: "ok", service: "enki-content-publisher-mcp", version: "0.2.0"});
+  assert.deepEqual(await health.json(), {status: "ok", service: "enki-content-publisher-mcp", version: "0.3.0"});
   assert.equal((await fetch(`${baseUrl}/mcp`, {method: "POST"})).status, 401);
 
   const initialized = await fetch(`${baseUrl}/mcp`, {
@@ -63,9 +63,11 @@ test("health is non-sensitive and MCP requires the connector bearer", async (con
     "wordpress_upsert_post",
     "facebook_list_page_posts",
     "facebook_publish_page_post",
+    "facebook_publish_multi_photo",
     "instagram_list_media",
     "instagram_get_publishing_limit",
     "instagram_publish_image",
+    "instagram_publish_carousel",
   ]) assert.match(catalog, new RegExp(`\"name\":\"${name}\"`));
   assert.match(catalog, /"readOnlyHint":false,"destructiveHint":false,"idempotentHint":true/);
 });

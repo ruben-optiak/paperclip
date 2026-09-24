@@ -218,7 +218,7 @@
       "dependencyStatus": "verified_from_package_and_lock"
     },
     "contentPublisher": {
-      "version": "0.2.0",
+      "version": "0.3.0",
       "imageDigest": null,
       "imageStatus": "pending_release_build_and_digest_verification",
       "mcpSdk": "1.30.0",
@@ -227,10 +227,10 @@
       "writeModes": ["disabled", "wordpress-drafts", "approved"],
       "productWriteModes": ["disabled", "woo-drafts"],
       "productDraftBundle": "enki-product-draft-bundle/v1",
-      "toolCount": 12,
+      "toolCount": 14,
       "dependencyStatus": "verified_from_package_and_lock",
-      "localQuickstartStatus": "pending_new_twelve_tool_catalog_canary",
-      "controlPlaneStatus": "versioned_four_writes_require_board_approval_with_independent_product_kill_switch",
+      "localQuickstartStatus": "pending_new_fourteen_tool_catalog_canary",
+      "controlPlaneStatus": "versioned_six_writes_require_board_approval_with_independent_product_kill_switch",
       "providerConfigurationStatus": "intentionally_unconfigured_pending_separate_canaries"
     }
   },

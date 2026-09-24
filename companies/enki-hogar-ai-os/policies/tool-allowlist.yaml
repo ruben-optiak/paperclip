@@ -70,5 +70,7 @@ connectors:
       woocommerce_create_product_draft: write
       wordpress_upsert_post: write
       facebook_publish_page_post: write
+      facebook_publish_multi_photo: write
       instagram_publish_image: write
-    deniedPatterns: [delete, comment, message, dm, account, bulk, plugin, page, upload_media, reel, story, carousel]
+      instagram_publish_carousel: write
+    deniedPatterns: [delete, comment, message, dm, account, bulk, plugin, page, upload_media, reel, story]

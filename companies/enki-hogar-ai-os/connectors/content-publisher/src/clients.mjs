@@ -513,6 +513,32 @@ export class MetaClient {
     };
   }
 
+  async publishFacebookMultiPhoto({message, images}) {
+    const pageId = this.requireFacebook();
+    const photoIds = [];
+    for (const image of images) {
+      const photo = await this.request("POST", this.config.graphBaseUrl, `/${encodeURIComponent(pageId)}/photos`, {
+        form: {url: image.image_url, published: "false"},
+      });
+      if (!photo?.id) throw new Error("Meta did not return an ID for a Facebook Page photo");
+      photoIds.push(String(photo.id));
+    }
+    const attachedMedia = Object.fromEntries(photoIds.map((id, index) => [`attached_media[${index}]`, JSON.stringify({media_fbid: id})]));
+    const published = await this.request("POST", this.config.graphBaseUrl, `/${encodeURIComponent(pageId)}/feed`, {
+      form: {message, ...attachedMedia},
+    });
+    if (!published?.id) throw new Error("Meta did not return an ID for the Facebook multi-photo post");
+    return {
+      provider: "facebook",
+      operation: "published",
+      external_id: String(published.id),
+      photo_ids: photoIds,
+      canonical_url: null,
+      status: "published",
+      published_at: new Date().toISOString(),
+    };
+  }
+
   async listInstagramMedia({limit = 20} = {}) {
     const userId = this.requireInstagram();
     const response = await this.request("GET", this.config.instagramGraphBaseUrl, `/${encodeURIComponent(userId)}/media`, {
@@ -527,6 +553,20 @@ export class MetaClient {
       params: {fields: "quota_usage,config"},
     });
     return {quota_usage: response?.data?.[0]?.quota_usage ?? response?.quota_usage ?? null};
+  }
+
+  async waitForInstagramContainer(containerId, deadline) {
+    while (Date.now() < deadline) {
+      const status = await this.request("GET", this.config.instagramGraphBaseUrl, `/${encodeURIComponent(containerId)}`, {
+        params: {fields: "status_code"},
+      });
+      if (status?.status_code === "FINISHED") return;
+      if (status?.status_code === "ERROR" || status?.status_code === "EXPIRED") {
+        throw new Error("Meta could not process an Instagram media container");
+      }
+      if (Date.now() < deadline) await new Promise((resolve) => setTimeout(resolve, Math.min(2_000, deadline - Date.now())));
+    }
+    throw new Error("Instagram media container is not ready; reconcile before retrying");
   }
 
   async publishInstagramImage({image_url, caption, alt_text}) {
@@ -544,6 +584,40 @@ export class MetaClient {
       operation: "published",
       external_id: String(published.id),
       container_id: String(container.id),
+      canonical_url: null,
+      status: "published",
+      published_at: new Date().toISOString(),
+    };
+  }
+
+  async publishInstagramCarousel({images, caption}) {
+    const userId = this.requireInstagram();
+    // Approved Paperclip calls have a 60 s ceiling; leave time for final publish.
+    const processingDeadline = Date.now() + 35_000;
+    const childIds = [];
+    for (const image of images) {
+      const child = await this.request("POST", this.config.instagramGraphBaseUrl, `/${encodeURIComponent(userId)}/media`, {
+        form: {image_url: image.image_url, is_carousel_item: "true", alt_text: image.alt_text},
+      });
+      if (!child?.id) throw new Error("Meta did not return an Instagram carousel item ID");
+      childIds.push(String(child.id));
+      await this.waitForInstagramContainer(String(child.id), processingDeadline);
+    }
+    const parent = await this.request("POST", this.config.instagramGraphBaseUrl, `/${encodeURIComponent(userId)}/media`, {
+      form: {media_type: "CAROUSEL", children: childIds.join(","), caption},
+    });
+    if (!parent?.id) throw new Error("Meta did not return an Instagram carousel container ID");
+    await this.waitForInstagramContainer(String(parent.id), processingDeadline);
+    const published = await this.request("POST", this.config.instagramGraphBaseUrl, `/${encodeURIComponent(userId)}/media_publish`, {
+      form: {creation_id: parent.id},
+    });
+    if (!published?.id) throw new Error("Meta did not return an Instagram carousel media ID");
+    return {
+      provider: "instagram",
+      operation: "published",
+      external_id: String(published.id),
+      container_id: String(parent.id),
+      child_container_ids: childIds,
       canonical_url: null,
       status: "published",
       published_at: new Date().toISOString(),
